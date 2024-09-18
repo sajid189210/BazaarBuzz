@@ -1,0 +1,6 @@
+#.gitIgnore
+
+node_modules
+.vscode
+.env
+.test

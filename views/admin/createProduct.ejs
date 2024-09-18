@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/2.3.4/cropper.min.css">
+
+
+    <link rel="stylesheet" href="/css/style.css">
+
+
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+</style>
+
+<body style="font-family: 'Poppins', system-ui;">
+
+    <div class="flex h-screen">
+
+        <aside class="bg-red-500 w-1/6">
+            side menu
+        </aside>
+
+        <div class="flex flex-col flex-grow">
+            <header class="h-24 bg-sky-300">
+                Header
+                <form action="/admin/signOut" method="POST">
+                    <button class="border-2">Sign Out</button>
+                </form>
+            </header>
+
+            <main>
+                <!-- <div class="mx-auto mt-8 flex h-48 max-w-xl items-center justify-center rounded-md p-4 shadow-lg">
+                    <div
+                        class="flex h-full w-full items-center justify-center rounded-2xl border-2 border-dashed border-slate-300">
+                        <div class="w-6/2 relative flex h-32 flex-col items-center gap-y-1 px-4 py-2">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_111_531)">
+                                    <path
+                                        d="M31.9999 32L23.9999 24M23.9999 24L15.9999 32M23.9999 24V42M40.7799 36.78C42.7306 35.7165 44.2716 34.0337 45.1597 31.9972C46.0477 29.9607 46.2323 27.6864 45.6843 25.5333C45.1363 23.3803 43.8869 21.471 42.1333 20.1069C40.3796 18.7427 38.2216 18.0014 35.9999 18H33.4799C32.8746 15.6585 31.7462 13.4846 30.1798 11.642C28.6134 9.79927 26.6496 8.33567 24.4361 7.36118C22.2226 6.3867 19.817 5.92669 17.4002 6.01573C14.9833 6.10478 12.6181 6.74057 10.4823 7.8753C8.34649 9.01003 6.49574 10.6142 5.06916 12.5671C3.64259 14.5201 2.6773 16.771 2.24588 19.1508C1.81446 21.5305 1.92813 23.977 2.57835 26.3065C3.22856 28.6359 4.3984 30.7877 5.99992 32.6"
+                                        stroke="#FF6C2F" stroke-width="4" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_111_531">
+                                        <rect width="48" height="48" fill="white" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <span class="">Drop your images here, or <span class="text-[#FF6C2F]"> click to
+                                    browse</span></span>
+                            <span class="text-[10px] text-slate-500">1600 x 1200 (4:3) recommended. PNG, JPG and GIF
+                                files
+                                are allowed</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="relative m-10 rounded-lg bg-white shadow-md">
+                    <div class="flex items-start justify-between rounded-t border-b p-5">
+                        <h3 class="text-xl font-semibold">Create product</h3>
+                    </div>
+
+                    <div class="space-y-6 p-6">
+                        <form action="/admin/productList/create" method="POST" id="productDetailForm">
+                            <div class="grid grid-cols-6 gap-6">
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="product-name"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Product Name</label>
+                                    <input type="text" id="productName"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                        required />
+                                </div>
+
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="category"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Category</label>
+                                    <select id="category"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                        required>
+                                        <option value="">Select</option>
+                                        <%if(Category && Category.length>0) {%> <%Category.forEach(cat=> {%>
+                                                <option value="<%=cat.brands%>">
+                                                    <%= cat.title%>
+                                                </option>
+                                                <%});%>
+                                                    <%}%>
+                                    </select>
+                                    <input type="hidden" id="selectedCategory" name="category">
+                                </div>
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="brands"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Brand</label>
+                                    <select name="brands" id="brands"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="price"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Price</label>
+                                    <input type="number" name="price" id="price"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                        placeholder="In Rupees" required />
+                                </div>
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="discount"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Discount</label>
+                                    <input type="number" name="discount" id="discount"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                        placeholder="In Percentage" required />
+                                </div>
+                                <div class="col-span-6 flex items-center sm:col-span-3">
+                                    <div class="w-1/2">
+                                        <label for="color"
+                                            class="mb-2 block text-sm font-medium text-gray-900">Colors</label>
+                                        <input type="color" name="color" id="color1" class="border border-slate-300"
+                                            placeholder="In Percentage" required />
+                                        <input type="color" name="color" id="color2" class="border border-slate-300"
+                                            placeholder="In Percentage" />
+                                        <input type="color" name="color" id="color3" class="border border-slate-300"
+                                            placeholder="In Percentage" />
+                                    </div>
+                                    <div class="w-1/2">
+                                        <label for="size"
+                                            class="mb-2 block text-sm font-medium text-gray-900">Size</label>
+                                        <select id="size"
+                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
+                                            <option value="">select</option>
+                                            <option value="small">S</option>
+                                            <option value="medium">M</option>
+                                            <option value="large">L</option>
+                                            <option value="XL">XL</option>
+                                            <option value="XXL">XXL</option>
+                                            <option value="XXL">XXXL</option>
+                                        </select>
+                                        <input type="hidden" id="selectedSize" name="size" />
+                                    </div>
+                                </div>
+
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="stock"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Stock</label>
+                                    <input type="number" name="stock" id="stock"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                        required />
+                                </div>
+
+                                <div class="col-span-6 flex items-center sm:col-span-3">
+                                    <div class="w-1/2">
+                                        <label for="gender"
+                                            class="mb-2 block text-sm font-medium text-gray-900">Gender</label>
+                                        <select id="gender"
+                                            class="block rounded-lg border border-gray-300 bg-gray-50 p-2 w-1/2 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
+                                            <option value="">select</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="unisex">Unisex</option>
+                                        </select>
+                                        <input type="hidden" id="selectedGender" name="gender" />
+                                    </div>
+                                </div>
+                                <div class="col-span-6 flex flex-col sm:col-span-3">
+                                    <div>
+                                        <label for="file" class="mb-2 block text-sm font-medium text-gray-900">Upload
+                                            Files</label>
+                                        <input type="file" id="file" accept="image/*"
+                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                            multiple>
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="max-w-24 max-h-24 mt-4 flex gap-2" id="imagePreview">
+                                            <canvas id="cropperCanvas" class="hidden"></canvas>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-4">
+                                            <button id="cropButton"
+                                                class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">Save</button>
+                                            <button id="cancelButton"
+                                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Cancel</button>
+                                        </div>
+                                        <button type="button" onclick="uploadFile()"
+                                            class="py-2 px-2 mt-4 flex justify-center items-center bg-orange-500 hover:bg-orange-600 focus:ring-red-500 focus:ring-offset-red-200 text-white transition ease-in duration-200 text-center text-sm font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg float-right">
+                                            <svg width="20" height="20" fill="currentColor" class="mr-2"
+                                                viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                                <path
+                                                    d="M1344 1472q0-26-19-45t-45-19-45 19-19 45 19 45 45 19 45-19 19-45zm256 0q0-26-19-45t-45-19-45 19-19 45 19 45 45 19 45-19 19-45zm128-224v320q0 40-28 68t-68 28h-1472q-40 0-68-28t-28-68v-320q0-40 28-68t68-28h427q21 56 70.5 92t110.5 36h256q61 0 110.5-36t70.5-92h427q40 0 68 28t28 68zm-325-648q-17 40-59 40h-256v448q0 26-19 45t-45 19h-256q-26 0-45-19t-19-45v-448h-256q-42 0-59-40-17-39 14-69l448-448q18-19 45-19t45 19l448 448q31 30 14 69z">
+                                                </path>
+                                            </svg>
+                                            Upload
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-span-full">
+                                    <label for="product-details"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Product Details</label>
+                                    <textarea id="product-details" rows="6"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                        name="description"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="float-end mt-4 rounded-b p-6">
+                                <button
+                                    class="rounded-lg bg-orange-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-orange-600 focus:ring-4 focus:ring-cyan-200"
+                                    type="submit">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+
+            </main>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://unpkg.com/cropperjs@next/dist/cropper.min.js"></script>
+
+    <script src="/javascript/admin/createProduct.js"></script>
+
+
+    <script>
+        // For selecting the category & listing the brands of the selected category
+        document.getElementById('category').addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+
+            const selectedCategory = selectedOption.value.split(',');
+            const selectedText = selectedOption.textContent;
+
+            const targetCategoryContainer = document.getElementById('selectedCategory');
+            const targetBrandContainer = document.getElementById('brands');
+
+            targetCategoryContainer.value = selectedText.trim();
+            targetBrandContainer.innerHTML = '';
+
+            selectedCategory.forEach(brand => {
+
+                const option = document.createElement('option');
+                option.value = brand;
+                option.innerText = brand;
+
+                targetBrandContainer.appendChild(option);
+
+            });
+
+        });
+
+        //For selecting the size option
+        document.getElementById('size').addEventListener('change', function () {
+            const selectedOption = this.value;
+            const targetElement = document.getElementById('selectedSize');
+            targetElement.value = selectedOption;
+        });
+
+        //For selecting the gender
+        document.getElementById('gender').addEventListener('change', function () {
+            const selectedOption = this.value;
+            const targetElement = document.getElementById('selectedGender');
+            targetElement.value = selectedOption;
+        });
+
+        //For image preview and cropping.
+        document.getElementById('file').addEventListener('change', async function (event) {
+            const fileList = event.target.files;
+            const maxCount = 3;
+            const previewContainer = document.getElementById('imagePreview');
+
+            let cropper;
+
+
+            if (fileList.length > maxCount) {
+                alert(`Only ${maxCount} images can be uploaded.`);
+                return;
+            }
+
+            previewContainer.innerHTML = '';
+
+
+
+            for (let i = 0; i < fileList.length; i++) {
+                const file = fileList[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList = 'w-full h-auto cursor-pointer';
+                    img.dataset.fieldId = file.name;
+
+                    // img.addEventListener('click', function () {
+                    //     showCropper(this);
+                    // });
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(img, {
+                        aspectRatio: NaN,
+                        viewMode: 1,
+                        dragMode: 'move',
+                        cropBoxMovable: true,
+                        minCropBoxWidth: 50,
+                        minCropBoxHeight: 50,
+                    });
+
+                    // previewContainer.appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // cropButton.addEventListener('click', function () {
+        //     cropper.getCroppedCanvas().toBlob(blob => {
+        //         croppedImages
+        //     })
+        // })
+
+
+
+    </script>
+
+</body>
+
+</html>

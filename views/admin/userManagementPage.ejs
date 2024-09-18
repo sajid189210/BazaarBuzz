@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+    header {
+        font-family: "Poppins", system-ui;
+    }
+</style>
+
+<body>
+
+    <!-- JavaScript Code -->
+
+    <% function formateDate(dateStr) { const date=new Date(dateStr); const options={weekday: 'long' , year: 'numeric' ,
+        month: 'long' , day: 'numeric' }; return date.toLocaleDateString(undefined, options); } %>
+
+        <div class="flex h-screen">
+
+            <aside class="bg-red-500 w-1/6">
+                side menu
+            </aside>
+
+            <div class="flex flex-col flex-grow">
+                <header class="h-24 bg-sky-300">
+                    Header
+                    <form action="/admin/signOut" method="POST">
+                        <button class="border-2">Sign Out</button>
+                    </form>
+                </header>
+
+                <main>
+                    <div class="mx-4 overflow-hidden rounded-lg shadow-lg md:mx-10">
+                        <table class="w-full table-fixed">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="w-1/6 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                        SlNo.
+                                    </th>
+                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                        Customer
+                                        Name</th>
+                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                        Email
+                                    </th>
+                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                        Registration date</th>
+                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                        Status
+                                    </th>
+                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                <%if(users && users.length>0){%> <%users.forEach((user, index)=> {%>
+
+                                        <tr>
+                                            <td class="border-b text-sm border-gray-200 px-6 py-4">
+                                                <%= index + 1 %>.
+                                            </td>
+                                            <td class="border-b text-sm border-gray-200 px-6 py-4">
+                                                <%= user.username %>
+                                            </td>
+                                            <td class=" text-sm border-b border-gray-200 px-6 py-4">
+                                                <%= user.email %>
+                                            </td>
+                                            <td class="border-b text-sm border-gray-200 px-6 py-4">
+                                                <% const dateStr=user.createdAt %>
+                                                    <%= formateDate(dateStr) %>
+                                            </td>
+                                            <td class="border-b text-sm border-gray-200 px-6 py-4" id="userStatus">
+                                                <%= user.isBlocked %>
+                                            </td>
+                                            <td class="border-b border-gray-200 px-6 py-4">
+                                                <button type="button" onclick="unblockUser('<%= user._id%>')"
+                                                    class="ease focus:shadow-outline px-4 select-none rounded-md border border-green-500 bg-green-500 text-white transition duration-500 hover:bg-green-600 focus:outline-none">unblock</button>
+                                                <button type="button" onclick="blockUser('<%= user.id%>')"
+                                                    class="ease focus:shadow-outline select-none rounded-md border border-red-500 bg-red-500 px-4  text-white transition duration-500 hover:bg-red-600 focus:outline-none">block</button>
+                                            </td>
+                                        </tr>
+
+                                        <%});%>
+                                            <%}%>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination Controls -->
+
+                        <div class="flex justify-end mr-4 py-4">
+                            <ol class="flex justify-center space-x-1 text-xs font-medium ">
+                                <% if (currentPage> 1) { %>
+                                    <li>
+                                        <a href="/admin/userList?page=<%= currentPage - 1 %>&limit=<%= limit %>"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
+                                                fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                    <% } %>
+                                        <% for (let i=1; i <=totalPages; i++) { %>
+                                            <li class="<%= currentPage === i ? 'active' : '' %>">
+                                                <a href="/admin/userList?page=<%= i %>&limit=<%= limit %>"
+                                                    class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+
+                                                <% if (currentPage < totalPages) { %>
+                                                    <li>
+                                                        <a href="/admin/userList?page=<%= currentPage + 1 %>&limit=<%= limit %>"
+                                                            class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                                viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                                    clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    </li>
+                                                    <% } %>
+                                                        <!-- <li>
+                                                            <a href="/?page=1"
+                                                                class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
+                                                                1
+                                                            </a>
+                                                        </li>
+
+                                                        <li
+                                                            class="block h-8 w-8 rounded border-blue-600 bg-blue-600 text-center leading-8 text-white">
+                                                            2
+                                                        </li>
+
+                                                        <li>
+                                                            <a href="/?page=3"
+                                                                class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
+                                                                3
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a href="/?page=4"
+                                                                class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
+                                                                4
+                                                            </a>
+                                                        </li> -->
+
+                                                        <!-- <li>
+                                                            <a href="/?page=3"
+                                                                class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                                        clip-rule="evenodd" />
+                                                                </svg>
+                                                            </a>
+                                                        </li> -->
+                            </ol>
+
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <script src="/javascript/admin/userManagementPage.js"></script>
+        
+</body>
+
+</html>

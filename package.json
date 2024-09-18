@@ -1,0 +1,28 @@
+{
+  "name": "first-project",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "build": "tailwind -i ./src/tailwind.css -o ./public/css/style.css"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.2.0",
+    "mongoose": "^8.6.0",
+    "multer": "^1.4.5-lts.1",
+    "nocache": "^4.0.0",
+    "nodemon": "^3.1.4",
+    "passport": "^0.7.0",
+    "passport-google-oauth2": "^0.2.0",
+    "tailwindcss": "^3.4.10"
+  }
+}
