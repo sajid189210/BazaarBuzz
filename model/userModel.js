@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     profilePicture: { type: String },
-    addressId: {    
+    addressId: {
         type: [addressSchema],
         default: [],
     },
@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
         default: 'unblocked'
     },
     otp: { type: Number },
+    otpExpires: { type: Date },
 }, { timestamps: true });
 
 
