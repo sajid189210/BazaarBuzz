@@ -1,6 +1,7 @@
 #.gitIgnore
 
 node_modules
+Extras
 .vscode
 .env
 .test

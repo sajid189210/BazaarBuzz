@@ -1,12 +1,5 @@
 const adminModel = require('../../model/adminModel');
-
-
-// //defining admin credentials.
-//// const admin = adminModel( {
-////     username: 'admin',
-////     email: 'admin@gmail.com',
-////     password: 'admin123',
-//// } );
+const bcrypt = require('bcrypt');
 
 //validating changePassword.
 const validateChangePassword = async (req, res) => {
@@ -52,22 +45,29 @@ const validateChangePassword = async (req, res) => {
 //validating admin credentials.
 const validateCredentials = async (req, res) => {
 
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
     try {
+        //!For changing admin password.
+        // const hashedPassword = await bcrypt.hash(password, 10)
+        // //defining admin credentials.
+        // const details = {
+        //     email: 'admin@gmail.com',
+        //     password: hashedPassword
+        // };
 
-        if (!username || !email || !password) {
+        // const newAdmin = new adminModel(details);
+        // await newAdmin.save();
+
+        if (!email || !password) {
             req.flash("error", "Please fill out all fields *");
             return res.redirect('/admin/signIn');
         }
 
-        const admin = await adminModel.findOne({ username });
+        const admin = await adminModel.findOne({ email });
 
-        if (
-            !(username === admin.username &&
-                email === admin.email &&
-                password === admin.password
-            )
-        ) {
+        // const hashedPassword = await bcrypt.hash(password, 10)
+
+        if (!(email === admin.email && bcrypt.compare(password, admin.password))) {
             req.flash("error", "User not found *");
             return res.redirect("/admin/signIn");
         }
@@ -118,7 +118,7 @@ const adminSignIn = async (req, res) => {
 const dashboard = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        // if (!req.session.admin) return res.redirect('/admin/signIn');
 
         res.render('admin/dashboard');
 

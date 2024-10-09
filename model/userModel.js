@@ -11,10 +11,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    password: {
-        type: String,
-        required: true,
-    },
+    password: { type: String },
     profilePicture: { type: String },
     addressId: {
         type: [addressSchema],
@@ -24,8 +21,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'unblocked'
     },
-    otp: { type: Number },
-    otpExpires: { type: Date },
+    googleId: { type: String },
 }, { timestamps: true });
 
 

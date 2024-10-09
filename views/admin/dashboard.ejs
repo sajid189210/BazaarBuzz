@@ -5,26 +5,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 </style>
 
 <body>
-    <form action="/admin/category" method="GET">
-        <h1>DASHBOARD</h1>
-        <button class="border-black"> go to category page...</button>
-    </form>
+    <div class="">
+        <%- include('../partials/adminSideMenu')%>
 
-    <form action="/admin/userList" method="GET">
-        <h1>DASHBOARD</h1>
-        <button class="border-black"> go to user list page...</button>
-    </form>
+            <div class="flex flex-col flex-grow">
 
-    <form action="/admin/productList" method="GET">
-        <h1>DASHBOARD</h1>
-        <button class="border-black"> go to product list page...</button>
-    </form>
+                <!-- <header class="relative flex min-h-[70px] bg-white px-4 py-4 tracking-wide shadow-lg sm:px-10">
+                    <div class="flex w-full flex-wrap items-center gap-x-4 gap-y-6 lg:gap-y-4">
+                        <div class="ml-auto flex items-center">
+                            <ul class="flex space-x-4">
+                                <li
+                                    class="relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:h-[3px] after:w-full after:bg-pink-500 after:transition-all after:duration-300">
+                                    <div class="flex cursor-pointer flex-col items-center justify-center">
+                                        <form action="/admin/signOut" method="POST">
+                                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                                viewBox="0 0 512 512">
+                                                <path
+                                                    d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z"
+                                                    data-original="#000000" />
+                                            </svg> -->
+                                            <!-- <span class="mt-1 text-xs font-semibold">Profile</span> -->
+                                            <!-- <button class="mt-1 text-xs font-semibold">Sign Out</button> -->
+                                        <!-- </form> -->
+
+                                    <!-- </div> -->
+                                    <!-- <div class="absolute right-0 top-14 z-20 bg-white px-6 py-6 shadow-lg max-sm:-right-32 max-sm:min-w-[250px] sm:min-w-[320px]">
+                              <h6 class="text-sm font-semibold">Welcome</h6>
+                              <p class="mt-1 text-sm text-gray-500">To access account and manage orders</p>
+                              <button type="button" class="mt-4 border border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">LOGIN / SIGNUP</button>
+                              <hr class="my-4 border-b-0" />
+                              <ul class="space-y-1.5">
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Order</a></li>
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Wishlist</a></li>
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Gift Cards</a></li>
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Contact Us</a></li>
+                              </ul>
+                              <hr class="my-4 border-b-0" />
+                              <ul class="space-y-1.5">
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Coupons</a></li>
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Saved Credits</a></li>
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Contact Us</a></li>
+                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Saved Addresses</a></li>
+                              </ul>
+                            </div> -->
+                                <!-- </li> -->
+                            <!-- </ul> -->
+
+
+                        <!-- </div> -->
+                    <!-- </div> -->
+                <!-- </header> --> 
+            </div>
+    </div>
 </body>
 
 </html>

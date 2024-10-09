@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Category</title>
     <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
@@ -25,63 +28,70 @@
     }
 </style>
 
-<body style="font-family: 'Poppins', system-ui;">
+<body style="font-family: 'Poppins', system-ui;" class="h-screen overflow-hidden">
 
     <div class="flex h-screen">
+        <%- include('../partials/adminSideMenu')%>
 
-        <aside class="bg-red-500 w-1/6">
-            side menu
-        </aside>
-
-        <div class="flex flex-col flex-grow">
-            <header class="h-24 bg-sky-300">
-                Header
-                <form action="/admin/signOut" method="POST">
-                    <button class="border-2">Sign Out</button>
-                </form>
+            <header class="fixed border-b w-full bg-white top-0 left-[250px] z-50 p-5">
+                <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
+                    <li class="text-gray-500 text-base cursor-pointer">
+                        <a href="/admin/dashboard">Dashboard</a>
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3.5 -rotate-90"
+                            viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
+                                clip-rule="evenodd" data-original="#000000"></path>
+                        </svg>
+                    </li>
+                    <li class="text-black-500 text-xl font-bold cursor-pointer">
+                        <a href="#">Category List</a>
+                    </li>
+                </ul>
             </header>
 
-            <main class="p-4 flex overflow-y-auto">
-                <div class="font-[Poppins] overflow-x-auto rounded-lg ">
-                    <table class="min-w-full custom-table">
+            <main class=" relative">
+                <div class="flex absolute left-[300px] top-[80px] mt-10">
+                    <table class="custom-table bg-white">
                         <thead class="bg-[#BABABA] bg-opacity-25 whitespace-nowrap">
-                            <tr class="">
-                                <th class="p-4 text-left text-sm font-medium text-black">
+                            <tr class="bg-[#495057] ">
+                                <th class="p-4 text-left text-sm font-bold text-white">
                                     SlNo.
                                 </th>
-                                <th class="p-4 text-left text-sm font-medium text-black">
+                                <th class="p-4 text-left text-sm font-bold text-white">
                                     Category Name
                                 </th>
-                                <th class="p-4 text-left text-sm font-medium text-black">
+                                <th class="p-4 text-left text-sm font-bold text-white">
                                     Brand Name
                                 </th>
-                                <th class="p-4 text-left text-sm font-medium text-black">
+                                <th class="p-4 text-left text-sm font-bold text-white">
                                     Created At
                                 </th>
-                                <th class="p-4 text-left text-sm font-medium text-black">
+                                <th class="p-4 text-left text-sm font-bold text-white">
                                     Actions
                                 </th>
-                                <th class="p-4 text-left text-sm font-medium text-black">
+                                <th class="p-4 text-left text-sm font-bold text-white">
                                     Status
                                 </th>
                             </tr>
                         </thead>
 
                         <!-- ejs------------------------------------------------------------------------------ -->
-
                         <tbody class="whitespace-nowrap">
                             <% if( categories.length> 0 ) { %>
 
                                 <% categories.forEach( ( category, index )=> { %>
                                     <%= %>
-                                        <tr class="even:bg-blue-50">
-                                            <td class="p-4 text-sm text-black">
+                                        <tr class="even:bg-[#dee2e6] odd:bg-[#f8f9fa]">
+                                            <td class="p-4 text-sm text-[#343a40]">
                                                 <%= index + 1 %>.
                                             </td>
-                                            <td class="p-4 text-sm text-black">
+                                            <td class="p-4 text-sm text-[#343a40]">
                                                 <%= category.title %>
                                             </td>
-                                            <td class="p-4 text-sm text-black">
+                                            <td class="p-4 text-sm text-[#343a40]">
                                                 <ul>
                                                     <% category.brands.forEach(brand=> { %>
                                                         <li class="mb-2">
@@ -90,15 +100,15 @@
                                                         <% }); %>
                                                 </ul>
                                             </td>
-                                            <td class="p-4 text-sm text-black">
-                                                2022-05-15
+                                            <td class="p-4 text-sm text-[#343a40]">
+                                                2024-09-15
                                             </td>
 
                                             <td class="p-4">
                                                 <button type="button" class="mr-4" title="Edit"
-                                                    onclick="openModal('<%= category._id %>', '<%= category.title %>', '<%= category.brands %>')">
+                                                    onclick="openModal('<%= JSON.stringify(category) %>')">
                                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="w-5 fill-blue-500 hover:fill-blue-700"
+                                                        class="w-5 fill-[#17a2b8] hover:fill-blue-700"
                                                         viewBox="0 0 348.882 348.882">
                                                         <path
                                                             d="m333.988 11.758-.42-.383A43.363 43.363 0 0 0 304.258 0a43.579 43.579 0 0 0-32.104 14.153L116.803 184.231a14.993 14.993 0 0 0-3.154 5.37l-18.267 54.762c-2.112 6.331-1.052 13.333 2.835 18.729 3.918 5.438 10.23 8.685 16.886 8.685h.001c2.879 0 5.693-.592 8.362-1.76l52.89-23.138a14.985 14.985 0 0 0 5.063-3.626L336.771 73.176c16.166-17.697 14.919-45.247-2.783-61.418zM130.381 234.247l10.719-32.134.904-.99 20.316 18.556-.904.99-31.035 13.578zm184.24-181.304L182.553 197.53l-20.316-18.556L294.305 34.386c2.583-2.828 6.118-4.386 9.954-4.386 3.365 0 6.588 1.252 9.082 3.53l.419.383c5.484 5.009 5.87 13.546.861 19.03z"
@@ -111,7 +121,8 @@
                                                 <button type="button" class="mr-4" title="Delete"
                                                     onclick="deleteCategory('<%= category._id %>')" id="openModal">
                                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="w-5 fill-red-500 hover:fill-red-700" viewBox="0 0 24 24">
+                                                        class="w-5 fill-[#e4606d] hover:fill-[#dc3545]"
+                                                        viewBox="0 0 24 24">
                                                         <path
                                                             d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
                                                             data-original="#000000" />
@@ -123,6 +134,7 @@
                                             </td>
                                             <td class="p-4 text-sm text-black">
                                                 <select name="categoryStatus" id="categoryStatus"
+                                                    class="bg-[#5cb85c] p-1.5 rounded-full"
                                                     onchange="toggleCategoryStatus(this, '<%= category._id %>')">
                                                     <option value="active" <%=category.isActive===true ? 'selected' : ''
                                                         %>>Active</option>
@@ -135,7 +147,8 @@
 
                                             <% } else { %>
                                                 <tr class="">
-                                                    <td colspan="6" class="w-full p-4 text-center">No categories were
+                                                    <td colspan="6" class="w-full p-4 text-center">No categories
+                                                        were
                                                         added.</td>
 
                                                 </tr>
@@ -143,33 +156,34 @@
 
                         </tbody>
                     </table>
-                </div>
 
-                <!-- Create Category ----------------------------------------------------------------------------- -->
+                    <!-- Create Category ----------------------------------------------------------------------------- -->
 
-                <div class="mx-auto mt-10">
-                    <form>
-                        <div class="mb-3 flex justify-center">
-                            <input type="text" placeholder="Category Name" class="border-2 border-slate-300 rounded-md ps-2 py-1.5
+                    <div class="ml-6 mt-10">
+                        <form>
+                            <div class="mb-3 flex justify-center">
+                                <input type="text" placeholder="Category Name" class="border-2 border-slate-300 rounded-md ps-2 py-1.5
                                         w-80 placeholder:text-sm placeholder:ps-1. focus:outline-blue-500" name="title"
-                                id="title">
-                        </div>
+                                    id="title">
+                            </div>
 
-                        <div class="mb-3 flex justify-center">
-                            <input type="text" placeholder="Brand Name" class="border-2 border-slate-300 rounded-md ps-2 py-1.5
+                            <div class="mb-3 flex justify-center">
+                                <input type="text" placeholder="Brand Name" class="border-2 border-slate-300 rounded-md ps-2 py-1.5
                                         w-80 placeholder:text-sm placeholder:ps-1. focus:outline-blue-500" name="brand"
-                                id="brand">
-                        </div>
+                                    id="brand">
+                            </div>
 
-                        <div class="w-full flex justify-center">
-                            <button type="button"
-                                class="w-32 rounded-lg py-2 bg-orange-500 hover:bg-orange-600  text-white"
-                                onclick="createCategory()">Create</button>
-                        </div>
-                    </form>
+                            <div class="w-full flex justify-center">
+                                <button type="button"
+                                    class="w-32 rounded-lg py-2 bg-orange-500 hover:bg-orange-600  text-white"
+                                    onclick="createCategory()">Create</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
+
+
             </main>
-        </div>
     </div>
 
     <!--Category Update Modal------------------------------------------------------- -->
@@ -201,12 +215,13 @@
                     <input type="text" placeholder=""
                         class="px-4 py-3 bg-white text-gray-800 w-full text-sm border border-gray-300 focus:border-blue-600 outline-none rounded-lg"
                         id="editTitle" />
+                    <input type="hidden" id="categoryId">
                 </div>
 
                 <div class="">
                     <label class="text-sm mb-2 block text-gray-500" for="editBrands">Brand Names</label>
-                    <div class="flex flex-col items-start justify-center overflow-y-auto h-40 py-2" id="brandContainer">
-
+                    <div class="grid col-span-full" id="brandContainer">
+                        <!-- displays the brands -->
                     </div>
                 </div>
 
@@ -222,7 +237,7 @@
         </div>
     </div>
 
-    <script src="/javascript/adminCategory.js"></script>
+    <script src="/javascript/admin/adminCategory.js"></script>
 
     <script>
 

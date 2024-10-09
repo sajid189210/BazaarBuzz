@@ -11,18 +11,15 @@ const capitalizeFirstLetter = (word) => {
     } catch (err) {
         throw new Error(`Failed to capitalize the first letter in categoryController.${err}`);
     }
-}
-
+};
 
 //*-------------create Category Instance----------
 const createCategoryInstance = (title, brand) => {
     try {
-
         return new categoryModel({
             title,
             brands: [brand]
         });
-
     } catch (err) {
         throw new Error(`Failed to create new instance of the category.${err}`);
     }
@@ -32,9 +29,7 @@ const createCategoryInstance = (title, brand) => {
 //*-----------------save to database------------
 const saveToDatabase = async (newCategory) => {
     try {
-
         return await newCategory.save();
-
     } catch (err) {
         throw new Error(`Failed to save category to the database ${err}`);
     }
@@ -45,6 +40,11 @@ const saveToDatabase = async (newCategory) => {
 const createCategory = async (req, res) => {
     const { title, brand } = req.body;
     try {
+
+        if (!title || !brand) res.status(400).json({
+            success: false,
+            message: 'title and brand were not found'
+        });
 
         const modTitle = title.trim().toLowerCase();
         const modBrand = brand.trim().toLowerCase();
@@ -85,13 +85,11 @@ const createCategory = async (req, res) => {
             //If the category doesn't exist, create a new one.
             const newCategory = createCategoryInstance(capitalizedTitle, brand);
             await saveToDatabase(newCategory)
-            return res.status(200).json({
+            return res.status(201).json({
                 success: true,
                 message: "Category created successfully!"
             });
-
         }
-
     } catch (err) {
         console.error(`Error caught createCategory in categoryController ${err}`);
         res.status(500).json({ error: `Internal server error!` });
@@ -104,44 +102,43 @@ const createCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
     try {
 
-        const id = req.params.id;
-        const { title, currentBrands } = req.body
+        const { title, brandToBeDeleted, categoryId } = req.body
 
-        if (!title || title.trim() === '') {  //returns false if the title is empty.
-            return res.status(400).json({
-                success: false,
-                message: "Title cannot be empty!"
-            });
-        }
+        if (!(title && brandToBeDeleted && categoryId)) return res.status(400).json({
+            success: false,
+            message: 'title, brandToBeDeleted, or categoryId not found.'
+        });
+
+        if (!title || title.trim() === '') return res.status(400).json({
+            success: false,
+            message: "Title cannot be empty!"
+        });
+
+        const modTitle = capitalizeFirstLetter(title);
 
         const updateOperation = {
-            $set: { title: title },
+            $set: { title: modTitle },
         }
 
         //only add $pullAll if currentBrand.length>0.
-        if (currentBrands.length > 0) {
-            updateOperation.$pullAll = { brands: currentBrands };
+        if (brandToBeDeleted.length > 0) {
+            updateOperation.$pullAll = { brands: brandToBeDeleted };
         }
 
-        const result = await categoryModel.findOneAndUpdate(
-            { _id: id },
+        const result = await categoryModel.findByIdAndUpdate(categoryId,
             updateOperation,
             { new: true }
-        )
+        );
 
-        if (!result) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Failed to update the category!"
-            });
-
-        }
+        if (!result || result.modifiedCount === 0) return res.status(404).json({
+            success: false,
+            message: "Failed to update the category!"
+        });
 
         res.status(200).json({
             success: true,
             message: "Successfully updated the category!"
-        })
+        });
 
     } catch (err) {
         console.error(`Error caught updateCategory in categoryController ${err}`);
@@ -150,35 +147,43 @@ const updateCategory = async (req, res) => {
 }
 
 
-// //*TODO---------------delete category-------------------------
-// const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res) => {
+    try {
+        const id = req.params.id;
 
-//     try {
-//         const id = req.params.id;
+        const category = await categoryModel.findById(id);
 
-//         const category = await categoryModel.findOne({ _id: id });
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Category not found!"
+            });
+        }
 
-//         if (category) {
+        const result = await categoryModel.deleteOne({ _id: id }, { new: true });
 
-//             await categoryModel.deleteOne({ _id: id }, {new: true});
-//             return res.status(200).json({
-//                 success: true,
-//                 message: "Category deleted successfully!"
-//             });
+        if (result.deletedCount === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Failed to delete category!"
+            });
+        }
 
-//         } else {
+        res.status(200).json({
+            success: true,
+            message: "Category deleted successfully!",
+        });
 
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Failed to delete category!"
-//             });
+    } catch (err) {
+        console.error(`Error caught deleteCategory in categoryController ${err}`);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+}
 
-//         }
-//     } catch (err) {
-//         console.error(`Error caught deleteCategory in categoryController ${err}`);
-//         res.status(500).json("Internal server error!");
-//     }
-// }
 
 
 //*-----------------admin Category page render-------------------
@@ -186,7 +191,7 @@ const updateCategory = async (req, res) => {
 const adminCategory = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        // if (!req.session.admin) return res.redirect('/admin/signIn');
 
         const categories = await categoryModel.find({});
 
@@ -209,7 +214,18 @@ const changeCategoryStatus = async (req, res) => {
     try {
 
         const id = req.params.id;
+
+        if (!id) return res.status(400).json({
+            success: false,
+            message: 'Category ID not found.'
+        });
+
         const { selectedOption } = req.body;
+
+        if (!selectedOption) res.status(400).json({
+            success: false,
+            message: 'selectedOption not found.'
+        });
 
         const value = selectedOption === 'active' ? true : false;
 
@@ -224,7 +240,10 @@ const changeCategoryStatus = async (req, res) => {
             message: "Category not found."
         })
 
-        res.status(200).json({ success: true });
+        res.status(200).json({
+            success: true,
+            isActive: category.isActive
+        });
 
     } catch (err) {
         console.error(`Error caught changeCategoryStatus in categoryController ${err}`);
@@ -238,6 +257,6 @@ module.exports = {
     createCategory,
     adminCategory,
     updateCategory,
-    // deleteCategory,
+    deleteCategory,
     changeCategoryStatus
 };

@@ -9,31 +9,30 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    productQuantity: {
-        type: Number,
-        required: true,
-    },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
-    },
-    image: {
-        type: Array,
-        required: true
-
     },
     stock: {
         type: Number,
         required: true
     },
+    discount: { type: Number },
+    brand: { type: String },
+    images: [{ type: String }],
+    colors: [{ type: String }],
+    description: { type: String },
+    fabric: { type: String },
+    size: { type: String },
+    gender: { type: String },
     isActive: {
         type: Boolean,
         default: true
     },
-    productDesc: { type: String },
-    productDiscount: { type: Number },
-    color: { type: Array },
-    size: { type: Array },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true });
 
 const Products = mongoose.model('Product', productSchema);

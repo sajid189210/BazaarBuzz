@@ -1,4 +1,4 @@
-const mongoose = require( 'mongoose' );
+const mongoose = require('mongoose');
 
 //category schema.
 const categorySchema = new mongoose.Schema({
@@ -19,8 +19,8 @@ const categorySchema = new mongoose.Schema({
     //     type: Schema.Types.ObjectId,
     //     ref: "product"
     // }
-});
+}, { timestamps: true });
 
-const Category = mongoose.model( "Category", categorySchema );
+const Category = mongoose.model("Category", categorySchema);
 
 module.exports = Category;

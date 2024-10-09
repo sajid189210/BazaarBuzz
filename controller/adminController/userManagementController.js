@@ -1,28 +1,16 @@
 const userModel = require('../../model/userModel');
 
+//?------finding the user by ID--------------
+const getUserById = async (id) => {
+    if (!id) throw new Error("No _id");
 
+    return await userModel.findById({ _id: id });
+};
 
-// //?---------------fetching users from userModel--------------------------
-// const fetchUser = async (page, usersPerPage) => {
-//     try {
-//         const users = await userModel.find({})
-//             .skip(page * usersPerPage)
-//             .limit(usersPerPage)
-
-//         if (!users || users.length === 0) {
-//             return [];
-//         }
-
-//         return users;
-//     } catch (err) {
-//         console.error('Error fetching users:', err);
-//         throw new Error('Failed to fetch users');
-//     }
-// };
 const userManagementPage = async (req, res) => {
     try {
         if (!req.session.admin) return res.redirect('/admin/signIn');
-
+        // const searchTerm = req.query.search || ''
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
 
@@ -32,30 +20,84 @@ const userManagementPage = async (req, res) => {
 
         const count = await userModel.countDocuments();
 
+        if (!users) return res.render('admin/userManagementPage', {
+            users: [],
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            limit,
+            page,
+        })
+
         res.render('admin/userManagementPage', {
             users,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             limit,
-            page
+            page,
         });
 
     } catch (err) {
         console.error(`Error in userManagementPage: ${err.message}`);
         res.status(500).json({
             error: 'Internal Server Error',
-            message: err.message
+            message: err.message,
+            stack: err.stack
         });
     }
 };
 
+// const userManagementPage = async (req, res) => {
+//     try {
+//         // if (!req.session.admin) return res.redirect('/admin/signIn');
+//         const searchTerm = req.query.search || '';
+//         const page = parseInt(req.query.page) || 1;
+//         const limit = parseInt(req.query.limit) || 5;
 
+//         const skip = (page - 1) * limit;
 
+//         const filteredUsers = await searchUser(req, res);
+//         const paginatedUsers = filteredUsers.slice(skip, skip + limit);
 
-//?------finding the user by ID--------------
-const getUserById = async (id) => {
-    return await userModel.findById({ _id: id });
-};
+//         const count = await userModel.countDocuments({ email: new RegExp(searchTerm, 'i') });
+
+//         res.render('admin/userManagementPage', {
+//             users: paginatedUsers,
+//             totalPages: Math.ceil(count / limit),
+//             currentPage: page,
+//             limit,
+//             page,
+//             searchTerm
+//         });
+
+//     } catch (err) {
+//         console.error(`Error in userManagementPage: ${err.message}`);
+//         res.status(500).json({
+//             error: 'Internal Server Error',
+//             message: err.message,
+//             stack: err.stack
+//         });
+//     }
+// };
+
+//*--------------------Search User-------------------------
+const searchUser = async (req, res) => {
+    try {
+        const search = req.query.search || '';
+
+        const regex = new RegExp(search, 'i');
+
+        const users = await userModel.find({ email: regex });
+
+        res.json({ users });
+
+    } catch (err) {
+        console.error(`Error in searchUser in userManagementController: ${err.message}`);
+        res.status(500).json({
+            error: 'Internal Server Error',
+            message: err.message
+        });
+    }
+}
 
 //*----------------User Status: unblock----------------------
 const unBlockUser = async (req, res) => {
@@ -128,6 +170,8 @@ const blockUser = async (req, res) => {
             { new: true }
         );
 
+        req.session.user = false;
+
         return res.status(200).json({
             success: true,
             message: 'User has been successfully blocked'
@@ -147,6 +191,7 @@ const blockUser = async (req, res) => {
 
 module.exports = {
     userManagementPage,
+    searchUser,
     unBlockUser,
     blockUser,
 }

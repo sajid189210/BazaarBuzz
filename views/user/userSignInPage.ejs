@@ -27,9 +27,18 @@
   input[type=number] {
     appearance: textfield;
   }
+
+  .invalid {
+    border-color: red;
+  }
+
+  .error-message {
+    color: red;
+    margin-top: 5px;
+  }
 </style>
 
-<% const errorMsg={ email: '' , password: '' }; if (validErrors && validErrors.length> 0)
+<%# const errorMsg={ email: '' , password: '' }; if (validErrors && validErrors.length> 0)
   {
   validErrors.forEach(error => {
   switch (error.path) {
@@ -67,8 +76,8 @@
                       <div class="py-2">
 
                         <%if(authErrors) {%>
-                          <span class="text-red-600">
-                            <%= authErrors %>
+                          <span class="block text-red-600 w-72">
+                            <%= authErrors%>
                           </span>
                           <%}%>
 
@@ -82,28 +91,28 @@
 
                       <div class="md:col-span-5">
                         <label for="email" class="text-[#708090]">Email Address</label>
-                        <%if(validErrors) {%>
+                        <%#if(validErrors) {%>
                           <span class="text-red-600">
-                            <%= errorMsg.email %>
+                            <%#= errorMsg.email %>
                           </span>
-                          <%}%>
+                          <%#}%>
                             <input type="email" name="email" id="email"
-                              class="mt-1 h-10 w-full rounded border bg-gray-50 px-4 text-[#646060]" />
+                              class="mt-1 h-10 w-full rounded border bg-gray-50 px-4 text-[#646060]" required />
                       </div>
 
                       <div class="md:col-span-5">
                         <label for="password" class="text-[#708090]">Password</label>
-                        <%if(validErrors) {%>
+                        <%#if(validErrors) {%>
                           <span class="text-red-600">
-                            <%= errorMsg.password %>
+                            <%#= errorMsg.password %>
                           </span>
-                          <%}%>
+                          <%#}%>
                             <input type="password" name="password" id="password"
-                              class="mt-1 h-10 w-full rounded border bg-gray-50 px-4 text-[#646060]" />
+                              class="mt-1 h-10 w-full rounded border bg-gray-50 px-4 text-[#646060]" required />
                       </div>
 
                       <div class="md:col-span-5">
-                        <button type="button" onclick="showModal('modal')"
+                        <button type="button" onclick="showModal()"
                           class="text-blue-600 hover:text-blue-900 float-right cursor-pointer">forgot password?</button>
                       </div>
 
@@ -116,10 +125,11 @@
                           <span class=" flex justify-center mb-2">or</span>
                         </div>
                         <div class="flex justify-center items-center mb-4">
-                          <button type="button" class=" flex bg-white">
+                          <a href="/auth/google" class="flex bg-white">
                             <div class="m-auto">
                               <div class="flex items-center justify-start ">
-                                <span class="text-[#A9A9A9] mr-1">Continue with</span>
+                                <span class="text-[#A9A9A9] mr-1">Continue
+                                  with</span>
 
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                   xmlns="http://www.w3.org/2000/svg">
@@ -146,7 +156,7 @@
                                 <span class="text-[#A9A9A9]">oogle</span>
                               </div>
                             </div>
-                          </button>
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -164,121 +174,75 @@
       </div>
     </div>
 
-    <!-- Modal forgot password -->
+    <!-- Forgot Password -->
 
-    <div id="modal" tabindex="-1"
-      class="hidden fixed left-0 right-0 top-0 z-50 flex h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50">
-      <div class="relative h-full w-full max-w-md p-4 md:h-auto">
-        <div class="relative rounded-lg bg-white shadow">
-          <button type="button" onclick="closeModal('modal')"
-            class="popup-close absolute right-2.5 top-3 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900">
-            <svg aria-hidden="true" class="h-5 w-5" fill="#c6c7c7" viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                cliprule="evenodd"></path>
-            </svg>
-          </button>
-
-          <div class="p-5">
-            <h3 class="mb-0.5 text-2xl font-medium"></h3>
-            <p class="mb-4 text-sm font-normal text-gray-800"></p>
-
-            <div class="mb-4 text-center">
-              <p class="mb-3 text-2xl font-semibold leading-5 text-[#556B2F]">Forgot Password</p>
-              <p class="mt-2 text-sm leading-4 text-slate-600">Enter your Email address for OTP</p>
-            </div>
-
-            <form class="w-full" id="modalForm">
-              <input type="email" id="modalEmail" autocomplete="email" required=""
-                class="block w-full border rounded-md border-gray-300 px-3 py-2 shadow-sm outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#85a054] focus:ring-offset-1"
-                placeholder="Email" />
-
-              <button type="submit"
-                class="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-[#7a9d3e] hover:bg-[#556B2F] p-2 py-3 text-sm font-medium text-white outline-none disabled:bg-gray-400">Request
-                OTP</button>
-            </form>
+    <div class="hidden absolute inset-0 h-screen items-center justify-center" id="forgotModal">
+      <div class="absolute inset-0 backdrop-blur-sm">
+        <div class="m-auto flex flex-col justify-center h-full w-full lg:w-96 items-center bg-white px-[30px]">
+          <div class="relative text-3xl font-semibold mb-8 w-full">
+            <p class="text-[#556B2F]">Forgot Password</p>
+            <button type="button" onclick="closeModal()"
+              class="popup-close absolute top-0 right-0 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900">
+              <svg aria-hidden="true" class="h-5 w-5" fill="#000" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  cliprule="evenodd"></path>
+              </svg>
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Modal OTP verify -->
-
-    <div id="otpModal"
-      class="hidden fixed left-0 right-0 top-0 z-50 flex h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50">
-      <div class="relative mx-auto w-full max-w-lg rounded-2xl bg-white px-6 pb-9 pt-10 shadow-xl">
-        <div class="mx-auto flex w-full max-w-md flex-col space-y-16">
-          <div class="flex flex-col items-center justify-center space-y-2 text-center">
-            <div class="text-3xl font-semibold">
-              <p class="text-[#556B2F]">Email Verification</p>
-              <button type="button" onclick="closeModal('otpModal')"
-                class="popup-close absolute right-2.5 top-3 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900">
-                <svg aria-hidden="true" class="h-5 w-5" fill="#c6c7c7" viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    cliprule="evenodd"></path>
-                </svg>
-              </button>
-            </div>
-            <div class="flex flex-row text-sm font-medium text-gray-400">
-              <p>We have sent a code to your email ba**@dipainhouse.com</p>
-            </div>
-          </div>
-          <div class="relative">
-            <form id="OTPForm">
-              <div class="flex flex-col space-y-16">
-                <div class="mx-auto flex w-full max-w-xs flex-row items-center justify-between">
-                  <div class="h-16 w-16">
-                    <input
-                      class="flex h-full w-full flex-col items-center justify-center rounded-xl border bg-white px-5 text-center text-lg outline-none ring-[#7a9d3e] focus:border-[#7a9d3e] focus:ring-1"
-                      type="text" name="otp" maxlength="1" pattern="[0-9]*"
-                      oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                  </div>
-                  <div class="h-16 w-16">
-                    <input
-                      class="flex h-full w-full flex-col items-center justify-center rounded-xl border bg-white px-5 text-center text-lg outline-none ring-[#7a9d3e] focus:border-[#7a9d3e] focus:ring-1"
-                      type="text" name="otp" maxlength="1" pattern="[0-9]*"
-                      oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                  </div>
-                  <div class="h-16 w-16">
-                    <input
-                      class="flex h-full w-full flex-col items-center justify-center rounded-xl border bg-white px-5 text-center text-lg outline-none  ring-[#7a9d3e] focus:border-[#7a9d3e]  focus:ring-1"
-                      type="text" name="otp" maxlength="1" pattern="[0-9]*"
-                      oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                  </div>
-                  <div class="h-16 w-16">
-                    <input
-                      class="flex h-full w-full flex-col items-center justify-center rounded-xl border bg-white px-5 text-center text-lg outline-none  ring-[#7a9d3e] focus:border-[#7a9d3e]  focus:ring-1"
-                      type="text" name="otp" maxlength="1" pattern="[0-9]*"
-                      oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                  </div>
-                </div>
-
-                <div class="flex flex-col space-y-5">
-                  <div>
-                    <button type="submit" id="otpVerifyBtn"
-                      class="flex w-full flex-row items-center justify-center rounded-xl border border-none bg-[#7a9d3e] py-5 text-center text-sm text-white shadow-sm outline-none hover:bg-[#556B2F]">Verify
-                      OTP</button>
-                  </div>
-
-                  <div
-                    class="flex flex-row items-center justify-center gap-x-3 space-x-1 text-center text-sm font-medium text-gray-500">
-                    <span class=" hidden flex flex-row items-center text-[#556B2F] hover:text-[#334612] cursor-pointer"
-                      id="resendOTP">Resend OTP</span>
-                    <p id="timer">1:00</p>
-                  </div>
-                </div>
+          <form class="space-y-6 w-full" id="forgotForm">
+            <div>
+              <label class="mb-2 block text-sm text-[#708090]">Your Email</label>
+              <div id="emailError" class="error-message hidden text-xs">
+                <!-- Error Message Display -->
               </div>
-            </form>
-          </div>
+              <div class="flex items-center">
+                <input type="email" placeholder="Your Answer" id="forgotEmail"
+                  class="w-full rounded border border-gray-400 bg-white px-4 py-3 text-sm text-[#646060] outline-none transition-colors duration-300 ease-in-out focus:border-blue-600 focus:ring-0"
+                  required />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm text-[#708090]">New Password</label>
+              <div id="newPasswordError" class="error-message hidden text-xs">
+                <!-- Error Message Display -->
+              </div>
+              <div class="flex items-center">
+                <input type="password" placeholder="Your Answer" id="newPassword"
+                  class="w-full rounded border border-gray-400 bg-white px-4 py-3 text-sm text-[#646060] outline-none transition-colors duration-300 ease-in-out focus:border-blue-600 focus:ring-0"
+                  required />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm text-[#708090]">Confirm Password</label>
+              <div id="confirmPasswordError" class="error-message hidden text-xs">
+                <!-- Error Message Display -->
+              </div>
+              <div class="flex items-center">
+                <input type="password" placeholder="Your Answer" id="confirmPassword"
+                  class="w-full rounded border border-gray-400 bg-white px-4 py-3 text-sm text-[#646060] outline-none transition-colors duration-300 ease-in-out focus:border-blue-600 focus:ring-0"
+                  required />
+              </div>
+            </div>
+
+
+            <div class="flex items-center">
+              <button type="submit"
+                class="w-full py-2.5 rounded-lg text-white text-sm tracking-wider font-medium border border-current outline-none bg-[#7a9d3e] hover:bg-[#556B2F] active:bg-red-700">Update
+                Password</button>
+            </div>
+
+          </form>
         </div>
       </div>
     </div>
 
-    <script src="/javascript/user/signInOtp.js"></script>
+
+
+    <script src="/javascript/user/userSignInPage.js"></script>
   </body>
 
 </html>

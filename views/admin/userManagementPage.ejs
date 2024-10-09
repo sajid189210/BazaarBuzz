@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>BazaarBuzz - User Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -24,143 +27,136 @@
         month: 'long' , day: 'numeric' }; return date.toLocaleDateString(undefined, options); } %>
 
         <div class="flex h-screen">
+            <%- include('../partials/adminSideMenu')%>
 
-            <aside class="bg-red-500 w-1/6">
-                side menu
-            </aside>
-
-            <div class="flex flex-col flex-grow">
-                <header class="h-24 bg-sky-300">
-                    Header
-                    <form action="/admin/signOut" method="POST">
-                        <button class="border-2">Sign Out</button>
-                    </form>
+                <header class="fixed border-b w-full bg-white top-0 left-[250px] z-50 p-5">
+                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
+                        <li class="text-gray-500 text-base cursor-pointer">
+                            <a href="/admin/dashboard">Dashboard</a>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3.5 -rotate-90"
+                                viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
+                                    clip-rule="evenodd" data-original="#000000"></path>
+                            </svg>
+                        </li>
+                        <li class="text-black-500 text-xl font-bold cursor-pointer">
+                            <a href="#">Customer List</a>
+                        </li>
+                    </ul>
                 </header>
 
-                <main>
-                    <div class="mx-4 overflow-hidden rounded-lg shadow-lg md:mx-10">
-                        <table class="w-full table-fixed">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="w-1/6 px-6 py-4 text-left font-medium uppercase text-gray-600">
-                                        SlNo.
-                                    </th>
-                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
-                                        Customer
-                                        Name</th>
-                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
-                                        Email
-                                    </th>
-                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
-                                        Registration date</th>
-                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
-                                        Status
-                                    </th>
-                                    <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white">
-                                <%if(users && users.length>0){%> <%users.forEach((user, index)=> {%>
+                <main class="w-full h-full">
+                    <div class="absolute top-[80px] left-[280px] px-8">
+                        <div class="mb-4 flex w-full justify-start items-center">
+                            <div class="flex flex-col justify-start px-4 py-4">
+                                <div
+                                    class="flex w-96 h-auto relative max-w-md overflow-hidden rounded-full border-2 border-sky-500">
+                                    <input id="searchInput" type="search" placeholder="Search.."
+                                        class="w-full bg-white px-5 py-3 text-sm outline-none" />
+                                </div>
+                                <div id="resultsContainer"
+                                    class="absolute top-[64px] left-[58px] w-96 rounded-lg z-20 bg-white flex flex-col text-left">
+                                </div>
+                            </div>
+                        </div>
 
-                                        <tr>
-                                            <td class="border-b text-sm border-gray-200 px-6 py-4">
-                                                <%= index + 1 %>.
-                                            </td>
-                                            <td class="border-b text-sm border-gray-200 px-6 py-4">
-                                                <%= user.username %>
-                                            </td>
-                                            <td class=" text-sm border-b border-gray-200 px-6 py-4">
-                                                <%= user.email %>
-                                            </td>
-                                            <td class="border-b text-sm border-gray-200 px-6 py-4">
-                                                <% const dateStr=user.createdAt %>
-                                                    <%= formateDate(dateStr) %>
-                                            </td>
-                                            <td class="border-b text-sm border-gray-200 px-6 py-4" id="userStatus">
-                                                <%= user.isBlocked %>
-                                            </td>
-                                            <td class="border-b border-gray-200 px-6 py-4">
-                                                <button type="button" onclick="unblockUser('<%= user._id%>')"
-                                                    class="ease focus:shadow-outline px-4 select-none rounded-md border border-green-500 bg-green-500 text-white transition duration-500 hover:bg-green-600 focus:outline-none">unblock</button>
-                                                <button type="button" onclick="blockUser('<%= user.id%>')"
-                                                    class="ease focus:shadow-outline select-none rounded-md border border-red-500 bg-red-500 px-4  text-white transition duration-500 hover:bg-red-600 focus:outline-none">block</button>
-                                            </td>
-                                        </tr>
+                        <div class="mx-auto overflow-hidden rounded-lg bg-white shadow-md">
+                            <table class="min-w-full bg-white" id="userTable">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                            UserID
+                                        </th>
+                                        <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                            Customer
+                                            Name</th>
+                                        <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                            Email
+                                        </th>
+                                        <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                            Registration date</th>
+                                        <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                            Status
+                                        </th>
+                                        <th class="w-1/4 px-6 py-4 text-left font-medium uppercase text-gray-600">
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                    <%if(users && users.length>0){%> <%users.forEach((user, index)=> {%>
 
-                                        <%});%>
-                                            <%}%>
-                            </tbody>
-                        </table>
+                                            <tr>
+                                                <td class="border-b text-sm border-gray-200 px-6 py-4" id="userId">
+                                                    <%= user._id %>.
+                                                </td>
+                                                <td class="border-b text-sm border-gray-200 px-6 py-4">
+                                                    <%= user.username %>
+                                                </td>
+                                                <td class=" text-sm border-b border-gray-200 px-6 py-4">
+                                                    <%= user.email %>
+                                                </td>
+                                                <td class="border-b text-sm border-gray-200 px-6 py-4">
+                                                    <% const dateStr=user.createdAt %>
+                                                        <%= formateDate(dateStr) %>
+                                                </td>
+                                                <td class="border-b text-sm border-gray-200 px-6 py-4" id="userStatus">
+                                                    <%= user.isBlocked %>
+                                                </td>
+                                                <td class="border-b text-sm border-gray-200 px-6 py-4">
+                                                    <label class="relative cursor-pointer trigger-event">
+                                                        <input type="checkbox" class="peer sr-only"
+                                                            data-user-id="<%= user._id %>" <%=user.isBlocked==='blocked'
+                                                            ? 'checked' : '' %> />
+                                                        <div class=" peer flex h-6 w-11 items-center rounded-full
+                                                            bg-gray-300 after:absolute after:left-[2px] after:h-5
+                                                            after:w-5 after:rounded-full after:border
+                                                            after:border-gray-300 after:bg-white after:transition-all
+                                                            peer-checked:bg-[#007bff]
+                                                            peer-checked:after:translate-x-full
+                                                            peer-checked:after:border-white">
+                                                        </div>
+                                                    </label>
+                                                </td>
+                                            </tr>
 
-                        <!-- Pagination Controls -->
+                                            <%});%>
+                                                <%}%>
+                                </tbody>
+                            </table>
 
-                        <div class="flex justify-end mr-4 py-4">
-                            <ol class="flex justify-center space-x-1 text-xs font-medium ">
-                                <% if (currentPage> 1) { %>
-                                    <li>
-                                        <a href="/admin/userList?page=<%= currentPage - 1 %>&limit=<%= limit %>"
-                                            class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <% } %>
-                                        <% for (let i=1; i <=totalPages; i++) { %>
-                                            <li class="<%= currentPage === i ? 'active' : '' %>">
-                                                <a href="/admin/userList?page=<%= i %>&limit=<%= limit %>"
-                                                    class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
-                                                    <%= i %>
-                                                </a>
-                                            </li>
-                                            <% } %>
+                            <!-- Pagination Controls -->
 
-                                                <% if (currentPage < totalPages) { %>
-                                                    <li>
-                                                        <a href="/admin/userList?page=<%= currentPage + 1 %>&limit=<%= limit %>"
-                                                            class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
-                                                                viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fill-rule="evenodd"
-                                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                                    clip-rule="evenodd" />
-                                                            </svg>
-                                                        </a>
-                                                    </li>
-                                                    <% } %>
-                                                        <!-- <li>
-                                                            <a href="/?page=1"
-                                                                class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
-                                                                1
-                                                            </a>
-                                                        </li>
+                            <div class="flex justify-end mr-4 py-4">
+                                <ol class="flex justify-center space-x-1 text-xs font-medium ">
+                                    <% if (currentPage> 1) { %>
+                                        <li>
+                                            <a href="/admin/userList?page=<%= currentPage - 1 %>&limit=<%= limit %>"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd"
+                                                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        <% } %>
+                                            <% for (let i=1; i <=totalPages; i++) { %>
+                                                <li class="<%= currentPage === i ? 'active' : '' %>">
+                                                    <a href="/admin/userList?page=<%= i %>&limit=<%= limit %>"
+                                                        class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
+                                                        <%= i %>
+                                                    </a>
+                                                </li>
+                                                <% } %>
 
-                                                        <li
-                                                            class="block h-8 w-8 rounded border-blue-600 bg-blue-600 text-center leading-8 text-white">
-                                                            2
-                                                        </li>
-
+                                                    <% if (currentPage < totalPages) { %>
                                                         <li>
-                                                            <a href="/?page=3"
-                                                                class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
-                                                                3
-                                                            </a>
-                                                        </li>
-
-                                                        <li>
-                                                            <a href="/?page=4"
-                                                                class="block h-8 w-8 rounded border border-gray-100 text-center leading-8">
-                                                                4
-                                                            </a>
-                                                        </li> -->
-
-                                                        <!-- <li>
-                                                            <a href="/?page=3"
+                                                            <a href="/admin/userList?page=<%= currentPage + 1 %>&limit=<%= limit %>"
                                                                 class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
                                                                     viewBox="0 0 20 20" fill="currentColor">
@@ -169,17 +165,18 @@
                                                                         clip-rule="evenodd" />
                                                                 </svg>
                                                             </a>
-                                                        </li> -->
-                            </ol>
+                                                        </li>
+                                                        <% } %>
 
+                                </ol>
+                            </div>
                         </div>
                     </div>
                 </main>
-            </div>
         </div>
 
         <script src="/javascript/admin/userManagementPage.js"></script>
-        
+
 </body>
 
 </html>

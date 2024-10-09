@@ -1,0 +1,30 @@
+<nav class="relative shadow-lg flex flex-wrap bg-white justify-start px-10 py-3">
+    <div id="collapseMenu" class="">
+        <ul class=''>
+            <li class='group relative'>
+                <span
+                    class='hover:text-[#00b070] hover:fill-[#00b070] text-gray-600 font-semibold text-[15px] block cursor-pointer'>categories
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" class="ml-1 inline-block"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M12 16a1 1 0 0 1-.71-.29l-6-6a1 1 0 0 1 1.42-1.42l5.29 5.3 5.29-5.29a1 1 0 0 1 1.41 1.41l-6 6a1 1 0 0 1-.7.29z"
+                            data-name="16" data-original="#000000" />
+                    </svg>
+                    </a>
+                    <ul class='absolute top-5 max-lg:top-8 left-0 z-50 block space-y-2 shadow-lg bg-white max-h-0 overflow-hidden min-w-[250px] group-hover:opacity-100
+                         group-hover:max-h-[700px] px-6 group-hover:pb-4 group-hover:pt-6 transition-all duration-500'>
+                        <%if(categories &&categories.length>0){%>
+                            <%categories.forEach(category=> {%>
+                                <li class='py-3'>
+                                    <a href='javascript:void(0)'
+                                        class='hover:text-[#00b070] hover:fill-[#00b070] text-gray-600 font-semibold text-[15px] block text-center'>
+                                        <%=category.title%>
+                                    </a>
+                                </li>
+                                <%})%>
+                                    <%}%>
+                    </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
