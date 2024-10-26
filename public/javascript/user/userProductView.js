@@ -1,3 +1,84 @@
+//* Function for setting colors for selected size.
+
+function sizeSelect() {
+    const colorContainer = document.querySelector('#colorContainer');
+    const selectedSize = document.querySelector('input[name="size"]:checked');
+    const stockValue = document.querySelector('#stockValue');
+
+    colorContainer.innerHTML = '';
+
+    const product = JSON.parse(selectedSize.dataset.product);
+
+    if (!selectedSize) {
+        alert('Error caught when selecting sizes')
+        return;
+    }
+
+    // updates the hidden input for selected size.
+    document.getElementById('selectedSize').value = selectedSize.value;
+
+    // Finding the selected variant object by size.
+    const index = product.variants.findIndex(obj => obj.size === selectedSize.value);
+
+    const colors = product.variants[index].colors;
+
+    const stock = product.variants[index].stock;
+
+    // Updates hidden input for selected stock
+    document.querySelector('#selectedStock').value = stock;
+
+    // Checking conditions for displaying stock range.
+    if (!stock || stock < 0) {
+        stockValue.textContent = 'Out of Stock';
+        stockValue.classList.add('text-xl', 'text-red-500');
+    } else if (stock < 10) {
+        if (stock === 1) {
+            stockValue.textContent = `Only ${stock} product is left`;
+            stockValue.classList.add('text-xl', 'text-red-500');
+        } else {
+            stockValue.textContent = `Only ${stock} products are left`;
+            stockValue.classList.add('text-xl', 'text-red-500');
+        }
+    } else {
+        stockValue.textContent = 'In Stock';
+        stockValue.classList.add('text-xl', 'text-red-500');
+    }
+
+    // Displaying colors that matched with selectedSize.
+    colors.forEach(color => {
+        const colorLabel = document.createElement('label');
+        colorLabel.classList.add('flex', 'items-center', 'cursor-pointer');
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'radio';
+        colorInput.name = 'color';
+        colorInput.classList.add('peer', 'hidden');
+        colorInput.value = color;
+
+        const colorSpan = document.createElement('span');
+        colorSpan.classList.add('peer-checked:border-transparent', 'h-10', 'w-10', 'ml-3', 'flex', 'items-center', 'justify-center', 'border-2', 'border-gray-300', 'rounded-full', 'transition', 'duration-200', 'ease-in-out');
+        colorSpan.style.backgroundColor = color;
+
+        colorLabel.appendChild(colorInput);
+        colorLabel.appendChild(colorSpan);
+
+        colorContainer.appendChild(colorLabel);
+    });
+
+    // Updates hidden input for selected color
+    const colorInputs = document.querySelectorAll('input[name="color"]');
+    colorInputs.forEach(input => {
+        input.addEventListener('change', () => {
+            document.getElementById('selectedColor').value = input.value;
+        });
+    });
+}
+
+// Call sizeSelect to populate colors for the initially selected size.
+sizeSelect();
+
+
+
 // Function to change the main image and update zoom background
 function changeImage(thumbnail) {
     const newSrc = thumbnail.src;
@@ -72,26 +153,41 @@ $(document).ready(function () {
     initializeZoom();
 });
 
+
+
+
+
 //*-------------------[Cart]------------------------------------------
-async function addToCart(productId, stock) {
+async function addToCart(productId) {
     try {
-        // Exist the function if there is no stock.
-        if (parseInt(stock) === 0) {
+        const selectedColor = document.getElementById('selectedColor').value;
+        const selectedSize = document.getElementById('selectedSize').value;
+        const selectedStock = document.getElementById('selectedStock').value;
+
+        if (selectedStock < 1) {
             await Swal.fire({
-                title: 'Out of Stock',
-                text: 'Sorry, This product is currently unavailable',
+                title: 'Out Of Stock!',
+                text: 'Sorry, Currently the product is out of the stock.',
                 icon: 'info',
                 confirmButtonText: 'Ok'
             });
             return;
         }
 
-        const selectedColor = document.getElementById('selectedColor').value || '';
+        if (!selectedColor) {
+            await Swal.fire({
+                title: 'Warning',
+                text: 'Please select a color to proceed.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
 
         const response = await fetch('/user/cart', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId, color: selectedColor })
+            body: JSON.stringify({ productId, color: selectedColor, size: selectedSize, stock: selectedStock })
         });
 
         const data = await response.json();
@@ -99,12 +195,12 @@ async function addToCart(productId, stock) {
         //checks if the session is active.
         if (!data.session) {
             await Swal.fire({
-                title: '',
+                title: 'You are not Signed In!',
                 text: data.message,
                 icon: 'info',
                 confirmButtonText: 'Sign In'
             });
-            // alert(data.message);
+
             window.location.href = data.redirectUrl;
             return;
         }
@@ -120,21 +216,21 @@ async function addToCart(productId, stock) {
             return;
         }
 
-        //catches if the cart is full.
-        if (data.success === 'full') {
-            const { isConfirmed } = await Swal.fire({
-                title: 'Warning',
-                text: data.message,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Got to cart',
-                cancelButtonText: 'Continue shopping',
-            });
-            if (isConfirmed) {
-                window.location.href = data.redirectUrl;
-            }
-            return;
-        }
+        // //catches if the cart is full.
+        // if (data.success === 'full') {
+        //     const { isConfirmed } = await Swal.fire({
+        //         title: 'Warning',
+        //         text: data.message,
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonText: 'Got to cart',
+        //         cancelButtonText: 'Continue shopping',
+        //     });
+        //     if (isConfirmed) {
+        //         window.location.href = data.redirectUrl;
+        //     }
+        //     return;
+        // }
 
 
         await Swal.fire({
@@ -150,9 +246,4 @@ async function addToCart(productId, stock) {
         console.log('Error caught when passing the the product Id to the cart.', err);
         alert('Error caught when passing the the product Id to the cart.', err);
     }
-}
-
-//* color the color.
-function colorSelection(color) {
-    document.getElementById('selectedColor').value = color;
 }

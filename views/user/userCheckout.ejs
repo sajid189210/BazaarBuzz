@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <% function formatRupees(amount) { %>
+        <%let numberString=amount.toString();%>
+
+            <!-- Split the string into whole and decimal parts -->
+            <%let [whole, decimal]=numberString.split('.');%>
+
+                <!--  Add commas for the whole part -->
+                <%let lastThreeDigits=whole.slice(-3);%>
+                    <%let otherDigits=whole.slice(0, -3);%>
+                        <%if (otherDigits) {%>
+                            <%lastThreeDigits=',' + lastThreeDigits;%>
+                                <%}%>
+                                    <%let formattedWhole=otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, "," ) +
+                                        lastThreeDigits;%>
+
+                                        <!-- Combine whole and decimal parts, if any -->
+                                        <%return '₹' + formattedWhole + (decimal ? '.' + decimal : '' );%>
+                                            <%}%>
+                                                <div class="relative">
+
+                                                    <!-- Header -->
+                                                    <%- include('../partials/userHeader') %>
+
+                                                        <div class="absolute top-[80px] w-full h-screen">
+                                                            <main class="bg-white">
+
+                                                                <section
+                                                                    class="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
+                                                                    <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                                                                        <ol
+                                                                            class="items-center flex w-full max-w-2xl text-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-base">
+                                                                            <li
+                                                                                class="after:border-1 flex items-center text-primary-700 after:mx-6 after:hidden after:h-1 after:w-full after:border-b after:border-gray-200 dark:text-primary-500 dark:after:border-gray-700 sm:after:inline-block sm:after:content-[''] md:w-full xl:after:mx-10">
+                                                                                <span
+                                                                                    class="flex items-center after:mx-2 after:text-gray-200 after:content-['/'] dark:after:text-gray-500 sm:after:hidden">
+                                                                                    <svg class="me-2 h-4 w-4 sm:h-5 sm:w-5"
+                                                                                        aria-hidden="true"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="24" height="24"
+                                                                                        fill="none" viewBox="0 0 24 24">
+                                                                                        <path stroke="currentColor"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                                                    </svg>
+                                                                                    Cart
+                                                                                </span>
+                                                                            </li>
+
+                                                                            <li
+                                                                                class="after:border-1 flex items-center text-primary-700 after:mx-6 after:hidden after:h-1 after:w-full after:border-b after:border-gray-200 dark:text-primary-500 dark:after:border-gray-700 sm:after:inline-block sm:after:content-[''] md:w-full xl:after:mx-10">
+                                                                                <span
+                                                                                    class="flex items-center after:mx-2 after:text-gray-200 after:content-['/'] dark:after:text-gray-500 sm:after:hidden">
+                                                                                    <svg class="me-2 h-4 w-4 sm:h-5 sm:w-5"
+                                                                                        aria-hidden="true"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="24" height="24"
+                                                                                        fill="none" viewBox="0 0 24 24">
+                                                                                        <path stroke="currentColor"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                                                    </svg>
+                                                                                    Checkout
+                                                                                </span>
+                                                                            </li>
+
+                                                                            <li class="flex shrink-0 items-center">
+                                                                                <svg class="me-2 h-4 w-4 sm:h-5 sm:w-5"
+                                                                                    aria-hidden="true"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    width="24" height="24" fill="none"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke="currentColor"
+                                                                                        stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                                                </svg>
+                                                                                Order summary
+                                                                            </li>
+                                                                        </ol>
+
+                                                                        <div
+                                                                            class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
+                                                                            <div class="min-w-0 flex-1 space-y-8">
+                                                                                <div class="space-y-4">
+                                                                                    <h2
+                                                                                        class="text-xl font-semibold text-gray-900 ">
+                                                                                        Delivery Details
+                                                                                    </h2>
+
+                                                                                    <div
+                                                                                        class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                                                        <div>
+                                                                                            <label for="contactName"
+                                                                                                class=" mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                Full name*
+                                                                                            </label>
+                                                                                            <input type=" text"
+                                                                                                id="contactName"
+                                                                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                                placeholder="Bonnie Green"
+                                                                                                value="<%=user.addressId[0].contactName%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="email"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 ">
+                                                                                                Email
+                                                                                            </label>
+                                                                                            <input type="email"
+                                                                                                id="email"
+                                                                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                                placeholder="name@flowbite.com"
+                                                                                                value="<%=user.email%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <div
+                                                                                                class="mb-2 flex items-center gap-2">
+                                                                                                <label for="district"
+                                                                                                    class="block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                    District*
+                                                                                                </label>
+                                                                                            </div>
+                                                                                            <input type="text"
+                                                                                                id="district"
+                                                                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                                placeholder=""
+                                                                                                value="<%=user.addressId[0].district%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="phone"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                Phone Number*
+                                                                                            </label>
+                                                                                            <input type="number"
+                                                                                                id="phone"
+                                                                                                class="z-20 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:border-s-gray-700  dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500"
+                                                                                                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                                                                                                placeholder="10 digit"
+                                                                                                value="<%=user.addressId[0].contactNumber%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="building"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                Flat, House no.,
+                                                                                                Building, Company,
+                                                                                                Apartment* </label>
+                                                                                            <input type="text"
+                                                                                                id="building"
+                                                                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                                placeholder=""
+                                                                                                value="<%=user.addressId[0].building%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="landmark"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                Landmark
+                                                                                            </label>
+                                                                                            <input type="text"
+                                                                                                id="landmark"
+                                                                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                                placeholder="Eg: near KIMS Hospital"
+                                                                                                value="<%=user.addressId[0].landmark%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="street"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                Area, Street, Sector,
+                                                                                                Village
+                                                                                            </label>
+                                                                                            <input type="text"
+                                                                                                id="street"
+                                                                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                                placeholder=""
+                                                                                                value="<%=user.addressId[0].street%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="pincode"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                Pincode*
+                                                                                            </label>
+                                                                                            <input type="number"
+                                                                                                id="pincode"
+                                                                                                class="z-20 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:border-s-gray-700  dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500"
+                                                                                                pattern="[0-9]{6}"
+                                                                                                placeholder="6 digit pincode"
+                                                                                                value="<%=user.addressId[0].pincode%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div>
+                                                                                            <label for="state"
+                                                                                                class="mb-2 block text-sm font-medium text-gray-600 edit_input ">
+                                                                                                State*
+                                                                                            </label>
+                                                                                            <input type="text"
+                                                                                                id="state"
+                                                                                                class="z-20 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-600 edit_input focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:border-s-gray-700  dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500"
+                                                                                                placeholder=""
+                                                                                                value="<%=user.addressId[0].state%>"
+                                                                                                disabled />
+                                                                                        </div>
+
+                                                                                        <div id="addAddress"
+                                                                                            class="sm:col-span-2">
+                                                                                            <a href="/user/address"
+                                                                                                class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700">
+                                                                                                <svg class="h-5 w-5"
+                                                                                                    aria-hidden="true"
+                                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                                    width="24"
+                                                                                                    height="24"
+                                                                                                    fill="none"
+                                                                                                    viewBox="0 0 24 24">
+                                                                                                    <path
+                                                                                                        stroke="currentColor"
+                                                                                                        stroke-linecap="round"
+                                                                                                        stroke-linejoin="round"
+                                                                                                        stroke-width="2"
+                                                                                                        d="M5 12h14m-7 7V5" />
+                                                                                                </svg>
+                                                                                                Add new address
+                                                                                            </a>
+                                                                                        </div>
+                                                                                        <!-- Show when the edit  button is clicked -->
+                                                                                        <div id="updateBtn"
+                                                                                            class="sm:col-span-2 hidden">
+                                                                                            <button type="button"
+                                                                                                onclick="updateAddress()"
+                                                                                                class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700">
+                                                                                                <svg class="h-5 w-5"
+                                                                                                    aria-hidden="true"
+                                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                                    width="24"
+                                                                                                    height="24"
+                                                                                                    fill="none"
+                                                                                                    viewBox="0 0 24 24">
+                                                                                                    <path
+                                                                                                        stroke="currentColor"
+                                                                                                        stroke-linecap="round"
+                                                                                                        stroke-linejoin="round"
+                                                                                                        stroke-width="2"
+                                                                                                        d="M5 12h14m-7 7V5" />
+                                                                                                </svg>
+                                                                                                Update Address
+                                                                                                </button=>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="space-y-4">
+                                                                                    <h3
+                                                                                        class="text-xl font-semibold text-gray-900 ">
+                                                                                        Payment</h3>
+
+                                                                                    <div
+                                                                                        class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                                                                        <%if(user.addressId.length>0){%>
+                                                                                            <%user.addressId.forEach((address,index)=>
+                                                                                                {%>
+                                                                                                <div
+                                                                                                    class="rounded-lg border border-gray-200 bg-gray-50 p-4 ps-4 dark:border-gray-700 dark:bg-gray-800">
+                                                                                                    <div
+                                                                                                        class="flex items-start">
+                                                                                                        <div class="">
+                                                                                                            <input
+                                                                                                                aria-describedby="credit-card-text"
+                                                                                                                type="radio"
+                                                                                                                name="addressRadio"
+                                                                                                                value="<%= JSON.stringify(user.addressId[index])%>"
+                                                                                                                class="h-4 w-4 border-gray-300 bg-white text-primary-600 addressRadio"
+                                                                                                                onclick="toggleBtn()"
+                                                                                                                <%=index===0
+                                                                                                                ? 'checked'
+                                                                                                                : ''
+                                                                                                                %>/>
+                                                                                                        </div>
+
+                                                                                                        <div
+                                                                                                            class="ms-4 text-sm">
+                                                                                                            <div
+                                                                                                                class="font-medium leading-none mb-2 text-gray-900 ">
+                                                                                                                Address
+                                                                                                                <%=index+1%>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <%=user.addressId[index].contactName%>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <%=user.addressId[index].contactNumber%>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <%=user.addressId[index].building%>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+
+                                                                                                    <div
+                                                                                                        class="mt-4 flex items-center gap-2 groupButtons">
+                                                                                                        <button
+                                                                                                            type="button"
+                                                                                                            id="deleteAddressBtn"
+                                                                                                            onclick="deleteAddress('<%= index%>', '<%= user.addressId[index]._id%>')"
+                                                                                                            class="text-sm font-medium text-gray-500">Delete</button>
+
+                                                                                                        <div
+                                                                                                            class="h-3 w-px shrink-0 bg-gray-200 dark:bg-gray-700">
+                                                                                                        </div>
+
+                                                                                                        <button
+                                                                                                            type="button"
+                                                                                                            id="editAddressBtn"
+                                                                                                            onclick="editAddress('<%=index%>')"
+                                                                                                            class="text-sm font-medium text-gray-500">Edit</button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <%})%>
+                                                                                                    <%}%>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="space-y-4">
+                                                                                    <h3
+                                                                                        class="text-xl font-semibold text-gray-900 ">
+                                                                                        Delivery Methods
+                                                                                    </h3>
+
+                                                                                    <div
+                                                                                        class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                                                                        <div
+                                                                                            class="rounded-lg border border-gray-200 bg-gray-50 p-4 ps-4 dark:border-gray-700 dark:bg-gray-800">
+                                                                                            <div
+                                                                                                class="flex items-start">
+                                                                                                <div
+                                                                                                    class="flex h-5 items-center">
+                                                                                                    <input id="cod"
+                                                                                                        aria-describedby="fedex-text"
+                                                                                                        type="radio"
+                                                                                                        name="paymentMethod"
+                                                                                                        value="cod"
+                                                                                                        class="h-4 w-4 border-gray-300 bg-white text-primary-600"
+                                                                                                        checked />
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    class="ms-4 text-sm">
+                                                                                                    <label for="cod"
+                                                                                                        class="font-medium leading-none text-gray-900 ">
+                                                                                                        Cash On
+                                                                                                        Delivery</label>
+                                                                                                    <p id="fedex-text"
+                                                                                                        class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                                                                        Get it by
+                                                                                                        Friday, 13 Dec
+                                                                                                        2023</p>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <div
+                                                                                            class="rounded-lg border border-gray-200 bg-gray-50 p-4 ps-4 dark:border-gray-700 dark:bg-gray-800">
+                                                                                            <div
+                                                                                                class="flex items-start">
+                                                                                                <div
+                                                                                                    class="flex h-5 items-center">
+                                                                                                    <input id="razorpay"
+                                                                                                        aria-describedby="express-text"
+                                                                                                        type="radio"
+                                                                                                        name="paymentMethod"
+                                                                                                        value="razorpay"
+                                                                                                        class="h-4 w-4 border-gray-300 bg-white text-primary-600" />
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    class="ms-4 text-sm">
+                                                                                                    <label
+                                                                                                        for="razorpay"
+                                                                                                        class="font-medium leading-none text-gray-900 ">
+                                                                                                        <i>RazorPAy</i>
+                                                                                                    </label>
+                                                                                                    <p id="express-text"
+                                                                                                        class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                                                                        Online payment
+                                                                                                    </p>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <div
+                                                                                            class="rounded-lg border border-gray-200 bg-gray-50 p-4 ps-4 dark:border-gray-700 dark:bg-gray-800">
+                                                                                            <div
+                                                                                                class="flex items-start">
+                                                                                                <div
+                                                                                                    class="flex h-5 items-center">
+                                                                                                    <input id="razorpay"
+                                                                                                        aria-describedby="express-text"
+                                                                                                        type="radio"
+                                                                                                        name="paymentMethod"
+                                                                                                        value="wallet"
+                                                                                                        class="h-4 w-4 border-gray-300 bg-white text-primary-600" />
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    class="ms-4 text-sm">
+                                                                                                    <label
+                                                                                                        for="razorpay"
+                                                                                                        class="font-medium leading-none text-gray-900 ">
+                                                                                                        <i>Wallet</i>
+                                                                                                    </label>
+                                                                                                    <p id="express-text"
+                                                                                                        class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                                                                        Balance: 3000/-
+                                                                                                    </p>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div>
+                                                                                    <label for="voucher"
+                                                                                        class="mb-2 block text-sm font-medium text-gray-900 ">
+                                                                                        Enter
+                                                                                        a gift card, voucher or
+                                                                                        promotional code </label>
+                                                                                    <div
+                                                                                        class="flex max-w-md items-center gap-4">
+                                                                                        <input type="text" id="voucher"
+                                                                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                                                                            placeholder="" />
+                                                                                        <button type="button"
+                                                                                            class="flex items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Apply</button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <%let price=0;%>
+                                                                                <%let discountedPrice=0;%>
+
+                                                                                    <%if(cart.items.length>0){%>
+                                                                                        <%cart.items.forEach(item=> {%>
+                                                                                            <%price=(price+item.product.productPrice)*item.quantity%>
+                                                                                                <%discountedPrice+=item.discountedPrice%>
+                                                                                                    <%})%>
+                                                                                                        <% }%>
+
+                                                                                                            <div
+                                                                                                                class="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                                                                                                                <div
+                                                                                                                    class="flow-root">
+                                                                                                                    <div
+                                                                                                                        class="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
+                                                                                                                        <dl
+                                                                                                                            class="flex items-center justify-between gap-4 py-3">
+                                                                                                                            <dt
+                                                                                                                                class="text-base font-normal text-gray-500 dark:text-gray-400">
+                                                                                                                                Price
+                                                                                                                                (
+                                                                                                                                <%=cart.items.length%>
+                                                                                                                                    items)
+                                                                                                                            </dt>
+                                                                                                                            <dd
+                                                                                                                                class="text-base font-medium text-gray-900 ">
+                                                                                                                                ₹
+                                                                                                                                <%=price%>
+                                                                                                                            </dd>
+                                                                                                                        </dl>
+
+                                                                                                                        <dl
+                                                                                                                            class="flex items-center justify-between gap-4 py-3">
+                                                                                                                            <dt
+                                                                                                                                class="text-base font-normal text-gray-500 dark:text-gray-400">
+                                                                                                                                Discount
+                                                                                                                            </dt>
+                                                                                                                            <dd
+                                                                                                                                class="text-base font-medium text-green-500">
+                                                                                                                                -₹
+                                                                                                                                <%=parseInt(price-discountedPrice)%>
+                                                                                                                            </dd>
+                                                                                                                        </dl>
+
+                                                                                                                        <dl
+                                                                                                                            class="flex items-center justify-between gap-4 py-3">
+                                                                                                                            <dt
+                                                                                                                                class="text-base font-normal text-gray-500 dark:text-gray-400">
+                                                                                                                                Delivery
+                                                                                                                                Fee
+                                                                                                                            </dt>
+                                                                                                                            <dd
+                                                                                                                                class="text-base font-medium text-gray-900 ">
+                                                                                                                                <strike>₹40</strike>
+                                                                                                                                Free
+                                                                                                                            </dd>
+                                                                                                                        </dl>
+
+                                                                                                                        <dl
+                                                                                                                            class="flex items-center justify-between gap-4 py-3">
+                                                                                                                            <dt
+                                                                                                                                class="text-base font-bold text-gray-900 ">
+                                                                                                                                Total
+                                                                                                                            </dt>
+                                                                                                                            <dd
+                                                                                                                                class="text-base font-bold text-gray-900 ">
+                                                                                                                                ₹
+                                                                                                                                <%=discountedPrice%>
+                                                                                                                            </dd>
+                                                                                                                        </dl>
+                                                                                                                    </div>
+                                                                                                                </div>
+
+                                                                                                                <div
+                                                                                                                    class="space-y-3">
+                                                                                                                    <button
+                                                                                                                        id="processPayment"
+                                                                                                                        type="button"
+                                                                                                                        class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4  focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Proceed
+                                                                                                                        to
+                                                                                                                        Payment</button>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </section>
+                                                            </main>
+                                                        </div>
+                                                </div>
+
+                                                <script>
+
+                                                    // Contains form validation logic.
+                                                    const validation = {
+                                                        isValidContactName(contactName) {
+                                                            if (!contactName) return false;
+                                                            const regex = /^(?!\s*$)[A-Za-z\s]+$/;
+                                                            return regex.test(contactName);
+                                                        },
+                                                        isValidContactNumber(contactNumber) {
+                                                            if (!contactNumber) return false;
+                                                            const regex = /^\d{10}$/;
+                                                            return regex.test(contactNumber);
+                                                        },
+                                                        isValidPincode(pincode) {
+                                                            if (!pincode) {
+                                                                console.log(pincode)
+                                                                return false;
+                                                            };
+                                                            const regex = /^\d{6}$/;
+                                                            console.log(regex.test(pincode))
+                                                            return regex.test(pincode);
+                                                        },
+                                                        isValidBuilding(building) {
+                                                            if (!building) return false;
+                                                            const regex = /^(?!\s*$).{3,}$/;
+                                                            return regex.test(building);
+                                                        },
+                                                        isValidStreet(street) {
+                                                            if (!street) return false;
+                                                            const regex = /^(?!\s*$).{3,}$/;
+                                                            return regex.test(street);
+                                                        },
+                                                        isValidDistrict(district) {
+                                                            if (!district) return false;
+                                                            const regex = /^(?!\s*$)[A-Za-z\s]+$/;
+                                                            return regex.test(district);
+                                                        },
+                                                    }
+
+                                                    // Function to validate from 
+                                                    function validateFormInputs(formInputs) {
+                                                        let isValid = true;
+                                                        let error = '';
+
+                                                        try {
+
+                                                            if (!validation.isValidContactName(formInputs.contactName)) {
+                                                                error = 'Name must be at least 4 characters long and only contain letters and spaces.';
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            if (!validation.isValidContactNumber(formInputs.contactNumber)) {
+                                                                error = "Invalid phone number. Ensure it is 10 digits long and contains only numbers.";
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            if (!validation.isValidPincode(formInputs.pincode)) {
+                                                                error = "Invalid Pincode. Ensure it is 6 digits long and contains only numbers."
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            if (!validation.isValidBuilding(formInputs.building)) {
+                                                                error = 'Building name must be at least 3 characters long.';
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            if (!validation.isValidStreet(formInputs.street)) {
+                                                                error = 'Street name must be at least 3 characters long.';
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            if (!validation.isValidDistrict(formInputs.district)) {
+                                                                error = 'District name must be at least 3 characters long and should not contain any numbers..';
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            if (!document.querySelector('#state').value) {
+                                                                error = 'Please choose a state .';
+                                                                isValid = false;
+                                                                return { isValid, error };
+                                                            }
+
+                                                            return { isValid, error };
+
+                                                        } catch (err) {
+                                                            console.log('Error caught while validating address form inputs', err);
+                                                            alert("Error", err);
+                                                        }
+                                                    }
+
+                                                    //* event listener to change the address
+                                                    document.querySelectorAll('.addressRadio').forEach(address => {
+                                                        address.addEventListener('change', function (event) {
+                                                            const address = JSON.parse(event.target.value);
+
+                                                            document.querySelector('#contactName').value = address.contactName;
+                                                            document.querySelector('#building').value = address.building;
+                                                            document.querySelector('#district').value = address.district;
+                                                            document.querySelector('#landmark').value = address.landmark;
+                                                            document.querySelector('#pincode').value = address.pincode;
+                                                            document.querySelector('#street').value = address.street;
+                                                            document.querySelector('#state').value = address.state;
+                                                            document.querySelector('#phone').value = address.contactNumber;
+
+                                                        });
+                                                    });
+
+                                                    //* To ensure that the Edit button does not trigger when clicking on an unselected radio input.
+                                                    function toggleBtn() {
+                                                        const radios = document.querySelectorAll('input[name="addressRadio"]');
+                                                        const buttonGroups = document.querySelectorAll('.buttonGroup');
+
+                                                        buttonGroups.forEach(group => {
+                                                            const index = group.getAttribute('data-index');
+                                                            const radio = radios[index];
+
+                                                            if (radio.checked) {
+                                                                group.querySelector('button#deleteAddressBtn').disabled = false;
+                                                                group.querySelector('button#editAddressBtn').disabled = false;
+                                                            } else {
+                                                                group.querySelector('button#deleteAddressBtn').disabled = true;
+                                                                group.querySelector('button#editAddressBtn').disabled = true;
+                                                            }
+                                                        });
+
+                                                        document.querySelectorAll('.edit_input').forEach(input => {
+                                                            input.disabled = true;
+                                                            input.classList.add('text-gray-600');
+                                                            input.classList.remove('text-gray-800');
+                                                        });
+
+                                                        document.querySelector('#addAddress').classList.remove('hidden')
+                                                        document.querySelector('#updateBtn').classList.add('hidden');
+                                                    }
+
+                                                    // Initialize button states on page load.
+                                                    document.addEventListener('DOMContentLoaded', toggleBtn);
+
+
+                                                    //* To ensure that each input is enabled for editing.
+                                                    function editAddress(index) {
+                                                        const radios = document.querySelectorAll('input[name="addressRadio"]');
+                                                        const selectedRadio = radios[index];
+
+                                                        if (!selectedRadio.checked) return;
+
+                                                        document.querySelectorAll('.edit_input').forEach(input => {
+                                                            input.disabled = false;
+                                                            input.classList.remove('text-gray-600');
+                                                            input.classList.add('text-gray-800');
+                                                        });
+
+                                                        document.querySelector('#addAddress').classList.add('hidden')
+                                                        document.querySelector('#updateBtn').classList.remove('hidden')
+                                                    }
+
+                                                    //* Deletes the address permanently.
+                                                    async function deleteAddress(index, addressId) {
+                                                        const radios = document.querySelectorAll('input[name="addressRadio"]');
+                                                        const selectedRadio = radios[index];
+
+                                                        if (!selectedRadio.checked) {
+                                                            // alert('Please select the corresponding address first.');
+                                                            return;
+                                                        }
+
+                                                        const { isConfirmed } = await Swal.fire({
+                                                            title: 'Are You Sure?',
+                                                            text: 'your address will be deleted permanently',
+                                                            icon: 'warning',
+                                                            showCancelButton: true,
+                                                            confirmButtonText: 'Yes',
+                                                            cancelButtonText: 'No'
+                                                        });
+
+                                                        if (isConfirmed) {
+                                                            const response = await fetch(`/user/address/?addressId=${addressId}`, {
+                                                                method: 'DELETE'
+                                                            });
+
+                                                            const data = await response.json();
+                                                            if (!data.success) {
+                                                                await Swal.fire({
+                                                                    title: 'Error',
+                                                                    text: data.message,
+                                                                    icon: 'error',
+                                                                    confirmButtonText: 'Ok'
+                                                                });
+                                                                return;
+                                                            }
+
+                                                            await Swal.fire({
+                                                                title: 'Success',
+                                                                text: data.message,
+                                                                icon: 'success',
+                                                                confirmButtonText: 'Ok'
+                                                            });
+
+                                                            window.location.reload();
+                                                        } else return;
+                                                    }
+
+                                                    //* Updated the address.
+                                                    async function updateAddress() {
+
+                                                        const radios = document.querySelectorAll('input[name="addressRadio"]');
+                                                        let addressId;
+
+                                                        radios.forEach(radio => {
+                                                            if (radio.checked) {
+                                                                const address = JSON.parse(radio.value);
+                                                                addressId = address._id
+                                                            }
+                                                        });
+
+                                                        const formInputs = {
+                                                            contactNumber: document.querySelector('#phone').value.trim(),
+                                                            contactName: document.querySelector('#contactName').value.trim(),
+                                                            building: document.querySelector('#building').value.trim(),
+                                                            landmark: document.querySelector('#landmark').value.trim() || '',
+                                                            district: document.querySelector('#district').value.trim(),
+                                                            pincode: document.querySelector('#pincode').value.trim(),
+                                                            street: document.querySelector('#street').value.trim(),
+                                                            state: document.querySelector('#state').value.trim(),
+                                                        }
+
+                                                        try {
+                                                            const { isValid, error } = validateFormInputs(formInputs);
+
+                                                            if (!isValid) {
+                                                                await Swal.fire({
+                                                                    title: 'Invalid input',
+                                                                    text: error,
+                                                                    icon: 'warning',
+                                                                    confirmButtonText: 'Ok'
+                                                                });
+                                                                return;
+                                                            }
+
+                                                            const response = await fetch(`/user/address?addressId=${addressId}`, {
+                                                                method: 'PUT',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ formInputs })
+                                                            });
+
+                                                            const data = await response.json();
+
+                                                            if (!data.success) {
+                                                                await Swal.fire({
+                                                                    title: 'Failed to Update',
+                                                                    text: data.message,
+                                                                    icon: 'error',
+                                                                    confirmButtonText: 'Ok'
+                                                                });
+                                                                return;
+                                                            }
+
+                                                            await Swal.fire({
+                                                                title: 'Success',
+                                                                text: data.message,
+                                                                icon: 'success',
+                                                                confirmButtonText: 'Ok'
+                                                            });
+
+                                                            window.location.reload();
+
+                                                        } catch (err) {
+                                                            console.log('Error caught while submitting address form inputs when adding at checkout', err);
+                                                            alert("Error");
+                                                        }
+
+                                                    }
+
+                                                    //* Proceeds to payment.
+                                                    document.querySelector('#processPayment').addEventListener('click', async function () {
+                                                        const addressRadios = document.querySelectorAll('input[name="addressRadio"]');
+                                                        const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+                                                        let address;
+                                                        let paymentMethod;
+
+                                                        addressRadios.forEach(radio => {
+                                                            if (radio.checked) {
+                                                                address = JSON.parse(radio.value);
+                                                            }
+                                                        });
+
+                                                        paymentRadios.forEach(method => {
+                                                            if (method.checked) {
+                                                                paymentMethod = method.value;
+                                                            }
+                                                        });
+
+                                                        try {
+                                                            const response = await fetch('/user/checkout/payment', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ address, paymentMethod })
+                                                            });
+
+                                                            const data = await response.json();
+
+                                                            if (!data.success) {
+                                                                alert(data.message);
+                                                                return;
+                                                            }
+
+                                                            await Swal.fire({
+                                                                title: 'Success',
+                                                                text: 'The order has been successfully sent.',
+                                                                icon: 'success',
+                                                                confirmButtonText: 'Ok'
+                                                            });
+
+                                                            window.location.href = '/user/orderSummary';
+
+                                                        } catch (err) {
+                                                            console.log('Error caught while proceeding to pay at checkout', err);
+                                                            alert("Error");
+                                                        }
+
+                                                    })
+
+                                                </script>
+
+</body>
+
+</html>

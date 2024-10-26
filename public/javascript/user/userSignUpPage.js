@@ -172,11 +172,22 @@ async function requestOTP(email) {
         const data = await response.json();
 
         if (!data.success) {
-            alert(data.message);
+            await Swal.fire({
+                title: ' Email already taken',
+                text: 'The email you provided is already taken. Please use a different one.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
             return false;
         }
 
-        alert(data.message);
+        await Swal.fire({
+            title: 'OTP send',
+            text: data.message,
+            icon: 'success',
+            confirmButtonText: 'Ok'
+        });
+        
         document.getElementById('otpModal').classList.remove('hidden');
         document.getElementById('modalOtpId').value = data.otpId;
         otpTimer(60, data.otpId);
@@ -203,7 +214,11 @@ document.getElementById('signUpForm').addEventListener('submit', async function 
     const requested = requestOTP(email);
 
     if (!requested) {
-        alert('failed to request OTP. Please try again.');
+        // await Swal.fire({
+        //     title: 'Error',
+        //     text: 'failed to request OTP. Please try again.',
+
+        // });
         return;
     }
 
@@ -216,8 +231,6 @@ document.getElementById('signUpForm').addEventListener('submit', async function 
     // const userData = await user.json();
 
     // if (!userData.success) window.location.href = userData.redirectUrl;
-
-
 
 });
 

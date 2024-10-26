@@ -191,7 +191,7 @@ const deleteCategory = async (req, res) => {
 const adminCategory = async (req, res) => {
     try {
 
-        // if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect('/admin/signIn');
 
         const categories = await categoryModel.find({});
 

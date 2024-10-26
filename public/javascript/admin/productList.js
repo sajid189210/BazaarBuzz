@@ -1,5 +1,4 @@
 const editModal = document.getElementById('editModal');
-
 const imageInput = document.getElementById('imageUpload');
 const imagePreview = document.getElementById('imagePreview');
 const cropModal = document.getElementById('cropModal');
@@ -8,7 +7,7 @@ const cropButton = document.getElementById('cropButton');
 const cancelButton = document.getElementById('cancelButton');
 let cropper;
 let uploadedImages = 0;
-let selectedImages = [];
+// let selectedImages = []; //? moved to productVariantOption.js file in public
 
 //* for toggling active checkbox
 async function toggleStatus(target) {
@@ -39,8 +38,7 @@ async function toggleStatus(target) {
         width: '600px',
         confirmButtonText: 'Ok'
     });
-    // const span = document.getElementById(`productIsActive_${productId}`);
-    // console.log(span)
+
     document.querySelector(`#productIsActive_${productId}`).innerText = `${isActive ? "Active" : "Inactive"}`;
 }
 
@@ -76,12 +74,135 @@ function addCroppedImagePreview(imageSrc) {
         if (index >= 0) {
             selectedImages.splice(index, 1); // Remove the image URL from the array
         }
-        console.log(selectedImages)
     });
 
     uploadedImages++;
 }
 
+function populateOptions(variants) {
+    const optionContainer = document.getElementById('optionContainer');
+
+    // displays the first option data.
+    document.querySelector("select[name='sizes']").value = variants[0].size;
+    document.querySelector("input[name='stock']").value = variants[0].stock;
+
+    // passing colors to the input.
+    for (let i = 0; i < variants[0].colors.length; i++) {
+        document.getElementById(`color-0-${i + 1}`).value = variants[0].colors[i];
+    }
+
+    // loops through the variants array if more than one variant exist
+    for (let i = 1; i < variants.length; i++) {
+        optionCount++;
+
+        const divContainer = document.createElement('div');
+        divContainer.classList.add('grid', 'gap-x-4', 'sm:col-span-3');
+
+        // Creates a remove button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'X';
+        removeButton.classList.add('remove-option', 'text-red-500', 'font-bold', 'ml-2');
+
+        // Adds event listener for the remove button
+        removeButton.addEventListener('click', function () {
+            optionContainer.removeChild(divContainer);
+            optionCount--; // Decrement the count
+
+            // Show the add button again if less than 6
+            if (optionContainer.children.length < 6) {
+                document.getElementById('addOptions').style.display = 'block';
+            }
+        });
+
+        // Create size label and select with unique ID
+        const sizeDiv = document.createElement('div');
+
+        const sizeLabel = document.createElement('label');
+        sizeLabel.setAttribute('for', `size-${optionCount}`); // Unique ID
+        sizeLabel.classList.add('mb-2', 'block', 'text-sm', 'font-medium', 'text-gray-900');
+        sizeLabel.textContent = 'Size';
+
+        const sizeSelect = document.createElement('select');
+        sizeSelect.id = `size-${optionCount}`; // Unique ID
+        sizeSelect.name = 'sizes'
+        sizeSelect.classList.add('block', 'w-full', 'rounded-lg', 'border', 'border-gray-300', 'bg-gray-50', 'p-2.5', 'text-gray-900', 'shadow-sm', 'focus:border-cyan-600', 'focus:ring-cyan-600', 'sm:text-sm', 'sizes');
+        sizeSelect.innerHTML = `
+                    <option value="">select</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="XXXL">XXXL</option>
+                `;
+        sizeSelect.value = variants[i].size;  //-> displays the value in the form.
+
+        const hiddenSizeInput = document.createElement('input');
+        hiddenSizeInput.type = 'hidden';
+        hiddenSizeInput.name = 'size';
+
+
+        sizeDiv.appendChild(sizeLabel);
+        sizeDiv.appendChild(sizeSelect);
+        sizeDiv.appendChild(hiddenSizeInput);
+
+
+        // Creates stock label and input
+        const stockDiv = document.createElement('div');
+
+        const stockLabel = document.createElement('label');
+        stockLabel.setAttribute('for', `stock-${optionCount}`); // Unique ID
+        stockLabel.classList.add('mb-2', 'block', 'text-sm', 'font-medium', 'text-gray-900');
+        stockLabel.textContent = 'Stock';
+
+        const stockInput = document.createElement('input');
+        stockInput.type = 'number';
+        stockInput.name = 'stock';
+        stockInput.id = `stock-${optionCount}`; // Unique ID
+        stockInput.classList.add('block', 'w-full', 'rounded-lg', 'border', 'border-gray-300', 'bg-gray-50', 'p-2.5', 'text-gray-900', 'shadow-sm', 'focus:border-cyan-600', 'focus:ring-cyan-600', 'sm:text-sm', 'stocks');
+
+        stockInput.value = variants[i].stock; //-> displays the value in the form.
+
+        stockDiv.appendChild(stockLabel);
+        stockDiv.appendChild(stockInput);
+
+        // Creates color inputs
+        const colorDiv = document.createElement('div');
+        colorDiv.classList.add('col-span-6');
+
+        const colorLabel = document.createElement('label');
+        colorLabel.setAttribute('for', `color-${optionCount}-1`);
+        colorLabel.classList.add('mt-4', 'mb-2', 'block', 'text-sm', 'font-medium', 'text-gray-900');
+        colorLabel.textContent = 'Colors';
+
+        const colorInputs = [];
+        for (let i = 1; i <= 3; i++) {
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.name = `color-${optionCount}-${i}`; // Unique name
+            colorInput.id = `color-${optionCount}-${i}`; // Unique ID
+            colorInput.classList.add('border', 'border-slate-300', 'mb-2');
+            colorInputs.push(colorInput);
+            colorDiv.appendChild(colorInput);
+        }
+
+        colorDiv.appendChild(colorLabel);
+        colorInputs.forEach(input => colorDiv.appendChild(input));
+
+        // Appends the remove button, size, stock, and color sections to the main container
+        divContainer.appendChild(sizeDiv);
+        divContainer.appendChild(stockDiv);
+        divContainer.appendChild(removeButton);
+        divContainer.appendChild(colorDiv);
+        optionContainer.appendChild(divContainer);
+
+        // passing colors to the input.
+        for (let j = 0; j < variants[i].colors.length; j++) {
+            document.querySelector(`#color-${i}-${j + 1}`).value = variants[i].colors[j];
+        }
+    };
+    return;
+}
 
 //function to submit the updated product details
 async function showProductDetails(product) {
@@ -100,10 +221,10 @@ async function showProductDetails(product) {
     document.getElementById('category').value = product.categoryId.title;
     document.getElementById('selectedCategory').value = product.categoryId._id;
     document.getElementById('selectedBrand').value = product.brand;
-    document.getElementById('size').value = product.size;
-    document.getElementById('selectedSize').value = product.size;
-    document.getElementById('stock').value = product.stock;
-    document.getElementById('description').value = product.description;
+    document.getElementById('productDetails').value = product.description;
+
+    if (product.featured) document.querySelector('#featured').checked = true;
+    if (product.limitedEdition) document.querySelector('#limitedEdition').checked = true;
 
     if (brands && brands.length > 0) {
         brands.forEach(brand => {
@@ -111,9 +232,7 @@ async function showProductDetails(product) {
         });
     }
 
-    for (let i = 0; i < product.colors.length; i++) {
-        document.getElementById(`color${i + 1}`).value = product.colors[i]
-    }
+    populateOptions(product.variants); // show the size, stock and color 
 
     selectElement.innerHTML = selectedBrand + selectElement.innerHTML.slice(selectElement.selectedIndex);
 
@@ -127,6 +246,8 @@ async function showProductDetails(product) {
 //* opens the editModal ...
 function showEditModal(target) {
     const product = JSON.parse(target.dataset.product);
+    console.log(product);
+
 
     editModal.classList.remove('hidden');
     window.scrollTo(0, 0);
@@ -181,13 +302,6 @@ document.getElementById('category').addEventListener('change', async function ()
 document.getElementById('brands').addEventListener('change', function () {
     const selectedOption = this.value;
     const targetElement = document.getElementById('selectedBrand');
-    targetElement.value = selectedOption;
-});
-
-//For selecting the size option
-document.getElementById('size').addEventListener('change', function () {
-    const selectedOption = this.value;
-    const targetElement = document.getElementById('selectedSize');
     targetElement.value = selectedOption;
 });
 
@@ -274,58 +388,83 @@ cancelButton.addEventListener('click', function () {
 });
 //**************************************************************************
 
-// * listens to the submit event to update product.
-document.getElementById('productDetailForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
+//* listens to the submit event to update product.
+document.getElementById('productDetailFormSubmission').addEventListener('click', async function (event) {
 
     const productId = document.getElementById('productId').value;
 
-    let colors = [];
+    const result = await prepareProductDetails();
 
-    document.querySelectorAll('input[name="color"]').forEach(input => {
-        const colorValue = input.value;
-        if (!colors.includes(colorValue)) {
-            colors.push(colorValue);
+    if (!result.success) {
+        return;
+    }
+
+    // Validates the empty input fields.
+    for (let key in result.productDetails) {
+        // Checks if the key is neither 'featured' nor 'limitedEdition'
+        if (!['featured', 'limitedEdition'].includes(key)) {
+            if (!result.productDetails[key]) {
+                await Swal.fire({
+                    title: 'All fields required!',
+                    text: 'Please fill all the fields.',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
         }
-    });
+    }
 
-    if (!colors) {
-        alert('Please select the colors');
+
+    // validates the product price.  
+    if (result.productDetails.productPrice < 0) {
+        await Swal.fire({
+            title: 'Invalid Price!',
+            text: 'Price should be a valid positive integer.',
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+        });
         return;
     }
 
+    // validates the product discount.  
+    if (result.productDetails.discount < 0) {
+        await Swal.fire({
+            title: 'Invalid Discount!',
+            text: 'Discount should be a valid positive integer.',
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+        });
+        return;
+    }
+
+    // validates the product images.
     if (selectedImages.length < 3 || uploadedImages === 0) {
-        alert('Must choose atleast 3 images.');
+        await Swal.fire({
+            title: 'Not enough images!',
+            text: 'Please choose minimum of 3 images.',
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+        });
         return;
     }
-
-    const productDetails = {
-        productName: document.getElementById('productName').value.trim(),
-        productPrice: document.getElementById('price').value.trim(),
-        categoryId: document.getElementById('selectedCategory').value,
-        stock: document.getElementById('stock').value,
-        discount: document.getElementById('discount').value,
-        brand: document.getElementById('selectedBrand').value,
-        images: selectedImages,
-        colors: colors,
-        description: document.getElementById('description').value.trim(),
-        fabric: document.getElementById('fabric').value,
-        size: document.getElementById('selectedSize').value,
-        gender: document.getElementById('selectedGender').value,
-    };
 
     try {
-        const response = await fetch(`/admin/productList/update/${productId}`, {
-            method: 'PATCH',
+        const response = await fetch(`/admin/productList/update?productId=${productId}`, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productDetails })
+            body: JSON.stringify({ productDetails: result.productDetails })
         });
 
         const data = await response.json();
 
         if (!data.success) {
-            console.error(data.message);
-            alert(data.message);
+            await Swal.fire({
+                title: 'Error',
+                text: data.message,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
             return;
         }
 
@@ -379,6 +518,15 @@ document.getElementById('searchInput').addEventListener('input', async function 
 
             data.products.forEach(product => {
                 if (product) {
+
+                    function escapeQuotes(str) {
+                        return str.replace(/"/g, '&quot;');
+                    }
+                    console.log(product);
+                    
+                    
+                    const productString = escapeQuotes(JSON.stringify(product));
+
                     const div = document.createElement('div')
                     div.innerHTML = `
                         <div class="relative overflow-hidden rounded-lg bg-gray-50 shadow-md">
@@ -390,27 +538,29 @@ document.getElementById('searchInput').addEventListener('input', async function 
                                         class="h-full w-full object-contain" />
                                 </div>
                                 <div class="bg-white p-4 min-h-[260px]">
-                                    <h3 class="text-sm mb-2 h-[100px] text-wrap font-bold text-slate-800">
+                                    <h3 class="text-sm mb-4 text-wrap font-bold text-slate-800">
                                         ${product.productName}
                                     </h3>
-                                    <div class="">
-                                        <h4><strong>Price: </strong>
-                                            <span class="text-md font-medium text-gray-800">
-                                                ₹${product.productPrice}/-
-                                            </span>
-                                        </h4>
-                                        <h4><strong>Stock: </strong>
-                                            <span class="text-md font-medium text-gray-800">
-                                                ${product.stock}
-                                            </span>
-                                        </h4>
+                                    <div class="h-[150px]">
+                                            <h4 class="mb-2 font-medium">Price:
+                                                <span class="text-md font-medium text-gray-800">₹${product.productPrice}/-</span>
+                                            </h4>
+                                            <div>
+                                                ${product.variants.map(variant => `
+                                                    <div class="flex gap-4 mb-2">
+                                                        <h4 class="font-medium">Size:
+                                                            <span class="text-md font-medium text-gray-800">${variant.size}</span>
+                                                        </h4>
+                                                        <h4 class="font-medium">Stock:
+                                                            <span class="text-md font-medium text-gray-800">${variant.stock}</span>
+                                                        </h4>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                            <p class="font-medium">Created At:
+                                                <span class="text-md font-medium text-gray-800">${new Date(product.createdAt).toLocaleDateString()}</span>
+                                            </p>
                                     </div>
-    
-                                    <p><strong>Created At: </strong>
-                                        <span class="text-md font-medium text-gray-800">
-                                            ${product.createdAt.toLocaleString()}
-                                        </span>
-                                    </p>
     
                                     <div class="mt-4 flex items-center justify-between space-x-2">
                                         <div class="parentElement flex items-center space-x-4">
@@ -429,7 +579,7 @@ document.getElementById('searchInput').addEventListener('input', async function 
                                         </div>
                                         <div>
                                             <button class="mr-2" type="button" onclick="showEditModal(this)"
-                                                data-product="${JSON.stringify(product)}">
+                                                data-product="${productString}">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     class="w-5 fill-blue-500 hover:fill-blue-700"
                                                     viewBox="0 0 348.882 348.882">

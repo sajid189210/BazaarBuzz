@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="relative">
+
+        <!-- Header -->
+        <%- include('../partials/userHeader') %>
+
+            <div class="absolute top-[50px] w-full h-screen">
+
+                <div class="px-8 pt-8 mb-4">
+                    <!-- BreadCrumbs -->
+                </div>
+
+                <main class="">
+                    <h1 class="text-4xl font-semibold pb-8 text-center">Order Summary</h1>
+                    <div class="mx-8 p-4 max-md:max-w-xl">
+                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Billing & Delivery
+                            Information</h2>
+                        <div class="mx-auto flex justify-between w-2/3 px-10">
+                            <div class="mt-4 flex flex-col gap-y-2">
+                                <p class="uppercase font-medium">
+                                    <%= user.userName%>
+                                </p>
+                                <p>
+                                    <%=order.shippingAddress.building%>
+                                </p>
+                                <p>
+                                    <%= order.shippingAddress.street%>
+                                        <%= order.shippingAddress.landmark%>
+                                </p>
+                                <p>
+                                    Pincode: <%= order.shippingAddress.pincode%>
+                                </p>
+
+                                <p>
+                                    <%= order.shippingAddress.district%>
+                                        <%= order.shippingAddress.state%>
+                                </p>
+                            </div>
+                            <div class="mt-4 flex flex-col gap-y-2">
+                                <p>
+                                    <span class="uppercase font-bold">OrderId:</span>
+                                    <%=order._id%>
+                                </p>
+                                <p>
+                                    <span class="uppercase font-bold">payment method:</span>
+                                    <%=order.paymentMethod%>
+
+                                </p>
+                                <p>
+                                    <span class="uppercase font-bold">order status:</span>
+                                    <%=order.orderStatus%>
+                                </p>
+
+                                <p>
+                                    <span class="uppercase font-bold">ordered On:</span>
+                                    <%= order.createdAt.toLocaleString()%>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mx-8 p-4 max-md:max-w-xl">
+                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Product Details
+                        </h2>
+
+                        <div class="mx-auto w-2/3 px-10 ">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b-2 border-slate-400">
+                                        <th class="text-left py-3">SL NO.</th>
+                                        <th class="text-left py-3">Product Name</th>
+                                        <th class="text-left py-3">Quantity</th>
+                                        <th class="text-left py-3">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <%order.orderedProducts.forEach((item, index)=> {%>
+                                        <tr>
+                                            <td class="py-3 pl-4">
+                                                <%= index+1%>.
+                                            </td>
+                                            <td class="w-1/2">
+                                                <%=item.product.productName%>
+                                            </td>
+                                            <td class="pl-6">
+                                                <%= item.quantity%>
+                                            </td>
+                                            <td>
+                                                ₹ <%= item.discountedPrice%>
+                                            </td>
+                                        </tr>
+                                        <% })%>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <%let price=0;%>
+                        <%order.orderedProducts.forEach(item=> {%>
+                            <%price+=item.discountedPrice;%>
+                                <% } )%>
+                                    <div class="mx-8 p-4 max-md:max-w-xl">
+                                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">
+                                            Product Pricing
+                                        </h2>
+                                        <div class="flex justify-between mx-auto w-2/3 px-10 ">
+                                            <div>
+                                                <p class="font-medium mb-2">Total Price</p>
+                                                <p class="font-medium mb-2">Coupon Added</p>
+                                                <p class="font-medium mb-4">Delivery Charges</p>
+                                                <p class="font-medium text-xl">Total</p>
+                                            </div>
+                                            <div>
+                                                <p>₹ <%= price%></p>
+                                                <p class="text-red-600 mb-2">₹-0.00</p>
+                                                <p class="mb-4  text-right pr-4">Free</p>
+                                                <p class="font-medium text-xl">₹ <%= price%></p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-6 justify-center p-6">
+                                        <a href="/user/homepage" class="bg-pink-600 p-2 text-white rounded-lg">Back to shopping</a>
+                                        <a href="/user/orders" class="bg-pink-600 p-2 text-white rounded-lg">Go to Orders</a>
+                                    </div>
+                </main>
+            </div>
+    </div>
+
+</body>
+
+</html>654321``1

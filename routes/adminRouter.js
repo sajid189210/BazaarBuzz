@@ -1,33 +1,28 @@
 const router = require('express').Router();
-const adminController = require("../controller/adminController/adminController");
 const categoryController = require("../controller/adminController/categoryController");
-const userManagement = require('../controller/adminController/userManagementController');
 const productManagement = require('../controller/adminController/productController');
 const bannerController = require('../controller/adminController/bannerController');
-
-// const multer = require('multer');
-// // const { cloudinary, storage, upload } = require('../Services/uploads');
-// const { storage } = require('../Services/uploads');
-// const upload = multer({ storage });
+const adminController = require("../controller/adminController/adminController");
+const orderController = require('../controller/adminController/orderController');
+const userManagement = require('../controller/adminController/userManagementController');
 
 const { storage } = require('../Services/uploads');
 const multer = require('multer');
 const upload = multer({ storage });
 
 
-
 //*------------------[Admin]----------------------
 router.get("/signIn", adminController.adminSignIn);
 
-router.post("/signIn", adminController.validateCredentials);
+router.get("/signOut", adminController.adminSignOut);
 
 router.get("/dashboard", adminController.dashboard);
 
 router.get("/changePassword", adminController.adminChangePassword)
 
-router.post("/changePassword", adminController.validateChangePassword);
+router.post("/signIn", adminController.validateCredentials);
 
-router.post("/signOut", adminController.adminSignOut);
+router.post("/changePassword", adminController.validateChangePassword);
 
 
 //*--------------------[Category]----------------
@@ -35,21 +30,21 @@ router.get("/category", categoryController.adminCategory);
 
 router.post("/category/create", categoryController.createCategory);
 
+router.put("/categoryStatus/:id", categoryController.changeCategoryStatus);
+
 router.patch("/category/update", categoryController.updateCategory);
 
 router.delete("/category/delete/:id", categoryController.deleteCategory);
-
-router.put("/categoryStatus/:id", categoryController.changeCategoryStatus);
 
 
 //*---------------[User Management]-------------------------
 router.get('/userList/', userManagement.userManagementPage);
 
-router.put('/userList/unblocked/:id', userManagement.unBlockUser);
+router.post('/search', userManagement.searchUser);
 
 router.put('/userList/blocked/:id', userManagement.blockUser);
 
-router.post('/search', userManagement.searchUser);
+router.put('/userList/unblocked/:id', userManagement.unBlockUser);
 
 
 //*------------------[Product Management]--------------------
@@ -59,17 +54,24 @@ router.get('/fetchCategory/:id', productManagement.getCategory);
 
 router.get('/productList/create', productManagement.getCreateProducts);
 
+router.get('/searchProduct', productManagement.searchProduct);
+
+router.get('/removeProduct', productManagement.removeProduct);
+
 router.post('/productList/create', productManagement.createProducts);
 
 router.post('/uploadImage', upload.single('croppedImage'), productManagement.extractFilePath);
 
-router.patch('/productList/update/:id', productManagement.productUpdate);
-
 router.put('/status', productManagement.isActive);
 
-router.get('/searchProduct', productManagement.searchProduct);
+router.put('/productList/update', productManagement.productUpdate);
 
-router.get('/removeProduct', productManagement.removeProduct);
+//*------------------[Order Management]--------------------
+router.get('/orders', orderController.renderOrderList);
+router.get('/order/view', orderController.renderOrderView);
+router.patch('/order/changeStatus', orderController.changeStatus);
+router.patch('/order/returns', orderController.returnStatus);
+router.patch('/order/refund', orderController.refund);
 
 
 //*------------------[Banner]--------------------

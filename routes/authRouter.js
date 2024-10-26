@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const passport = require('passport');
+// const passport = require('passport');
 const googleAuthController = require('../controller/userController/googleAuthController');
 
 router.get('/google', googleAuthController.authenticate);

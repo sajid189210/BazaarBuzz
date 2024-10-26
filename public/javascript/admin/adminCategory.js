@@ -6,8 +6,18 @@ let brandToBeDeleted = []; //?This contains the brands that needs to be removed.
 const createCategory = async function () {
     try {
 
-        const brand = document.getElementById('brand').value;
-        const title = document.getElementById('title').value;
+        const brand = document.getElementById('brand').value.trim();
+        const title = document.getElementById('title').value.trim();
+
+        if (!brand || !title) {
+            await Swal.fire({
+                title: 'Empty!',
+                text: 'All fields must be filled.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
 
         const response = await fetch("/admin/category/create", {
             method: 'POST',
@@ -18,7 +28,7 @@ const createCategory = async function () {
         const data = await response.json();
 
         if (!data.success) {
-            Swal.fire({
+            await Swal.fire({
                 title: 'Warning',
                 icon: 'warning',
                 text: data.message,
@@ -170,9 +180,16 @@ const updateCategory = async function () {
 //*-------------delete category----------
 const deleteCategory = async function (id) {
     try {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Warning!',
+            text: 'Are you sure you want to delete the category?',
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        });
 
-        if (confirm("Are you sure you want to delete the category?")) {
-
+        if (isConfirmed) {
             const response = await fetch(`/admin/category/delete/${id}`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
@@ -180,10 +197,25 @@ const deleteCategory = async function (id) {
 
             const data = await response.json();
 
-            if (data.success) window.location.reload();
-            else alert(data.message);
+            if (!data.success) {
+                await Swal.fire({
+                    title: 'Sorry, Try again.',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
 
-        } else return
+            await Swal.fire({
+                title: 'Success',
+                text: data.message,
+                icon: 'success',
+                confirmButtonText: 'Ok'
+            });
+
+            window.location.reload();
+        } else return;
 
     } catch (error) {
         console.error(`Error deleting category: ${err.message}`);

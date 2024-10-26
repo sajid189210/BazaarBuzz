@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+    <div class="flex">
+        <%- include('../partials/adminSideMenu')%>
+            <div class="flex-1">
+
+                <header
+                    class="fixed top-0 left-[250px] right-0 h-[80px] border-b w-full flex items-center pl-6 bg-white">
+                    <ul class="flex items-center gap-x-2">
+                        <li class="text-gray-500 text-base cursor-pointer">
+                            <a href="/admin/dashboard">Dashboard</a>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3 -rotate-90"
+                                viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
+                                    clip-rule="evenodd" data-original="#000000"></path>
+                            </svg>
+                        </li>
+                        <li class="text-gray-500 text-base cursor-pointer">
+                            <a href="/admin/orders">Order List</a>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3 -rotate-90"
+                                viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
+                                    clip-rule="evenodd" data-original="#000000"></path>
+                            </svg>
+                        </li>
+                        <li class="text-black text-xl font-bold cursor-pointer">
+                            <a href="#">Order View</a>
+                        </li>
+                    </ul>
+                </header>
+
+                <main class="pl-[270px] pr-[20px] pt-[120px]">
+                    <h1 class="text-3xl font-medium">Order Information</h1>
+                    <div class="grid gap-4 mt-8">
+                        <div class="md:col-span-2 space-y-4">
+                            <h1 class="text-xl text-gray-800 font-medium">
+                                Date: <span class="text-lg text-gray-600">
+                                    <%= order.createdAt.toLocaleString()%>
+                                </span>
+                            </h1>
+                            <% order.orderedProducts.forEach(item=> {%>
+
+                                <div id="wrapper"
+                                    class="px-4 py-6 rounded-md shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
+                                    <div class="flex gap-4">
+                                        <div class="w-28 h-28 max-sm:w-24 max-sm:h-24 shrink-0">
+                                            <img src='<%= item.product.images[0]%>'
+                                                class="w-full h-full object-contain" />
+                                        </div>
+
+                                        <div class="flex flex-col gap-4 w-1/2">
+                                            <div>
+                                                <h3 class="text-base font-bold text-gray-800">
+                                                    <%= item.product.productName%>
+                                                </h3>
+                                                <p
+                                                    class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                    Color: <span class="inline-block w-5 h-5 rounded-md"
+                                                        style="background-color: <%= item.selectedColor%>;"></span>
+                                                </p>
+                                                <p
+                                                    class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                    Size: <span class="inline-block w-5 h-5 ">
+                                                        <%= item.selectedSize%>
+                                                    </span>
+                                                </p>
+                                                <p
+                                                    class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                    Quantity: <span class="inline-block w-5 h-5">
+                                                        <%= item.quantity%>
+                                                    </span>
+                                                </p>
+                                                <p
+                                                    class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                    Payment Status: <span class="inline-block w-5 h-5">
+                                                        <%= item.paymentStatus%>
+                                                    </span>
+                                                </p>
+                                                <p
+                                                    class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                    Payment Method: <span class="inline-block w-5 h-5 uppercase">
+                                                        <%= order.paymentMethod%>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="w-full pr-8 flex justify-end">
+                                            <div class="flex flex-col gap-4">
+                                                <p class="text-lg font-medium flex items-center text-gray-900">
+                                                    Order Status: <span id="orderStatusText"
+                                                        class="inline-block pl-2 font-normal text-gray-800">
+                                                        <%= item.orderStatus%>
+                                                    </span>
+                                                </p>
+
+                                                <select name="orderStatus" id="orderStatus"
+                                                    data-order-item-id="<%= item._id %>"
+                                                    data-product-id="<%= item.product._id %>"
+                                                    class="border-2 p-1.5 cursor-pointer uppercase <%= item.orderStatus === 'delivered' || item.orderStatus === 'cancelled' ? 'hidden' : '' %>">
+                                                    <option value="">Status</option>
+                                                    <option value="processing" <%=item.orderStatus==='processing' ||
+                                                        item.orderStatus==='shipped' ? 'disabled' : '' %>>Processing
+                                                    </option>
+                                                    <option value="shipped" <%=item.orderStatus==='shipped' ? 'disabled'
+                                                        : '' %>>Shipped</option>
+                                                    <option value="cancelled" <%=item.orderStatus==='cancelled'
+                                                        ? 'disabled' : '' %>>Cancelled</option>
+                                                    <option value="delivered" <%=item.orderStatus==='delivered'
+                                                        ? 'disabled' : '' %>>Delivered</option>
+                                                </select>
+
+                                                <p
+                                                    class="text-lg flex items-center text-gray-900 font-medium <%= item.returnStatus? '' : 'hidden'%>">
+                                                    Return Status: <span
+                                                        class="inline-block pl-2 font-normal text-gray-800">
+                                                        <%= item.returnStatus%>
+                                                    </span>
+                                                </p>
+
+                                                <p class="text-lg flex items-center text-gray-900">
+                                                    Total amount: <span
+                                                        class="inline-block pl-2 font-normal text-gray-800">
+                                                        ₹<%= item.discountedPrice%>
+                                                    </span>
+                                                </p>
+
+                                                <button type="button" id="refund" onclick="refund(this)"
+                                                    data-product-id="<%= item.product._id%>"
+                                                    data-order-item-id="<%= item._id%>"
+                                                    class="text-md text-left text-blue-800 hover:underline cursor-pointer <%= item.returnStatus==='approved'? '':'hidden'%>">
+                                                    Refund
+                                                </button>
+
+                                                <button type="button" id="requestAuthorize"
+                                                    onclick="openModal(this, '<%= item.returnReason%>')"
+                                                    data-product-id="<%= item.product._id%>"
+                                                    data-order-item-id="<%= item._id%>"
+                                                    class="text-md text-blue-800 hover:underline cursor-pointer <%= item.returnStatus && item.returnStatus==='requested'? '':'hidden'%>">
+                                                    Authorize Request For Return
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="returnReason" value="<%= item.returnReason || ''%>">
+
+                                <%})%>
+                                    <div class="h-10 w-full"></div>
+
+                        </div>
+                    </div>
+
+                    <!-- Return Modal -->
+                    <div id="returnModal" class="hidden fixed inset-0 flex items-center justify-center z-50 ">
+                        <div class="fixed inset-0 bg-black opacity-50" onclick="closeModal()"></div>
+                        <section
+                            class="bg-white w-1/2 min-h-[300px] maxh-h-[500px] m-auto shadow-lg rounded-lg relative">
+                            <div class="p-6">
+                                <div class="flex justify-between items-center">
+                                    <h2 class="text-lg font-semibold">Reason: </h2>
+                                    <button class="text-2xl" onclick="closeModal()">&times;</button>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="w-full h-full border-2">
+                                        <textarea name="reasonText" id="" cols="" rows="5" class="w-full p-4 border"
+                                            disabled></textarea>
+                                        <div class="flex justify-between p-4">
+                                            <button type="button" onclick="reject()"
+                                                class="bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg text-white">
+                                                Reject
+                                            </button>
+                                            <button type="button" onclick="approve()"
+                                                class="bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg text-white">
+                                                Approve
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                </main>
+            </div>
+    </div>
+
+    <script>
+        //? for the returned product
+        let productId;
+        let orderItemId;//?
+
+        //* This is for selecting order status.
+        const selectElement = document.querySelectorAll('#orderStatus');
+        selectElement.forEach(element => {
+            element.addEventListener('change', async function (event) {
+                const orderStatus = event.target.value;
+                const orderItemId = event.target.dataset.orderItemId;
+                const productId = event.target.dataset.productId;
+
+                const { isConfirmed } = await Swal.fire({
+                    title: 'Are you sure?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No'
+                });
+                if (isConfirmed) {
+
+                    try {
+                        const response = await fetch('/admin/order/changeStatus', {
+                            method: 'PATCH',
+                            headers: { 'Content-type': 'application/json' },
+                            body: JSON.stringify({ orderStatus, orderItemId, productId })
+                        });
+
+                        const data = await response.json();
+
+                        if (!data.success) {
+                            await Swal.fire({
+                                title: 'Error',
+                                text: data.message,
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+                            return;
+                        }
+
+                        window.location.reload();
+
+                    } catch (err) {
+                        console.log(err);
+                        alert("Error");
+                    }
+                } else return;
+            });
+        });
+
+        // this function closes the modal.
+        function closeModal() {
+            document.querySelector('#returnModal').classList.add('hidden');
+            orderItemId = '';
+            productId = '';
+        }
+
+        // this function opens the modal and assigns values.
+        function openModal(event, reason) {
+            document.querySelector('textarea[name="reasonText"]').value = reason;
+            document.querySelector('#returnModal').classList.remove('hidden');
+            productId = event.dataset.productId;
+            orderItemId = event.dataset.orderItemId;
+        }
+
+        //* This function is for rejecting the return request.
+        async function reject() {
+            try {
+                if (!orderItemId || !productId) {
+                    console.log('orderId or productId not found');
+                    alert('Error');
+                    return;
+                }
+
+                const response = await fetch('/admin/order/returns', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderItemId, productId, process: false })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    await Swal.fire({
+                        title: 'Error',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+
+                closeModal();
+                window.location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert('Error');
+            }
+        }
+
+
+        //* This function is for approving the return request.
+        async function approve() {
+            try {
+                if (!orderItemId || !productId) {
+                    console.log('orderId or productId not found');
+                    alert('Error');
+                    return;
+                }
+
+                const response = await fetch('/admin/order/returns', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderItemId, productId, process: true })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    await Swal.fire({
+                        title: 'Error',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+
+                closeModal();
+                window.location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert('Error');
+            }
+        }
+
+        //* This function is for the refund.
+        async function refund(event) {
+            const orderItemId = event.dataset.orderItemId;
+            const productId = event.dataset.productId;
+
+            try {
+                if (!orderItemId || !productId) {
+                    console.log('orderId or productId not found');
+                    alert('Error');
+                    return;
+                }
+
+                const response = await fetch('/admin/order/refund', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderItemId, productId })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    await Swal.fire({
+                        title: 'Error',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+
+                window.location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert('Error');
+            }
+        }
+
+    </script>
+</body>
+
+</html>

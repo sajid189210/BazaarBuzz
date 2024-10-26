@@ -10,13 +10,13 @@ const cartSchema = new mongoose.Schema({
             product: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product',
-                _id: false
             },
             quantity: {
                 type: Number,
                 default: 1
             },
             selectedColor: { type: String },
+            selectedSize: { type: String },
             discountedPrice: { //for discounts
                 type: Number,
                 default: 0
@@ -24,11 +24,13 @@ const cartSchema = new mongoose.Schema({
             discountedValue: { //for coupons
                 type: Number,
                 default: 0
-            }
+            },
+            couponValue: { type: Number }
         }
     ],
 
 }, { timestamps: true });
 
-module.exports = mongoose.model('Cart', cartSchema);
+const Cart = mongoose.model('Cart', cartSchema);
+module.exports = Cart;
 

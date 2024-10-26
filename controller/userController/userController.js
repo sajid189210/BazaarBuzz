@@ -184,11 +184,12 @@ const getProduct = async () => {
             path: 'categoryId',
             match: { isActive: true },
             model: 'Category',
-        });
+        }).sort({ createdAt: -1 });
     } catch (err) {
         throw new Error("Error caught while getting products from db.", err);
     }
-}
+};
+
 
 //*-------------[Rendering User Homepage]--------------------------
 const userHomepage = async (req, res) => {
@@ -202,16 +203,6 @@ const userHomepage = async (req, res) => {
             return product.categoryId !== null;
         });
 
-            // let allProducts = {};
-
-            // for (let i = 0; i <= categories.length; i++) {
-            //     for (let j = 0; i < filteredProducts.length; j++) {
-            //         if (categories[i]._id.toString() === filteredProducts[j.categoryId.toString()]) {
-            //             if(allproduct)
-            //         }
-            //     }
-            // }
-
         return res.render('user/userHomepage', {
             user: req.session.user || null,
             categories,
@@ -224,8 +215,8 @@ const userHomepage = async (req, res) => {
     }
 };
 
-//*--------------[Search] ---------------
-const searchProduct = async (req, res) => {
+//*--------------[Search a single product] ---------------
+const searchSingleProduct = async (req, res) => {
     try {
 
         const { search } = req.query || '';
@@ -239,6 +230,168 @@ const searchProduct = async (req, res) => {
     } catch (err) {
         console.error(`Error caught searchProduct in the userController. ${err}`);
         res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
+    }
+};
+
+//*--------------[Search multiple products] ---------------
+const searchMultipleProducts = async (req, res) => {
+    try {
+
+        const { search } = req.query || '';
+
+        const regex = new RegExp(search, 'i');
+
+        const products = await Product.find({ productName: regex });
+
+        req.session.searchResult = products;
+
+
+        res.json({ products });
+
+    } catch (err) {
+        console.error(`Error caught searchProduct in the userController. ${err}`);
+        res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
+    }
+};
+
+
+
+//*--------------[Render Address Page] ---------------
+const getAddress = async (req, res) => {
+    try {
+
+        if (!req.session.user) return res.redirect('/user/signIn');
+
+        const userDetails = await User.findById(req.session.user.userId)
+        const categories = await Category.find();
+
+        res.render('user/userAddress', {
+            user: req.session.user || null,
+            categories,
+            userDetails,
+        });
+
+    } catch (err) {
+        console.error(`Error caught getAddress in the userController. ${err}`);
+        res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
+    }
+};
+
+//*--------------[Saves Address] ---------------
+const saveAddress = async (req, res) => {
+    const { formInputs } = req.body;
+    const userId = req.session.user.userId;
+    try {
+
+        const user = await User.findByIdAndUpdate(userId,
+            { $push: { addressId: formInputs } },
+            { new: true }
+        );
+
+        if (!user) throw new Error("Error while adding new address.");
+
+        res.status(200).json({
+            success: true,
+            message: 'You have successfully added address.'
+        });
+
+    } catch (err) {
+        console.error(`Error caught getAddress in the userController. ${err}`);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
+    }
+};
+
+//*--------------[Removes Address] ---------------
+const removeAddress = async (req, res) => {
+    const { addressId } = req.query;
+    const userId = req.session.user.userId;
+    try {
+
+        if (!addressId || !userId) return res.status(400).json({
+            success: false,
+            message: 'address or user not found'
+        });
+
+        const result = await User.updateOne(
+            { _id: userId },
+            { $pull: { addressId: { _id: addressId } } },
+            { new: true }
+        );
+
+        if (!result.modifiedCount) {
+            return res.status(404).json({
+                success: false,
+                message: 'Address not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Address Successfully removed'
+        });
+
+    } catch (err) {
+        console.error(`Error caught removeAddress in the userController. ${err}`);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
+    }
+}
+
+//*--------------[Edit Address] ---------------
+const editAddress = async (req, res) => {
+    const { formInputs } = req.body;
+    const userId = req.session.user.userId;
+    const { addressId } = req.query;
+    try {
+
+        if (!formInputs || !userId) return res.status(400).json({
+            success: false,
+            message: 'Form inputs or user not found.'
+        });
+
+        const result = await User.updateOne(
+            { _id: userId, 'addressId._id': addressId },
+            { $set: { 'addressId.$': formInputs } },
+            { new: true },
+        );
+
+        if (!result.modifiedCount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Address not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Address Successfully Updated.'
+        });
+
+    } catch (err) {
+        console.error(`Error caught editAddress in the userController. ${err}`);
+        res.status(500).json({
+            success: false,
             error: "Internal server error",
             message: err.message,
             stack: err.stack,
@@ -261,12 +414,17 @@ const userSignOut = (req, res) => {
 };
 
 module.exports = {
-    userSignUpValidation,
+    searchMultipleProducts,
     userSignInValidation,
+    userSignUpValidation,
+    searchSingleProduct,
     updatePassword,
-    searchProduct,
+    removeAddress,
     userHomepage,
+    saveAddress,
+    editAddress,
     userSignOut,
     userSignIn,
     userSignUp,
+    getAddress,
 }

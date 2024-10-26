@@ -15,7 +15,7 @@ async function removeItem(itemId) {
             const response = await fetch(`/user/cart/removeItem`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ itemId: JSON.parse(itemId) })
+                body: JSON.stringify({ itemId })
             });
 
             const data = await response.json();
@@ -47,33 +47,52 @@ async function removeItem(itemId) {
 }
 
 //* Function to decrease quantity.
-async function decreaseQuantity(itemId) {
+async function decreaseQuantity(itemId, element) {
     try {
-        let quantity = parseInt(document.getElementById(`quantity_${JSON.parse(itemId)}`).textContent);
-        let process = false;
+        const discountPriceElement = document.querySelector(`#discountPrice_${itemId}`);
 
-        if (quantity === 1) return;
+        let quantity = parseInt(document.getElementById(`quantity_${itemId}`).textContent);
+
+        if (quantity <= 1) {
+            element.classList.add('hidden');
+            return;
+        }
 
         const response = await fetch('/user/cart/updateQuantity', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantity, itemId: JSON.parse(itemId), process })
+            body: JSON.stringify({ itemId, process: false, })
         });
 
         const data = await response.json();
 
         if (!data.success) {
             await Swal.fire({
-                tile: "Error",
+                title: "Error",
                 text: data.message,
                 icon: 'error',
                 confirmButtonText: 'Ok'
             });
             return;
         }
-
         window.location.reload();
+        // // Updates the quantity.
+        // document.querySelector(`#quantity_${itemId}`).textContent = quantity - 1;
 
+        // //updates the price
+        // discountPriceElement.textContent = `₹ ${data.discountedPrice}/-`;
+
+        // //updates the details in price summary.
+        // document.querySelector('#totalOriginalPrice').textContent = `₹ ${data.totalOriginalPrice}`;
+        // document.querySelector('#totalDiscountPrice').textContent = `-₹ ${data.totalOriginalPrice - data.totalDiscountedPrice}`;
+        // document.querySelector('#total').textContent = `₹ ${data.totalDiscountedPrice}`;
+
+        // hides if the quantity is 5.
+        if (quantity - 1 === 1) {
+            element.classList.add('hidden');
+        }
+
+        document.querySelector(`#increaseButton_${itemId}`).classList.remove('hidden');
     } catch (err) {
         console.log(`Error caught while decreasing quantity from the cart. ${err}`);
         alert('Error: ', err);
@@ -81,37 +100,61 @@ async function decreaseQuantity(itemId) {
 }
 
 //* Function to increase quantity.
-async function increaseQuantity(itemId) {
+async function increaseQuantity(itemId, element) {
     try {
-        let quantity = parseInt(document.getElementById(`quantity_${JSON.parse(itemId)}`).textContent);
-        console.log(quantity)
-        let process = true;
+        const discountPriceElement = document.querySelector(`#discountPrice_${itemId}`);
 
-        if (quantity >= 5) return;
+        console.log(discountPriceElement);
+
+
+        let quantity = parseInt(document.querySelector(`#quantity_${itemId}`).textContent);
+
+        console.log(quantity)
+
+        // Don't proceed further if quantity is 5
+        if (quantity >= 5) {
+            element.classList.add('hidden');
+            return;
+        }
 
         const response = await fetch('/user/cart/updateQuantity', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantity, itemId: JSON.parse(itemId), process })
+            body: JSON.stringify({ itemId, process: true })
         });
 
         const data = await response.json();
 
         if (!data.success) {
             await Swal.fire({
-                tile: "Error",
                 text: data.message,
-                icon: 'error',
+                icon: 'info',
                 confirmButtonText: 'Ok'
             });
             return;
         }
 
         window.location.reload();
+        // // Updates the quantity.
+        // document.querySelector(`#quantity_${itemId}`).textContent = quantity + 1;
+
+        // // Update the price
+        // discountPriceElement.textContent = `₹ ${data.discountedPrice}/-`;
+
+        // //updates the details in price summary.
+        // document.querySelector('#totalOriginalPrice').textContent = `₹ ${data.totalOriginalPrice}`;
+        // document.querySelector('#totalDiscountPrice').textContent = `-₹ ${data.totalOriginalPrice - data.totalDiscountedPrice}`;
+        // document.querySelector('#total').textContent = `₹ ${data.totalDiscountedPrice}`;
+
+        // hides if the quantity is 5.
+        if (quantity + 1 === 5) {
+            element.classList.add('hidden');
+        }
+
+        document.querySelector(`#decreaseButton_${itemId}`).classList.remove('hidden'); // Show the decrease button
 
     } catch (err) {
         console.log(`Error caught while increasing quantity from the cart. ${err}`);
         alert('Error: ', err);
     }
 }
-

@@ -35,7 +35,7 @@ require('dotenv').config();
 //             return extname;
 //         }
 //     }
-// });
+// });  
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

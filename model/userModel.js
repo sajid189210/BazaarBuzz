@@ -24,6 +24,6 @@ const userSchema = new mongoose.Schema({
     googleId: { type: String },
 }, { timestamps: true });
 
+const User = mongoose.model('user', userSchema);
 
-
-module.exports = mongoose.model('user', userSchema);
+module.exports = User;

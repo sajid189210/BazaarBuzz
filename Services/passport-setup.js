@@ -16,6 +16,10 @@ passport.use(new GoogleStrategy({
             let user = await User.findOne({ googleId: profile.id });
 
             if (user) {
+                if (user.isBlocked === 'blocked') {
+                    request.session.signInAuthErrorMessages = 'You are blocked by the admin.'
+                    return done(null, false);
+                }
                 return done(null, user);
             }
 

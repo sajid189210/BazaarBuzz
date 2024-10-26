@@ -56,6 +56,7 @@ app.use('/admin', adminRouter);
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 
+
 //* Error handling middleware.
 app.use((err, req, res, next) => {
     console.error(err.stack);

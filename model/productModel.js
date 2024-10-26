@@ -13,18 +13,32 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
     },
-    stock: {
-        type: Number,
-        required: true
-    },
     discount: { type: Number },
     brand: { type: String },
     images: [{ type: String }],
-    colors: [{ type: String }],
     description: { type: String },
     fabric: { type: String },
-    size: { type: String },
     gender: { type: String },
+    variants: [
+        {
+            size: { type: String },
+            stock: { type: Number },
+            colors: [{ type: String }],
+
+        }
+    ],
+    featured: {
+        type: Boolean,
+        default: false
+    },
+    limitedEdition: {
+        type: Boolean,
+        default: false
+    },
+    wishlisted: {
+        type: Boolean,
+        default: false
+    },
     isActive: {
         type: Boolean,
         default: true

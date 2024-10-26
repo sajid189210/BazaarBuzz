@@ -47,8 +47,8 @@
 
                 <main class="">
                     <div class="absolute top-[100px] left-[300px]">
-                        <div class="mb-4 flex w-full justify-between items-center">
-                            <div class="flex flex-col justify-start px-4 py-4">
+                        <div class="mb-4 flex w-full justify-end items-center">
+                            <!-- <div class="flex flex-col justify-start px-4 py-4">
                                 <div
                                     class="flex w-96 h-auto relative max-w-md overflow-hidden rounded-full border-2 border-sky-500">
                                     <input id="searchInput" type="search" placeholder="Search.."
@@ -57,7 +57,7 @@
                                 <div id="resultsContainer"
                                     class="absolute top-[64px] left-[58px] w-96 rounded-lg z-20 bg-white flex flex-col text-left">
                                 </div>
-                            </div>
+                            </div> -->
 
 
                             <div class="px-4 py-4">
@@ -69,89 +69,102 @@
 
                         <div class="mx-auto w-fit p-4 sm:max-w-full lg:max-w-7xl">
                             <div id="productContainer"
-                                class=" grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                                 <%if(products.length>0) {%>
                                     <%products.forEach((product)=> {%>
                                         <div class="relative overflow-hidden rounded-lg bg-gray-50 shadow-md">
                                             <div>
                                                 <input type="hidden" value="<%=product%>">
                                             </div>
-                                            <div class="aspect-w-16 aspect-h-8 mx-auto h-[260px] w-5/6 overflow-hidden
-                                                p-4">
+                                            <div
+                                                class="aspect-w-16 aspect-h-8 mx-auto h-[260px] w-5/6 overflow-hidden p-4">
                                                 <img src="<%=product.images[0]%>" alt="Product image"
                                                     class="h-full w-full object-contain" />
                                             </div>
-                                            <div class="bg-white p-4 min-h-[260px]">
-                                                <h3 class="text-sm mb-2 h-[100px] text-wrap font-bold text-slate-800">
+                                            <div class="bg-white p-4 min-h-[150px] flex flex-col justify-between">
+                                                <h3 class="text-sm mb-4 text-wrap font-bold text-slate-800">
                                                     <%=product.productName%>
                                                 </h3>
-                                                <div class="">
-                                                    <h4><strong>Price: </strong>
-                                                        <span class="text-md font-medium text-gray-800">
-                                                            ₹<%=product.productPrice%>/-
-                                                        </span>
-                                                    </h4>
-                                                    <h4><strong>Stock: </strong>
-                                                        <span class="text-md font-medium text-gray-800">
-                                                            <%=product.stock%>
-                                                        </span>
-                                                    </h4>
-                                                </div>
 
-                                                <p><strong>Created At: </strong>
+                                                <h4 class="mb-2 font-medium">Price:
                                                     <span class="text-md font-medium text-gray-800">
-                                                        <%=product.createdAt.toLocaleString()%>
+                                                        ₹<%=product.productPrice%>/-
                                                     </span>
-                                                </p>
+                                                </h4>
 
-                                                <div class="mt-4 flex items-center justify-between space-x-2">
-                                                    <div class="parentElement flex items-center space-x-4">
-                                                        <label class="relative cursor-pointer">
-                                                            <input type="checkbox" class="peer sr-only"
-                                                                onchange="toggleStatus(this)"
-                                                                data-product-id="<%=product._id%>"
-                                                                <%=product.isActive===true ? 'checked' : '' %> />
-                                                            <div
-                                                                class="peer flex h-6 w-11 items-center rounded-full bg-gray-300 after:absolute after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:bg-[#007bff] peer-checked:after:translate-x-full peer-checked:after:border-white">
+                                                <%product.variants.forEach(variant=> { %>
+                                                    <div class="flex gap-4 mb-2">
+                                                        <h4 class="font-medium">Size:
+                                                            <span class="text-md font-medium text-gray-800">
+                                                                <%= variant.size %>
+                                                            </span>
+                                                        </h4>
+                                                        <h4 class="font-medium">Stock:
+                                                            <span class="text-md font-medium text-gray-800">
+                                                                <%= variant.stock %>
+                                                            </span>
+                                                        </h4>
+                                                    </div>
+                                                    <% }) %>
+
+                                                        <p class="font-medium">Created At:
+                                                            <span class="text-md font-medium text-gray-800">
+                                                                <%=product.createdAt.toLocaleDateString()%>
+                                                            </span>
+                                                        </p>
+
+                                                        <div class="flex items-center justify-between">
+                                                            <div class="parentElement flex items-center space-x-4">
+                                                                <label class="relative cursor-pointer">
+                                                                    <input type="checkbox" class="peer sr-only"
+                                                                        onchange="toggleStatus(this)"
+                                                                        data-product-id="<%=product._id%>"
+                                                                        <%=product.isActive===true ? 'checked' : '' %>
+                                                                    />
+                                                                    <div
+                                                                        class="peer flex h-6 w-11 items-center rounded-full bg-gray-300 after:absolute after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:bg-[#007bff] peer-checked:after:translate-x-full peer-checked:after:border-white">
+                                                                    </div>
+                                                                </label>
+                                                                <span class="targetElement flex items-center justify-center rounded-full border-none bg-sky-600 
+                                                                            py-1 px-2 text-sm font-medium text-white"
+                                                                    id="productIsActive_<%=product._id%>">
+                                                                    <%= product.isActive ? "Active" : "Inactive" %>
+                                                                </span>
                                                             </div>
-                                                        </label>
-                                                        <span class="targetElement flex items-center justify-center rounded-full border-none bg-sky-600 
-                                                            py-1 px-2 text-sm font-medium text-white"
-                                                            id="productIsActive_<%=product._id%>">
-                                                            <%= product.isActive ? "Active" : "Inactive" %>
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <button class="mr-2" type="button" onclick="showEditModal(this)"
-                                                            data-product='<%=JSON.stringify(product)%>'>
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                class="w-5 fill-blue-500 hover:fill-blue-700"
-                                                                viewBox="0 0 348.882 348.882">
-                                                                <path
-                                                                    d="m333.988 11.758-.42-.383A43.363 43.363 0 0 0 304.258 0a43.579 43.579 0 0 0-32.104 14.153L116.803 184.231a14.993 14.993 0 0 0-3.154 5.37l-18.267 54.762c-2.112 6.331-1.052 13.333 2.835 18.729 3.918 5.438 10.23 8.685 16.886 8.685h.001c2.879 0 5.693-.592 8.362-1.76l52.89-23.138a14.985 14.985 0 0 0 5.063-3.626L336.771 73.176c16.166-17.697 14.919-45.247-2.783-61.418zM130.381 234.247l10.719-32.134.904-.99 20.316 18.556-.904.99-31.035 13.578zm184.24-181.304L182.553 197.53l-20.316-18.556L294.305 34.386c2.583-2.828 6.118-4.386 9.954-4.386 3.365 0 6.588 1.252 9.082 3.53l.419.383c5.484 5.009 5.87 13.546.861 19.03z"
-                                                                    data-original="#000000" />
-                                                                <path
-                                                                    d="M303.85 138.388c-8.284 0-15 6.716-15 15v127.347c0 21.034-17.113 38.147-38.147 38.147H68.904c-21.035 0-38.147-17.113-38.147-38.147V100.413c0-21.034 17.113-38.147 38.147-38.147h131.587c8.284 0 15-6.716 15-15s-6.716-15-15-15H68.904C31.327 32.266.757 62.837.757 100.413v180.321c0 37.576 30.571 68.147 68.147 68.147h181.798c37.576 0 68.147-30.571 68.147-68.147V153.388c.001-8.284-6.715-15-14.999-15z"
-                                                                    data-original="#000000" />
-                                                            </svg>
-                                                        </button>
-                                                        <button class="" type="button" onclick="removeProduct(this)"
-                                                            data-product-id="<%=JSON.stringify(product._id)%>">
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                class="w-5 fill-red-500 hover:fill-red-700"
-                                                                viewBox="0 0 24 24">
-                                                                <path
-                                                                    d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
-                                                                    data-original="#000000" />
-                                                                <path
-                                                                    d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
-                                                                    data-original="#000000" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                            <div class="flex gap-2">
+                                                                <button class="mr-2" type="button"
+                                                                    onclick="showEditModal(this)"
+                                                                    data-product='<%=JSON.stringify(product)%>'>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-5 fill-blue-500 hover:fill-blue-700"
+                                                                        viewBox="0 0 348.882 348.882">
+                                                                        <path
+                                                                            d="m333.988 11.758-.42-.383A43.363 43.363 0 0 0 304.258 0a43.579 43.579 0 0 0-32.104 14.153L116.803 184.231a14.993 14.993 0 0 0-3.154 5.37l-18.267 54.762c-2.112 6.331-1.052 13.333 2.835 18.729 3.918 5.438 10.23 8.685 16.886 8.685h.001c2.879 0 5.693-.592 8.362-1.76l52.89-23.138a14.985 14.985 0 0 0 5.063-3.626L336.771 73.176c16.166-17.697 14.919-45.247-2.783-61.418zM130.381 234.247l10.719-32.134.904-.99 20.316 18.556-.904.99-31.035 13.578zm184.24-181.304L182.553 197.53l-20.316-18.556L294.305 34.386c2.583-2.828 6.118-4.386 9.954-4.386 3.365 0 6.588 1.252 9.082 3.53l.419.383c5.484 5.009 5.87 13.546.861 19.03z"
+                                                                            data-original="#000000" />
+                                                                        <path
+                                                                            d="M303.85 138.388c-8.284 0-15 6.716-15 15v127.347c0 21.034-17.113 38.147-38.147 38.147H68.904c-21.035 0-38.147-17.113-38.147-38.147V100.413c0-21.034 17.113-38.147 38.147-38.147h131.587c8.284 0 15-6.716 15-15s-6.716-15-15-15H68.904C31.327 32.266.757 62.837.757 100.413v180.321c0 37.576 30.571 68.147 68.147 68.147h181.798c37.576 0 68.147-30.571 68.147-68.147V153.388c.001-8.284-6.715-15-14.999-15z"
+                                                                            data-original="#000000" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button class="" type="button"
+                                                                    onclick="removeProduct(this)"
+                                                                    data-product-id="<%=JSON.stringify(product._id)%>">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-5 fill-red-500 hover:fill-red-700"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path
+                                                                            d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
+                                                                            data-original="#000000" />
+                                                                        <path
+                                                                            d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
+                                                                            data-original="#000000" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                             </div>
                                         </div>
+
 
                                         <%});%>
                                             <% } else { %>
@@ -206,106 +219,89 @@
                         </div>
 
                         <!-- Product Edit Modal -->
-                        <div class="hidden absolute inset-0 rounded-lg bg-white p-8 shadow-md w-full h-full bg-opa"
-                            id="editModal">
-                            <!-- <div class="p-6"> -->
-                            <form id="productDetailForm" class="bg-white">
-                                <div class="grid grid-cols-6 gap-6">
-                                    <div class="col-span-6 sm:col-span-3">
-                                        <label for="product-name"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Product
-                                            Name</label>
-                                        <input type="text" id="productName" name="productName"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required />
-
+                        <div class="hidden absolute inset-0 p-8 bg-white" id="editModal">
+                            <h1 class="font-medium text-2xl">Edit Product</h1>
+                            <div class="flex p-6">
+                                <form id="productDetailForm" class="border-r-2 pr-4">
+                                    <div class="grid grid-cols-6 gap-6">
                                         <input type="hidden" id="productId">
-                                    </div>
-
-                                    <div class="col-span-6 sm:col-span-3">
-                                        <label for="category"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Category</label>
-                                        <select name="category" id="category"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required>
-                                            <option value="">Select</option>
-                                            <%if(categories && categories.length>0) {%>
-                                                <%categories.forEach(category=> {%>
-                                                    <option value="<%=category.title%>"
-                                                        data-category-id="<%=category._id%>">
-                                                        <%= category.title%>
-                                                    </option>
-                                                    <%});%>
-                                                        <%}%>
-                                        </select>
-                                        <input type="hidden" id="selectedCategory" name="categoryId">
-                                    </div>
-                                    <div class=" col-span-6 sm:col-span-3">
-                                        <label for="brands"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Brand</label>
-                                        <select name="brand" id="brands"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required>
-                                        </select>
-                                        <input type="hidden" name="selectedBrand" id="selectedBrand">
-                                    </div>
-                                    <div class="col-span-6 sm:col-span-3">
-                                        <label for="price"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Price</label>
-                                        <input type="number" name="price" id="price"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            placeholder="In Rupees" required />
-                                    </div>
-                                    <div class="col-span-6 sm:col-span-3">
-                                        <label for="fabric"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Fabric</label>
-                                        <input type="text" name="fabric" id="fabric"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
-                                    </div>
-                                    <div class="col-span-6 flex items-top sm:col-span-3">
-                                        <div class="w-1/2 mr-4">
-                                            <label for="color"
-                                                class="mb-2 block text-sm font-medium text-gray-900">Colors</label>
-                                            <input type="color" name="color" id="color1" class="border border-slate-300"
-                                                placeholder="In Percentage" />
-                                            <input type="color" name="color" id="color2" class="border border-slate-300"
-                                                placeholder="In Percentage" />
-                                            <input type="color" name="color" id="color3" class="border border-slate-300"
-                                                placeholder="In Percentage" />
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="product-name"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Product
+                                                Name</label>
+                                            <input type="text" id="productName" name="productName"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
                                         </div>
-                                        <div class="w-1/2">
-                                            <label for="size"
-                                                class="mb-2 block text-sm font-medium text-gray-900">Size</label>
-                                            <select name="size" id="size"
-                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                                required>
-                                                <option value="">select</option>
-                                                <option value="S">S</option>
-                                                <option value="M">M</option>
-                                                <option value="L">L</option>
-                                                <option value="XL">XL</option>
-                                                <option value="XXL">XXL</option>
-                                                <option value="XXL">XXXL</option>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="category"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Category</label>
+                                            <select id="category"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
+                                                <option value="select">Select</option>
+                                                <%if(categories && categories.length>0) {%>
+                                                    <%categories.forEach(category=> {%>
+                                                        <option value="<%=category.title%>"
+                                                            data-category-id="<%=category._id%>">
+                                                            <%= category.title%>
+                                                        </option>
+                                                        <%});%>
+                                                            <%}%>
                                             </select>
-                                            <input type="hidden" id="selectedSize" name="size" />
+                                            <input type="hidden" id="selectedCategory" name="categoryId">
                                         </div>
-                                    </div>
+                                        <div class=" col-span-6 sm:col-span-3">
+                                            <label for="brands"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Brand</label>
+                                            <select name="brands" id="brands"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
+                                                <option value="">Select</option>
+                                            </select>
+                                            <input type="hidden" id="selectedBrand" name="selectedBrand">
+                                        </div>
 
-                                    <div class="col-span-6 sm:col-span-3">
-                                        <label for="stock"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Stock</label>
-                                        <input type="number" name="stock" id="stock"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required />
-                                    </div>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="price"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Price</label>
+                                            <input type="number" name="price" id="price"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                                placeholder="In Rupees" />
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="fabric"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Fabric</label>
+                                            <input type="text" name="fabric" id="fabric"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
+                                        </div>
 
-                                    <div class="col-span-6 flex items-center sm:col-span-3">
-                                        <div class="w-1/2">
+                                        <div class="col-span-6 sm:col-span-3 ">
+                                            <label for="discount"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Discount</label>
+                                            <input type="number" name="discount" id="discount"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                                placeholder="In Percentage" />
+                                        </div>
+
+                                        <!-- File Upload Section -->
+                                        <div class="col-span-6 flex flex-col sm:col-span-3">
+                                            <div id="image">
+                                                <label for="file"
+                                                    class="mb-2 block text-sm font-medium text-gray-900">Upload
+                                                    Files</label>
+                                                <input type="file" id="imageUpload" accept="image/*" name="file"
+                                                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
+                                            </div>
+
+                                            <div class="grid grid-cols-2 gap-3 mt-4" id="imagePreview">
+                                                <!-- preview images are stored here -->
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
                                             <label for="gender"
                                                 class="mb-2 block text-sm font-medium text-gray-900">Gender</label>
-                                            <select name="gender" id="gender"
-                                                class="block rounded-lg border border-gray-300 bg-gray-50 p-2 w-1/2 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                                required>
+                                            <select id="gender"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
                                                 <option value="">select</option>
                                                 <option value="male">Male</option>
                                                 <option value="female">Female</option>
@@ -314,64 +310,100 @@
                                             <input type="hidden" id="selectedGender" name="gender" />
                                         </div>
 
-                                        <div class="">
-                                            <label for="discount"
-                                                class="mb-2 block text-sm font-medium text-gray-900">Discount</label>
-                                            <input type="number" name="discount" id="discount"
-                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                                placeholder="In Percentage" required />
-                                        </div>
-                                    </div>
-
-                                    <!-- File Upload Section -->
-                                    <div class="col-span-6 flex flex-col sm:col-span-3">
-                                        <div id="image mb-4">
-                                            <label for="file"
-                                                class="mb-2 block text-sm font-medium text-gray-900">Upload
-                                                Files</label>
-                                            <input type="file" id="imageUpload" accept="image/*" name="file"
-                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
-                                        </div>
-
-                                        <div class="grid grid-cols-3 gap-3" id="imagePreview">
-                                            <!-- preview images are displayed here -->
-                                        </div>
-                                    </div>
-
-                                    <!-- Crop Modal Structure -->
-                                    <div id="cropModal" class="relative w-[340px] h-[340px]" style="display:none;">
-                                        <img id="cropImage" alt="Image to Crop" class="absolute top-0 left-0">
-                                        <button type="button" id="cropButton"
-                                            class=" absolute bottom-0 left-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"">Crop</button>
+                                        <!-- Crop Modal Structure -->
+                                        <div id="cropModal" class="relative w-[340px] h-[340px]" style="display:none;">
+                                            <img id="cropImage" alt="Image to Crop" class="absolute top-0 left-0">
+                                            <button type="button" id="cropButton"
+                                                class=" absolute bottom-0 left-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"">Crop</button>
                                             <button type=" button" id="cancelButton"
-                                            class="absolute bottom-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
-                                    </div>
+                                                class="absolute bottom-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
+                                        </div>
 
-                                    <div class="col-span-full">
-                                        <label for="product-details"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Product
-                                            Details</label>
-                                        <textarea id="description" rows="6"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            name="description"></textarea>
+                                        <div class="col-span-full">
+                                            <label for="product-details"
+                                                class="mb-2 block text-sm font-medium text-gray-900">Product
+                                                Details</label>
+                                            <textarea id="productDetails" rows="6"
+                                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                                                name="description"></textarea>
+                                        </div>
+
+                                        <div class="col-span-full flex flex-col">
+                                            <div>
+                                                <input id="featured" type="checkbox" class="w-4 h-4">
+                                                <span class="ml-2">Featured</span>
+                                            </div>
+                                            <div>
+                                                <input id="limitedEdition" type="checkbox" class="w-4 h-4">
+                                                <span class="ml-2">Limited Edition</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </form>
+
+                                <div class=" mx-auto">
+                                    <div class="flex flex-col gap-8" id="optionContainer">
+                                        <h1 class="font-medium">Select Option (Size Stock Color)</h1>
+                                        <div class="grid gap-x-4 sm:col-span-3">
+                                            <div>
+                                                <label for="size-0"
+                                                    class="mb-2 block text-sm font-medium text-gray-900 ">Size</label>
+                                                <select id="size-0" name="sizes"
+                                                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm sizes">
+                                                    <option value="">select</option>
+                                                    <option value="S">S</option>
+                                                    <option value="M">M</option>
+                                                    <option value="L">L</option>
+                                                    <option value="XL">XL</option>
+                                                    <option value="XXL">XXL</option>
+                                                    <option value="XXL">XXXL</option>
+                                                </select>
+                                                <input type="hidden" id="selectedSize" name="size" />
+                                            </div>
+                                            <div>
+                                                <label for="stock-0"
+                                                    class="mb-2 block text-sm font-medium text-gray-900">Stock</label>
+                                                <input type="number" name="stock" id="stock-0"
+                                                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm  stocks" />
+                                            </div>
+                                            <div class="col-span-6 sm:col-span-3 mt-4">
+                                                <label for="color-0-1"
+                                                    class="mb-2 block text-sm font-medium text-gray-900">Colors</label>
+                                                <input type="color" name="color-0-1" id="color-0-1"
+                                                    class="border border-slate-300" />
+                                                <input type="color" name="color-0-2" id="color-0-2"
+                                                    class="border border-slate-300" />
+                                                <input type="color" name="color-0-3" id="color-0-3"
+                                                    class="border border-slate-300" />
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div>
+                                        <label id="addOptions" for="addOptions"
+                                            class="text-blue-600 cursor-pointer text-[15px] hover:text-[16px]">+
+                                            Add more Options</label>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="float-end mt-4 rounded-b p-6">
-                                    <button
-                                        class="rounded-lg bg-orange-500 px-5 py-2.5 mr-4 text-center text-sm font-medium text-white hover:bg-orange-600 focus:ring-4 focus:ring-cyan-200"
-                                        type="button" onclick="closeEditModal()">Cancel</button>
-                                    <button
-                                        class="rounded-lg bg-orange-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-orange-600 focus:ring-4 focus:ring-cyan-200"
-                                        type="submit">Update</button>
-                                </div>
-                            </form>
-                            <!-- </div> -->
+
+                            <div class="mt-4 rounded-b p-6">
+                                <button
+                                    class="rounded-lg bg-orange-500 px-5 py-2.5 mr-4 text-center text-sm font-medium text-white hover:bg-orange-600 focus:ring-4 focus:ring-cyan-200"
+                                    type="button" onclick="closeEditModal()">Cancel</button>
+                                <button
+                                    class="rounded-lg bg-orange-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-orange-600 focus:ring-4 focus:ring-cyan-200"
+                                    type="button" id="productDetailFormSubmission">Update</button>
+                            </div>
                         </div>
                     </div>
                 </main>
         </div>
 
+        <script src="/javascript/admin/productVariantOptions.js"></script>
         <script src=" /javascript/admin/productList.js"></script>
 </body>
 

@@ -21,15 +21,14 @@
         <!-- Header -->
         <%- include('../partials/userHeader') %>
 
-            <div class="absolute top-[75px] w-full h-screen">
+            <div class="absolute top-[100px] w-full h-screen">
                 <!-- Sub Nav -->
                 <%#- include('../partials/userNav') %>
 
-                    <div class="p-4">
+                    <div class="px-8 pt-8">
                         <!-- BreadCrumbs -->
                         <%- include('../partials/breadcrumbs') %>
                     </div>
-
                     <div class="font-[poppins] p-6 ">
                         <div class="p-4 lg:max-w-6xl max-w-2xl max-lg:mx-auto">
                             <div class="grid items-start grid-cols-1 lg:grid-cols-2 gap-8 max-lg:gap-16">
@@ -112,38 +111,44 @@
                                     <hr class="my-4" />
 
                                     <div>
-                                        <h3 class="text-xl font-bold text-gray-800">Size: <span
-                                                class="text-gray-800 text-4xl font-bold">
-                                                <%=product.size%>
-                                            </span>
-                                        </h3>
+                                        <h3 class="text-xl font-bold text-gray-800">Sizes Available:</h3>
+                                        <div class="flex flex-wrap gap-4 mt-4">
+                                            <% product.variants.forEach((variant, index)=> { %>
+                                                <label class="flex items-center cursor-pointer">
+                                                    <input type="radio" name="size" class="peer hidden"
+                                                        onchange="sizeSelect()" value="<%= variant.size %>"
+                                                        data-product="<%= JSON.stringify(product)%>" <%=index===0
+                                                        ? 'checked' : '' %>>
+                                                    <span
+                                                        class="peer-checked:bg-[#111827] peer-checked:text-white w-10 h-10 ml-3 flex items-center justify-center border-2 border-gray-300 rounded-full transition duration-200 ease-in-out"
+                                                        style="border-radius: 9999px;">
+                                                        <%= variant.size %>
+                                                    </span>
+                                                </label>
+                                                <% }) %>
+                                        </div>
+                                        <input type="hidden" id="selectedSize">
                                     </div>
 
                                     <hr class="my-8" />
 
                                     <div>
                                         <h3 class="text-xl font-bold text-gray-800">Colors Available:</h3>
-                                        <div class="flex flex-wrap gap-4 mt-4">
-                                            <%product.colors.forEach(color=> {%>
-                                                <label class="flex items-center cursor-pointer">
-                                                    <input type="radio" name="color" class="peer select hidden"
-                                                        onchange="colorSelection('<%=color%>')">
-                                                    <span class="peer-checked:w-8 peer-checked:h-8 ml-3 w-5 h-5 peer"
-                                                        style="border-radius: 9999px; background-color: <%= color%>;"></span>
-                                                </label>
-                                                <%})%>
-                                                    <input type="hidden" id="selectedColor">
+                                        <div id="colorContainer" class="flex flex-wrap gap-4 mt-4">
+                                            <%# Colors goes here... %>
                                         </div>
+                                        <input type="hidden" id="selectedColor">
                                     </div>
 
                                     <hr class=" my-8" />
 
                                     <div class="my-8">
                                         <div class="flex flex-wrap gap-4 mt-4">
-                                            <p class="text-sm text-gray-500 mt-2">
-                                                <%=product.stock<=0? 'Out of Stock' : 'In Stock' %>
+                                            <p class="text-md text-gray-800 font-bold mt-2" id="stockValue">
+                                                <%# stock values are displayed here... %>
                                             </p>
                                         </div>
+                                        <input type="hidden" id="selectedStock">
                                     </div>
 
 
@@ -151,8 +156,7 @@
                                         <button type="button"
                                             class="min-w-[200px] px-4 py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-md">Buy
                                             now</button>
-                                        <button type="button"
-                                            onclick="addToCart('<%=product._id%>', '<%=product.stock%>')"
+                                        <button type="button" onclick="addToCart('<%=product._id%>')"
                                             class="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded-md">Add
                                             to cart</button>
                                     </div>
@@ -185,6 +189,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
     <script src="/javascript/user/userProductView.js"></script>
     <script src="/javascript/user/homesearch.js"></script>
+    
 
 
 </body>

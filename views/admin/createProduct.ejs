@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 </head>
 <style>
@@ -54,25 +57,23 @@
 
             <main class="w-full h-full">
 
-                <div class="absolute top-[80px] left-[450px] rounded-lg bg-white p-8 shadow-md ">
-                    
-                    <div class="space-y-6 p-6">
+                <div class="flex gap-4 absolute top-[100px] left-[300px] rounded-lg bg-white px-4 shadow-lg ">
+
+                    <div class="space-y-6 p-6  border-r-2">
                         <form action="/admin/productList/create" method="POST" id="productDetailForm">
                             <div class="grid grid-cols-6 gap-6">
                                 <div class="col-span-6 sm:col-span-3">
                                     <label for="product-name"
                                         class="mb-2 block text-sm font-medium text-gray-900">Product Name</label>
                                     <input type="text" id="productName" name="productName"
-                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                        required />
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
                                 </div>
 
                                 <div class="col-span-6 sm:col-span-3">
                                     <label for="category"
                                         class="mb-2 block text-sm font-medium text-gray-900">Category</label>
                                     <select id="category"
-                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                        required>
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
                                         <option value="select">Select</option>
                                         <%if(Category && Category.length>0) {%> <%Category.forEach(cat=> {%>
                                                 <option value="<%=cat.title%>" data-category-id="<%=cat._id%>">
@@ -87,8 +88,7 @@
                                     <label for="brands"
                                         class="mb-2 block text-sm font-medium text-gray-900">Brand</label>
                                     <select name="brands" id="brands"
-                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                        required>
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
                                         <option value="">Select</option>
                                     </select>
                                     <input type="hidden" id="selectedBrand" name="selectedBrand">
@@ -99,7 +99,7 @@
                                         class="mb-2 block text-sm font-medium text-gray-900">Price</label>
                                     <input type="number" name="price" id="price"
                                         class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                        placeholder="In Rupees" required />
+                                        placeholder="In Rupees" />
                                 </div>
                                 <div class="col-span-6 sm:col-span-3">
                                     <label for="fabric"
@@ -107,67 +107,14 @@
                                     <input type="text" name="fabric" id="fabric"
                                         class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
                                 </div>
-                                <div class="col-span-6 flex items-top sm:col-span-3">
-                                    <div class="w-1/2 mr-4">
-                                        <label for="color"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Colors</label>
-                                        <input type="color" name="color" id="color1" class="border border-slate-300"
-                                            placeholder="In Percentage" />
-                                        <input type="color" name="color" id="color2" class="border border-slate-300"
-                                            placeholder="In Percentage" />
-                                        <input type="color" name="color" id="color3" class="border border-slate-300"
-                                            placeholder="In Percentage" />
-                                    </div>
-                                    <div class="w-1/2">
-                                        <label for="size"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Size</label>
-                                        <select id="size"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required>
-                                            <option value="">select</option>
-                                            <option value="S">S</option>
-                                            <option value="M">M</option>
-                                            <option value="large">L</option>
-                                            <option value="XL">XL</option>
-                                            <option value="XXL">XXL</option>
-                                            <option value="XXL">XXXL</option>
-                                        </select>
-                                        <input type="hidden" id="selectedSize" name="size" />
-                                    </div>
-                                </div>
 
-                                <div class="col-span-6 sm:col-span-3">
-                                    <label for="stock"
-                                        class="mb-2 block text-sm font-medium text-gray-900">Stock</label>
-                                    <input type="number" name="stock" id="stock"
+                                <div class="col-span-6 sm:col-span-3 ">
+                                    <label for="discount"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Discount</label>
+                                    <input type="number" name="discount" id="discount"
                                         class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                        required />
+                                        placeholder="In Percentage" />
                                 </div>
-
-                                <div class="col-span-6 flex items-center sm:col-span-3 justify-between">
-                                    <div class="">
-                                        <label for="gender"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Gender</label>
-                                        <select id="gender"
-                                            class="block rounded-lg border border-gray-300 bg-gray-50 p-2 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required>
-                                            <option value="">select</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="unisex">Unisex</option>
-                                        </select>
-                                        <input type="hidden" id="selectedGender" name="gender" />
-                                    </div>
-                                    <div class="">
-                                        <label for="discount"
-                                            class="mb-2 block text-sm font-medium text-gray-900">Discount</label>
-                                        <input type="number" name="discount" id="discount"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            placeholder="In Percentage" required />
-                                    </div>
-                                </div>
-
-
 
                                 <!-- File Upload Section -->
                                 <div class="col-span-6 flex flex-col sm:col-span-3">
@@ -175,13 +122,25 @@
                                         <label for="file" class="mb-2 block text-sm font-medium text-gray-900">Upload
                                             Files</label>
                                         <input type="file" id="imageUpload" accept="image/*" name="file"
-                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                                            required />
+                                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm" />
                                     </div>
 
-                                    <div class="grid grid-cols-3 gap-3" id="imagePreview">
+                                    <div class="grid grid-cols-2 mt-2 gap-3" id="imagePreview">
                                         <!-- preview images are stored here -->
                                     </div>
+                                </div>
+
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label for="gender"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Gender</label>
+                                    <select id="gender"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm">
+                                        <option value="">select</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="unisex">Unisex</option>
+                                    </select>
+                                    <input type="hidden" id="selectedGender" name="gender" />
                                 </div>
 
                                 <!-- Crop Modal Structure -->
@@ -200,6 +159,17 @@
                                         class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
                                         name="description"></textarea>
                                 </div>
+
+                                <div class="col-span-full flex flex-col">
+                                    <div>
+                                        <input id="featured" type="checkbox" class="w-4 h-4">
+                                        <span class="ml-2">Featured</span>
+                                    </div>
+                                    <div>
+                                        <input id="limitedEdition" type="checkbox" class="w-4 h-4">
+                                        <span class="ml-2">Limited Edition</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="float-end mt-4 rounded-b p-6">
@@ -209,15 +179,60 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="space-y-6 p-6">
+                        <div class="flex flex-col gap-8" id="optionContainer">
+                            <h1 class="font-medium">Option</h1>
+                            <div class="grid gap-x-4 sm:col-span-3">
+                                <div>
+                                    <label for="size-0"
+                                        class="mb-2 block text-sm font-medium text-gray-900 ">Size</label>
+                                    <select id="size-0" name="sizes"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm sizes">
+                                        <option value="">select</option>
+                                        <option value="S">S</option>
+                                        <option value="M">M</option>
+                                        <option value="L">L</option>
+                                        <option value="XL">XL</option>
+                                        <option value="XXL">XXL</option>
+                                        <option value="XXL">XXXL</option>
+                                    </select>
+                                    <input type="hidden" id="selectedSize" name="size" />
+                                </div>
+                                <div>
+                                    <label for="stock-0"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Stock</label>
+                                    <input type="number" name="stock" id="stock-0"
+                                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm  stocks" />
+                                </div>
+                                <div class="col-span-6 sm:col-span-3 mt-4">
+                                    <label for="color-0-1"
+                                        class="mb-2 block text-sm font-medium text-gray-900">Colors</label>
+                                    <input type="color" name="color-0-1" id="color-0-1"
+                                        class="border border-slate-300" />
+                                    <input type="color" name="color-0-2" id="color-0-2"
+                                        class="border border-slate-300" />
+                                    <input type="color" name="color-0-3" id="color-0-3"
+                                        class="border border-slate-300" />
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div>
+                            <label id="addOptions" for="addOptions"
+                                class="text-blue-600 cursor-pointer text-[15px] hover:text-[16px]">+
+                                Add more Options</label>
+                        </div>
+                    </div>
+
                 </div>
             </main>
     </div>
     </div>
     </div>
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
-    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="/javascript/admin/productVariantOptions.js"></script>
     <script src="/javascript/admin/createProduct.js"></script>
 
 </body>

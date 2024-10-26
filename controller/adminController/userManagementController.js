@@ -10,6 +10,7 @@ const getUserById = async (id) => {
 const userManagementPage = async (req, res) => {
     try {
         if (!req.session.admin) return res.redirect('/admin/signIn');
+        
         // const searchTerm = req.query.search || ''
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;

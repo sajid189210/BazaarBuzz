@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+    <div class="relative">
+
+        <!-- Header -->
+        <%- include('../partials/userHeader') %>
+
+            <div class="absolute top-[120px] w-full">
+                <main class="">
+                    <div class=" font-[poppins]">
+                        <form class="p-10 md:col-span-8" id="addressForm">
+                            <div class="-mx-3 mb-6 flex flex-wrap">
+                                <div class="mb-6 mb-6 w-full px-3 ">
+                                    <h1 class="text-xl lg:text-3xl font-semibold">Add Address</h1>
+
+                                </div>
+                                <div class="mb-6 mb-6 w-full px-3 md:mb-0 md:w-1/2">
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                        for="contactName"> Contact Name</label>
+                                    <span id="nameError" class=" text-xs text-red-500"></span>
+                                    <input
+                                        class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                        id="contactName" type="text" placeholder="Your full name" />
+                                </div>
+                                <div class="mb-6 w-full px-3 md:w-1/2">
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                        for="contactNumber"> Contact Number </label>
+                                    <span id="numberError" class=" text-xs text-red-500"></span>
+
+                                    <input
+                                        class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                        id="contactNumber" type="number" placeholder="" />
+                                </div>
+                                <div class="mb-6 w-full px-3 md:w-1/2">
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                        for="pincode">pincode </label>
+                                    <span id="pincodeError" class=" text-xs text-red-500"></span>
+                                    <input
+                                        class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                        id="pincode" type="text" placeholder="6 digits [0-9] code" />
+                                </div>
+                                <div class="mb-6 w-full px-3 md:w-1/2">
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                        for="building">Flat, House no., Building, Company, Apartment </label>
+                                    <span id="buildingError" class=" text-xs text-red-500"></span>
+                                    <input
+                                        class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                        id="building" type="text" placeholder="" />
+                                </div>
+                                <div class="mb-6 w-full px-3 md:w-1/2">
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                        for="street">Area, Street, Sector, Village </label>
+                                    <span id="streetError" class=" text-xs text-red-500"></span>
+                                    <input
+                                        class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                        id="street" type="text" placeholder="" />
+                                </div>
+                                <div class="mb-6 w-full px-3 md:w-1/2">
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                        for="landmark">landmark </label>
+                                    <input
+                                        class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                        id="landmark" type="text" placeholder="Eg: near KIMS Hospital" />
+                                </div>
+                                <div class="w-full lg:grid lg:grid-cols-2">
+                                    <div class="mb-6 w-full px-3">
+                                        <label
+                                            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                            for="district">District </label>
+                                        <span id="districtError" class=" text-xs text-red-500"></span>
+                                        <input
+                                            class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                            id="district" type="text" placeholder="" />
+                                    </div>
+                                    <div class="mb-6 w-full px-3">
+                                        <label
+                                            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                                            for="state">State</label>
+                                        <span id="stateError" class=" text-xs text-red-500"></span>
+                                        <select
+                                            class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
+                                            name="state" id="state">
+                                            <option value="">Select</option>
+                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                            <option value="Assam">Assam</option>
+                                            <option value="Bihar">Bihar</option>
+                                            <option value="Chhattisgarh">Chhattisgarh</option>
+                                            <option value="Goa">Goa</option>
+                                            <option value="Gujarat">Gujarat</option>
+                                            <option value="Haryana">Haryana</option>
+                                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                            <option value="Jharkhand">Jharkhand</option>
+                                            <option value="Karnataka">Karnataka</option>
+                                            <option value="Kerala">Kerala</option>
+                                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                            <option value="Maharashtra">Maharashtra</option>
+                                            <option value="Manipur">Manipur</option>
+                                            <option value="Meghalaya">Meghalaya</option>
+                                            <option value="Mizoram">Mizoram</option>
+                                            <option value="Nagaland">Nagaland</option>
+                                            <option value="Odisha">Odisha</option>
+                                            <option value="Punjab">Punjab</option>
+                                            <option value="Rajasthan">Rajasthan</option>
+                                            <option value="Sikkim">Sikkim</option>
+                                            <option value="Tamil Nadu">Tamil Nadu</option>
+                                            <option value="Telangana">Telangana</option>
+                                            <option value="Tripura">Tripura</option>
+                                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                            <option value="Uttarakhand">Uttarakhand</option>
+                                            <option value="West Bengal">West Bengal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                class="ml-2 w-full rounded-full border border-transparent bg-slate-800 px-4 py-2 text-center text-sm text-white shadow-md transition-all hover:bg-slate-700 hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                type="submit">Add Address</button>
+                        </form>
+
+                    </div>
+
+                    <div id="addressCards" class="grid grid-cols-4 gap-4 w-full mb-8 px-8">
+                        <%if(userDetails && userDetails.addressId.length !==0){%>
+                            <%userDetails.addressId.forEach(address=> {%>
+                                <div
+                                    class="relative mt-4 w-full max-w-xs overflow-hidden rounded-lg bg-white font-[poppins] shadow-[0_4px_12px_-5px_rgba(0,0,0,0.4)]">
+                                    <div class="p-6">
+                                        <table class="text-left">
+                                            <tr class="text-top align-text-top ">
+                                                <th class="w-1/2">Contact Name: </th>
+                                                <td>
+                                                    <%= address.contactName%>
+                                                </td>
+                                            </tr>
+                                            <tr class=" align-text-top">
+                                                <th class="w-1/2 py-2">Contact Number: </th>
+                                                <td>
+                                                    <%= address.contactNumber%>
+                                                </td>
+                                            </tr>
+                                            <tr class=" align-text-top">
+                                                <th class="w-1/2">Street: </th>
+                                                <td>
+                                                    <%= address.street%>
+                                                </td>
+                                            </tr>
+                                            <tr class=" align-text-top">
+                                                <th class="w-1/2 py-2">Building: </th>
+                                                <td class="">
+                                                    <%= address.building%>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <button type="button" onclick="editAddress('<%= JSON.stringify(address)%>')"
+                                            class="absolute bottom-0 mb-2 rounded-lg border-none bg-blue-600 px-5 py-2.5 text-sm tracking-wider text-white outline-none hover:bg-blue-700">
+                                            Edit</button>
+                                    </div>
+                                    <button type="button" onclick="removeAddress('<%= JSON.stringify(address._id)%>')"
+                                        class="px-1.5 border rounded-full bg-red-500 text-white absolute top-0 right-0 mr-2 mt-2">
+                                        X</button>
+                                </div>
+                                <%})%>
+                                    <% }%>
+
+
+                    </div>
+                </main>
+            </div>
+    </div>
+
+    <script>
+        let addressId = '';
+
+        // Contains form validation logic.
+        const validation = {
+            isValidContactName(contactName) {
+                if (!contactName) return false;
+                const regex = /^(?!\s*$)[A-Za-z\s]+$/;
+                return regex.test(contactName);
+            },
+            isValidContactNumber(contactNumber) {
+                if (!contactNumber) return false;
+                const regex = /^\d{10}$/;
+                return regex.test(contactNumber);
+            },
+            isValidPincode(pincode) {
+                if (!pincode) {
+                    console.log(pincode)
+                    return false;
+                };
+                const regex = /^\d{6}$/;
+                console.log(regex.test(pincode))
+                return regex.test(pincode);
+            },
+            isValidBuilding(building) {
+                if (!building) return false;
+                const regex = /^(?!\s*$).{3,}$/;
+                return regex.test(building);
+            },
+            isValidStreet(street) {
+                if (!street) return false;
+                const regex = /^(?!\s*$).{3,}$/;
+                return regex.test(street);
+            },
+            isValidDistrict(district) {
+                if (!district) return false;
+                const regex = /^(?!\s*$)[A-Za-z\s]+$/;
+                return regex.test(district);
+            },
+        }
+
+        // Function to validate from 
+        function validateFormInputs(formInputs) {
+            let isValid = true;
+
+            try {
+
+                if (!validation.isValidContactName(formInputs.contactName)) {
+                    document.getElementById('nameError').textContent = 'Name must be at least 4 characters long and only contain letters and spaces.';
+                    isValid = false;
+                }
+
+                if (!validation.isValidContactNumber(formInputs.contactNumber)) {
+                    document.getElementById('numberError').textContent = "Invalid phone number. Ensure it is 10 digits long and contains only numbers.";
+                    isValid = false;
+                }
+
+                if (!validation.isValidPincode(formInputs.pincode)) {
+                    document.getElementById('pincodeError').textContent = "Invalid Pincode. Ensure it is 6 digits long and contains only numbers."
+                    isValid = false;
+                }
+
+                if (!validation.isValidBuilding(formInputs.building)) {
+                    document.getElementById('buildingError').textContent = 'Building name must be at least 3 characters long.';
+                    isValid = false;
+                }
+
+                if (!validation.isValidStreet(formInputs.street)) {
+                    document.getElementById('streetError').textContent = 'Street name must be at least 3 characters long.';
+                    isValid = false;
+                }
+
+                if (!validation.isValidDistrict(formInputs.district)) {
+                    document.getElementById('districtError').textContent = 'District name must be at least 3 characters long and should not contain any numbers..';
+                    isValid = false;
+                }
+
+                if (!document.getElementById('state').value) {
+                    document.getElementById('stateError').textContent = 'Please choose a state .';
+                    isValid = false;
+                }
+
+                return isValid;
+
+            } catch (err) {
+                console.log('Error caught while validating address form inputs', err);
+                alert("Error", err);
+            }
+        }
+
+        // calls the function for populating the address details.
+        function populateFormData(address) {
+            const data = JSON.parse(address);
+
+            addressId = data._id;
+            document.getElementById('contactNumber').value = data.contactNumber;
+            document.getElementById('contactName').value = data.contactName;
+            document.getElementById('landmark').value = data.landmark;
+            document.getElementById('district').value = data.district;
+            document.getElementById('building').value = data.building;
+            document.getElementById('pincode').value = data.pincode;
+            document.getElementById('street').value = data.street;
+            document.getElementById('state').value = data.state;
+        }
+
+        //* calls the function for assigning values.
+        function assignFormData(address) {
+            const formInputs = {
+                contactNumber: document.getElementById('contactNumber').value.trim(),
+                contactName: document.getElementById('contactName').value.trim(),
+                building: document.getElementById('building').value.trim(),
+                landmark: document.getElementById('landmark').value.trim() || '',
+                district: document.getElementById('district').value.trim(),
+                pincode: document.getElementById('pincode').value.trim(),
+                street: document.getElementById('street').value.trim(),
+                state: document.getElementById('state').value.trim(),
+            }
+            return formInputs;
+        }
+
+        //* calls the function for clearing error messages.
+        function clearErrors() {
+            document.getElementById('buildingError').textContent = "";
+            document.getElementById('districtError').textContent = "";
+            document.getElementById('pincodeError').textContent = "";
+            document.getElementById('numberError').textContent = "";
+            document.getElementById('streetError').textContent = "";
+            document.getElementById('stateError').textContent = "";
+            document.getElementById('nameError').textContent = "";
+        }
+
+        //* calls function for Address form validations and submission.
+        async function addAddressSubmission(event) {
+            event.preventDefault();
+
+            clearErrors();
+            const formInputs = assignFormData();
+
+
+            try {
+                const isValid = validateFormInputs(formInputs);
+
+                if (!isValid) return;
+
+                const response = await fetch('/user/address', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ formInputs })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    await Swal.fire({
+                        title: 'Failed to add',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+
+                await Swal.fire({
+                    title: 'Success',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'Ok'
+                });
+
+                window.location.reload();
+
+            } catch (err) {
+                console.log('Error caught while submitting address form inputs when adding', err);
+                alert("Error", err);
+            }
+        }
+
+        //* submit event listener for adding new address.
+        document.getElementById('addressForm').addEventListener('submit', addAddressSubmission);
+
+        async function editAddressSubmission(event) {
+            event.preventDefault();
+
+            try {
+                console.log(addressId)
+
+                clearErrors();
+                const formInputs = assignFormData();
+                const isValid = validateFormInputs(formInputs);
+
+                if (!isValid) return;
+
+                const response = await fetch(`/user/address?addressId=${addressId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ formInputs })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    await Swal.fire({
+                        title: 'Failed to Update',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+                
+                await Swal.fire({
+                    title: 'Success',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'Ok'
+                });
+
+                window.location.reload();
+
+            } catch (err) {
+                console.log('Error caught while submitting address form inputs when adding', err);
+                alert("Error", err);
+            }
+        }
+
+
+        //* function to replace the event listener
+        function replaceEventListener() {
+            document.getElementById('addressForm').removeEventListener('submit', addAddressSubmission);
+
+            document.getElementById('addressForm').addEventListener('submit', editAddressSubmission);
+        }
+
+        async function editAddress(address) {
+            document.getElementById('addressCards').classList.add('hidden')
+            populateFormData(address);
+            replaceEventListener();
+        }
+
+
+        //* Function for removing addresses.
+        async function removeAddress(addressId) {
+            try {
+
+                if (!addressId) {
+                    alert('Address id not found.');
+                    return;
+                }
+
+                const { isConfirmed } = await Swal.fire({
+                    title: 'Are you sure you want  to remove the address?',
+                    text: 'This will permanently remove the address data',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    cancelButtonText: 'No',
+                    confirmButtonText: 'Yes',
+                });
+
+                if (isConfirmed) {
+                    const response = await fetch(`/user/address?addressId=${JSON.parse(addressId)}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        await Swal.fire({
+                            title: 'Oops!',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                        return;
+                    }
+
+                    await Swal.fire({
+                        title: 'Success',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+
+                    window.location.reload();
+                } else return;
+
+            } catch (err) {
+                alert("Error");
+                console.log('Error caught while removing address', err);
+            }
+        }
+    </script>
+</body>
+
+</html>

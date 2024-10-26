@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
 
     const imageInput = document.getElementById('imageUpload');
@@ -7,11 +6,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const cropImage = document.getElementById('cropImage');
     const cropButton = document.getElementById('cropButton');
     const cancelButton = document.getElementById('cancelButton');
-    let cropper;
     let uploadedImages = 0;
-    let selectedImages = [];
+    // let selectedImages = []; //? moved to productVariantOption.js file in public
+    let cropper;
 
-    // For selecting the category & listing the brands of the selected category
+
+    //* For selecting the category & listing the brands of the selected category
     document.getElementById('category').addEventListener('change', async function () {
         const targetBrandContainer = document.getElementById('brands');
 
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const categoryId = selectedOption.dataset.categoryId;
 
-        const selectedCategory = selectedOption.textContent.trim();
+        // const selectedCategory = selectedOption.textContent.trim();
 
         targetBrandContainer.innerHTML = '';
 
@@ -61,21 +61,15 @@ document.addEventListener('DOMContentLoaded', function () {
         targetElement.value = selectedOption;
     });
 
-    //For selecting the size option
-    document.getElementById('size').addEventListener('change', function () {
-        const selectedOption = this.value;
-        const targetElement = document.getElementById('selectedSize');
-        targetElement.value = selectedOption;
-    });
-
-    //For selecting the gender
+    // For selecting the gender
     document.getElementById('gender').addEventListener('change', function () {
         const selectedOption = this.value;
         const targetElement = document.getElementById('selectedGender');
         targetElement.value = selectedOption;
     });
 
-    //*-------------------[File Functions]------------------------------------------
+
+    //* ***************************************************************[FILE FUNCTIONS]******************************************************** *//
     //function to initialize cropper
     function openCropModal(imageUrl) {
         cropImage.src = imageUrl;
@@ -99,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Invalid file type. Please select an image file (jpg, jpeg, png, gif).');
                 return;
             }
-            
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 openCropModal(e.target.result);
@@ -142,7 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (index >= 0) {
                 selectedImages.splice(index, 1); // Remove the image URL from the array
             }
-            console.log(selectedImages)
         });
 
         uploadedImages++;
@@ -180,66 +173,98 @@ document.addEventListener('DOMContentLoaded', function () {
         cropModal.style.display = 'none';
         cropper.destroy();
     });
-    //**************************************************************************/
+    //**************************[FILE FUNCTIONS ENDS HERE (^_^) ]************************************************/
 
-    // * listens to the submit event to create product.
+
+    //* listens to the submit event to create product.
     document.getElementById('productDetailForm').addEventListener('submit', async function (event) {
         event.preventDefault();
 
-        let colors = [];
+        const result = await prepareProductDetails();
 
-        document.querySelectorAll('input[name="color"]').forEach(input => {
-            const colorValue = input.value;
-            if (!colors.includes(colorValue)) {
-                colors.push(colorValue);
+        if (!result.success) {
+            return;
+        }
+
+        // Validates the empty input fields.
+        for (let key in result.productDetails) {
+            // Checks if the key is neither 'featured' nor 'limitedEdition'
+            if (!['featured', 'limitedEdition'].includes(key)) {
+                if (!result.productDetails[key]) {
+                    await Swal.fire({
+                        title: 'All fields required!',
+                        text: 'Please fill all the fields.',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
             }
-        });
+        }
 
-        if (!colors) {
-            alert('Please select the colors');
+        // validates the product price.  
+        if (result.productDetails.productPrice < 0) {
+            await Swal.fire({
+                title: 'Invalid Price!',
+                text: 'Price should be a valid positive integer.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
             return;
         }
 
+        // validates the product discount.  
+        if (result.productDetails.discount < 0) {
+            await Swal.fire({
+                title: 'Invalid Discount!',
+                text: 'Discount should be a valid positive integer.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
+
+        // validates the product images.
         if (selectedImages.length < 3 || uploadedImages === 0) {
-            alert('Must choose atleast 3 images.');
+            await Swal.fire({
+                title: 'Not enough images!',
+                text: 'Please choose minimum of 3 images.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
             return;
         }
-
-        const productDetails = {
-            productName: document.getElementById('productName').value.trim(),
-            productPrice: document.getElementById('price').value.trim(),
-            categoryId: document.getElementById('selectedCategory').value,
-            stock: document.getElementById('stock').value,
-            discount: document.getElementById('discount').value,
-            brand: document.getElementById('selectedBrand').value,
-            images: selectedImages,
-            colors: colors,
-            description: document.getElementById('productDetails').value.trim(),
-            fabric: document.getElementById('fabric').value,
-            size: document.getElementById('selectedSize').value,
-            gender: document.getElementById('selectedGender').value,
-        };
 
         try {
             const response = await fetch('/admin/productList/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productDetails }),
+                body: JSON.stringify({ productDetails: result.productDetails }),
             });
 
             const data = await response.json();
-            console.log(data);
 
             if (!data.success) {
-                alert(data.message);
-                return
+                await Swal.fire({
+                    title: 'Error',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+                return;
             }
 
-            alert(data.message);
+            await Swal.fire({
+                title: 'Success',
+                text: data.message,
+                icon: 'success',
+                confirmButtonText: 'Ok'
+            });
 
             window.location.href = '/admin/productList';
 
         } catch (err) {
+            alert("Error");
             console.error('Error caught while submitting productDetailForm details in the createProduct.js in public folder.');
         }
     });

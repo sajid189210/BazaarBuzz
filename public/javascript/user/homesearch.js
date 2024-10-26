@@ -35,7 +35,7 @@ homeSearch.addEventListener('input', async function (event) {
                     const link = document.createElement('a');
                     link.classList.add('overflow-hidden', 'text-ellipsis', 'whitespace-nowrap', 'p-2');
                     link.innerText = product.productName;
-                    link.href = `/user/viewProduct?productId=${product._id}`;
+                    link.href = `/user/viewProduct/?productId=${product._id}`;
 
                     resultsContainer.appendChild(link)
                 } else {

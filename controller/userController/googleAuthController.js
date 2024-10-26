@@ -1,4 +1,5 @@
 const passport = require('passport');
+const User = require('../../model/userModel');
 
 
 const authenticate = (req, res, next) => {
@@ -9,12 +10,14 @@ const authenticate = (req, res, next) => {
     })(req, res);
 };
 
-const callback = (req, res, next) => {
+const callback = async (req, res, next) => {
     console.log('Handling Google callback...');
+
     passport.authenticate('google', {
         successRedirect: '/user/homepage',
         failureRedirect: '/user/signIn'
-    }, (authError, authResult) => {
+
+    }, async (authError, authResult) => {
         if (authError) {
             console.error('Authentication error:', authError);
             res.status(500).json('Authentication error');

@@ -15,21 +15,23 @@ const validateChangePassword = async (req, res) => {
         const admin = await adminModel.findOne({ email });
 
         if (!admin) {
-            req.flash("error", "Invalid email or Password.");
+            req.flash("error", "Invalid email");
             return res.redirect('/admin/changePassword')
         }
 
-        if (
-            !(oldPassword === admin.password &&
-                newPassword === confirmPassword
-            )
-        ) {
-            req.flash("error", "Password mismatch.");
+        if (await bcrypt.compare(oldPassword, admin.password)) {
+            console.log('hi')
+            req.flash("error", "Invalid Password.");
+            return res.redirect('/admin/changePassword')
+        }
+
+        if (newPassword !== confirmPassword) {
+            req.flash("error", "Password Mismatch.");
             return res.redirect('/admin/changePassword')
         }
 
         //updating the password.
-        const result = await adminModel.updateOne({ email }, { $set: { password: confirmPassword } });
+        await adminModel.updateOne({ email }, { $set: { password: await bcrypt.hashSync(confirmPassword, 10) } });
 
         return res.redirect("/admin/signIn")
 
@@ -67,7 +69,7 @@ const validateCredentials = async (req, res) => {
 
         // const hashedPassword = await bcrypt.hash(password, 10)
 
-        if (!(email === admin.email && bcrypt.compare(password, admin.password))) {
+        if (!(email === admin.email && await bcrypt.compare(password, admin.password))) {
             req.flash("error", "User not found *");
             return res.redirect("/admin/signIn");
         }
@@ -118,7 +120,7 @@ const adminSignIn = async (req, res) => {
 const dashboard = async (req, res) => {
     try {
 
-        // if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect('/admin/signIn');
 
         res.render('admin/dashboard');
 

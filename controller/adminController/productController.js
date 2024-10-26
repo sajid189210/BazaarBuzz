@@ -1,5 +1,5 @@
 const categoryModel = require('../../model/categoryModel');
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const Product = require('../../model/productModel');
 const path = require('path');
 const fs = require('fs');
@@ -35,7 +35,8 @@ const getCategory = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
 
-        // if (!req.session.admin) return res.redirect('/admin/SignIn');
+        if (!req.session.admin) return res.redirect('/admin/SignIn');
+
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
 
@@ -71,7 +72,7 @@ const getProducts = async (req, res) => {
 const getCreateProducts = async (req, res) => {
     try {
 
-        // if (!req.session.admin) return res.redirect('/admin/SignIn');
+        if (!req.session.admin) return res.redirect('/admin/SignIn');
         const Category = await categoryModel.find();
 
         if (!Category) throw new Error("Error caught while fetching category data.");
@@ -90,8 +91,14 @@ const getCreateProducts = async (req, res) => {
 
 //*----------------Create Product Page : POST------------------------------------------------------------------------------------
 const createProducts = async (req, res) => {
+    const { productDetails } = req.body;
     try {
-        const { productDetails } = req.body;
+
+        if (!productDetails) return res.status(201).json({
+            success: false,
+            message: 'Product details not found.'
+        });
+
         const newProduct = new Product(productDetails);
 
         try {
@@ -121,14 +128,13 @@ const createProducts = async (req, res) => {
 const productUpdate = async (req, res) => {
     try {
 
-        const productId = req.params.id;
+        const { productId } = req.query;
         const { productDetails } = req.body;
 
         if (!productDetails || !productId) return res.status(400).json({
             success: false,
             message: "Missing required fields. Please provide both productId and productDetails"
         });
-
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
             { $set: productDetails },
@@ -143,7 +149,6 @@ const productUpdate = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Product details updated successfully",
-            updatedProduct
         });
 
     } catch (err) {
