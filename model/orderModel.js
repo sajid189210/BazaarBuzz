@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema({
             },
             returnStatus: {
                 type: String,
-                enum: [ 'requested', 'approved', 'returned', 'rejected', 'refunded'],
+                enum: ['requested', 'approved', 'returned', 'rejected', 'refunded'],
             },
             returnReason: { type: String },
             returnPaymentMethod: {
@@ -45,16 +45,16 @@ const orderSchema = new mongoose.Schema({
             returnPaymentStatus: {
                 type: String,
                 enum: ['pending', 'paid', 'failed', 'refunded']
-            }
+            },
         }
     ],
     paymentMethod: {
         type: String,
         enum: ['cod', 'razorpay', 'wallet'],
-    },  
+    },
     allOrdersStatus: {
         type: String,
-        enum:['processing', 'shipped', 'cancelled', 'returned', 'delivered'],
+        enum: ['processing', 'shipped', 'cancelled', 'returned', 'delivered'],
         default: 'processing'
     },
     shippingAddress: {
@@ -70,6 +70,10 @@ const orderSchema = new mongoose.Schema({
     shippingFee: {
         type: Number,
         default: 0
+    },
+    coupon: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Coupon'
     }
 
 }, { timestamps: true });

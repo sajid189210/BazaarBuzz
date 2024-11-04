@@ -168,11 +168,11 @@ document.addEventListener('DOMContentLoaded', function () {
         cropper.destroy();
     });
 
-    //*listens to the cancel crop event.
-    cancelButton.addEventListener('click', function () {
-        cropModal.style.display = 'none';
-        cropper.destroy();
-    });
+    // //listens to the cancel crop event.
+    // cancelButton.addEventListener('click', function () {
+    //     cropModal.style.display = 'none';
+    //     cropper.destroy();
+    // });
     //**************************[FILE FUNCTIONS ENDS HERE (^_^) ]************************************************/
 
 

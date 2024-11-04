@@ -7,12 +7,27 @@
     }
 </style> -->
 
-<header class="fixed bg-white w-full z-50 font-[poppins] tracking-wide">
-    <section class="flex min-h-[75px] flex-wrap items-center gap-4 border-b border-gray-200 px-4 py-3 sm:px-10">
-        <a href="/user/homepage" class="w-36 text-2xl md:w-[170px] lg:text-3xl block"><strong>BuzaarBuzz</strong>
-        </a>
+<header class="fixed bg-white w-full z-50 font-[poppins]">
+    <section class="flex md:min-h-[75px] gap-4 flex-wrap items-center px-4 pt-3">
+
+        <div class="flex justify-between gap-2">
+            <button id="toggleOpen" class="lg:hidden">
+                <svg class="h-7 w-7" fill="#000" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                        clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            <a href="/user/homepage" class="text-2xl md:w-[150px] lg:text-3xl block">
+                <strong>BuzaarBuzz</strong></a>
+        </div>
+
+        <!-- Side Menu -->
+
+
+        <!-- Search Component -->
         <div
-            class="flex justify-start h-10 w-2/4 rounded-full border border-transparent bg-gray-100 pl-6 focus-within:border-[#00b070] focus-within:bg-transparent">
+            class="flex justify-start h-10 w-full md:w-1/2 lg:w-2/4 rounded-full border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent">
 
             <div class="relative flex w-full">
                 <div class="flex w-full">
@@ -34,8 +49,8 @@
             </button>
         </div>
 
-        <div class="ml-auto flex items-center space-x-8 lg:absolute lg:right-10">
-            <ul class="hidden space-x-4 lg:flex">
+        <div class="lg:ml-auto flex items-center space-x-8">
+            <ul class="hidden lg:space-x-4 lg:flex">
                 <li
                     class="group relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:w-0 after:bg-pink-500 after:transition-all after:duration-300 hover:after:h-[3px] hover:after:w-full">
                     <%if(user){%>
@@ -72,8 +87,8 @@
                                             <li><a href="/user/orders"
                                                     class="text-sm text-gray-500 hover:text-pink-500">Orders</a>
                                             </li>
-                                            <li><a href="javascript:void(0)"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Wishlist</a>
+                                            <li><a href="/user/profile"
+                                                    class="text-sm text-gray-500 hover:text-pink-500">My Profile</a>
                                             </li>
                                             <li><a href="javascript:void(0)"
                                                     class="text-sm text-gray-500 hover:text-pink-500">Contact
@@ -85,9 +100,8 @@
                                             <li><a href="javascript:void(0)"
                                                     class="text-sm text-gray-500 hover:text-pink-500">Coupons</a>
                                             </li>
-                                            <li><a href="javascript:void(0)"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Saved
-                                                    Credits</a></li>
+                                            <li><a href="/user/wallet"
+                                                    class="text-sm text-gray-500 hover:text-pink-500">Wallet</a></li>
                                             <li><a href="javascript:void(0)"
                                                     class="text-sm text-gray-500 hover:text-pink-500">About
                                                     Us</a>
@@ -107,13 +121,15 @@
                 </li>
                 <li
                     class="relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:w-0 after:bg-pink-500 after:transition-all after:duration-300 hover:after:h-[3px] hover:after:w-full">
-                    <div class="flex cursor-pointer flex-col items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 64 64">
-                            <path
-                                d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z" />
-                        </svg>
-                        <span class="mt-1 text-xs font-semibold">My Wishlist</span>
-                    </div>
+                    <a href="/user/wishlist">
+                        <div class="flex cursor-pointer flex-col items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 64 64">
+                                <path
+                                    d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z" />
+                            </svg>
+                            <span class="mt-1 text-xs font-semibold">My Wishlist</span>
+                        </div>
+                    </a>
                 </li>
                 <li
                     class="relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:w-0 after:bg-pink-500 after:transition-all after:duration-300 hover:after:h-[3px] hover:after:w-full">
@@ -128,15 +144,7 @@
                     </a>
                 </li>
             </ul>
-            <div id="toggleOpen" class="ml-auto flex lg:hidden">
-                <button>
-                    <svg class="h-7 w-7" fill="#000" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd"
-                            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                            clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-            </div>
+
         </div>
 
     </section>

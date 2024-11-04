@@ -1,7 +1,9 @@
 const router = require('express').Router();
+const salesReportController = require('../controller/adminController/salesReportController');
 const categoryController = require("../controller/adminController/categoryController");
 const productManagement = require('../controller/adminController/productController');
 const bannerController = require('../controller/adminController/bannerController');
+const couponController = require('../controller/adminController/couponController');
 const adminController = require("../controller/adminController/adminController");
 const orderController = require('../controller/adminController/orderController');
 const userManagement = require('../controller/adminController/userManagementController');
@@ -73,6 +75,15 @@ router.patch('/order/changeStatus', orderController.changeStatus);
 router.patch('/order/returns', orderController.returnStatus);
 router.patch('/order/refund', orderController.refund);
 
+//*------------------[Coupon Management]--------------------
+router.get('/coupon', couponController.renderCouponPage);
+router.post('/coupon', couponController.createCoupons);
+router.put('/coupon', couponController.updateCoupons);
+router.delete('/coupon', couponController.deleteCoupons);
+
+//*------------------[Sales Report]--------------------
+router.get('/salesReport', salesReportController.renderReport);
+router.post('/downloadReport', salesReportController.downloadReport)
 
 //*------------------[Banner]--------------------
 router.get('/banner', bannerController.getBannerPage);

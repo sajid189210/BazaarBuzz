@@ -52,88 +52,104 @@
                                                 <%= order.createdAt.toLocaleString()%>
                                             </span>
                                         </h1>
-                                        <% order.orderedProducts.forEach(item=> {%>
+                                        <%if(order.coupon){%>
                                             <div
-                                                class="px-4 py-6 rounded-md shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
-                                                <div class="flex gap-4">
-                                                    <div class="w-28 h-28 max-sm:w-24 max-sm:h-24 shrink-0">
-                                                        <img src='<%= item.product.images[0]%>'
-                                                            class="w-full h-full object-contain" />
-                                                    </div>
-
-                                                    <div class="flex flex-col gap-4 w-1/2">
-                                                        <div>
-                                                            <h3 class="text-base font-bold text-gray-800">
-                                                                <%= item.product.productName%>
-                                                            </h3>
-                                                            <p
-                                                                class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
-                                                                Color: <span class="inline-block w-5 h-5 rounded-md"
-                                                                    style="background-color: <%= item.selectedColor%>;"></span>
-                                                            </p>
-                                                            <p
-                                                                class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
-                                                                Size: <span class="inline-block w-5 h-5 ">
-                                                                    <%= item.selectedSize%>
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
-                                                                Quantity: <span class="inline-block w-5 h-5">
-                                                                    <%= item.quantity%>
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
-                                                                Payment Status: <span class="inline-block w-5 h-5">
-                                                                    <%= item.paymentStatus%>
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
-                                                                Payment Method: <span
-                                                                    class="inline-block w-5 h-5 uppercase">
-                                                                    <%= order.paymentMethod%>
-                                                                </span>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="w-full pr-8 flex justify-end">
-                                                        <div>
-                                                            <p
-                                                                class="text-lg font-medium flex items-center text-gray-900 mb-6">
-                                                                Order Status: <span
-                                                                    class="inline-block pl-2 font-normal text-gray-800">
-                                                                    <%= item.orderStatus%>
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                class="text-lg font-medium flex items-center text-gray-900 mb-6 <%= item.returnStatus ? '' : 'hidden'%>">
-                                                                Return Status: <span
-                                                                    class="inline-block pl-2 font-normal text-gray-800">
-                                                                    <%= item.returnStatus%>
-                                                                </span>
-                                                            </p>
-                                                            <p class="text-lg flex items-center text-gray-900 mb-8">
-                                                                Total amount: <span
-                                                                    class="inline-block pl-2 font-normal text-gray-800">
-                                                                    ₹<%= item.discountedPrice%>
-                                                                </span>
-                                                            </p>
-                                                            <button type="button" onclick="openModal(this)"
-                                                                data-product-id="<%=item.product._id%>"
-                                                                data-order-item-id="<%=item._id%>"
-                                                                class="text-md text-blue-800 hover:underline <%= item.orderStatus==='processing' || item.orderStatus==='shipped' || item.orderStatus==='cancelled' || item.returnStatus ? 'hidden': ''%>">
-                                                                Return Order
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                class="w-[200px] h-10 bg-green-500 rounded-t-lg text-white font-bold flex justify-center items-center">
+                                                <span>Coupon applied!</span>
                                             </div>
-                                            <%})%>
-                                                <div class="h-10 w-full"></div>
-                                                <% })%>
-                                                    <% }%>
+                                            <% }%>
+                                                <% order.orderedProducts.forEach(item=> {%>
+
+
+                                                    <div
+                                                        class="px-4 py-6 rounded-md shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)] ">
+                                                        <div class="flex gap-4">
+                                                            <div class="w-28 h-28 max-sm:w-24 max-sm:h-24 shrink-0">
+                                                                <img src='<%= item.product.images[0]%>'
+                                                                    class="w-full h-full object-contain" />
+                                                            </div>
+
+                                                            <div class="flex flex-col gap-4 w-1/2">
+                                                                <div>
+                                                                    <h3 class="text-base font-bold text-gray-800">
+                                                                        <%= item.product.productName%>
+                                                                    </h3>
+                                                                    <p
+                                                                        class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                                        Color: <span
+                                                                            class="inline-block w-5 h-5 rounded-md"
+                                                                            style="background-color: <%= item.selectedColor%>;"></span>
+                                                                    </p>
+                                                                    <p
+                                                                        class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                                        Size: <span class="inline-block w-5 h-5 ">
+                                                                            <%= item.selectedSize%>
+                                                                        </span>
+                                                                    </p>
+                                                                    <p
+                                                                        class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                                        Quantity: <span class="inline-block w-5 h-5">
+                                                                            <%= item.quantity%>
+                                                                        </span>
+                                                                    </p>
+                                                                    <p
+                                                                        class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                                        Payment Status: <span
+                                                                            class="inline-block w-5 h-5">
+                                                                            <%= item.paymentStatus%>
+                                                                        </span>
+                                                                    </p>
+                                                                    <p
+                                                                        class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
+                                                                        Payment Method: <span
+                                                                            class="inline-block w-5 h-5 uppercase">
+                                                                            <%= order.paymentMethod%>
+                                                                        </span>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="w-full pr-8 flex justify-end">
+                                                                <div>
+                                                                    <p
+                                                                        class="text-lg font-medium flex items-center text-gray-900 mb-6">
+                                                                        Order Status: <span id="orderStatus"
+                                                                            class="inline-block pl-2 font-normal text-gray-800">
+                                                                            <%= item.orderStatus%>
+                                                                        </span>
+                                                                    </p>
+                                                                    <p
+                                                                        class="text-lg font-medium flex items-center text-gray-900 mb-6 <%= item.returnStatus ? '' : 'hidden'%>">
+                                                                        Return Status: <span
+                                                                            class="inline-block pl-2 font-normal text-gray-800">
+                                                                            <%= item.returnStatus%>
+                                                                        </span>
+                                                                    </p>
+                                                                    <p
+                                                                        class="text-lg flex items-center text-gray-900 mb-8">
+                                                                        Total amount: <span
+                                                                            class="inline-block pl-2 font-normal text-gray-800">
+                                                                            ₹<%= item.discountedPrice%>
+                                                                        </span>
+                                                                    </p>
+                                                                    <button type="button" onclick="openModal(this)"
+                                                                        data-product-id="<%=item.product._id%>"
+                                                                        data-order-item-id="<%=item._id%>"
+                                                                        class="text-md text-blue-800 hover:underline <%= item.orderStatus==='processing' || item.orderStatus==='shipped' || item.orderStatus==='cancelled' || item.returnStatus ? 'hidden': ''%>">
+                                                                        Return Order
+                                                                    </button>
+                                                                    <button type="button" id="cancelOrder"
+                                                                        onclick="cancelOrder('<%=item.product._id%>', '<%=item._id%>', '<%= order._id%>')"
+                                                                        class="text-md text-blue-800 hover:underline <%= item.orderStatus==='cancelled' || item.orderStatus==='delivered' || item.orderStatus==='cancelled' ? 'hidden': ''%>">
+                                                                        Cancel Order
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <%})%>
+                                                        <div class="h-10 w-full"></div>
+                                                        <% })%>
+                                                            <% }%>
                             </div>
                         </div>
                     </div>
@@ -261,6 +277,57 @@
                     text: data.message,
                     icon: 'success',
                     confirmButtonText: 'Ok'
+                });
+
+                window.location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert("Error");
+            }
+        }
+
+        //* Cancel order.
+        async function cancelOrder(productId, orderItemId, orderId) {
+
+            if (!orderItemId || !productId) {
+                alert('ProductId or orderId not found');
+                return;
+            }
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            try {
+                const response = await fetch('/user/orders/cancel', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, orderItemId, orderId })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert(data.message);
+                    return;
+                }
+
+                document.querySelector('#orderStatus').textContent = 'cancelled';
+                document.querySelector("#cancelOrder").classList.add('hidden');
+
+
+                await Toast.fire({
+                    icon: 'success',
+                    title: data.message
                 });
 
                 window.location.reload();

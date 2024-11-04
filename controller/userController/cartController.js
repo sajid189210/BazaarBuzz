@@ -108,7 +108,7 @@ const addToCart = async (req, res) => {
                 selectedStock: stock,
                 discountedPrice,
             });
-            cart.save();
+            await cart.save();
         } catch (err) {
             throw new Error("Error while saving product in the cart", err)
         }
@@ -201,7 +201,6 @@ const updateQuantity = async (req, res) => {
         }
 
         if (process) {
-            console.log(variant);
 
             if (variant.stock <= 1) {
                 return res.status(400).json({

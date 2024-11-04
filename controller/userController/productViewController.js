@@ -24,6 +24,7 @@ const viewProduct = async (req, res) => {
     }
 };
 
+
 module.exports = {
-    viewProduct
+    viewProduct,
 }

@@ -21,14 +21,16 @@ const cartSchema = new mongoose.Schema({
                 type: Number,
                 default: 0
             },
-            discountedValue: { //for coupons
-                type: Number,
-                default: 0
-            },
-            couponValue: { type: Number }
         }
     ],
-
+    discountedValue: { //for coupons
+        type: Number,
+        default: 0
+    },
+    coupon: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Coupon',
+    }
 }, { timestamps: true });
 
 const Cart = mongoose.model('Cart', cartSchema);

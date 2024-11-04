@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Admin: Order List</title>
     <link rel="stylesheet" href="/css/style.css">
 
     <!-- Include jQuery -->
@@ -44,51 +44,53 @@
                 </header>
 
                 <main class="pl-[270px] pr-[20px] pt-[120px]">
-                    <table id="example" class="bg-white">
-                        <thead class="bg-[#18ec95]">
-                            <tr class="">
-                                <th>OrderID</th>
-                                <th>User Email</th>
-                                <th>OrderDate</th>
-                                <th>Total Amount</th>
-                                <th>Order Status</th>
-                                <th>Return Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <%if(orders && orders.length>0){%>
-                                <%orders.forEach(order=> {%>
-                                    <%let totalPay=0;%>
-                                        <% order.orderedProducts.forEach( pay=> totalPay+=pay.totalPay)%>
-                                            <%#totalPay+=order.orderedProducts.totalPay%>
-
-                                                <tr class="odd:bg-[#c5d4d1] even:bg-[#b7ccc1]">
-                                                    <td>
+                    <div class="w-full">
+                        <table id="example" class="min-w-full bg-white p-6">
+                            <thead class="bg-gray-100 whitespace-nowrap">
+                                <tr class="">
+                                    <th class="text-left p-4 font-semibold text-gray-800">OrderID</th>
+                                    <th class="text-left p-4 font-semibold text-gray-800">User Email</th>
+                                    <th class="text-left p-4 font-semibold text-gray-800">OrderDate</th>
+                                    <th class="text-left p-4 font-semibold text-gray-800">Total Amount</th>
+                                    <th class="text-left p-4 font-semibold text-gray-800">Order Status</th>
+                                    <th class="text-left p-4 font-semibold text-gray-800">Return Status</th>
+                                    <th class="text-left p-4 font-semibold text-gray-800"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="whitespace-nowrap">
+                                <%if(orders && orders.length>0){%>
+                                    <%orders.forEach(order=> {%>
+                                        <%let totalPay=0;%>
+                                            <% order.orderedProducts.forEach( pay=> totalPay+=pay.totalPay)%>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="p-4 text-[15px] text-left text-gray-800">
                                                         <%= order._id%>
                                                     </td>
-                                                    <td>
+                                                    <td class="p-4 text-[15px] text-left text-gray-800">
                                                         <%= order.user.email%>
                                                     </td>
-                                                    <td>
+                                                    <td class="p-4 text-[15px] text-left text-gray-800">
                                                         <%= order.createdAt.toLocaleString()%>
                                                     </td>
-                                                    <td>
+                                                    <td class="p-4 text-[15px] text-left text-gray-800">
                                                         ₹ <%= totalPay%>
                                                     </td>
-                                                    <td>
+                                                    <td class="p-4 text-[15px] text-left text-gray-800">
                                                         <%= order.allOrdersStatus%>
                                                     </td>
-                                                    <td>
-                                                        <%= returnedProducts && returnedProducts.length>0? 'requested' : ''%>
+                                                    <td class="p-4 text-[15px] text-left text-gray-800">
+                                                        <%= returnedProducts && returnedProducts.length>0? 'requested' :
+                                                            ''%>
                                                     </td>
-                                                    <td><a href="/admin/order/view?orderId=<%= order._id%>"
+                                                    <td class="p-4 text-[15px] text-left text-gray-800"><a
+                                                            href="/admin/order/view?orderId=<%= order._id%>"
                                                             class="hover:underline text-blue-600">view</a></td>
                                                 </tr>
                                                 <%})%>
                                                     <%}%>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </main>
             </div>
     </div>

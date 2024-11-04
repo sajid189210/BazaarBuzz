@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
-const addressSchema = require('./addressModel');
+
+const addressSchema = new mongoose.Schema({
+    contactNumber: { type: Number },
+    contactName: { type: String },
+    building: { type: String, },
+    district: { type: String, },
+    landmark: { type: String },
+    pincode: { type: String },
+    street: { type: String },
+    state: { type: String },
+});
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -17,6 +27,13 @@ const userSchema = new mongoose.Schema({
         type: [addressSchema],
         default: [],
     },
+    usedCoupons: [
+        {
+            couponCode: { type: String },
+            couponValue: { type: Number },
+            count: { type: Number, default: 0 }
+        }
+    ],
     isBlocked: {
         type: String,
         default: 'unblocked'

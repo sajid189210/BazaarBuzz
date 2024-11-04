@@ -28,7 +28,7 @@
         <!-- Header -->
         <%- include('../partials/userHeader') %>
 
-            <div class="absolute top-[80px] w-full h-screen">
+            <div class="absolute top-[120px] lg:top-[80px] w-full h-screen">
                 <main class="bg-white">
                     <div class=" font-[poppins]">
                         <div class="flex flex-col -full">
@@ -40,7 +40,7 @@
                         <div class="relative p-4">
                             <h1 class="text-lg font-bold text-center m-2 text-[#4b0705]">Explore Categories</h1>
                             <div class="flex gap-8 mx-auto w-fit max-h-72">
-                                <div class="">
+                                <a href="" class="">
                                     <div
                                         class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
                                         <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
@@ -48,11 +48,11 @@
                                         <!-- Adjust size here -->
                                         <div
                                             class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
-                                            <h1 class="text-lg font-medium ">Fashion</h1>
+                                            <h1 class="text-sm lg:text-lg font-medium ">Fashion</h1>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="">
+                                </a>
+                                <a href="" class="">
                                     <div
                                         class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
                                         <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
@@ -60,11 +60,11 @@
                                         <!-- Adjust size here -->
                                         <div
                                             class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
-                                            <h1 class="text-lg font-medium ">Bags</h1>
+                                            <h1 class="text-sm lg:text-lg font-medium ">Bags</h1>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="">
+                                </a>
+                                <a href="" class="">
                                     <div
                                         class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
                                         <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
@@ -72,30 +72,30 @@
                                         <!-- Adjust size here -->
                                         <div
                                             class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
-                                            <h1 class="text-lg font-medium ">Shoes</h1>
+                                            <h1 class="text-sm lg:text-lg font-medium ">Shoes</h1>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>
 
                     <!-- Featured -->
 
-                    <div class="p-4 w-full mb-4 ">
-                        <div class="ml-4 mt-4 mb-4 flex justify-between">
-                            <h2 class="text-4xl font-bold text-[#4b0705]">Featured</h2>
+                    <div class="lg:p-4 w-full mb-4 ">
+                        <div class="ml-4 mt-4 mb-4 flex justify-between items-center">
+                            <h2 class="text-xl lg:text-4xl font-bold text-[#4b0705]">Featured</h2>
                             <a href="/user/getProductList/featured"
-                                class="text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see all
+                                class="text-xs lg:text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see all
                                 featured</a>
                         </div>
-                        <div class="flex gap-6 p-4 w-full bg-slate-50 shadow-md overflow-auto hide-scrollbar">
+                        <div class="flex gap-6 lg:p-4 w-full bg-slate-50 lg:shadow-md overflow-auto hide-scrollbar">
                             <%if(products && products.length) {%>
                                 <%products.forEach((product, index)=> {%>
                                     <%if(product.featured) {%>
                                         <div class="flex gap-4 justify-start w-72">
                                             <a href="/user/viewProduct?productId=<%=product._id%>"
-                                                class="block shadow-md overflow-hidden rounded-lg cursor-pointer hover:-translate-y-2 transition-all relative ">
+                                                class="block lg:shadow-md overflow-hidden rounded-lg cursor-pointer lg:hover:-translate-y-2 lg:transition-all relative ">
                                                 <div class="bg-white overflow-hidden cursor-pointer p-6">
                                                     <div
                                                         class="aspect-w-16 aspect-h-8 mx-auto h-[150px] w-full overflow-hidden">
@@ -124,27 +124,27 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col -full">
+                    <div class="hidden md:flex flex-col -full">
                         <img src="/uploads/banner2.gif" alt="" class=" h-auto cursor-pointer">
                     </div>
 
                     <!-- New Arrivals -->
 
-                    <div class="p-4 w-full">
+                    <div class="lg:p-4 w-full">
                         <div class="ml-4 mt-4 mb-4 flex justify-between">
-                            <h2 class="text-4xl font-bold text-[#4b0705]">New Arrivals</h2>
+                            <h2 class="text-xl lg:text-4xl font-bold text-[#4b0705]">New Arrivals</h2>
 
                             <a href="/user/getProductList/newArraival"
-                                class="text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see
+                                class="text-xs lg:text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see
                                 all
                                 arrivals</a>
                         </div>
-                        <div class="flex gap-6 p-4 w-full bg-slate-50 shadow-md overflow-auto hide-scrollbar">
+                        <div class="flex gap-6 lg:p-4 w-full bg-slate-50 lg:shadow-md overflow-auto hide-scrollbar">
                             <%if(products && products.length) {%>
                                 <%products.forEach((product, index)=> {%>
                                     <div class="flex gap-4 justify-start w-72">
                                         <a href="/user/viewProduct?productId=<%=product._id%>"
-                                            class="block shadow-md overflow-hidden rounded-lg cursor-pointer hover:-translate-y-2 transition-all relative ">
+                                            class="block lg:shadow-md overflow-hidden rounded-lg cursor-pointer lg:hover:-translate-y-2 lg:transition-all relative ">
                                             <div class="bg-white overflow-hidden cursor-pointer p-6">
                                                 <div
                                                     class="aspect-w-16 aspect-h-8 mx-auto h-[150px] w-full overflow-hidden">

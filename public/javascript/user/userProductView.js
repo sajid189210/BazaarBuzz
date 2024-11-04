@@ -41,7 +41,7 @@ function sizeSelect() {
         }
     } else {
         stockValue.textContent = 'In Stock';
-        stockValue.classList.add('text-xl', 'text-red-500');
+        stockValue.classList.add('text-xl', 'text-green-500');
     }
 
     // Displaying colors that matched with selectedSize.
@@ -245,5 +245,66 @@ async function addToCart(productId) {
     } catch (err) {
         console.log('Error caught when passing the the product Id to the cart.', err);
         alert('Error caught when passing the the product Id to the cart.', err);
+    }
+}
+
+
+// function to add product to the wishlist.
+async function addToWishList(productId) {
+    try {
+        if (!productId) {
+            alert('productId not found when adding to wishList');
+        }
+
+        const response = await fetch('/user/wishlist', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+        });
+
+        const data = await response.json();
+
+        if (!data.session) {
+            await Swal.fire({
+                title: 'SignIn!',
+                text: data.message,
+                icon: 'info',
+                confirmButtonText: 'Ok'
+            });
+            window.location.href = data.redirectUrl;
+            return;
+        }
+
+        if (!data.success) {
+            await Swal.fire({
+                title: 'failed',
+                text: data.message,
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+            if (data.redirectUrl) window.location.href = data.redirectUrl;
+            return;
+        }
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        Toast.fire({
+            icon: 'success',
+            title: data.message
+        });
+
+    } catch (err) {
+        console.log(err);
+        alert('Error');
     }
 }

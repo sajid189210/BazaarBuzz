@@ -4,6 +4,7 @@ const Product = require('../../model/productModel');
 const bcrypt = require('bcrypt');
 const User = require('../../model/userModel');
 const OTP = require('../../model/otpModel');
+const Wallet = require('../../model/walletModel');
 
 //-------------------------------------------------Sign Up Page----------------------------------------------------------------------
 
@@ -211,7 +212,11 @@ const userHomepage = async (req, res) => {
 
     } catch (err) {
         console.error(`Error caught userHomepage in the userController. ${err}`);
-        res.status(500).json({ Error: "Internal Server Error!" });
+        res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
     }
 };
 
@@ -248,7 +253,6 @@ const searchMultipleProducts = async (req, res) => {
         const products = await Product.find({ productName: regex });
 
         req.session.searchResult = products;
-
 
         res.json({ products });
 
@@ -399,6 +403,34 @@ const editAddress = async (req, res) => {
     }
 };
 
+const renderProfile = async (req, res) => {
+    try {
+
+        if (!req.session.user) return res.redirect('/user/signIn');
+
+        const userId = req.session.user.userId;
+
+        const userDetails = await User.findById(userId);
+
+        const category = await getCategory();
+
+        res.render('user/userProfile', {
+            user: req.session.user || null,
+            userDetails,
+            category
+        });
+
+    } catch (err) {
+        console.error(`Error caught getOrders in the cartController${err}`);
+        res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
+    }
+};
+
+
 
 //*---------------[SignOut]----------------
 const userSignOut = (req, res) => {
@@ -420,6 +452,7 @@ module.exports = {
     searchSingleProduct,
     updatePassword,
     removeAddress,
+    renderProfile,
     userHomepage,
     saveAddress,
     editAddress,

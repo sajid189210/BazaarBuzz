@@ -1,6 +1,5 @@
-const { findOneAndUpdate } = require('../../model/categoryModel');
+const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
-
 
 const renderOrderList = async (req, res) => {
     let returnedProducts;
@@ -30,7 +29,7 @@ const renderOrderView = async (req, res) => {
 
     if (!req.session.admin) return res.redirect('/admin/signIn');
     try {
-        const order = await Order.findById(orderId).populate('orderedProducts.product');
+        const order = await Order.findById(orderId).populate('orderedProducts.product').populate('coupon');
 
         res.render('admin/adminOrderView', { order });
 
@@ -150,20 +149,60 @@ const refund = async (req, res) => {
     const { productId, orderItemId } = req.body;
     try {
 
-        if (!orderItemId, !productId) throw new Error("orderItemId or productId not found");
+        // Validate input
+        if (!orderItemId || !productId) {
+            return res.status(400).json({ success: false, message: "orderItemId and productId are required" });
+        }
 
-        const orderRequest = await Order.findOneAndUpdate(
+        // Update the order's return and payment status
+        const updatedOrder = await Order.findOneAndUpdate(
             { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
-            { $set: { 'orderedProducts.$.returnStatus': 'refunded', 'orderedProducts.$.paymentStatus': 'refunded' } },
+            {
+                $set: {
+                    'orderedProducts.$.returnStatus': 'refunded',
+                    'orderedProducts.$.paymentStatus': 'refunded'
+                }
+            },
+            { new: true }
+        ).populate('coupon');
+
+        // console.log('Updated Order:', updatedOrder);
+
+        if (!updatedOrder) {
+            return res.status(400).json({ success: false, message: 'Error while processing the refund' });
+        }
+
+        // Calculate total amount to refund
+        let totalAmount = updatedOrder.orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
+        if (updatedOrder.coupon) {
+            totalAmount += updatedOrder.coupon.couponValue;
+        }
+
+        const transactionDetails = {
+            orderId: updatedOrder._id,
+            amount: totalAmount,
+            type: 'credit',
+            refunded: true
+        }
+
+        console.log(totalAmount)
+
+        // Update user wallet balance
+        const updatedWallet = await Wallet.findOneAndUpdate(
+            { user: updatedOrder.user },
+            {
+                $push: { transactions: transactionDetails },
+                $inc: { balance: totalAmount }
+            },
             { new: true }
         );
 
-        if (!orderRequest) return res.status(400).json({
-            success: false,
-            message: 'Error while rejecting the return'
-        });
+        if (!updatedWallet) {
+            return res.status(404).json({ success: false, message: 'User wallet not found' });
+        }
+        console.log(updatedWallet)
 
-        res.json({ success: true });
+        res.json({ success: true, message: 'Refund processed successfully' });
 
     } catch (err) {
         console.error(`Error caught in refund admin OrderController ${err}`);
@@ -174,7 +213,7 @@ const refund = async (req, res) => {
             stack: err.stack,
         });
     }
-}
+};
 
 
 module.exports = {

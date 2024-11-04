@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuzaarBuzz Wallet</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<style>
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+        /* Chrome, Safari and Opera */
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        /* Internet Explorer and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+</style>
+
+<body>
+    <% function formatRupees(amount) { %>
+        <%let numberString=amount.toString();%>
+
+            <!-- Split the string into whole and decimal parts -->
+            <%let [whole, decimal]=numberString.split('.');%>
+
+                <!--  Add commas for the whole part -->
+                <%let lastThreeDigits=whole.slice(-3);%>
+                    <%let otherDigits=whole.slice(0, -3);%>
+                        <%if (otherDigits) {%>
+                            <%lastThreeDigits=',' + lastThreeDigits;%>
+                                <%}%>
+                                    <%let formattedWhole=otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, "," ) +
+                                        lastThreeDigits;%>
+
+                                        <!-- Combine whole and decimal parts, if any -->
+                                        <%return '₹' + formattedWhole + (decimal ? '.' + decimal : '' );%>
+                                            <%}%>
+
+                                                <div class="relative">
+
+                                                    <!-- Header -->
+                                                    <%- include('../partials/userHeader') %>
+
+                                                        <div class="absolute top-[120px] lg:top-[80px] w-full h-screen">
+                                                            <div class="w-full h-[150px] mt-8 px-10 py-2">
+                                                                <div
+                                                                    class="flex items-center w-full p-4 h-full bg-gray-100 rounded-lg shadow-lg">
+                                                                    <div class="w-1/2 font-[sans-serif]">
+                                                                        <h3 id="balance"
+                                                                            class="text-4xl text-green-500 font-semibold mb-3">
+                                                                            <%= wallet ? formatRupees(wallet.balance ||
+                                                                                0.00) : formatRupees(0.00) %>
+                                                                        </h3>
+                                                                        <h6 class="text-xl text-green-500">Your current
+                                                                            balance</h6>
+                                                                    </div>
+
+                                                                    <form id="addWalletMoney"
+                                                                        class="hidden w-1/2 flex justify-end items-center">
+                                                                        <button type="submit"
+                                                                            class=" p-2.5 rounded-l-md  bg-green-500 text-white text-medium hover:bg-green-600">Add</button>
+                                                                        <label for="walletMoneyInput" class="mr-2 w-72">
+                                                                            <input type="text" id="walletMoneyInput"
+                                                                                placeholder="Enter the amount"
+                                                                                class="p-2.5 w-full rounded-md outline-green-600 text-right">
+                                                                        </label>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="px-10 mt-10">
+                                                                <table
+                                                                    class="mx-auto w-2/3 bg-white shadow-md rounded-md">
+                                                                    <thead>
+                                                                        <tr class="bg-gray-200">
+                                                                            <th class="px-4 py-2 text-left">Date</th>
+                                                                            <th class="px-4 py-2 text-left">Type</th>
+                                                                            <th class="px-4 py-2 text-left">Order ID
+                                                                            </th>
+                                                                            <th class="px-4 py-2 text-left">Amount</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <% if (wallet) { %>
+                                                                            <% wallet.transactions.forEach(item=> { %>
+                                                                                <tr
+                                                                                    class="hover:bg-gray-100 transition-colors duration-200">
+                                                                                    <td class="px-4 py-2">
+                                                                                        <%= item.date.toLocaleString()%>
+                                                                                    </td>
+                                                                                    <td class="px-4 py-2">
+                                                                                        <%= item.type %>
+                                                                                    </td>
+                                                                                    <td class="px-4 py-2">
+                                                                                        <%= item.orderId %>
+                                                                                    </td>
+                                                                                    <td class="px-4 py-2">
+                                                                                        <%= item?.amount %>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <% }) %>
+                                                                                    <% } else { %>
+                                                                                        <tr>
+                                                                                            <td colspan="4"
+                                                                                                class="text-center px-4 py-2">
+                                                                                                Nothing to show. Add
+                                                                                                money
+                                                                                                to wallet.</td>
+                                                                                        </tr>
+                                                                                        <% } %>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                </div>
+
+                                                <script>
+                                                    // formats the amount.
+                                                    function formatRupees(amount) {
+                                                        let numberString = amount.toString();
+                                                        let [whole, decimal] = numberString.split('.');
+                                                        let lastThreeDigits = whole.slice(-3);
+                                                        let otherDigits = whole.slice(0, -3);
+
+                                                        if (otherDigits) {
+                                                            lastThreeDigits = ',' + lastThreeDigits;
+                                                        }
+
+                                                        let formattedWhole = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThreeDigits;
+
+                                                        return '₹' + formattedWhole + (decimal ? '.' + decimal : '');
+                                                    }
+
+
+                                                    document.getElementById('addWalletMoney').addEventListener('submit', async function (event) {
+                                                        event.preventDefault();
+
+                                                        try {
+                                                            const walletMoneyInput = document.querySelector('#walletMoneyInput').value.trim();
+                                                            const validNumberPattern = /^(?:[1-9]\d{0,4}|25000)$/;
+
+                                                            const Toast = Swal.mixin({
+                                                                toast: true,
+                                                                position: 'top-end',
+                                                                timer: 2000,
+                                                                timerProgressBar: true,
+                                                                showConfirmButton: false,
+                                                                didOpen: (toast) => {
+                                                                    toast.onmouseenter = Swal.stopTimer;
+                                                                    toast.onmouseleave = Swal.resumeTimer;
+                                                                }
+                                                            });
+
+                                                            // validates the input.
+                                                            if (!walletMoneyInput || !validNumberPattern.test(walletMoneyInput) || Number(walletMoneyInput) < 1 || Number(walletMoneyInput) > 25000) {
+                                                                Toast.fire({
+                                                                    icon: 'warning',
+                                                                    title: 'Invalid Amount. Please enter a number between 1 and 25,000.'
+                                                                });
+                                                                return;
+                                                            }
+
+                                                            const response = await fetch('/user/wallet/createRazorpayOrder', {
+                                                                method: 'PATCH',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ walletMoneyInput })
+                                                            });
+
+                                                            const data = await response.json();
+
+                                                            if (!data.success) {
+                                                                await Swal.fire({
+                                                                    title: 'Error',
+                                                                    text: data.message,
+                                                                    icon: 'error',
+                                                                    confirmButtonText: "Ok"
+                                                                });
+                                                                return;
+                                                            }
+
+
+                                                            const option = {
+
+                                                            }
+
+                                                            document.querySelector("#balance").textContent = formatRupees(data.balance);
+                                                            document.getElementById('addWalletMoney').reset();
+                                                            Toast.fire({
+                                                                icon: 'success',
+                                                                title: data.message
+                                                            });
+
+                                                        } catch (err) {
+                                                            console.error(err);
+                                                            alert('Error');
+                                                        }
+
+
+                                                    });
+                                                </script>
+</body>
+
+</html>

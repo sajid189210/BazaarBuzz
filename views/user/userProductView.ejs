@@ -21,167 +21,173 @@
         <!-- Header -->
         <%- include('../partials/userHeader') %>
 
-            <div class="absolute top-[100px] w-full h-screen">
-                <!-- Sub Nav -->
-                <%#- include('../partials/userNav') %>
+            <div class="absolute top-[80px] w-full h-screen">
+                <div class="px-8 pt-8 hidden lg:block">
+                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
+                        <li class="text-gray-500 text-base cursor-pointer">
+                            <a href="/user/homepage">Home</a>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3.5 -rotate-90"
+                                viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
+                                    clip-rule="evenodd" data-original="#000000"></path>
+                            </svg>
+                        </li>
+                        <li class="text-black text-xl font-semibold cursor-pointer">
+                            <a href="#">Product Overview</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="font-[poppins] p-6 ">
+                    <div class="p-4 lg:max-w-6xl max-w-2xl max-lg:mx-auto">
+                        <div class="grid items-start grid-cols-1 lg:grid-cols-2 gap-8 max-lg:gap-16">
 
-                    <div class="px-8 pt-8">
-                        <!-- BreadCrumbs -->
-                        <%- include('../partials/breadcrumbs') %>
-                    </div>
-                    <div class="font-[poppins] p-6 ">
-                        <div class="p-4 lg:max-w-6xl max-w-2xl max-lg:mx-auto">
-                            <div class="grid items-start grid-cols-1 lg:grid-cols-2 gap-8 max-lg:gap-16">
-
-                                <div class="w-full lg:sticky top-0 text-center">
-                                    <div class="">
-                                        <div class="lg:h-[560px] relative">
-                                            <img src="<%= product.images[0] %>" alt="Product"
-                                                class="lg:w-11/12 w-full h-full rounded-md object-cover object-top"
-                                                id="mainImageContainer" />
-                                            <div class="zoomed-image"
-                                                style="background-image: url('<%= product.images[0] %>'); display: none;">
-                                            </div>
+                            <div class="w-full lg:sticky top-0 text-center">
+                                <div class="">
+                                    <div class="lg:h-[560px] relative">
+                                        <img src="<%= product.images[0] %>" alt="Product"
+                                            class="lg:w-11/12 w-full h-full rounded-md object-cover object-top"
+                                            id="mainImageContainer" />
+                                        <div class="zoomed-image"
+                                            style="background-image: url('<%= product.images[0] %>'); display: none;">
                                         </div>
-                                    </div>
-
-                                    <div class="flex flex-wrap gap-4 justify-center mx-auto mt-4">
-                                        <% for (let i=0; i < product.images.length; i++) { %>
-                                            <img src="<%= product.images[i] %>" alt="Product"
-                                                onclick="changeImage(this)"
-                                                class="w-16 cursor-pointer rounded-md outline" />
-                                            <% } %>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <div class="relative flex flex-wrap items-start gap-4">
-                                        <div>
-                                            <h1 class="text-gray-500 mt-2">
-                                                <%=product.brand%>
-                                            </h1>
-                                            <h2 class="text-2xl font-bold text-gray-800">
-                                                <%=product.productName%>
-                                            </h2>
-                                        </div>
-
-                                        <button type="button" class="mt-2 text-lg text-pink-600 absolute top-0 right-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" fill="currentColor"
-                                                class="mr-1" viewBox="0 0 64 64">
-                                                <path
-                                                    d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z"
-                                                    data-original="#000000"></path>
-                                            </svg>
-                                        </button>
-
-                                    </div>
-
-                                    <hr class="my-8" />
-
-                                    <div class="flex flex-col gap-y-4">
-                                        <div>
-                                            <p class="text-gray-800 text-4xl font-bold">₹
-                                                <!-- New Value = Original Value * (1 - Discount Percentage) -->
-                                                <% const offerPrice=product.productPrice * (1 -
-                                                    (parseFloat(product.discount) / 100))%>
-
-                                                    <%=Math.round(offerPrice)%>/-
-                                            </p>
-                                            <p class="text-gray-500 text-sm mt-2">M.R.P:
-                                                <strike>
-                                                    <%=product.productPrice%>
-                                                </strike>
-                                                <span class="text-sm ml-1">( <%=product.discount%>% off )</span>
-                                            </p>
-                                        </div>
-                                        <div class="flex">
-                                            <div class="flex items-center space-x-2">
-                                                <%for(let i=0; i < 5; i++){%>
-                                                    <svg class="w-4 fill-[#facc15]" viewBox="0 0 14 13" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                                                    </svg>
-                                                    <%}%>
-                                            </div>
-                                            <p class="ml-2 text-sm text-gray-500 block">Reviews</p>
-                                        </div>
-                                    </div>
-
-                                    <hr class="my-4" />
-
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-800">Sizes Available:</h3>
-                                        <div class="flex flex-wrap gap-4 mt-4">
-                                            <% product.variants.forEach((variant, index)=> { %>
-                                                <label class="flex items-center cursor-pointer">
-                                                    <input type="radio" name="size" class="peer hidden"
-                                                        onchange="sizeSelect()" value="<%= variant.size %>"
-                                                        data-product="<%= JSON.stringify(product)%>" <%=index===0
-                                                        ? 'checked' : '' %>>
-                                                    <span
-                                                        class="peer-checked:bg-[#111827] peer-checked:text-white w-10 h-10 ml-3 flex items-center justify-center border-2 border-gray-300 rounded-full transition duration-200 ease-in-out"
-                                                        style="border-radius: 9999px;">
-                                                        <%= variant.size %>
-                                                    </span>
-                                                </label>
-                                                <% }) %>
-                                        </div>
-                                        <input type="hidden" id="selectedSize">
-                                    </div>
-
-                                    <hr class="my-8" />
-
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-800">Colors Available:</h3>
-                                        <div id="colorContainer" class="flex flex-wrap gap-4 mt-4">
-                                            <%# Colors goes here... %>
-                                        </div>
-                                        <input type="hidden" id="selectedColor">
-                                    </div>
-
-                                    <hr class=" my-8" />
-
-                                    <div class="my-8">
-                                        <div class="flex flex-wrap gap-4 mt-4">
-                                            <p class="text-md text-gray-800 font-bold mt-2" id="stockValue">
-                                                <%# stock values are displayed here... %>
-                                            </p>
-                                        </div>
-                                        <input type="hidden" id="selectedStock">
-                                    </div>
-
-
-                                    <div class="flex flex-wrap gap-4">
-                                        <button type="button"
-                                            class="min-w-[200px] px-4 py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-md">Buy
-                                            now</button>
-                                        <button type="button" onclick="addToCart('<%=product._id%>')"
-                                            class="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded-md">Add
-                                            to cart</button>
-                                    </div>
+                                <div class="flex flex-wrap gap-4 justify-center mx-auto mt-4">
+                                    <% for (let i=0; i < product.images.length; i++) { %>
+                                        <img src="<%= product.images[i] %>" alt="Product" onclick="changeImage(this)"
+                                            class="w-16 cursor-pointer rounded-md outline" />
+                                        <% } %>
                                 </div>
                             </div>
 
-                            <div class="mt-20 max-w-4xl">
-                                <ul class="flex border-b">
-                                    <li
-                                        class="text-gray-800 font-semibold text-sm bg-gray-100 py-3 px-8 border-b-2 border-gray-800 cursor-pointer transition-all">
-                                        Description</li>
-                                    <li
-                                        class="text-gray-500 font-semibold text-sm hover:bg-gray-100 py-3 px-8 cursor-pointer transition-all">
-                                        Reviews</li>
-                                </ul>
+                            <div>
+                                <div class="relative flex flex-wrap items-start gap-4">
+                                    <div>
+                                        <h1 class="text-gray-500 mt-2">
+                                            <%=product.brand%>
+                                        </h1>
+                                        <h2 class="text-2xl font-bold text-gray-800">
+                                            <%=product.productName%>
+                                        </h2>
+                                    </div>
 
-                                <div class="mt-8">
-                                    <h3 class="text-xl font-bold text-gray-800">Product Description</h3>
-                                    <p class="text-sm text-gray-500 mt-4">
-                                        <%=product.description%>
-                                    </p>
+                                </div>
+
+                                <hr class="my-8" />
+
+                                <div class="flex flex-col gap-y-4">
+                                    <div>
+                                        <p class="text-gray-800 text-4xl font-bold">₹
+                                            <!-- New Value = Original Value * (1 - Discount Percentage) -->
+                                            <% const offerPrice=product.productPrice * (1 -
+                                                (parseFloat(product.discount) / 100))%>
+
+                                                <%=Math.round(offerPrice)%>/-
+                                        </p>
+                                        <p class="text-gray-500 text-sm mt-2">M.R.P:
+                                            <strike>
+                                                <%=product.productPrice%>
+                                            </strike>
+                                            <span class="text-sm ml-1">( <%=product.discount%>% off )</span>
+                                        </p>
+                                    </div>
+                                    <div class="flex">
+                                        <div class="flex items-center space-x-2">
+                                            <%for(let i=0; i < 5; i++){%>
+                                                <svg class="w-4 fill-[#facc15]" viewBox="0 0 14 13" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
+                                                </svg>
+                                                <%}%>
+                                        </div>
+                                        <p class="ml-2 text-sm text-gray-500 block">Reviews</p>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4" />
+
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Sizes Available:</h3>
+                                    <div class="flex flex-wrap gap-4 mt-4">
+                                        <% product.variants.forEach((variant, index)=> { %>
+                                            <label class="flex items-center cursor-pointer">
+                                                <input type="radio" name="size" class="peer hidden"
+                                                    onchange="sizeSelect()" value="<%= variant.size %>"
+                                                    data-product="<%= JSON.stringify(product)%>" <%=index===0
+                                                    ? 'checked' : '' %>>
+                                                <span
+                                                    class="peer-checked:bg-[#111827] peer-checked:text-white w-10 h-10 ml-3 flex items-center justify-center border-2 border-gray-300 rounded-full transition duration-200 ease-in-out"
+                                                    style="border-radius: 9999px;">
+                                                    <%= variant.size %>
+                                                </span>
+                                            </label>
+                                            <% }) %>
+                                    </div>
+                                    <input type="hidden" id="selectedSize">
+                                </div>
+
+                                <hr class="my-8" />
+
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Colors Available:</h3>
+                                    <div id="colorContainer" class="flex flex-wrap gap-4 mt-4">
+                                        <%# Colors goes here... %>
+                                    </div>
+                                    <input type="hidden" id="selectedColor">
+                                </div>
+
+                                <hr class=" my-8" />
+
+                                <div class="my-8">
+                                    <div class="flex flex-wrap gap-4 mt-4">
+                                        <p class="text-md text-gray-800 font-bold mt-2" id="stockValue">
+                                            <%# stock values are displayed here... %>
+                                        </p>
+                                    </div>
+                                    <input type="hidden" id="selectedStock">
+                                </div>
+
+                                <div class="flex flex-wrap gap-4">
+                                    <%if(product.wishlisted==false){%>
+                                        <button type="button" onclick="addToWishList('<%= product._id%>')"
+                                            class="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded-md">Add
+                                            to wishlist</button>
+                                        <% } else {%>
+                                            <button type="button"
+                                                class="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded-md">Added
+                                                to wishlist</button>
+                                            <% }%>
+                                                <button type="button" onclick="addToCart('<%=product._id%>')"
+                                                    class="min-w-[200px] px-4 py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-md">Add
+                                                    to cart</button>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="mt-20 max-w-4xl">
+                            <ul class="flex border-b">
+                                <li
+                                    class="text-gray-800 font-semibold text-sm bg-gray-100 py-3 px-8 border-b-2 border-gray-800 cursor-pointer transition-all">
+                                    Description</li>
+                                <li
+                                    class="text-gray-500 font-semibold text-sm hover:bg-gray-100 py-3 px-8 cursor-pointer transition-all">
+                                    Reviews</li>
+                            </ul>
+
+                            <div class="mt-8">
+                                <h3 class="text-xl font-bold text-gray-800">Product Description</h3>
+                                <p class="text-sm text-gray-500 mt-4">
+                                    <%=product.description%>
+                                </p>
+                            </div>
+                        </div>
                     </div>
+                </div>
             </div>
     </div>
 
@@ -189,7 +195,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
     <script src="/javascript/user/userProductView.js"></script>
     <script src="/javascript/user/homesearch.js"></script>
-    
+
 
 
 </body>
