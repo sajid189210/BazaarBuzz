@@ -277,10 +277,15 @@
 
         // this function opens the modal and assigns values.
         function openModal(event, reason) {
-            document.querySelector('textarea[name="reasonText"]').value = reason;
-            document.querySelector('#returnModal').classList.remove('hidden');
-            productId = event.dataset.productId;
-            orderItemId = event.dataset.orderItemId;
+            try {
+                document.querySelector('textarea[name="reasonText"]').value = reason;
+                document.querySelector('#returnModal').classList.remove('hidden');
+                productId = event.dataset.productId;
+                orderItemId = event.dataset.orderItemId;
+            } catch (err) {
+                console.error(err);
+                alert('Error');
+            }
         }
 
         //* This function is for rejecting the return request.

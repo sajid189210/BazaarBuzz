@@ -6,64 +6,545 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="/css/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-</style>
 
 <body>
-    <div class="">
-        <%- include('../partials/adminSideMenu')%>
+    <div class="flex h-screen">
+        <div class="z-50">
+            <%- include('../partials/adminSideMenu')%>
+        </div>
 
-            <div class="flex flex-col flex-grow">
+        <header class="fixed border-b w-full bg-white top-0 left-[250px] z-50 p-5">
+            <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
+                <li class="text-black-500 text-xl font-bold">
+                    <a href="/admin/dashboard">Dashboard</a>
+                </li>
+            </ul>
+        </header>
 
-                <!-- <header class="relative flex min-h-[70px] bg-white px-4 py-4 tracking-wide shadow-lg sm:px-10">
-                    <div class="flex w-full flex-wrap items-center gap-x-4 gap-y-6 lg:gap-y-4">
-                        <div class="ml-auto flex items-center">
-                            <ul class="flex space-x-4">
-                                <li
-                                    class="relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:h-[3px] after:w-full after:bg-pink-500 after:transition-all after:duration-300">
-                                    <div class="flex cursor-pointer flex-col items-center justify-center">
-                                        <form action="/admin/signOut" method="POST">
-                                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
-                                                viewBox="0 0 512 512">
-                                                <path
-                                                    d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z"
-                                                    data-original="#000000" />
-                                            </svg> -->
-                                            <!-- <span class="mt-1 text-xs font-semibold">Profile</span> -->
-                                            <!-- <button class="mt-1 text-xs font-semibold">Sign Out</button> -->
-                                        <!-- </form> -->
+        <main class="w-full h-full pl-[250px] pt-[80px]">
+            <div class="flex flex-col gap-8 w-full h-full p-6">
+                <div>
+                    <h1 class="text-2xl font-medium mb-4">Sales</h1>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Monthly Sales Revenue -->
+                        <div class=" rounded-md shadow-md p-2 ">
+                            <div id="salesRevenue_bar"></div>
+                        </div>
 
-                                    <!-- </div> -->
-                                    <!-- <div class="absolute right-0 top-14 z-20 bg-white px-6 py-6 shadow-lg max-sm:-right-32 max-sm:min-w-[250px] sm:min-w-[320px]">
-                              <h6 class="text-sm font-semibold">Welcome</h6>
-                              <p class="mt-1 text-sm text-gray-500">To access account and manage orders</p>
-                              <button type="button" class="mt-4 border border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">LOGIN / SIGNUP</button>
-                              <hr class="my-4 border-b-0" />
-                              <ul class="space-y-1.5">
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Order</a></li>
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Wishlist</a></li>
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Gift Cards</a></li>
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Contact Us</a></li>
-                              </ul>
-                              <hr class="my-4 border-b-0" />
-                              <ul class="space-y-1.5">
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Coupons</a></li>
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Saved Credits</a></li>
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Contact Us</a></li>
-                                <li><a href="javascript:void(0)" class="text-sm text-gray-500 hover:text-pink-500">Saved Addresses</a></li>
-                              </ul>
-                            </div> -->
-                                <!-- </li> -->
-                            <!-- </ul> -->
+                        <div class="rounded-md shadow-md p-2">
+                            <div id="salesByBrand"></div>
+                        </div>
+                        <div class="rounded-md shadow-md p-2">
+                            <div id="AOV"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-medium mb-4">Customer</h1>
+                    <div class="grid grid-cols-1 shadow-md p-2 ">
+                        <div id="customerChart"></div>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-medium mb-4">Products</h1>
+                    <div class="grid grid-cols-2 w-full">
+                        <div class="rounded-md shadow-md p-2 ">
+                            <div id="topSellingProductChart"></div>
+                        </div>
+                        <div class=" rounded-md shadow-md p-2 ">
+                            <div id="inStockChart"></div>
+                        </div>
+                    </div>
+                </div>
 
-
-                        <!-- </div> -->
-                    <!-- </div> -->
-                <!-- </header> --> 
+                <div class="mt-4">
+                    <h1 class="text-2xl font-medium mb-4">Orders</h1>
+                    <table class="min-w-full bg-white p-6">
+                        <thead class="bg-gray-100 whitespace-nowrap">
+                            <th class="text-center p-4 font-semibold text-gray-800">OrderID</th>
+                            <th class="text-center p-4 font-semibold text-gray-800">User Email</th>
+                            <th class="text-center p-4 font-semibold text-gray-800">Total Amount</th>
+                            <th class="text-center p-4 font-semibold text-gray-800">Order Date</th>
+                            <th class="text-center p-4 font-semibold text-gray-800">Order Status</th>
+                            <th class="text-center p-4 font-semibold text-gray-800">Payment Status</th>
+                            <th class="text-center p-4 font-semibold text-gray-800">Return Status</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                            <%if (orders && orders.length>0){%>
+                                <%orders.forEach(order=> {%>
+                                    <% let totalPay=order.orderedProducts.reduce((acc, pay)=> acc+pay.totalPay,
+                                        0);%>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%=order._id%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%=order.user.email%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%=totalPay%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%=order.createdAt.toLocaleString()%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%=order.allOrdersStatus%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%= order.paymentStatus%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800">
+                                                <%let requestedProducts=order.orderedProducts.filter(product=>
+                                                    product.returnStatus&&product.returnStatus==='requested');%>
+                                                    <%=requestedProducts.length>0?'requested': ''%>
+                                            </td>
+                                            <td class="p-4 text-[15px] text-center text-gray-800"><a
+                                                    href="/admin/order/view?orderId=<%= order._id%>"
+                                                    class="hover:underline text-blue-600">view</a></td>
+                                        </tr>
+                                        <%})%>
+                                            <%}%>
+                        </tbody>
+                    </table>
+                    <div class="flex justify-between m-2 items-center h-[100px]">
+                        <div class="font-[poppins] text-sm text-gray-600">
+                            You&apos;re currently viewing page <%=currentPage%> of <%=totalPages%>
+                        </div>
+                        <div class="flex gap-2">
+                            <%if(currentPage> 1){%>
+                                <a href="/admin/dashboard?page=<%=currentPage-1%>&limit=<%=limit%>"
+                                    class="block min-w-24 px-4 py-2 text-center bg-gray-100 hover:bg-gray-200">previous</a>
+                                <%}%>
+                                    <%if(currentPage < totalPages){%>
+                                        <a href="/admin/dashboard?page=<%=currentPage+1%>&limit=<%=limit%>"
+                                            class="block min-w-24 px-4 py-2 text-center bg-gray-100 hover:bg-gray-200">next</a>
+                                        <%}%>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </main>
     </div>
+
+    <!-- Storing data -->
+    <div id="salesData" data-sales-data="<%=JSON.stringify(salesData)%>"></div>
+    <div id="revenueData" data-revenue="<%=JSON.stringify(revenueByBrand)%>"></div>
+    <div id="aovData" data-aovData="<%=JSON.stringify(aovData)%>"></div>
+    <div id="repeatedCustomer" data-repeatedCustomer="<%=JSON.stringify(repeatedCustomer)%>"></div>
+    <div id="newCustomer" data-newCustomer="<%=JSON.stringify(newCustomer)%>"></div>
+    <div id="clvData" data-clvData="<%=JSON.stringify(clvData)%>"></div>
+    <div id="topProducts" data-topProducts="<%=JSON.stringify(topProducts)%>"></div>
+    <div id="stock" data-stock="<%=JSON.stringify(stock)%>"></div>
+
+    <script>
+        const salesData = JSON.parse(document.getElementById('salesData').getAttribute('data-sales-data'));
+        const salesRevenueOption = {
+            series: [{
+                data: salesData  // Monthly sales data
+            }],
+            chart: {
+                type: 'bar',
+                height: 350,
+                toolbar: {
+                    show: false // Hide the toolbar if you don’t need it
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                    columnWidth: '60%', // Adjust the bar width
+                }
+            },
+            title: {
+                text: 'Monthly Sales Revenue',
+                align: 'left',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    fontFamily: 'Arial, sans-serif',
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return '₹' + val.toLocaleString(); // Format numbers with commas and dollar sign
+                },
+                offsetX: 5, // Adjust data label positioning if needed
+            },
+            xaxis: {
+                categories: [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ], // Monthly categories
+                title: {
+                    text: 'Revenue (in INR)',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'normal'
+                    }
+                },
+            },
+            yaxis: {
+                title: {
+                    text: 'Months',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'normal'
+                    }
+                },
+            },
+            grid: {
+                borderColor: '#e7e7e7', // Light grid lines for better clarity
+                strokeDashArray: 5,
+            },
+            colors: ['#4caf50'], // customize bar color
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return '₹' + val.toLocaleString(); // Format tooltip value
+                    }
+                }
+            }
+        };
+
+        const salesRevenue_bar = new ApexCharts(document.querySelector("#salesRevenue_bar"), salesRevenueOption);
+        salesRevenue_bar.render();
+
+
+        //--------------------------------------------------------------------------------------------------------------------
+        const dataRevenue = JSON.parse(document.getElementById('revenueData').getAttribute('data-revenue'));
+        const brandNames = dataRevenue.map(item => item._id);
+        const brandRevenue = dataRevenue.map(item => item.totalRevenue);
+        const salesByBrandOption = {
+            series: [{
+                data: brandRevenue  // Revenue values for each brand
+            }],
+            chart: {
+                type: 'bar',
+                height: 380
+            },
+            plotOptions: {
+                bar: {
+                    barHeight: '100%',
+                    distributed: true,
+                    horizontal: true,
+                    dataLabels: {
+                        position: 'bottom'  // Position the data labels at the bottom of the bars
+                    },
+                }
+            },
+            colors: [
+                '#33b2df', '#546E7A', '#d4526e', '#13d8aa', '#A5978B', '#2b908f',
+                '#f9a3a4', '#90ee7e', '#f48024', '#69d2e7'
+            ],  // Custom colors for each bar
+            dataLabels: {
+                enabled: true,
+                textAnchor: 'start',  // Position text labels at the start
+                style: {
+                    colors: ['#fff']  // White color for data labels
+                },
+                formatter: function (val, opt) {
+                    return opt.w.globals.labels[opt.dataPointIndex] + ": $" + val.toLocaleString();  // Show brand name and formatted sales value
+                },
+                offsetX: 0,
+                dropShadow: {
+                    enabled: true  // Enable drop shadow for better visibility
+                }
+            },
+            stroke: {
+                width: 1,
+                colors: ['#fff']  // White stroke around bars
+            },
+            xaxis: {
+                categories: brandNames,
+            },
+            yaxis: {
+                labels: {
+                    show: false  // Hide y-axis labels
+                }
+            },
+            title: {
+                text: 'Sales by Brand',
+                align: 'center',
+                floating: true
+            },
+            subtitle: {
+                text: 'Revenue generated by each brand in INR',
+                align: 'center',
+            },
+            tooltip: {
+                theme: 'dark',
+                x: {
+                    show: false  // Hide x-axis tooltip (brand name)
+                },
+                y: {
+                    title: {
+                        formatter: function () {
+                            return ''
+                        }
+                    }
+                }
+            }
+        };
+
+        const salesByBrand = new ApexCharts(document.querySelector("#salesByBrand"), salesByBrandOption);
+        salesByBrand.render();
+
+        //--------------------------------------------------------------------------------------------------------------------
+        const aovData = JSON.parse(document.getElementById('aovData').getAttribute('data-aovData'));
+        const aovValues = aovData.map(item => item.AOV);
+        const months = aovData.map(item => {
+            const date = new Date(item.year, item.month - 1);
+            return date.toLocaleString('default', { month: "short" });
+        });
+        const AOVOption = {
+            series: [{
+                name: "Average Order Value (AOV)",
+                data: aovValues
+            }],
+            chart: {
+                height: 350,
+                type: 'line',
+                zoom: {
+                    enabled: false
+                }
+            },
+            dataLabels: {
+                enabled: false  // Data labels are disabled to keep the chart clean
+            },
+            stroke: {
+                curve: 'smooth'  // Smooth line curve for better visual effect
+            },
+            title: {
+                text: 'Average Order Value by Month',
+                align: 'left'
+            },
+            subtitle: {
+                text: 'Track the average amount spent per order each month',
+                align: 'left',
+                margin: 10,
+                offsetX: 0,
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'normal',
+                    fontFamily: 'Arial, sans-serif',
+                }
+            },
+            grid: {
+                row: {
+                    colors: ['#f3f3f3', 'transparent'],  // Alternating grid row colors for clarity
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                categories: months,
+                title: {
+                    text: 'Month',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'normal'
+                    }
+                },
+            },
+            yaxis: {
+                title: {
+                    text: 'Average Order Value (INR)',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'normal'
+                    }
+                },
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return '₹' + val.toFixed(2);
+                    }
+                }
+            }
+        };
+
+        const AOV = new ApexCharts(document.querySelector("#AOV"), AOVOption);
+        AOV.render();
+
+        // ------------------------------------------------------------------------------------
+        const newCustomer = JSON.parse(document.getElementById('newCustomer').getAttribute('data-newCustomer'));
+        const repeatCustomerRate = JSON.parse(document.getElementById('repeatedCustomer').getAttribute('data-repeatedCustomer'));
+        const clv = JSON.parse(document.getElementById('clvData').getAttribute('data-clvData'));
+
+        const newCustomersData = newCustomer.map(entry => entry.newCustomer);
+        const repeatRateData = repeatCustomerRate.map(entry => entry.repeatRate);
+        const clvData = clv.map(entry => entry.clv);
+
+        const customerOption = {
+            series: [
+                {
+                    name: "New Customers",
+                    data: newCustomersData
+                },
+                {
+                    name: "Repeat Customer Rate (%)",
+                    data: repeatRateData
+                },
+                {
+                    name: "Customer Lifetime Value (CLV)",
+                    data: clvData
+                }
+            ],
+            chart: {
+                type: 'line',
+                height: 350
+            },
+            stroke: {
+                curve: 'smooth',  // Smooth line curve for better readability
+                width: 3
+            },
+            title: {
+                text: 'Customer Metrics Over Time',
+                align: 'left'
+            },
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],  // Months of the year
+                title: {
+                    text: 'Months',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'normal'
+                    }
+                },
+            },
+            yaxis: [
+                {
+                    title: {
+                        text: 'New Customers',
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 'normal'
+                        }
+                    },
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Percentage / CLV',
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 'normal'
+                        }
+                    }
+                }
+            ],
+            grid: {
+                row: {
+                    colors: ['#f3f3f3', 'transparent'],  // Alternating row colors for better clarity
+                    opacity: 0.5
+                },
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val, { seriesIndex }) {
+                        if (seriesIndex === 0) {
+                            return val + ' new customers';
+                        } else if (seriesIndex === 1) {
+                            return val + '% repeat rate';
+                        } else {
+                            return '$' + val.toFixed(2);
+                        }
+                    }
+                }
+            }
+        };
+
+        const customerChart = new ApexCharts(document.querySelector("#customerChart"), customerOption);
+        customerChart.render();
+
+        // --------------------------------------------------------------------------------------------
+
+        const topProducts = JSON.parse(document.getElementById('topProducts').getAttribute('data-topProducts'));
+
+        const productNames = topProducts.map(product => product.productName);
+        const quantitiesSold = topProducts.map(product => product.quantity);
+
+        const topSellingOption = {
+            series: [{
+                data: quantitiesSold
+            }],
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,  // Horizontal bars
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: productNames,
+                title: {
+                    text: 'Top Selling Products',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'normal'
+                    }
+                }
+            },
+            title: {
+                text: 'Top Selling Products',
+                align: 'left'
+            }
+        };
+
+        const topSellingProductChart = new ApexCharts(document.querySelector("#topSellingProductChart"), topSellingOption);
+        topSellingProductChart.render();
+
+        //------------------------------------------------------------------------------------------------------------
+
+        const sizeStockData = JSON.parse(document.getElementById('stock').getAttribute('data-stock'));
+
+        console.log(sizeStockData)
+
+        const sizes = sizeStockData.map(entry => entry._id);
+        const stockCounts = sizeStockData.map(entry => entry.totalStock);
+
+        var optionsPie = {
+            series: stockCounts,  // Stock count data for each size
+            chart: {
+                type: 'pie',  // Pie chart type
+                height: 350
+            },
+            labels: sizes,  // Labels corresponding to the sizes
+            title: {
+                text: 'Stock Distribution by Size',
+                align: 'center',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold'
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + ' units';  // Display the stock count in the tooltip
+                    }
+                }
+            },
+            colors: ['#FF5733', '#4CAF50', '#FFC300', '#3E8E41', '#36A9E1', '#9C27B0']  // Custom colors for each slice
+        };
+
+        const chartPie = new ApexCharts(document.querySelector("#inStockChart"), optionsPie);
+        chartPie.render();
+
+
+    </script>
 </body>
 
 </html>

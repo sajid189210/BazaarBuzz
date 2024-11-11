@@ -1,6 +1,7 @@
 const Cart = require('../../model/userCartModel');
 const Category = require('../../model/categoryModel');
 const Products = require('../../model/productModel');
+const Offer = require('../../model/offerModel');
 
 
 //* shows the cart items.
@@ -8,19 +9,52 @@ const getCart = async (req, res) => {
     try {
 
         if (!req.session.user) return res.redirect('/user/signIn');
+        const userId = req.session.user.userId;
 
         const categories = await Category.find({ isActive: true });
-
         if (!categories) throw new Error("Categories not found");
 
-        const userId = req.session.user.userId
+        const cart = await Cart.findOne({ user: userId }).populate('items.product').populate('items.offer');
+        const offers = await Offer.find({ isActive: true });
 
-        const cart = await Cart.findOne({ user: userId }).populate('items.product')
+        if (!cart) {
+            const newCart = Cart({ user: userId });
+            newCart.save();
+            return res.render('user/userCart', {
+                user: req.session.user || null,
+                cart,
+            });
+        }
+
+        // updates the cart items only to contain inStock product
+        cart.items = cart.items.filter(item => {
+            const variant = item.product.variants.find(variant => variant.size === item.selectedSize);
+            return variant && variant.stock > 0;
+        });
+
+        cart.save();
+
+        const totalPrice = cart.items.reduce((acc, item) => acc + (item.product.productPrice * item.quantity), 0);
+        const totalDiscount = cart.items.reduce((acc, item) => acc + ((item.product.productPrice * item.product.discount) / 100), 0);
+
+        const totalOfferDiscountValue = cart.items.reduce((acc, item) => {
+            if (item.offer) {
+                return acc + (item.product.productPrice * ((100 - item.product.discount) / 100) * (item.offer.discount / 100));
+            }
+            return acc;
+        }, 0);
+
+        const total = totalPrice - (totalDiscount + totalOfferDiscountValue)
 
         res.render('user/userCart', {
-            user: req.session.user || null,
+            totalOfferDiscountValue,
+            totalDiscount,
+            totalPrice,
             categories,
+            offers,
+            total,
             cart,
+            user: req.session.user || null,
         });
 
     } catch (err) {
@@ -56,8 +90,15 @@ const addToCart = async (req, res) => {
         const userId = req.session.user.userId;
 
         const product = await Products.findById(productId).exec();
-
+        const offers = await Offer.find({ isActive: true }).exec();
         let cart = await Cart.findOne({ user: userId, }).exec();
+
+        let offer;
+        const index = offers.findIndex(offer => offer.brandName === product.brand);
+        if (index !== -1) {
+            offer = offers[index];
+        }
+
 
         if (cart && cart.items.length === 5) {
             return res.status(400).json({
@@ -97,7 +138,11 @@ const addToCart = async (req, res) => {
             });
         }
 
-        let discountedPrice = Math.round(product.productPrice * (1 - (parseFloat(product.discount) / 100)));
+        let productPriceAfterProductDiscount = product.productPrice - ((product.productPrice * product.discount) / 100);
+
+        if (offer) {
+            productPriceAfterProductDiscount = productPriceAfterProductDiscount - ((productPriceAfterProductDiscount * offer.discount) / 100);
+        }
 
         // Adding products if it isn't already exists.
         try {
@@ -106,7 +151,8 @@ const addToCart = async (req, res) => {
                 selectedColor: color,
                 selectedSize: size,
                 selectedStock: stock,
-                discountedPrice,
+                discountedPrice: productPriceAfterProductDiscount.toFixed(2),
+                offer: offer?._id || null
             });
             await cart.save();
         } catch (err) {
@@ -188,7 +234,7 @@ const updateQuantity = async (req, res) => {
                 message: 'Cart not found.'
             });
         }
-
+      
         const item = cart.items.find(item => item._id.toString() === itemId);
 
         const variant = item.product.variants.find(variant => variant.size === item.selectedSize);
@@ -216,7 +262,7 @@ const updateQuantity = async (req, res) => {
                 });
             }
             item.quantity += 1;
-            item.discountedPrice = (item.product.productPrice - (item.product.productPrice * (item.product.discount / 100))) * item.quantity
+            item.discountedPrice = ((item.product.productPrice - (item.product.productPrice * (item.product.discount / 100))) * item.quantity).toFixed(2);
         } else {
 
             if (item.quantity <= 1) {
@@ -226,7 +272,7 @@ const updateQuantity = async (req, res) => {
                 });
             }
             item.quantity -= 1;
-            item.discountedPrice = (item.product.productPrice - (item.product.productPrice * (item.product.discount / 100))) * item.quantity
+            item.discountedPrice = ((item.product.productPrice - (item.product.productPrice * (item.product.discount / 100))) * item.quantity).toFixed(2)
         }
 
         // Save changes to the cart
@@ -237,7 +283,7 @@ const updateQuantity = async (req, res) => {
         let totalDiscountedPrice = 0;
 
         cart.items.forEach(item => {
-            totalOriginalPrice += item.product.productPrice * item.quantity;
+            totalOriginalPrice += (item.product.productPrice * item.quantity);
             totalDiscountedPrice += item.discountedPrice;
         })
 
@@ -245,7 +291,8 @@ const updateQuantity = async (req, res) => {
             success: true,
             discountedPrice: item.discountedPrice,
             totalOriginalPrice,
-            totalDiscountedPrice
+            totalDiscountedPrice,
+            quantity: item.quantity,
         });
 
     } catch (err) {

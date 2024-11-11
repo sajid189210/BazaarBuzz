@@ -2,17 +2,40 @@ const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
 const renderOrderList = async (req, res) => {
-    let returnedProducts;
-
     if (!req.session.admin) return res.redirect('/admin/signIn');
     try {
-        const orders = await Order.find({}).populate('user').populate('orderedProducts.product').sort({ createdAt: -1 });
 
-        orders.forEach(order => {
-            returnedProducts = order.orderedProducts.filter(item => item.returnStatus && item.returnStatus === 'requested');
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+
+        let filter = {};
+
+        if (search) {
+            // Ensure the search term is a valid ObjectId format
+            if (/^[0-9a-fA-F]{24}$/.test(search)) {
+                filter._id = search;  // Search by _id
+            } else {
+                // Optionally, handle invalid ObjectId search input
+                return res.status(400).json({ error: "Invalid ObjectId format" });
+            }
+        }
+
+        const orders = await Order.find(filter)
+            .populate('user')
+            .populate('orderedProducts.product')
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip((page - 1) * limit);
+
+        const totalOrders = await Order.countDocuments();
+
+        res.render('admin/adminOrderList', {
+            currentPage: page,
+            totalPages: Math.ceil(totalOrders / limit),
+            orders,
+            limit,
         });
-
-        res.render('admin/adminOrderList', { orders, returnedProducts });
 
     } catch (err) {
         console.error(`Error caught renderOrderList in the admin OrderController${err}`);
@@ -185,7 +208,6 @@ const refund = async (req, res) => {
             refunded: true
         }
 
-        console.log(totalAmount)
 
         // Update user wallet balance
         const updatedWallet = await Wallet.findOneAndUpdate(

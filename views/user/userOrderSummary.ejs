@@ -19,62 +19,84 @@
                 <div class="px-8 pt-8 mb-4">
                     <!-- BreadCrumbs -->
                 </div>
+                <main class="w-full">
+                    <div class="mx-auto max-w-[1000px] py-6 px-4">
+                        <!-- Order Summary Header -->
+                        <h1 class="text-4xl font-semibold pb-6 text-center text-gray-900">Order Summary</h1>
 
-                <main class="">
-                    <h1 class="text-4xl font-semibold pb-8 text-center">Order Summary</h1>
-                    <div class="mx-8 p-4 max-md:max-w-xl">
-                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Billing & Delivery
-                            Information</h2>
-                        <div class="mx-auto flex justify-between w-2/3 px-10">
+                        <!-- Thank you message -->
+                        <h2 class="text-2xl font-medium pb-4 text-center text-gray-800">
+                            Thanks for your order, <span class="font-semibold text-indigo-600">
+                                <%= user.userName %>
+                            </span>!
+                        </h2>
+
+                        <!-- Order Confirmation Text -->
+                        <p class="text-lg text-gray-700 mb-6 text-center">
+                            We&apos;ve received your order <span class="font-semibold text-indigo-600">
+                                <%= order._id %>
+                            </span> and will begin processing it right away.
+                        </p>
+                        <p class="text-lg text-gray-700 mb-6 text-center">
+                            You&apos;ll receive an email with your order details, including a tracking number, so you can
+                            easily follow its journey to you.
+                        </p>
+                        <p class="text-lg text-gray-700 text-center mb-8">
+                            If you have any questions or need assistance, don't hesitate to reach out. We&apos;re here to
+                            help!
+                        </p>
+
+                        <!-- Billing & Delivery Information Header -->
+                        <h2 class="my-4 text-xl font-medium text-left w-2/3 px-10 underline text-gray-800">
+                            Billing & Delivery Information
+                        </h2>
+
+                        <!-- Billing & Delivery Information -->
+                        <div class="mx-auto flex flex-col lg:flex-row justify-between w-2/3 px-10">
+                            <!-- Left Column: Shipping Address -->
                             <div class="mt-4 flex flex-col gap-y-2">
-                                <p class="uppercase font-medium">
-                                    <%= user.userName%>
+                                <p class="uppercase font-medium text-gray-800">Shipping Address</p>
+                                <p class="text-gray-700">
+                                    <%= user.userName %>
                                 </p>
-                                <p>
-                                    <%=order.shippingAddress.building%>
+                                <p class="text-gray-700">
+                                    <%= order.shippingAddress.building %>
                                 </p>
-                                <p>
-                                    <%= order.shippingAddress.street%>
-                                        <%= order.shippingAddress.landmark%>
+                                <p class="text-gray-700">
+                                    <%= order.shippingAddress.street %>, <%= order.shippingAddress.landmark %>
                                 </p>
-                                <p>
-                                    Pincode: <%= order.shippingAddress.pincode%>
+                                <p class="text-gray-700">Pincode: <%= order.shippingAddress.pincode %>
                                 </p>
-
-                                <p>
-                                    <%= order.shippingAddress.district%>
-                                        <%= order.shippingAddress.state%>
+                                <p class="text-gray-700">
+                                    <%= order.shippingAddress.district %>, <%= order.shippingAddress.state %>
                                 </p>
                             </div>
+
+                            <!-- Right Column: Order Details -->
                             <div class="mt-4 flex flex-col gap-y-2">
-                                <p>
-                                    <span class="uppercase font-semibold">OrderId:</span>
-                                    <%=order._id%>
+                                <p class="text-gray-700"><span class="uppercase font-semibold text-gray-800">Order
+                                        ID:</span>
+                                    <%= order._id %>
                                 </p>
-                                <p>
-                                    <span class="uppercase font-semibold">payment method:</span>
-                                    <%=order.paymentMethod%>
-
+                                <p class="text-gray-700"><span class="uppercase font-semibold text-gray-800">Payment
+                                        Method:</span>
+                                    <%= order.paymentMethod %>
                                 </p>
-                                <!-- <p>
-                                    <span class="uppercase font-bold">order status:</span>
-                                    <%#=order.orderStatus%>
-                                </p> -->
-
-                                <p>
-                                    <span class="uppercase font-semibold">ordered On:</span>
-                                    <%= order.createdAt.toLocaleString()%>
+                                <p class="text-gray-700"><span class="uppercase font-semibold text-gray-800">Ordered
+                                        On:</span>
+                                    <%= order.createdAt.toLocaleString() %>
                                 </p>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Product Details Section -->
                     <div class="mx-8 p-4 max-md:max-w-xl">
                         <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Product Details
                         </h2>
 
-                        <div class="mx-auto w-2/3 px-10 ">
-                            <table class="w-full">
+                        <div class="mx-auto w-2/3 px-10">
+                            <table class="w-full table-auto">
                                 <thead>
                                     <tr class="border-b-2 border-slate-400">
                                         <th class="text-left py-3">SL NO.</th>
@@ -84,59 +106,54 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <%order.orderedProducts.forEach((item, index)=> {%>
-                                        <tr>
+                                    <% order.orderedProducts.forEach((item, index)=> { %>
+                                        <tr class="border-b">
                                             <td class="py-3 pl-4">
-                                                <%= index+1%>.
+                                                <%= index + 1 %>.
                                             </td>
                                             <td class="w-1/2">
-                                                <%=item.product.productName%>
+                                                <%= item.product.productName %>
                                             </td>
                                             <td class="pl-6">
-                                                <%= item.quantity%>
+                                                <%= item.quantity %>
                                             </td>
-                                            <td>
-                                                ₹ <%= item.discountedPrice%>
-                                            </td>
+                                            <td>₹ <%= item.totalPay %>/-</td>
                                         </tr>
-                                        <% })%>
+                                        <% }) %>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <%let price=0;%>
-                        <%order.orderedProducts.forEach(item=> {%>
-                            <%price+=item.discountedPrice;%>
-                                <% } )%>
-                                    <div class="mx-8 p-4 max-md:max-w-xl">
-                                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">
-                                            Product Pricing
-                                        </h2>
-                                        <div class="flex justify-between mx-auto w-2/3 px-10 ">
-                                            <div>
-                                                <p class="font-medium mb-2">Total Price</p>
-                                                <p class="font-medium mb-2">Coupon Added</p>
-                                                <p class="font-medium mb-4">Delivery Charges</p>
-                                                <p class="font-medium text-xl">Total</p>
-                                            </div>
-                                            <div>
-                                                <p>₹ <%= price%>
-                                                </p>
-                                                <p class="text-red-600 mb-2">₹-0.00</p>
-                                                <p class="mb-4  text-right pr-4">Free</p>
-                                                <p class="font-medium text-xl">₹ <%= price%>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="flex gap-6 justify-center p-6">
-                                        <a href="/user/homepage" class="bg-pink-600 p-2 text-white rounded-lg">Back to
-                                            shopping</a>
-                                        <a href="/user/orders" class="bg-pink-600 p-2 text-white rounded-lg">Go to
-                                            Orders</a>
-                                    </div>
+                    <!-- Product Pricing Section -->
+                    <div class="mx-8 p-4 max-md:max-w-xl">
+                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Product Pricing
+                        </h2>
+                        <div class="flex justify-between mx-auto w-2/3 px-10">
+                            <div>
+                                <p class="font-medium mb-2">Total Price</p>
+                                <p class="font-medium mb-2">Total Discount</p>
+                                <p class="font-medium mb-4">Delivery Charges</p>
+                                <p class="font-medium text-xl">Total</p>
+                            </div>
+                            <div>
+                                <p>₹ <%= originalTotalPrice %>/-</p>
+                                <p class="text-red-600 mb-2">₹ <%= totalDiscountApplied %>/-</p>
+                                <p class="text-red-600 mb-2">
+                                    <%= totalPay < 1000 ? '₹ 40/-' : 'Free' %>
+                                </p>
+                                <p class="font-medium text-xl">₹ <%= totalPay %>/-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-6 justify-center p-6">
+                        <a href="/user/homepage" class="bg-pink-600 p-2 text-white rounded-lg">Back to shopping</a>
+                        <a href="/user/orders" class="bg-pink-600 p-2 text-white rounded-lg">Go to Orders</a>
+                    </div>
                 </main>
+
             </div>
     </div>
 

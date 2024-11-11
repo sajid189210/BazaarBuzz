@@ -76,27 +76,25 @@
                                                             </div>
 
                                                             <main>
-                                                                <%let price=0; let discount=0; %>
+                                                                <%let price=0; let discount=0; let discountValue=0; let
+                                                                    brandDiscount=0; %>
 
                                                                     <div class="mx-8 p-4">
                                                                         <h1 class="text-2xl font-bold text-gray-800">
                                                                             Your Cart</h1>
-                                                                        <div
-                                                                            class="relative flex flex-wrap gap-4 mt-8">
+                                                                        <div class="relative flex flex-wrap gap-4 mt-8">
                                                                             <div
                                                                                 class="mx-auto grid gap-4 h-[450px] max-w-[800px] overflow-auto hide-scrollbar">
                                                                                 <%if(cart && cart.items.length>0){%>
                                                                                     <%cart.items.forEach(item=> {%>
                                                                                         <%let
-                                                                                            discountPrice=(Math.round(item.product.productPrice
-                                                                                            *
-                                                                                            (1-(parseFloat(item.product.discount)/100))))%>
-                                                                                            <div
-                                                                                                class="space-y-4 md:col-span-2">
+                                                                                            discountPrice=((item.product.productPrice*
+                                                                                            (1-(item.product.discount)/100)))%>
+                                                                                            <div class=" md:col-span-2">
                                                                                                 <div
-                                                                                                    class="md:flex gap-4 rounded-md px-4 py-6 md:shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
+                                                                                                    class="md:flex rounded-md px-4 py-6 md:shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
                                                                                                     <div
-                                                                                                        class="flex flex-col md:flex-row gap-4">
+                                                                                                        class="relative flex flex-col md:flex-row gap-4">
                                                                                                         <div
                                                                                                             class="w-[12rem] h-[12rem]  md:h-28 md:w-28 shrink-0 md:max-sm:h-24 md:max-sm:w-24">
                                                                                                             <img src="<%=item.product.images[0]%>"
@@ -118,6 +116,22 @@
                                                                                                                     class="text-xs md:text-md font-medium text-gray-600">
                                                                                                                     Brand:
                                                                                                                     <%=item.product.brand%>
+                                                                                                                        <% let
+                                                                                                                            index=offers.findIndex(offer=>
+                                                                                                                            offer.brandName===item.product.brand)%>
+
+                                                                                                                            <%if(index!==-1){%>
+                                                                                                                                <%discountValue=offers[index].discount;%>
+                                                                                                                                    <%= discountValue? '| '
+                                                                                                                                        +discountValue+`%Brand
+                                                                                                                                        Offer`: ''
+                                                                                                                                        %>
+                                                                                                                                        <%
+                                                                                                                                            }%>
+                                                                                                                                            |
+                                                                                                                                            <%=item.product.discount%>
+                                                                                                                                                %Product
+                                                                                                                                                Offer
                                                                                                                 </h3>
                                                                                                                 <p
                                                                                                                     class="mt-2 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500">
@@ -178,13 +192,15 @@
                                                                                                                 </div>
                                                                                                             </div>
                                                                                                         </div>
+
                                                                                                     </div>
                                                                                                     <div
-                                                                                                        class="relative ml-auto flex flex-col">
+                                                                                                        class="flex flex-col w-1/2">
                                                                                                         <div
-                                                                                                            class="flex items-start justify-end  absolute top-3 right-3">
+                                                                                                            class="flex items-start justify-end">
                                                                                                             <button
-                                                                                                                type="button" class="p-2"
+                                                                                                                type="button"
+                                                                                                                class="p-2"
                                                                                                                 onclick="removeItem('<%= item._id%>')">
                                                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                                                     class="inline-block w-4 cursor-pointer fill-gray-400"
@@ -201,43 +217,38 @@
                                                                                                             </button>
                                                                                                         </div>
                                                                                                         <div
-                                                                                                            class="flex mt-auto gap-3 items-center">
+                                                                                                            class="mt-auto flex gap-2 items-center justify-end w-full">
 
                                                                                                             <h4
-                                                                                                                class="text-xs lg:text-md text-gray-100 font-medium">
-                                                                                                                ₹
-                                                                                                                <strike>
-                                                                                                                    <%=
-                                                                                                                        item.product.productPrice%>
+                                                                                                                class="text-sm lg:text-md text-slate-600 font-medium">
+                                                                                                                <strike
+                                                                                                                    id="originalPrice_<%=item._id%>">
+                                                                                                                    ₹
+                                                                                                                    <%=(item.product.productPrice*item.quantity).toFixed(2)%>
                                                                                                                 </strike>
                                                                                                             </h4>
+
                                                                                                             <h3 id="discountPrice_<%=item._id%>"
-                                                                                                                data-discount-price="<%=discountPrice*item.quantity%>"
+                                                                                                                data-discount-price="<%=item.discountedPrice%>"
                                                                                                                 class="text-md lg:text-lg font-medium text-black-800">
+
                                                                                                                 ₹
-                                                                                                                <%=discountPrice
-                                                                                                                    *
-                                                                                                                    item.quantity
-                                                                                                                    %>/-
+                                                                                                                <%=(item.discountedPrice).toFixed(2)%>
                                                                                                             </h3>
                                                                                                             <h2
-                                                                                                                class="hidden md:block text-md lg:text-2xl font-medium text-red-500">
-                                                                                                                <%=item.product.discount%>%off
+                                                                                                                class="hidden md:block text-md lg:text-xl font-medium text-red-500">
+                                                                                                                <%=Math.round(100-((item.discountedPrice*100)
+                                                                                                                    /(item.product.productPrice
+                                                                                                                    *
+                                                                                                                    item.quantity)))%>
+                                                                                                                    %off
                                                                                                             </h2>
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                            <% })%>
 
-                                                                                            <%price+=(item.product.productPrice)
-                                                                                                * item.quantity%>
-                                                                                                <%discount+=(Math.round(item.product.productPrice
-                                                                                                    * (1 -
-                                                                                                    (parseFloat(item.product.discount)
-                                                                                                    / 100)))) *
-                                                                                                    item.quantity%>
-
-                                                                                                    <% })%>
                                                                             </div>
 
 
@@ -252,7 +263,7 @@
                                                                                             items)<span
                                                                                                 id="totalOriginalPrice"
                                                                                                 class="ml-auto font-[sans-serif]">₹
-                                                                                                <%=price%>
+                                                                                                <%=totalPrice.toFixed(2)%>
                                                                                             </span>
                                                                                     </li>
                                                                                     <li
@@ -260,27 +271,39 @@
                                                                                         Discount
                                                                                         <span id="totalDiscountPrice"
                                                                                             class="ml-auto font-[sans-serif] text-red-400">-₹
-                                                                                            <%=price-discount%>
+                                                                                            <%=totalDiscount.toFixed(2)%>
                                                                                         </span>
                                                                                     </li>
-                                                                                    <li
-                                                                                        class="flex flex-wrap gap-4 text-md">
-                                                                                        Delivery
-                                                                                        Charges
-                                                                                        <span
-                                                                                            class="ml-auto font-[sans-serif]"><strike
-                                                                                                class="mr-2">₹40</strike>Free</span>
-                                                                                    </li>
-                                                                                    </li>
-                                                                                    <hr class="border-gray-300" />
-                                                                                    <li
-                                                                                        class="flex flex-wrap gap-4 text-lg">
-                                                                                        Total
-                                                                                        <span id="total"
-                                                                                            class="ml-auto font-[sans-serif]">₹
-                                                                                            <%=price-(price-discount)%>
-                                                                                        </span>
-                                                                                    </li>
+                                                                                    <%if(totalOfferDiscountValue){%>
+                                                                                        <li
+                                                                                            class="flex flex-wrap gap-4 text-md">
+                                                                                            Brand Discount:
+                                                                                            <span id="brandDiscount"
+                                                                                                class="ml-auto font-[sans-serif] text-red-400">-₹
+                                                                                                <%=totalOfferDiscountValue.toFixed(2)
+                                                                                                    %>
+                                                                                            </span>
+                                                                                        </li>
+                                                                                        <%}%>
+                                                                                            <li
+                                                                                                class="flex flex-wrap gap-4 text-md">
+                                                                                                Delivery
+                                                                                                Charges
+                                                                                                <span
+                                                                                                    class="ml-auto font-[sans-serif]"><strike
+                                                                                                        class="mr-2">₹40</strike>Free</span>
+                                                                                            </li>
+                                                                                            </li>
+                                                                                            <hr
+                                                                                                class="border-gray-300" />
+                                                                                            <li
+                                                                                                class="flex flex-wrap gap-4 text-lg">
+                                                                                                Total
+                                                                                                <span id="total"
+                                                                                                    class="ml-auto font-[sans-serif]">₹
+                                                                                                    <%=total.toFixed(2)%>
+                                                                                                </span>
+                                                                                            </li>
                                                                                 </ul>
 
                                                                                 <div class="mt-8 space-y-2">

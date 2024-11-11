@@ -3,11 +3,11 @@ const productListController = require('../controller/userController/userProductL
 const checkoutController = require('../controller/userController/checkoutController');
 const wishlistController = require('../controller/userController/wishlistController');
 const walletController = require('../controller/userController/walletController');
+const couponController = require('../controller/userController/userCoupons');
 const orderController = require('../controller/userController/userOrderController');
 const cartController = require('../controller/userController/cartController');
 const userController = require('../controller/userController/userController');
 const otpController = require('../controller/userController/otpVerification');
-const { check } = require('express-validator');
 const router = require('express').Router();
 
 //*--------------[User Sign Up]-----------------
@@ -52,19 +52,26 @@ router.put('/removeList', wishlistController.removeProduct);
 
 //*--------------------[Checkout]-----------------------
 router.get('/checkout', checkoutController.getCheckout);
-router.get('/checkout/orderSummary', checkoutController.getOrderSummary);
+router.get('/checkout/orderSummary/:id', checkoutController.getOrderSummary);
 router.post('/checkout/payment', checkoutController.proceedToPayment);
 router.post('/checkout/verify', checkoutController.verifyPayment);
 router.put('/checkout/applyCoupon', checkoutController.applyCoupon);
+router.patch('/checkout/paymentFail', checkoutController.handlePaymentFailure)
 
 //*--------------------[Orders]-----------------------
 router.get('/orders', orderController.getOrders);
+router.get('/orders/invoice', orderController.downloadInvoice);
+router.post('/orders/retryPayment', orderController.retryPayment);
 router.patch('/orders/return', orderController.returnProduct);
 router.patch('/orders/cancel', orderController.cancelProduct);
 
 //*--------------------[Wallet]-----------------------
 router.get('/wallet', walletController.renderWallet);
 router.patch('/wallet/createRazorpayOrder', walletController.createRazorpayOrder);
+
+//*--------------------[Wallet]-----------------------
+router.get('/coupons', couponController.renderCoupons)
+
 
 //*------------------[User Sign Out]----------------
 router.get('/signOut', userController.userSignOut);

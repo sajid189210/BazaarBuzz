@@ -164,6 +164,8 @@ async function addToCart(productId) {
         const selectedSize = document.getElementById('selectedSize').value;
         const selectedStock = document.getElementById('selectedStock').value;
 
+        console.log(selectedColor, selectedSize, selectedStock)
+
         if (selectedStock < 1) {
             await Swal.fire({
                 title: 'Out Of Stock!',
@@ -243,7 +245,7 @@ async function addToCart(productId) {
         window.location.href = data.redirectUrl;
 
     } catch (err) {
-        console.log('Error caught when passing the the product Id to the cart.', err);
+        console.log('Error caught when passing the product Id to the cart.', err);
         alert('Error caught when passing the the product Id to the cart.', err);
     }
 }

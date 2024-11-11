@@ -116,19 +116,6 @@ const adminSignIn = async (req, res) => {
 
 
 
-//render the dashboard.
-const dashboard = async (req, res) => {
-    try {
-
-        if (!req.session.admin) return res.redirect('/admin/signIn');
-
-        res.render('admin/dashboard');
-
-    } catch (err) {
-        console.error(`Error caught dashboard in admin controller ${err}`);
-        res.status(500).json("Internal server error!");
-    }
-};
 
 
 
@@ -149,7 +136,6 @@ const adminSignOut = (req, res) => {
 module.exports = {
     adminSignIn,
     validateCredentials,
-    dashboard,
     adminChangePassword,
     validateChangePassword,
     adminSignOut

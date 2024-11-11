@@ -7,14 +7,8 @@
     <title>Admin: Order List</title>
     <link rel="stylesheet" href="/css/style.css">
 
-    <!-- Include jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Include DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
-    <!-- Include DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 
@@ -44,17 +38,23 @@
                 </header>
 
                 <main class="pl-[270px] pr-[20px] pt-[120px]">
+                    <div class="w-[400px] flex mb-6">
+                        <button class="rounded-l-lg bg-orange-500 hover:bg-orange-600 px-4 text-white"
+                            onclick="searchOrders()">Search</button>
+                        <input type="text" id="search" class="w-full p-3 rounded-r-lg bg-gray-100 outline-none" placeholder="Enter Order ID">
+                    </div>
                     <div class="w-full">
-                        <table id="example" class="min-w-full bg-white p-6">
+                        <table class="min-w-full bg-white p-6">
                             <thead class="bg-gray-100 whitespace-nowrap">
                                 <tr class="">
-                                    <th class="text-left p-4 font-semibold text-gray-800">OrderID</th>
-                                    <th class="text-left p-4 font-semibold text-gray-800">User Email</th>
-                                    <th class="text-left p-4 font-semibold text-gray-800">OrderDate</th>
-                                    <th class="text-left p-4 font-semibold text-gray-800">Total Amount</th>
-                                    <th class="text-left p-4 font-semibold text-gray-800">Order Status</th>
-                                    <th class="text-left p-4 font-semibold text-gray-800">Return Status</th>
-                                    <th class="text-left p-4 font-semibold text-gray-800"></th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">OrderID</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">User Email</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">OrderDate</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">Total Amount</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">Order Status</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">Payment Status</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800">Return Status</th>
+                                    <th class="text-center p-4 font-semibold text-gray-800"></th>
                                 </tr>
                             </thead>
                             <tbody class="whitespace-nowrap">
@@ -63,48 +63,94 @@
                                         <%let totalPay=0;%>
                                             <% order.orderedProducts.forEach( pay=> totalPay+=pay.totalPay)%>
                                                 <tr class="hover:bg-gray-50">
-                                                    <td class="p-4 text-[15px] text-left text-gray-800">
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
                                                         <%= order._id%>
                                                     </td>
-                                                    <td class="p-4 text-[15px] text-left text-gray-800">
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
                                                         <%= order.user.email%>
                                                     </td>
-                                                    <td class="p-4 text-[15px] text-left text-gray-800">
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
                                                         <%= order.createdAt.toLocaleString()%>
                                                     </td>
-                                                    <td class="p-4 text-[15px] text-left text-gray-800">
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
                                                         ₹ <%= totalPay%>
                                                     </td>
-                                                    <td class="p-4 text-[15px] text-left text-gray-800">
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
                                                         <%= order.allOrdersStatus%>
                                                     </td>
-                                                    <td class="p-4 text-[15px] text-left text-gray-800">
-                                                        <%= returnedProducts && returnedProducts.length>0? 'requested' :
-                                                            ''%>
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
+                                                        <%= order.paymentStatus%>
                                                     </td>
-                                                    <td class="p-4 text-[15px] text-left text-gray-800"><a
+                                                    <td class="p-4 text-[15px] text-center text-gray-800">
+                                                        <% let returnedProducts=order.orderedProducts.filter(item=>
+                                                            item.returnStatus&&item.returnStatus==='requested')%>
+                                                            <%= returnedProducts && returnedProducts.length>0?
+                                                                'requested' :
+                                                                ''%>
+                                                    </td>
+                                                    <td class="p-4 text-[15px] text-center text-gray-800"><a
                                                             href="/admin/order/view?orderId=<%= order._id%>"
                                                             class="hover:underline text-blue-600">view</a></td>
                                                 </tr>
                                                 <%})%>
-                                                    <%}%>
+                                                    <%} else {%>
+                                                        <tr>
+                                                            <td colspan="8"
+                                                                class="p-4 text-[15px] text-center text-gray-800">No
+                                                                orders were made.</td>
+                                                        </tr>
+                                                        <%}%>
                             </tbody>
                         </table>
+                        <div class="w-full flex justify-between gap-4 items-center">
+                            <div class="font-[poppins] text-sm text-gray-600">
+                                You&apos;re currently viewing page <%=currentPage%> of <%=totalPages%>
+                            </div>
+                            <div class="flex gap-2 my-4">
+                                <%if(currentPage>1){%>
+                                    <a href="/admin/orders?page=<%= currentPage - 1%>%limit=<%=limit%>"
+                                        class="block w-[100px] text-center py-2 rounded-md hover:bg-gray-200 bg-gray-100">previous</a>
+                                    <%}%>
+                                        <%if(currentPage<totalPages){%>
+                                            <a href="/admin/orders?page=<%= currentPage + 1%>%limit=<%=limit%>"
+                                                class="block w-[100px] text-center py-2 rounded-md hover:bg-gray-200  bg-gray-100">next</a>
+                                            <%}%>
+                            </div>
+                        </div>
                     </div>
+
+                    <div id="limit" data-limit="<%=JSON.stringify(limit)%>"></div>
+                    <div id="currentPage" data-page="<%=JSON.stringify(currentPage)%>"></div>
                 </main>
             </div>
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('#example').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                pageLength: 5 // Number of rows per page
-            });
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
         });
 
+        function searchOrders() {
+            const searchTerm = document.getElementById('search').value;
+            const limit = JSON.parse(document.getElementById('limit').getAttribute('data-limit'));
+            const currentPage = JSON.parse(document.getElementById('currentPage').getAttribute('data-currentPage'));
+
+            const url = `/admin/orders?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`;
+
+            if (searchTerm && !/^[0-9a-fA-F]{24}$/.test(searchTerm)) {
+                return Toast.fire({ icon: 'warning', title: 'Invalid search input.' })
+            }
+
+            window.location.href = url;
+        }
     </script>
 
 </body>

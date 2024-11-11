@@ -68,5 +68,9 @@ app.use((err, req, res, next) => {
 });
 
 
+app.get('*', (req, res) => {
+    res.render('partials/404Page');
+});
+
 
 module.exports = app;

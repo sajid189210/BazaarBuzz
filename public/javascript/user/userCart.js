@@ -76,16 +76,10 @@ async function decreaseQuantity(itemId, element) {
             return;
         }
         window.location.reload();
-        // // Updates the quantity.
-        // document.querySelector(`#quantity_${itemId}`).textContent = quantity - 1;
 
-        // //updates the price
-        // discountPriceElement.textContent = `₹ ${data.discountedPrice}/-`;
-
-        // //updates the details in price summary.
-        // document.querySelector('#totalOriginalPrice').textContent = `₹ ${data.totalOriginalPrice}`;
-        // document.querySelector('#totalDiscountPrice').textContent = `-₹ ${data.totalOriginalPrice - data.totalDiscountedPrice}`;
-        // document.querySelector('#total').textContent = `₹ ${data.totalDiscountedPrice}`;
+        document.getElementById(`originalPrice_${itemId}`).textContent = `₹ ${data.totalOriginalPrice.toFixed(2)}`;
+        document.getElementById(`discountPrice_${itemId}`).textContent = `₹ ${data.totalDiscountedPrice.toFixed(2)}`;
+        document.getElementById(`quantity_${itemId}`).textContent = data.quantity;
 
         // hides if the quantity is 5.
         if (quantity - 1 === 1) {
@@ -104,12 +98,7 @@ async function increaseQuantity(itemId, element) {
     try {
         const discountPriceElement = document.querySelector(`#discountPrice_${itemId}`);
 
-        console.log(discountPriceElement);
-
-
         let quantity = parseInt(document.querySelector(`#quantity_${itemId}`).textContent);
-
-        console.log(quantity)
 
         // Don't proceed further if quantity is 5
         if (quantity >= 5) {
@@ -135,19 +124,13 @@ async function increaseQuantity(itemId, element) {
         }
 
         window.location.reload();
-        // // Updates the quantity.
-        // document.querySelector(`#quantity_${itemId}`).textContent = quantity + 1;
 
-        // // Update the price
-        // discountPriceElement.textContent = `₹ ${data.discountedPrice}/-`;
-
-        // //updates the details in price summary.
-        // document.querySelector('#totalOriginalPrice').textContent = `₹ ${data.totalOriginalPrice}`;
-        // document.querySelector('#totalDiscountPrice').textContent = `-₹ ${data.totalOriginalPrice - data.totalDiscountedPrice}`;
-        // document.querySelector('#total').textContent = `₹ ${data.totalDiscountedPrice}`;
+        document.getElementById(`originalPrice_${itemId}`).textContent = `₹ ${data.totalOriginalPrice.toFixed(2)}`;
+        document.getElementById(`discountPrice_${itemId}`).textContent = `₹ ${data.totalDiscountedPrice.toFixed(2)}`;
+        document.getElementById(`quantity_${itemId}`).textContent = data.quantity;
 
         // hides if the quantity is 5.
-        if (quantity + 1 === 5) {
+        if (data.quantity === 5) {
             element.classList.add('hidden');
         }
 
