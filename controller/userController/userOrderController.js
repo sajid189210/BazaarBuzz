@@ -75,14 +75,19 @@ const getOrders = async (req, res) => {
 const returnProduct = async (req, res) => {
     const { productId, orderItemId, reason } = req.body;
     try {
-
-        const hasReturned = await Order.findOneAndUpdate(
+        const order = await Order.findOneAndUpdate(
             { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
-            { $set: { 'orderedProducts.$.returnStatus': 'requested', 'orderedProducts.$.returnReason': reason } },
+            {
+                $set:
+                {
+                    'orderedProducts.$.returnStatus': 'requested',
+                    'orderedProducts.$.returnReason': reason,
+                }
+            },
             { new: true }
         );
 
-        if (!hasReturned) return res.status(400).json({
+        if (!order) return res.status(400).json({
             success: false,
             message: 'Error handling return...'
         });
@@ -111,38 +116,38 @@ const cancelProduct = async (req, res) => {
     const userId = req.session.user.userId;
 
     try {
-        //* find user and order.
-        const user = await User.findOne({ _id: userId });
-        const order = await Order.findOne({ _id: orderId }).populate('coupon');
+        // Find user, order, and wallet in parallel to reduce time complexity
+        const [user, order, wallet] = await Promise.all([
+            User.findOne({ _id: userId }),
+            Order.findOne({ _id: orderId }).populate('coupon'),
+            Wallet.findOne({ user: userId })
+        ]);
 
-        if (!user) return res.status(404).json({ success: false, message: "User not found." });
-        if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+        // Validate existence of user, order, and wallet
+        if (!user || !order || !wallet) {
+            return res.status(404).json({
+                success: false, message: !user ? "User not found." : !order ? "Order not found." : "Wallet not found."
+            });
+        }
 
         const { paymentMethod, orderedProducts } = order;
 
-        // prepping the update details based on payment method
+        // preparing the update details based on payment method
         const updateDetails = {
             'orderedProducts.$.orderStatus': 'cancelled',
             'orderedProducts.$.paymentStatus': paymentMethod === 'razorpay' || paymentMethod === 'wallet' ? 'refunded' : 'failed'
         };
 
-        //* updating the order status
+        //* Update the order status for the specific product being cancelled
         const updatedOrder = await Order.findOneAndUpdate(
             { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
             { $set: updateDetails },
             { new: true }
         );
 
-        // checking if all products are cancelled.
-        let isAllCancelled = updatedOrder.orderedProducts.every(product => product.orderStatus === 'cancelled');
-
-        //* Update the overall order status if all products are cancelled
-        if (isAllCancelled) {
-            await Order.findByIdAndUpdate(
-                orderId,
-                { $set: { allOrdersStatus: 'cancelled' } },
-                { new: true }
-            );
+        // Check if all products are cancelled and update overall order status
+        if (updatedOrder.orderedProducts.every(product => product.orderStatus === 'cancelled')) {
+            await Order.findByIdAndUpdate(orderId, { $set: { allOrdersStatus: 'cancelled' } });
         }
 
         // increases stock.
@@ -150,8 +155,22 @@ const cancelProduct = async (req, res) => {
 
         //* Handle online payment refunds
         if (paymentMethod === 'razorpay' || paymentMethod === 'wallet') {
-            let totalAmount = orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
+            const totalAmount = orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
             if (order.coupon) totalAmount -= order.coupon.couponValue;
+
+            // fetching the cancelled product.
+            const orderedItem = order.orderedProducts.find(item => item._id.toString() === orderItemId);
+
+            const transactionDetails = {
+                orderId: order._id,
+                amount: orderedItem.totalPay,
+                date: new Date(),
+                type: 'credit'
+            };
+
+            // Add the transaction to the wallet and save it.
+            wallet.transactions.push(transactionDetails);
+            wallet.save();
 
             const updateWalletBalance = await Wallet.findOneAndUpdate(
                 { user: userId },
@@ -201,7 +220,7 @@ const retryPayment = async (req, res) => {
         if (!repayingOrder || !user) {
             return res.status(400).json({ success: false, message: 'Order or user was not found' });
         }
-        console.log(repayingOrder)
+
         const totalPay = repayingOrder.orderedProducts.reduce((acc, item) => acc + item.totalPay, 0);
 
         const options = {

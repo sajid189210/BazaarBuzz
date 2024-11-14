@@ -45,8 +45,8 @@
                                         class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
                                         <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
                                             src="/uploads/still-life-spring-wardrobe-switch.jpg" alt="fashion" /> -->
-                                        <!-- Adjust size here -->
-                                        <!-- <div
+                        <!-- Adjust size here -->
+                        <!-- <div
                                             class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
                                             <h1 class="text-sm lg:text-lg font-medium ">Fashion</h1>
                                         </div>
@@ -57,8 +57,8 @@
                                         class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
                                         <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
                                             src="/uploads/small-purse-studio-still-life.jpg" alt="Bags" /> -->
-                                        <!-- Adjust size here -->
-                                        <!-- <div
+                        <!-- Adjust size here -->
+                        <!-- <div
                                             class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
                                             <h1 class="text-sm lg:text-lg font-medium ">Bags</h1>
                                         </div>
@@ -69,8 +69,8 @@
                                         class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
                                         <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
                                             src="/uploads/pair-brown-leather-boots.jpg" alt="Shoes" /> -->
-                                        <!-- Adjust size here -->
-                                        <!-- <div
+                        <!-- Adjust size here -->
+                        <!-- <div
                                             class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
                                             <h1 class="text-sm lg:text-lg font-medium ">Shoes</h1>
                                         </div>
@@ -80,19 +80,70 @@
                         </div>
                     </div> -->
 
-                    <!-- Featured -->
+                        <!-- Featured -->
 
-                    <div class="lg:p-4 w-full mb-4 ">
-                        <div class="ml-4 mt-4 mb-4 flex justify-between items-center">
-                            <h2 class="text-xl lg:text-4xl font-bold text-[#4b0705]">Featured</h2>
-                            <a href="/user/getProductList/featured"
-                                class="text-xs lg:text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see all
-                                featured</a>
+                        <div class="lg:p-4 w-full mb-4 ">
+                            <div class="ml-4 mt-4 mb-4 flex justify-between items-center">
+                                <h2 class="text-xl lg:text-4xl font-bold text-[#4b0705]">Featured</h2>
+                                <a href="/user/getProductList/featured"
+                                    class="text-xs lg:text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see
+                                    all
+                                    featured</a>
+                            </div>
+                            <div class="flex gap-6 lg:p-4 w-full bg-slate-50 lg:shadow-md overflow-auto hide-scrollbar">
+                                <%if(products && products.length) {%>
+                                    <%products.forEach((product, index)=> {%>
+                                        <%if(product.featured) {%>
+                                            <div class="flex gap-4 justify-start w-72">
+                                                <a href="/user/viewProduct?productId=<%=product._id%>"
+                                                    class="block lg:shadow-md overflow-hidden rounded-lg cursor-pointer lg:hover:-translate-y-2 lg:transition-all relative ">
+                                                    <div class="bg-white overflow-hidden cursor-pointer p-6">
+                                                        <div
+                                                            class="aspect-w-16 aspect-h-8 mx-auto h-[150px] w-full overflow-hidden">
+                                                            <img src="<%=product.images[0]%>" alt="img"
+                                                                class="h-full w-full object-contain" />
+                                                        </div>
+
+                                                        <div class="mt-2">
+                                                            <p class="truncate font-normal text-left">
+                                                                <%= product.productName%>
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="mt-2 flex items-center gap-3">
+                                                            <p
+                                                                class="text-xs bg-red-600 px-3 py-1 text-white font-medium">
+                                                                <%= product.discount %>%off
+                                                            </p>
+                                                            <p class="text-[12px] text-red-400">New Arrival</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <%}%>
+                                                <%})%>
+                                                    <%} %>
+                            </div>
                         </div>
-                        <div class="flex gap-6 lg:p-4 w-full bg-slate-50 lg:shadow-md overflow-auto hide-scrollbar">
-                            <%if(products && products.length) {%>
-                                <%products.forEach((product, index)=> {%>
-                                    <%if(product.featured) {%>
+
+                        <div class="hidden md:flex flex-col -full">
+                            <img src="/uploads/banner2.gif" alt="" class=" h-auto cursor-pointer">
+                        </div>
+
+                        <!-- New Arrivals -->
+
+                        <div class="lg:p-4 w-full">
+                            <div class="ml-4 mt-4 mb-4 flex justify-between">
+                                <h2 class="text-xl lg:text-4xl font-bold text-[#4b0705]">New Arrivals</h2>
+
+                                <a href="/user/getProductList/newArraival"
+                                    class="text-xs lg:text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see
+                                    all
+                                    arrivals</a>
+                            </div>
+                            <div class="flex gap-6 lg:p-4 w-full bg-slate-50 lg:shadow-md overflow-auto hide-scrollbar">
+                                <%if(products && products.length) {%>
+                                    <%products.forEach((product, index)=> {%>
                                         <div class="flex gap-4 justify-start w-72">
                                             <a href="/user/viewProduct?productId=<%=product._id%>"
                                                 class="block lg:shadow-md overflow-hidden rounded-lg cursor-pointer lg:hover:-translate-y-2 lg:transition-all relative ">
@@ -118,66 +169,20 @@
                                                 </div>
                                             </a>
                                         </div>
-                                        <%}%>
-                                            <%})%>
-                                                <%} %>
+                                        <%})%>
+                                            <%} %>
+                            </div>
                         </div>
+
+
                     </div>
-
-                    <div class="hidden md:flex flex-col -full">
-                        <img src="/uploads/banner2.gif" alt="" class=" h-auto cursor-pointer">
-                    </div>
-
-                    <!-- New Arrivals -->
-
-                    <div class="lg:p-4 w-full">
-                        <div class="ml-4 mt-4 mb-4 flex justify-between">
-                            <h2 class="text-xl lg:text-4xl font-bold text-[#4b0705]">New Arrivals</h2>
-
-                            <a href="/user/getProductList/newArraival"
-                                class="text-xs lg:text-md mr-4 text-[#eba093] hover:text-[#c58378] font-medium font-[sans]">see
-                                all
-                                arrivals</a>
-                        </div>
-                        <div class="flex gap-6 lg:p-4 w-full bg-slate-50 lg:shadow-md overflow-auto hide-scrollbar">
-                            <%if(products && products.length) {%>
-                                <%products.forEach((product, index)=> {%>
-                                    <div class="flex gap-4 justify-start w-72">
-                                        <a href="/user/viewProduct?productId=<%=product._id%>"
-                                            class="block lg:shadow-md overflow-hidden rounded-lg cursor-pointer lg:hover:-translate-y-2 lg:transition-all relative ">
-                                            <div class="bg-white overflow-hidden cursor-pointer p-6">
-                                                <div
-                                                    class="aspect-w-16 aspect-h-8 mx-auto h-[150px] w-full overflow-hidden">
-                                                    <img src="<%=product.images[0]%>" alt="img"
-                                                        class="h-full w-full object-contain" />
-                                                </div>
-
-                                                <div class="mt-2">
-                                                    <p class="truncate font-normal text-left">
-                                                        <%= product.productName%>
-                                                    </p>
-                                                </div>
-
-                                                <div class="mt-2 flex items-center gap-3">
-                                                    <p class="text-xs bg-red-600 px-3 py-1 text-white font-medium">
-                                                        <%= product.discount %>%off
-                                                    </p>
-                                                    <p class="text-[12px] text-red-400">New Arrival</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <%})%>
-                                        <%} %>
-                        </div>
-                    </div>
-
-
-
                 </main>
+                <%- include('../partials/userFooter')%>
             </div>
 
     </div>
+
+
 
     <script src="/javascript/user/homesearch.js"></script>
     <script src="/javascript/user/buttonSearch.js">

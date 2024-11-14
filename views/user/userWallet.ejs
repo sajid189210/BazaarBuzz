@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="hide-scrollbar">
+<html lang="en" class="">
 
 <head>
     <meta charset="UTF-8">
@@ -60,7 +60,8 @@
                                                                             <%= wallet ? formatRupees(wallet.balance ||
                                                                                 0.00) : formatRupees(0.00) %>
                                                                         </h3>
-                                                                        <h6 class="text-xl text-green-500">Your current
+                                                                        <h6 class="text-xl text-green-500">Your
+                                                                            current
                                                                             balance</h6>
                                                                     </div>
 
@@ -77,31 +78,34 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="px-10 mt-10">
+                                                            <div class="px-10 mt-10 min-h-[333px]">
                                                                 <table
                                                                     class="mx-auto w-2/3 bg-white shadow-md rounded-md">
                                                                     <thead>
                                                                         <tr class="bg-gray-200">
-                                                                            <th class="px-4 py-2 text-left">Date</th>
-                                                                            <th class="px-4 py-2 text-left">Type</th>
                                                                             <th class="px-4 py-2 text-left">Order ID
                                                                             </th>
-                                                                            <th class="px-4 py-2 text-left">Amount</th>
+                                                                            <th class="px-4 py-2 text-left">Date
+                                                                            </th>
+                                                                            <th class="px-4 py-2 text-left">Type
+                                                                            </th>
+                                                                            <th class="px-4 py-2 text-left">Amount
+                                                                            </th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        <% if (wallet) { %>
-                                                                            <% wallet.transactions.forEach(item=> { %>
+                                                                        <% if (wallet && transactions.length>0) { %>
+                                                                            <% transactions.forEach(item=> { %>
                                                                                 <tr
                                                                                     class="hover:bg-gray-100 transition-colors duration-200">
+                                                                                    <td class="px-4 py-2">
+                                                                                        <%= item.orderId %>
+                                                                                    </td>
                                                                                     <td class="px-4 py-2">
                                                                                         <%= item.date.toLocaleString()%>
                                                                                     </td>
                                                                                     <td class="px-4 py-2">
                                                                                         <%= item.type %>
-                                                                                    </td>
-                                                                                    <td class="px-4 py-2">
-                                                                                        <%= item.orderId %>
                                                                                     </td>
                                                                                     <td class="px-4 py-2">
                                                                                         <%= item?.amount %>
@@ -119,7 +123,32 @@
                                                                                         <% } %>
                                                                     </tbody>
                                                                 </table>
+                                                                <%if(transactions.length>0){%>
+                                                                    <div class="flex mt-4 w-2/3 mx-auto">
+                                                                        <div
+                                                                            class="flex justify-between gap-2 w-full px-4 items-center">
+                                                                            <%if(currentPage> 1){%>
+                                                                                <a href="/user/wallet?page=<%=currentPage - 1%>&limit=<%=limit%>"
+                                                                                    class="block w-[100px] text-center py-2 bg-[#f080ac] hover:bg-[#ec4899] text-white">previous</a>
+                                                                                <%}%>
+                                                                                    <div
+                                                                                        class="font-[poppins] text-sm text-gray-600">
+                                                                                        You&apos;re currently
+                                                                                        viewing
+                                                                                        page
+                                                                                        <%=currentPage%> of
+                                                                                            <%=totalPages%>
+                                                                                    </div>
+                                                                                    <%if(currentPage < totalPages){%>
+                                                                                        <a href="/user/wallet?page=<%=currentPage + 1%>&limit=<%=limit%>"
+                                                                                            class="block w-[100px] text-center py-2 bg-[#f080ac] hover:bg-[#ec4899] text-white">next</a>
+                                                                                        <%}%>
+                                                                        </div>
+                                                                    </div>
+                                                                    <%}%>
                                                             </div>
+                                                            <%- include('../partials/userFooter')%>
+
                                                         </div>
                                                 </div>
 

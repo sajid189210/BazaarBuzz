@@ -44,7 +44,8 @@ const getCart = async (req, res) => {
             return acc;
         }, 0);
 
-        const total = totalPrice - (totalDiscount + totalOfferDiscountValue)
+        const total = totalPrice - (totalDiscount + totalOfferDiscountValue);
+        const tax = Math.round((total * 5) / 100);
 
         res.render('user/userCart', {
             totalOfferDiscountValue,
@@ -55,6 +56,7 @@ const getCart = async (req, res) => {
             total,
             cart,
             user: req.session.user || null,
+            tax,
         });
 
     } catch (err) {
@@ -234,7 +236,7 @@ const updateQuantity = async (req, res) => {
                 message: 'Cart not found.'
             });
         }
-      
+
         const item = cart.items.find(item => item._id.toString() === itemId);
 
         const variant = item.product.variants.find(variant => variant.size === item.selectedSize);

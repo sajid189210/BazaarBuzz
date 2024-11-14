@@ -14,7 +14,7 @@ const razorPayInstance = require('../../Services/razorPay');
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
 
-//? Function to handle stocks quantity.
+//? Helper function to handle stock quantity.
 const handleStock = async (order, paymentMethod) => {
     const orderedProductDetails = order.orderedProducts.filter(item => item.product);
 
@@ -31,6 +31,11 @@ const handleStock = async (order, paymentMethod) => {
             throw new Error(`Error caught while handling stock after product purchase on ${paymentMethod}.`);
         }
     });
+};
+
+//? Helper function to clear cart.
+const clearCart = async (userId) => {
+    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
 };
 
 
@@ -57,11 +62,10 @@ const getCheckout = async (req, res) => {
             return acc;
         }, 0);
         // Final amount price.
-        const total = cart.items.reduce((acc, item) => acc + item.discountedPrice, 0)
+        const total = cart.items.reduce((acc, item) => acc + item.discountedPrice, 0);
+        const tax = Math.round((total * 5) / 100);
 
         await Cart.updateOne({ user: userId }, { $set: { discountedValue: 0, coupon: null } });
-
-        if (cart.items.length === 0) return res.redirect('/user/homepage');
 
         res.render('user/userCheckout', {
             totalProductDiscountedValue,
@@ -70,6 +74,7 @@ const getCheckout = async (req, res) => {
             total,
             cart,
             user,
+            tax,
         });
 
     } catch (err) {
@@ -140,6 +145,7 @@ const proceedToPayment = async (req, res) => {
             paymentStatus = 'paid';
         }
 
+
         const orderDetails = {
             user: user._id,
             orderedProducts: cart.items.map(item => ({
@@ -149,7 +155,7 @@ const proceedToPayment = async (req, res) => {
                 selectedSize: item.selectedSize,
                 selectedColor: item.selectedColor,
                 discountedPrice: item.discountedPrice,
-                totalPay: parseInt(item.discountedPrice),
+                totalPay: parseInt(item.discountedPrice + Math.round((item.discountedPrice * 5) / 100)),
                 paymentStatus,
             })),
             paymentMethod,
@@ -241,7 +247,7 @@ const proceedToPayment = async (req, res) => {
                 // Proceed with the payment logic
                 wallet.balance -= totalAmount; // Deduct the amount from the wallet
                 wallet.transactions.push({
-                    orderId: order._id,
+                    orderId: newOrder._id,
                     amount: totalAmount,
                     type: 'debit',
                     date: new Date(),
@@ -257,7 +263,7 @@ const proceedToPayment = async (req, res) => {
                 handleStock(newOrder, paymentMethod);
 
                 // clears the cart.
-                await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+                clearCart(userId);
 
                 // Respond with success
                 return res.status(200).json({
@@ -293,7 +299,7 @@ const proceedToPayment = async (req, res) => {
             handleStock(newOrder, paymentMethod);
 
             // clears the cart.
-            await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+            clearCart(userId);
 
             return res.status(201).json({ success: true, orderType: paymentMethod, newOrderId: newOrder._id });
         }
@@ -431,8 +437,10 @@ const verifyPayment = async (req, res) => {
                     },
                 );
             }
+
             // clears the cart.
-            await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+            clearCart(userId);
+
             return res.json({ success: true, message: 'Payment verified successfully' });
         } else {
             return res.json({ success: false, message: 'Payment verification failed' });
@@ -457,7 +465,8 @@ const handlePaymentFailure = async (req, res) => {
             {
                 $set: {
                     paymentStatus: 'failed',
-                    'orderedProducts.$[].paymentStatus': 'failed'
+                    'orderedProducts.$[].paymentStatus': 'failed',
+                    'orderedProducts.$[].orderStatus': 'pending'
                 }
             },
             { new: true, }

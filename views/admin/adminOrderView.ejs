@@ -125,8 +125,11 @@
 
                                                         <select name="orderStatus" id="orderStatus"
                                                             data-order-item-id="<%= item._id %>"
-                                                            data-product-id="<%= item.product._id %>"
-                                                            class="border-2 p-1.5 cursor-pointer uppercase <%= item.orderStatus === 'delivered' || item.orderStatus === 'cancelled' ? 'hidden' : '' %>">
+                                                            data-product-id="<%= item.product._id %>" class="border-2 p-1.5 cursor-pointer uppercase 
+                                                            <%= item.orderStatus === 'delivered' ||
+                                                              item.orderStatus === 'returned' || 
+                                                              item.paymentStatus === 'failed' ||
+                                                              item.orderStatus === 'cancelled' ? 'hidden' : '' %>">
                                                             <option value="">Status</option>
                                                             <option value="processing"
                                                                 <%=item.orderStatus==='processing' ||

@@ -82,8 +82,10 @@ const changeStatus = async (req, res) => {
         const updateData = { 'orderedProducts.$.orderStatus': orderStatus };
         if (orderStatus === 'delivered') {
             updateData['orderedProducts.$.paymentStatus'] = 'paid';
+            updateData[paymentStatus] = 'paid';
         } else if (orderStatus === 'cancelled') {
             updateData['orderedProducts.$.paymentStatus'] = 'failed';
+            updateData[paymentStatus] = 'failed';
         }
 
         // Find and update the order
@@ -178,31 +180,41 @@ const refund = async (req, res) => {
         }
 
         // Update the order's return and payment status
-        const updatedOrder = await Order.findOneAndUpdate(
+        const order = await Order.findOneAndUpdate(
             { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
             {
                 $set: {
                     'orderedProducts.$.returnStatus': 'refunded',
-                    'orderedProducts.$.paymentStatus': 'refunded'
+                    'orderedProducts.$.paymentStatus': 'refunded',
+                    'orderedProducts.$.orderStatus': 'returned'
                 }
             },
             { new: true }
         ).populate('coupon');
 
-        // console.log('Updated Order:', updatedOrder);
+        // Check if all ordered products are marked as returned
+        const allReturned = order.orderedProducts.every(item => item.paymentStatus === 'refunded');
 
-        if (!updatedOrder) {
+        // If all items are returned, update the order status
+        if (allReturned && order.allOrdersStatus !== 'returned') {
+            await Order.findOneAndUpdate(
+                { _id: order._id },
+                { $set: { allOrdersStatus: 'returned' } }
+            );
+        }
+
+        if (!order) {
             return res.status(400).json({ success: false, message: 'Error while processing the refund' });
         }
 
         // Calculate total amount to refund
-        let totalAmount = updatedOrder.orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
-        if (updatedOrder.coupon) {
-            totalAmount += updatedOrder.coupon.couponValue;
+        let totalAmount = order.orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
+        if (order.coupon) {
+            totalAmount += order.coupon.couponValue;
         }
 
         const transactionDetails = {
-            orderId: updatedOrder._id,
+            orderId: order._id,
             amount: totalAmount,
             type: 'credit',
             refunded: true
@@ -211,7 +223,7 @@ const refund = async (req, res) => {
 
         // Update user wallet balance
         const updatedWallet = await Wallet.findOneAndUpdate(
-            { user: updatedOrder.user },
+            { user: order.user },
             {
                 $push: { transactions: transactionDetails },
                 $inc: { balance: totalAmount }

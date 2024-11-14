@@ -377,11 +377,21 @@
                                                     </dl>
 
                                                     <dl class="flex items-center justify-between gap-4 py-3">
+                                                        <dt
+                                                            class="text-base font-normal text-gray-500 dark:text-gray-400">
+                                                            Tax (5%)
+                                                        </dt>
+                                                        <dd class="text-base font-medium text-gray-900 ">
+                                                            <%= tax.toFixed(2)%>
+                                                        </dd>
+                                                    </dl>
+
+                                                    <dl class="flex items-center justify-between gap-4 py-3">
                                                         <dt class="text-base font-bold text-gray-900 ">
                                                             Total
                                                         </dt>
                                                         <dd id="totalPrice" class="text-base font-bold text-gray-900 ">
-                                                            ₹<%=total.toFixed(2)%>
+                                                            ₹<%=(total + tax).toFixed(2)%>
                                                         </dd>
                                                     </dl>
                                         </div>
@@ -399,6 +409,8 @@
                         </div>
                     </section>
                 </main>
+                <%- include('../partials/userFooter')%>
+
             </div>
     </div>
 

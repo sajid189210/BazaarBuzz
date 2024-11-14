@@ -7,21 +7,35 @@ const renderWallet = async (req, res) => {
     try {
 
         if (!req.session.user) return res.redirect('/user/signIn');
-
         const userId = req.session.user.userId;
 
-        const wallet = await Wallet.findOne({ user: userId }).sort({ 'transactions.createdAt': -1 });
+        const limit = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page) || 1;
+
+        let wallet = await Wallet.findOne({ user: userId });
+
         const category = await Category.find();
 
         if (!wallet) {
-            const createWallet = new Wallet({ user: userId, balance: 0 });
-            await createWallet.save();
+            const newWallet = new Wallet({ user: userId, balance: 0 });
+            await newWallet.save();
+            wallet = newWallet;
         }
 
+        // sort transactions and apply pagination.
+        const sortedTransactions = wallet.transactions.sort((a, b) => b.date - a.date);
+        const paginatedTransactions = sortedTransactions.slice((page - 1) * limit, page * limit);
+
+        const totalTransactions = sortedTransactions.length;
+
         res.render('user/userWallet', {
-            user: req.session.user || null,
+            transactions: paginatedTransactions,
+            currentPage: page,
+            totalPages: Math.ceil(totalTransactions / limit),
             category,
-            wallet
+            wallet,
+            limit,
+            user: req.session.user || null,
         });
 
     } catch (err) {
