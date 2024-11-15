@@ -135,7 +135,7 @@ const cancelProduct = async (req, res) => {
         // preparing the update details based on payment method
         const updateDetails = {
             'orderedProducts.$.orderStatus': 'cancelled',
-            'orderedProducts.$.paymentStatus': paymentMethod === 'razorpay' || paymentMethod === 'wallet' ? 'refunded' : 'failed'
+            'orderedProducts.$.paymentStatus': paymentMethod === 'razorpay' || paymentMethod === 'wallet' ? 'refunded' : 'failed',
         };
 
         //* Update the order status for the specific product being cancelled
@@ -147,13 +147,13 @@ const cancelProduct = async (req, res) => {
 
         // Check if all products are cancelled and update overall order status
         if (updatedOrder.orderedProducts.every(product => product.orderStatus === 'cancelled')) {
-            await Order.findByIdAndUpdate(orderId, { $set: { allOrdersStatus: 'cancelled' } });
+            await Order.findByIdAndUpdate(orderId, { $set: { allOrdersStatus: 'cancelled', paymentStatus: paymentMethod === 'cod' ? 'failed' : 'refunded' } });
         }
 
         // increases stock.
         handleStock(order, paymentMethod);
 
-        //* Handle online payment refunds
+        //* Handle online payment refunds and save the wallet history.
         if (paymentMethod === 'razorpay' || paymentMethod === 'wallet') {
             const totalAmount = orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
             if (order.coupon) totalAmount -= order.coupon.couponValue;

@@ -510,8 +510,6 @@
 
         const sizeStockData = JSON.parse(document.getElementById('stock').getAttribute('data-stock'));
 
-        console.log(sizeStockData)
-
         const sizes = sizeStockData.map(entry => entry._id);
         const stockCounts = sizeStockData.map(entry => entry.totalStock);
 

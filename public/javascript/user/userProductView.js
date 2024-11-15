@@ -56,8 +56,20 @@ function sizeSelect() {
         colorInput.value = color;
 
         const colorSpan = document.createElement('span');
-        colorSpan.classList.add('peer-checked:border-transparent', 'h-10', 'w-10', 'ml-3', 'flex', 'items-center', 'justify-center', 'border-2', 'border-gray-300', 'rounded-full', 'transition', 'duration-200', 'ease-in-out');
+        colorSpan.classList.add(
+            'h-10', 'w-10', 'ml-3', 'flex', 'items-center',
+            'justify-center', 'border-2', 'rounded-full',
+            'transition-all', 'duration-300',
+            'peer-checked:border-4',           // Highlight the border when checked
+            'peer-checked:border-red-500',    // Change border color to red
+            'peer-checked:scale-110'          // Slightly enlarge the selected button
+        );
         colorSpan.style.backgroundColor = color;
+
+        // colorInput.addEventListener('change', function (event) {
+        //     colorSpan.className = 'h-10 w-10 ml-3 flex items-center justify-center rounded-full';
+        //     colorSpan.style.border = '4px';
+        // });
 
         colorLabel.appendChild(colorInput);
         colorLabel.appendChild(colorSpan);
@@ -158,6 +170,18 @@ $(document).ready(function () {
 
 
 //*-------------------[Cart]------------------------------------------
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+    }
+});
+
 async function addToCart(productId) {
     try {
         const selectedColor = document.getElementById('selectedColor').value;
@@ -167,23 +191,11 @@ async function addToCart(productId) {
         console.log(selectedColor, selectedSize, selectedStock)
 
         if (selectedStock < 1) {
-            await Swal.fire({
-                title: 'Out Of Stock!',
-                text: 'Sorry, Currently the product is out of the stock.',
-                icon: 'info',
-                confirmButtonText: 'Ok'
-            });
-            return;
+            return Toast.fire({ icon: 'info', title: 'Sorry, Currently the product is out of the stock' });
         }
 
         if (!selectedColor) {
-            await Swal.fire({
-                title: 'Warning',
-                text: 'Please select a color to proceed.',
-                icon: 'warning',
-                confirmButtonText: 'Ok'
-            });
-            return;
+            return Toast.fire({ icon: 'warning', title: 'Please select a color to proceed.' });
         }
 
         const response = await fetch('/user/cart', {
@@ -288,17 +300,6 @@ async function addToWishList(productId) {
             return;
         }
 
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
-            }
-        });
 
         Toast.fire({
             icon: 'success',

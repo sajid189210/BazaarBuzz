@@ -67,7 +67,7 @@ const renderOrderView = async (req, res) => {
 }
 
 const changeStatus = async (req, res) => {
-    const { orderStatus, orderItemId, productId } = req.body;
+    const { orderStatus, orderItemId, productId, paymentStatus } = req.body;
 
     try {
         // Validate input
@@ -82,10 +82,8 @@ const changeStatus = async (req, res) => {
         const updateData = { 'orderedProducts.$.orderStatus': orderStatus };
         if (orderStatus === 'delivered') {
             updateData['orderedProducts.$.paymentStatus'] = 'paid';
-            updateData[paymentStatus] = 'paid';
         } else if (orderStatus === 'cancelled') {
-            updateData['orderedProducts.$.paymentStatus'] = 'failed';
-            updateData[paymentStatus] = 'failed';
+            updateData['orderedProducts.$.paymentStatus'] = 'refunded';
         }
 
         // Find and update the order
@@ -104,14 +102,28 @@ const changeStatus = async (req, res) => {
         }
 
         const allProductsDeliveredAndPaid = order.orderedProducts.every(product => {
-            return (product.orderStatus === 'delivered' && product.paymentStatus === 'paid') || product.orderStatus === 'cancelled';
+            return (product.orderStatus === 'delivered' && product.paymentStatus === 'paid');
         });
+
+        const allProductsCancelledAndReturned = order.orderedProducts.every(product => {
+            return (product.orderStatus === 'cancelled' && product.paymentStatus === 'refunded');
+        });
+
 
         // If all products are delivered, update allOrdersStatus
         if (allProductsDeliveredAndPaid) {
             await Order.findOneAndUpdate(
                 { _id: order._id },
-                { $set: { allOrdersStatus: 'delivered' } },
+                { $set: { allOrdersStatus: 'delivered', paymentStatus: 'paid' } },
+                { new: true }
+            );
+        }
+
+        // If all products are cancelled, update allOrdersStatus
+        if (allProductsCancelledAndReturned) {
+            await Order.findOneAndUpdate(
+                { _id: order._id },
+                { $set: { allOrdersStatus: 'cancelled', paymentStatus: 'refunded' } },
                 { new: true }
             );
         }
@@ -186,7 +198,7 @@ const refund = async (req, res) => {
                 $set: {
                     'orderedProducts.$.returnStatus': 'refunded',
                     'orderedProducts.$.paymentStatus': 'refunded',
-                    'orderedProducts.$.orderStatus': 'returned'
+                    'orderedProducts.$.orderStatus': 'returned',
                 }
             },
             { new: true }
@@ -196,10 +208,16 @@ const refund = async (req, res) => {
         const allReturned = order.orderedProducts.every(item => item.paymentStatus === 'refunded');
 
         // If all items are returned, update the order status
-        if (allReturned && order.allOrdersStatus !== 'returned') {
+        if (allReturned) {
             await Order.findOneAndUpdate(
                 { _id: order._id },
-                { $set: { allOrdersStatus: 'returned' } }
+                {
+                    $set:
+                    {
+                        allOrdersStatus: 'returned',
+                        paymentStatus: 'refunded'
+                    }
+                }
             );
         }
 
@@ -220,7 +238,6 @@ const refund = async (req, res) => {
             refunded: true
         }
 
-
         // Update user wallet balance
         const updatedWallet = await Wallet.findOneAndUpdate(
             { user: order.user },
@@ -234,7 +251,6 @@ const refund = async (req, res) => {
         if (!updatedWallet) {
             return res.status(404).json({ success: false, message: 'User wallet not found' });
         }
-        console.log(updatedWallet)
 
         res.json({ success: true, message: 'Refund processed successfully' });
 

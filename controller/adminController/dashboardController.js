@@ -342,8 +342,16 @@ const fetchOrders = async (limit, page) => {
 
     const filter = {
         $or: [
-            { allOrdersStatus: { $ne: 'delivered' } },
-            { paymentStatus: { $ne: 'paid' } },
+            {
+                $nor: [
+                    {
+                        $and: [
+                            { allOrdersStatus: 'delivered' },
+                            { paymentStatus: 'paid' }
+                        ]
+                    }
+                ]
+            },
             { 'orderedProducts.returnStatus': 'requested' }
         ]
     };
