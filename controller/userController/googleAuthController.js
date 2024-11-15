@@ -14,7 +14,7 @@ const callback = async (req, res, next) => {
     console.log('Handling Google callback...');
 
     passport.authenticate('google', {
-        successRedirect: '/user/homepage',
+        successRedirect: '/',
         failureRedirect: '/user/signIn'
 
     }, async (authError, authResult) => {
@@ -31,7 +31,7 @@ const callback = async (req, res, next) => {
                 userName: authResult.username,
                 userEmail: authResult.email
             }
-            res.redirect(authResult.successRedirect || '/user/homepage');
+            res.redirect(authResult.successRedirect || '/');
 
         } else {
             res.redirect(authResult.failureRedirect || '/user/signIn');

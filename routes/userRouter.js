@@ -10,6 +10,7 @@ const userController = require('../controller/userController/userController');
 const otpController = require('../controller/userController/otpVerification');
 const router = require('express').Router();
 
+
 //*--------------[User Sign Up]-----------------
 router.get("/signUp", userController.userSignUp);
 router.post("/signUp", userController.userSignUpValidation);

@@ -86,10 +86,10 @@
                                             id="district" type="text" placeholder="" />
                                     </div>
                                     <div class="mb-6 w-full px-3">
+                                        <span id="stateError" class=" text-xs text-red-500"></span>
                                         <label
                                             class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
                                             for="state">State</label>
-                                        <span id="stateError" class=" text-xs text-red-500"></span>
                                         <select
                                             class="border-e-60 border-natural-950 mb-3 block w-full appearance-none rounded-full bg-[#F5EDED] px-4 py-3 leading-tight text-gray-700 focus:outline"
                                             name="state" id="state">
@@ -367,7 +367,6 @@
             event.preventDefault();
 
             try {
-                console.log(addressId)
 
                 clearErrors();
                 const formInputs = assignFormData();
@@ -392,7 +391,7 @@
                     });
                     return;
                 }
-                
+
                 await Swal.fire({
                     title: 'Success',
                     text: data.message,

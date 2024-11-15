@@ -62,7 +62,7 @@ const userSignUpValidation = async (req, res, next) => {
 const userSignUp = (req, res) => {
 
     try {
-        if (req.session.user) return res.redirect('/user/homepage');
+        if (req.session.user) return res.redirect('/');
         const authErrors = req.session.userAuthErrorMessages || '';
 
         req.session.userAuthErrorMessages = '';
@@ -105,7 +105,7 @@ const userSignInValidation = async (req, res) => {
             userName: user.username
         };
 
-        return res.redirect('/user/homepage');
+        return res.redirect('/');
 
     } catch (err) {
         console.error(`Error caught userSignInValidation in the userController. ${err.message}`);
@@ -154,7 +154,7 @@ const updatePassword = async (req, res) => {
 const userSignIn = (req, res) => {
     try {
 
-        if (req.session.user) return res.redirect('/user/homepage');
+        if (req.session.user) return res.redirect('/');
 
         const authErrors = req.session.signInAuthErrorMessages || '';
 
