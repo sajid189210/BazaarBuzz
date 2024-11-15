@@ -55,7 +55,7 @@ const authRouter = require('./routes/authRouter');
 app.use('/admin', adminRouter);
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
-app.use('/', userRouter)
+app.use('/', userRouter);
 
 
 //* Error handling middleware.

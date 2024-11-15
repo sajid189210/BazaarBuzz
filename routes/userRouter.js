@@ -26,7 +26,7 @@ router.post('/otpVerify', otpController.verifyOTP);
 router.delete('/otpExpiry', otpController.handleOtpExpiry);
 
 //*-------------------[User Home Page-]---------------
-router.get('/homepage', userController.userHomepage);
+router.get('/', userController.userHomepage);
 router.get('/address', userController.getAddress);
 router.post('/address', userController.saveAddress);
 router.put('/address', userController.editAddress);

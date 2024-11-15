@@ -195,6 +195,7 @@ const getProduct = async () => {
 //*-------------[Rendering User Homepage]--------------------------
 const userHomepage = async (req, res) => {
     try {
+        console.log('hi')
 
         const categories = await getCategory();
 
