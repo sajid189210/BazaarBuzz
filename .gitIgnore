@@ -4,4 +4,4 @@ node_modules
 Extras
 .vscode
 .env
-.test
+eslint-config.mjs

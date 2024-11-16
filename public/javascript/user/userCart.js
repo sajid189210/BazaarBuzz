@@ -46,14 +46,40 @@ async function removeItem(itemId) {
     }
 }
 
+
+// For rate limiting.
+let lastClickTimeForDecreaseQuantity = 0;
+let lastClickTimeForIncreaseQuantity = 0;
+const RATE_LIMIT = 1000; //? One second.
+
 //* Function to decrease quantity.
 async function decreaseQuantity(itemId, element) {
+    //get current time.
+    const currentTime = new Date().getTime();
+
+    //prevents continuos clicks.
+    if (currentTime - lastClickTimeForDecreaseQuantity < RATE_LIMIT) {
+        return;
+    }
+
+    lastClickTimeForDecreaseQuantity = currentTime;
+
+    // Disable the button to prevent multiple clicks while the request is in progress.
+    element.disabled = true;
+
     try {
-        const discountPriceElement = document.querySelector(`#discountPrice_${itemId}`);
+        // const discountPriceElement = document.querySelector(`#discountPrice_${itemId}`);
 
-        let quantity = parseInt(document.getElementById(`quantity_${itemId}`).textContent);
+        let quantityElement = document.getElementById(`quantity_${itemId}`);
 
-        if (quantity <= 1) {
+        if (!quantityElement) {
+            console.error(`Quantity element for item ${itemId} not found.`);
+            return;
+        }
+
+        let quantity = parseInt(quantityElement.textContent);
+
+        if (quantityElement <= 1) {
             element.classList.add('hidden');
             return;
         }
@@ -77,9 +103,9 @@ async function decreaseQuantity(itemId, element) {
         }
         window.location.reload();
 
-        document.getElementById(`originalPrice_${itemId}`).textContent = `₹ ${data.totalOriginalPrice.toFixed(2)}`;
-        document.getElementById(`discountPrice_${itemId}`).textContent = `₹ ${data.totalDiscountedPrice.toFixed(2)}`;
-        document.getElementById(`quantity_${itemId}`).textContent = data.quantity;
+        // document.getElementById(`originalPrice_${itemId}`).textContent = `₹ ${data.totalOriginalPrice.toFixed(2)}`;
+        // document.getElementById(`discountPrice_${itemId}`).textContent = `₹ ${data.totalDiscountedPrice.toFixed(2)}`;
+        // document.getElementById(`quantity_${itemId}`).textContent = data.quantity;
 
         // hides if the quantity is 5.
         if (quantity - 1 === 1) {
@@ -90,11 +116,26 @@ async function decreaseQuantity(itemId, element) {
     } catch (err) {
         console.log(`Error caught while decreasing quantity from the cart. ${err}`);
         alert('Error: ', err);
+    } finally {
+        element.disabled = false;
     }
 }
 
 //* Function to increase quantity.
 async function increaseQuantity(itemId, element) {
+    //get current time.
+    const currentTime = new Date().getTime();
+
+    //prevents continuos clicks.
+    if (currentTime - lastClickTimeForIncreaseQuantity < RATE_LIMIT) {
+        return;
+    }
+
+    lastClickTimeForIncreaseQuantity = currentTime;
+
+    // Disable the button to prevent multiple clicks while the request is in progress.
+    element.disabled = true;
+
     try {
         const discountPriceElement = document.querySelector(`#discountPrice_${itemId}`);
 
@@ -125,9 +166,9 @@ async function increaseQuantity(itemId, element) {
 
         window.location.reload();
 
-        document.getElementById(`originalPrice_${itemId}`).textContent = `₹ ${data.totalOriginalPrice.toFixed(2)}`;
-        document.getElementById(`discountPrice_${itemId}`).textContent = `₹ ${data.totalDiscountedPrice.toFixed(2)}`;
-        document.getElementById(`quantity_${itemId}`).textContent = data.quantity;
+        // document.getElementById(`originalPrice_${itemId}`).textContent = `₹ ${data.totalOriginalPrice.toFixed(2)}`;
+        // document.getElementById(`discountPrice_${itemId}`).textContent = `₹ ${data.totalDiscountedPrice.toFixed(2)}`;
+        // document.getElementById(`quantity_${itemId}`).textContent = data.quantity;
 
         // hides if the quantity is 5.
         if (data.quantity === 5) {
