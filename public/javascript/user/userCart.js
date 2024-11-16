@@ -180,5 +180,7 @@ async function increaseQuantity(itemId, element) {
     } catch (err) {
         console.log(`Error caught while increasing quantity from the cart. ${err}`);
         alert('Error: ', err);
+    } finally {
+        element.disabled = false;
     }
 }
