@@ -2,9 +2,10 @@ const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
 const bcrypt = require('bcrypt');
+const Wallet = require('../../model/walletModel');
+const Cart = require('../../model/userCartModel');
 const User = require('../../model/userModel');
 const OTP = require('../../model/otpModel');
-const Wallet = require('../../model/walletModel');
 
 //-------------------------------------------------Sign Up Page----------------------------------------------------------------------
 
@@ -44,7 +45,7 @@ const userSignUpValidation = async (req, res, next) => {
 
         res.status(201).json({
             success: true,
-            redirectUrl: '/user/homepage'
+            redirectUrl: '/'
         });
 
     } catch (err) {
@@ -195,7 +196,6 @@ const getProduct = async () => {
 //*-------------[Rendering User Homepage]--------------------------
 const userHomepage = async (req, res) => {
     try {
-        console.log('hi')
 
         const categories = await getCategory();
 
@@ -204,6 +204,24 @@ const userHomepage = async (req, res) => {
         const filteredProducts = products.filter(product => {
             return product.categoryId !== null;
         });
+
+        if (req.session.user) {
+            const userId = req.session.user.userId;
+            const [cart, wallet] = await Promise([
+                Cart.findOne({ user: userId }),
+                Wallet.findOne({ user: userId })
+            ]);
+
+            if (!cart) {
+                const newCart = new Cart({ user: userId });
+                await newCart.save();
+            }
+
+            if (!wallet) {
+                const newWallet = new Wallet({ user: userId });
+                await newWallet.save();
+            }
+        }
 
         return res.render('user/userHomepage', {
             user: req.session.user || null,

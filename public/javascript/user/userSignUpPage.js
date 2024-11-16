@@ -319,7 +319,7 @@ document.getElementById('OTPForm').addEventListener('submit', async function (ev
         }
 
         sendUserDataToServer()
-        // window.location.href = '/user/homepage';
+        // window.location.href = '/';
 
     } catch (err) {
         console.error('Error caught while verifying OTP.', err);
