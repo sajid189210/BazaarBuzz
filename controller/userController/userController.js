@@ -312,6 +312,7 @@ const getAddress = async (req, res) => {
             user: req.session.user || null,
             categories,
             userDetails,
+            searchBox: false
         });
 
     } catch (err) {
