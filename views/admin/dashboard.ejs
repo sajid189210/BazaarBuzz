@@ -249,7 +249,7 @@
                     colors: ['#fff']  // White color for data labels
                 },
                 formatter: function (val, opt) {
-                    return opt.w.globals.labels[opt.dataPointIndex] + ": $" + val.toLocaleString();  // Show brand name and formatted sales value
+                    return opt.w.globals.labels[opt.dataPointIndex] + ":  ₹" + val.toLocaleString();  // Show brand name and formatted sales value
                 },
                 offsetX: 0,
                 dropShadow: {
@@ -381,6 +381,13 @@
         const repeatRateData = repeatCustomerRate.map(entry => entry.repeatRate);
         const clvData = clv.map(entry => entry.clv);
 
+        // Generate dynamic months
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const dynamicMonths = newCustomer.map(entry => {
+            const monthIndex = entry._id.month - 1; // Subtract 1 because your `month` field starts from 1 (January)
+            return monthNames[monthIndex];
+        });
+
         const customerOption = {
             series: [
                 {
@@ -409,7 +416,7 @@
                 align: 'left'
             },
             xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],  // Months of the year
+                categories: dynamicMonths,
                 title: {
                     text: 'Months',
                     style: {
@@ -453,7 +460,7 @@
                         } else if (seriesIndex === 1) {
                             return val + '% repeat rate';
                         } else {
-                            return '$' + val.toFixed(2);
+                            return '₹' + val.toFixed(2);
                         }
                     }
                 }
