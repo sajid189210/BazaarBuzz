@@ -83,10 +83,11 @@ const renderProductList = async (req, res) => {
 
         // Render the page with all products
         return res.render('user/userProductList', {
-            user: req.session.user || null,
-            categories,
-            products,
             collectionId,
+            categories,
+            searchBox: false,
+            products,
+            user: req.session.user || null,
         });
 
     } catch (err) {

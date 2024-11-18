@@ -7,27 +7,126 @@
     }
 </style> -->
 
-<header class="fixed bg-white w-full z-50 font-[poppins]">
-    <section class="flex md:min-h-[75px] gap-4 flex-wrap items-center px-4 pt-3">
+<header class="fixed bg-white w-full z-50 font-[poppins] flex flex-col gap-3 px-2">
+    <section class="flex md:min-h-[75px] flex-wrap items-center px-4 pt-3 500">
 
-        <div class="flex justify-between gap-2">
-            <button id="toggleOpen" class="lg:hidden">
-                <svg class="h-7 w-7" fill="#000" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                        clip-rule="evenodd"></path>
-                </svg>
-            </button>
-            <a href="/" class="text-2xl md:w-[150px] lg:text-3xl block">
-                <strong>BuzaarBuzz</strong></a>
+        <div class="w-full flex justify-between">
+            <div class="flex justify-between gap-2">
+                <a href="/" class="text-2xl lg:text-3xl block">
+                    <strong>BuzaarBuzz</strong></a>
+            </div>
+
+            <!-- Side Menu -->
+
+            <div class="lg:ml-auto flex items-center space-x-8">
+                <ul class="space-x-2 lg:space-x-4 flex">
+                    <li
+                        class="group relative px-1 lg:after:absolute lg:after:-bottom-2 lg:after:left-0 lg:after:block lg:after:w-0 lg:after:bg-pink-500 lg:after:transition-all after:duration-300 lg:hover:after:h-[3px] lg:hover:after:w-full">
+                        <%if(user){%>
+                            <div id="profile" class="flex cursor-pointer flex-col items-center justify-center ">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                    viewBox="0 0 512 512">
+                                    <path
+                                        d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z" />
+                                </svg>
+                                <span class="hidden lg:block mt-1 text-xs font-semibold">Profile</span>
+                            </div>
+                            <%} else {%>
+                                <div id="profile" class="flex cursor-pointer flex-col items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                        viewBox="0 0 512 512">
+                                        <path
+                                            d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z" />
+                                    </svg>
+                                    <span class="hidden lg:block mt-1 text-xs font-semibold">Sign In</span>
+                                </div>
+                                <%}%>
+                                    <!-- Profile Hover Section -->
+                                    <ul
+                                        class="absolute left-[-132px] top-9 md:right-0 md:top-14z-20 invisible group-hover:visible transition-all ease-in-out bg-white px-6 py-6 shadow-lg max-sm:min-w-[250px] sm:min-w-[320px]">
+                                        <%if(user) {%>
+                                            <h1 class="font-semibold text-2xl">Welcome! <br> <span>
+                                                    <%= user.userName%>
+                                                </span>
+                                            </h1>
+                                            <a href="/user/signOut"
+                                                class="mt-4 border block text-center border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">SIGN
+                                                OUT</a>
+                                            <hr class="my-4 border-b-0" />
+                                            <ul class="space-y-1.5">
+                                                <li><a href="/user/orders"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">Orders</a>
+                                                </li>
+                                                <li><a href="/user/profile"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">My
+                                                        Profile</a>
+                                                </li>
+                                                <li><a href="javascript:void(0)"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">Contact
+                                                        Us</a>
+                                                </li>
+                                            </ul>
+                                            <hr class="my-4 border-b-0" />
+                                            <ul class="space-y-1.5">
+                                                <li><a href="/user/coupons"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">Coupons</a>
+                                                </li>
+                                                <li><a href="/user/wallet"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">Wallet</a>
+                                                </li>
+                                                <li><a href="javascript:void(0)"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">About
+                                                        Us</a>
+                                                </li>
+                                                <li><a href="/user/address"
+                                                        class="text-sm text-gray-500 hover:text-pink-500">Saved
+                                                        Addresses</a></li>
+                                            </ul>
+                                            <%} else {%>
+                                                <p class="text-sm font-semibold">To access account and manage orders
+                                                </p>
+                                                <a href="/user/signIn"
+                                                    class="mt-4 block text-center border border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">SIGN
+                                                    IN</a>
+                                                <%}%>
+
+                                    </ul>
+                    </li>
+                    <li
+                        class="relative px-1 lg:after:absolute lg:after:-bottom-2 lg:after:left-0 lg:after:block lg:after:w-0 lg:after:bg-pink-500 lg:after:transition-all lg:after:duration-300 lg:hover:after:h-[3px] lg:hover:after:w-full">
+                        <a href="/user/wishlist">
+                            <div class="flex cursor-pointer flex-col items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 64 64">
+                                    <path
+                                        d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z" />
+                                </svg>
+                                <span class="hidden lg:block mt-1 text-xs font-semibold">My Wishlist</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li
+                        class="relative px-1 lg:after:absolute lg:after:-bottom-2 lg:after:left-0 lg:after:block lg:after:w-0 lg:after:bg-pink-500 lg:after:transition-all lg:after:duration-300 lg:hover:after:h-[3px] lg:hover:after:w-full">
+                        <a href="/user/cart">
+                            <div class="flex cursor-pointer flex-col items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                    viewBox="0 0 489 489">
+                                    <path
+                                        d="m440.1 422.7-28-315.3c-.6-7-6.5-12.3-13.4-12.3h-57.6C340.3 42.5 297.3 0 244.5 0s-95.8 42.5-96.6 95.1H90.3c-7 0-12.8 5.3-13.4 12.3l-28 315.3c0 .4-.1.8-.1 1.2 0 35.9 32.9 65.1 73.4 65.1h244.6c40.5 0 73.4-29.2 73.4-65.1 0-.4 0-.8-.1-1.2zM244.5 27c37.9 0 68.8 30.4 69.6 68.1H174.9c.8-37.7 31.7-68.1 69.6-68.1zm122.3 435H122.2c-25.4 0-46-16.8-46.4-37.5l26.8-302.3h45.2v41c0 7.5 6 13.5 13.5 13.5s13.5-6 13.5-13.5v-41h139.3v41c0 7.5 6 13.5 13.5 13.5s13.5-6 13.5-13.5v-41h45.2l26.9 302.3c-.4 20.7-21.1 37.5-46.4 37.5z" />
+                                </svg>
+                                <span class="hidden lg:block mt-1 text-xs font-semibold">My Cart</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
         </div>
 
-        <!-- Side Menu -->
-
-
-        <!-- Search Component -->
+    </section>
+    <!-- Search Component -->
+    <%if(searchBox){%>
         <div
-            class="flex justify-start h-10 w-full md:w-1/2 lg:w-2/4 rounded-full border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent">
+            class="md:absolute md:top-[35%] lg:top[28%] md:left-[25%] flex justify-start h-8 lg:h-10 w-full md:w-1/2 lg:w-2/4 rounded-full border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent">
 
             <div class="relative flex w-full">
                 <div class="flex w-full">
@@ -48,136 +147,5 @@
                 </svg>
             </button>
         </div>
-
-        <div class="lg:ml-auto flex items-center space-x-8">
-            <ul class="hidden lg:space-x-4 lg:flex">
-                <li
-                    class="group relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:w-0 after:bg-pink-500 after:transition-all after:duration-300 hover:after:h-[3px] hover:after:w-full">
-                    <%if(user){%>
-                        <div id="profile" class="flex cursor-pointer flex-col items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 512 512">
-                                <path
-                                    d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z" />
-                            </svg>
-                            <span class="mt-1 text-xs font-semibold">Profile</span>
-                        </div>
-                        <%} else {%>
-                            <div id="profile" class="flex cursor-pointer flex-col items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
-                                    viewBox="0 0 512 512">
-                                    <path
-                                        d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z" />
-                                </svg>
-                                <span class="mt-1 text-xs font-semibold">Sign In</span>
-                            </div>
-                            <%}%>
-                                <!-- Profile Hover Section -->
-                                <ul
-                                    class="absolute right-0 top-14 z-20 invisible group-hover:visible transition-all ease-in-out bg-white px-6 py-6 shadow-lg max-sm:-right-32 max-sm:min-w-[250px] sm:min-w-[320px]">
-                                    <%if(user) {%>
-                                        <h1 class="font-semibold text-2xl">Welcome! <br> <span>
-                                                <%= user.userName%>
-                                            </span>
-                                        </h1>
-                                        <a href="/user/signOut"
-                                            class="mt-4 border block text-center border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">SIGN
-                                            OUT</a>
-                                        <hr class="my-4 border-b-0" />
-                                        <ul class="space-y-1.5">
-                                            <li><a href="/user/orders"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Orders</a>
-                                            </li>
-                                            <li><a href="/user/profile"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">My Profile</a>
-                                            </li>
-                                            <li><a href="javascript:void(0)"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Contact
-                                                    Us</a>
-                                            </li>
-                                        </ul>
-                                        <hr class="my-4 border-b-0" />
-                                        <ul class="space-y-1.5">
-                                            <li><a href="/user/coupons"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Coupons</a>
-                                            </li>
-                                            <li><a href="/user/wallet"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Wallet</a></li>
-                                            <li><a href="javascript:void(0)"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">About
-                                                    Us</a>
-                                            </li>
-                                            <li><a href="/user/address"
-                                                    class="text-sm text-gray-500 hover:text-pink-500">Saved
-                                                    Addresses</a></li>
-                                        </ul>
-                                        <%} else {%>
-                                            <p class="text-sm font-semibold">To access account and manage orders</p>
-                                            <a href="/user/signIn"
-                                                class="mt-4 block text-center border border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">SIGN
-                                                IN</a>
-                                            <%}%>
-
-                                </ul>
-                </li>
-                <li
-                    class="relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:w-0 after:bg-pink-500 after:transition-all after:duration-300 hover:after:h-[3px] hover:after:w-full">
-                    <a href="/user/wishlist">
-                        <div class="flex cursor-pointer flex-col items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 64 64">
-                                <path
-                                    d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z" />
-                            </svg>
-                            <span class="mt-1 text-xs font-semibold">My Wishlist</span>
-                        </div>
-                    </a>
-                </li>
-                <li
-                    class="relative px-1 after:absolute after:-bottom-2 after:left-0 after:block after:w-0 after:bg-pink-500 after:transition-all after:duration-300 hover:after:h-[3px] hover:after:w-full">
-                    <a href="/user/cart">
-                        <div class="flex cursor-pointer flex-col items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 489 489">
-                                <path
-                                    d="m440.1 422.7-28-315.3c-.6-7-6.5-12.3-13.4-12.3h-57.6C340.3 42.5 297.3 0 244.5 0s-95.8 42.5-96.6 95.1H90.3c-7 0-12.8 5.3-13.4 12.3l-28 315.3c0 .4-.1.8-.1 1.2 0 35.9 32.9 65.1 73.4 65.1h244.6c40.5 0 73.4-29.2 73.4-65.1 0-.4 0-.8-.1-1.2zM244.5 27c37.9 0 68.8 30.4 69.6 68.1H174.9c.8-37.7 31.7-68.1 69.6-68.1zm122.3 435H122.2c-25.4 0-46-16.8-46.4-37.5l26.8-302.3h45.2v41c0 7.5 6 13.5 13.5 13.5s13.5-6 13.5-13.5v-41h139.3v41c0 7.5 6 13.5 13.5 13.5s13.5-6 13.5-13.5v-41h45.2l26.9 302.3c-.4 20.7-21.1 37.5-46.4 37.5z" />
-                            </svg>
-                            <span class="mt-1 text-xs font-semibold">My Cart</span>
-                        </div>
-                    </a>
-                </li>
-            </ul>
-
-        </div>
-
-    </section>
-
-    <!-- <div class="hidden relative lg:flex flex-wrap justify-start px-10 py-3">
-        <div id="collapseMenu" class="">
-            <ul class=''>
-                <li class='group relative'>
-                    <span href='javascript:void(0)'
-                        class='hover:text-[#00b070] hover:fill-[#00b070] text-gray-600 font-semibold text-[15px] block cursor-pointer'>categories<svg
-                            xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" class="ml-1 inline-block"
-                            viewBox="0 0 24 24">
-                            <path
-                                d="M12 16a1 1 0 0 1-.71-.29l-6-6a1 1 0 0 1 1.42-1.42l5.29 5.3 5.29-5.29a1 1 0 0 1 1.41 1.41l-6 6a1 1 0 0 1-.7.29z"
-                                data-name="16" data-original="#000000" />
-                        </svg>
-                        </a>
-                        <ul
-                            class='absolute top-5 max-lg:top-8 left-0 z-50 block space-y-2 shadow-lg bg-white max-h-0 overflow-hidden min-w-[250px] group-hover:opacity-100 group-hover:max-h-[700px] px-6 group-hover:pb-4 group-hover:pt-6 transition-all duration-500'>
-                            <%#if(categories &&categories.length>0){%>
-                                <%#categories.forEach(category=> {%>
-                                    <li class='py-3'>
-                                        <a href='javascript:void(0)'
-                                            class='hover:text-[#00b070] hover:fill-[#00b070] text-gray-600 font-semibold text-[15px] block text-center'>
-                                            <%#=category.title%>
-                                        </a>
-                                    </li>
-                                    <%#})%>
-                                        <%#}%>
-                        </ul>
-                    </span>
-                </li>
-            </ul>
-        </div>
-    </div> -->
+        <%}%>
 </header>

@@ -22,8 +22,9 @@ const renderWishlist = async (req, res) => {
         }
 
         res.render('user/userWishlist', {
+            searchBox: false,
+            wishlist,
             user: req.session.user || null,
-            wishlist
         });
 
     } catch (err) {

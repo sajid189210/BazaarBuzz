@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Admin - Order View</title>
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/style.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -132,8 +133,9 @@
                                                                 data-payment-status="<%= item.paymentStatus%>"
                                                                 class="border-2 p-1.5 cursor-pointer uppercase ">
                                                                 <option value="">Status</option>
-                                                                <option value=" shipped" <%=item.orderStatus==='shipped'
-                                                                    ? 'disabled' : '' %>>Shipped
+                                                                <option value="shipped" <%=item.orderStatus==='shipped'
+                                                                    ? 'disabled' : '' %>
+                                                                    >Shipped
                                                                 </option>
                                                                 <option value="cancelled"
                                                                     <%=item.orderStatus==='cancelled' ? 'disabled' : ''

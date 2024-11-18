@@ -4,14 +4,12 @@ const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const User = require('../../model/userModel');
 
-const crypto = require('crypto');
-const PDF = require('pdfkit');
-const fs = require('fs');
+const PDFDocument = require('pdfkit');
 require('dotenv').config();
 
 //* Razorpay configuration.
 const razorPayInstance = require('../../Services/razorPay');
-const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
+const { RAZORPAY_KEY_ID } = process.env;
 
 
 
@@ -21,8 +19,6 @@ const handleStock = async (order, paymentMethod) => {
     const orderedProductDetails = order.orderedProducts.filter(item => item.product);
 
     orderedProductDetails.forEach(async (orderedProduct) => {
-        const product = await Product.findById(orderedProduct.product);
-
         const updatedProduct = await Product.updateOne(
             { _id: orderedProduct.product.toString(), 'variants.size': orderedProduct.selectedSize },
             { $inc: { 'variants.$.stock': (1 * orderedProduct.quantity) } },
@@ -56,6 +52,7 @@ const getOrders = async (req, res) => {
         res.render('user/userOrders', {
             totalPages: Math.ceil(totalOrders / limit),
             currentPage: page,
+            searchBox: false,
             category,
             orders,
             limit,
@@ -155,7 +152,7 @@ const cancelProduct = async (req, res) => {
 
         //* Handle online payment refunds and save the wallet history.
         if (paymentMethod === 'razorpay' || paymentMethod === 'wallet') {
-            const totalAmount = orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
+            let totalAmount = orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
             if (order.coupon) totalAmount -= order.coupon.couponValue;
 
             // fetching the cancelled product.
@@ -258,69 +255,118 @@ const retryPayment = async (req, res) => {
     }
 };
 
+
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.query;
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(orderId).populate('orderedProducts.product');
 
-        // creates a new PDF document.
-        const doc = new PDF({ size: 'A4', margin: 50 });
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
-        // Setting the appropriate header for downloading PDF.
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
 
-        // Pipe the PDF to the response, this will send it directly to the browser.
         doc.pipe(res);
 
-        // Title.
-        doc.fontSize(20).text('Invoice', { align: 'center' });
-        doc.moveDown();
+        // Header Section
+        doc
+            .fontSize(20)
+            .text('INVOICE', { align: 'center' })
+            .moveDown(1.5);
 
-        // Order Details.
-        doc.font('Helvetica-Bold').fontSize(14).text('Order Details', { align: 'left', underline: true });
-        doc.font('Helvetica').text(`OrderID: ${order._id}`, { align: 'left' });
-        doc.text(`Order Status: ${order.allOrdersStatus}`, { align: 'left' });
-        doc.text(`Payment Method: ${order.paymentMethod}`, { align: 'left' });
-        doc.text(`Payment Status: ${order.paymentStatus}`, { align: 'left' });
-        doc.text(`Date: ${order.createdAt.toLocaleString()}`, { align: 'left' });
-        doc.moveDown();
+        // Invoice and Customer Details
+        doc
+            .fontSize(12)
+            .text(`Name: ${order.shippingAddress.contactName}`, { align: 'left' })
+            .text(`Phone Number: ${order.shippingAddress.contactNumber}`)
+            .text(`Email: ${order.shippingAddress.email || 'N/A'}`)
+            .text(
+                `Address: ${order.shippingAddress.building}, ${order.shippingAddress.street}, ${order.shippingAddress.district}, ${order.shippingAddress.state}, ${order.shippingAddress.pincode}`
+            )
+            .moveDown();
 
-        // Shipping Address.
-        doc.font('Helvetica-Bold').fontSize(14).text('Shipping Address', { align: 'left', underline: true });
-        doc.font('Helvetica').text(`Contact Name: ${order.shippingAddress.contactName}`, { align: 'left' });
-        doc.text(`Contact Number: ${order.shippingAddress.contactNumber}`, { align: 'left' });
-        doc.text(`Building: ${order.shippingAddress.building}`, { align: 'left' });
-        doc.text(`Pincode: ${order.shippingAddress.pincode}`, { align: 'left' });
-        doc.text(`Street: ${order.shippingAddress.street}`, { align: 'left' });
-        doc.text(`District: ${order.shippingAddress.district}`, { align: 'left' });
-        doc.text(`State: ${order.shippingAddress.state}`, { align: 'left' });
-        doc.moveDown();
+        doc
+            .text(`Invoice No.: ${order._id}`, { align: 'left' })
+            .text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`)
+            .moveDown(2);
 
-        // Ordered Products Details.
-        doc.font('Helvetica-Bold').fontSize(14).text('Ordered Products', { align: 'left', underline: true });
-        order.orderedProducts.forEach(item => {
-            doc.font('Helvetica').text(`Product ID: ${item.product}`)
-            doc.text(`Quantity: ${item.quantity}`);
-            doc.text(`Size: ${item.selectedSize}`);
-            doc.text(`Color: ${item.selectedColor}`);
-            doc.text(`Price Per Unit (after discount): ${item.discountedPrice.toFixed(2)}`);
-            doc.text(`Total: ${item.totalPay.toFixed(2)}`);
-            doc.moveDown();
+        // Table Header
+        doc
+            .fontSize(14)
+            .font('Helvetica-Bold')
+            .text('Products', { underline: true, align: 'left' })
+            .moveDown();
+
+        // Table Columns
+        const tableTop = doc.y;
+        const columnSpacing = 100;
+        const startX = doc.x;
+
+        doc
+            .fontSize(10)
+            .text('SLNo.', startX, tableTop)
+            .text('Name', startX + columnSpacing, tableTop)
+            .text('Quantity', startX + columnSpacing * 2, tableTop)
+            .text('Price', startX + columnSpacing * 3, tableTop)
+            .text('Tax', startX + columnSpacing * 4, tableTop) // Corrected column position for Tax
+            .text('Amount', startX + columnSpacing * 5, tableTop)
+            .moveDown(3);
+
+        let subTotal = 0; // Initialize subtotal
+        let totalTax = 0; // Initialize total tax
+
+        // Ordered Products
+        order.orderedProducts.forEach((item, index) => {
+            const y = doc.y;
+            const tax = Math.round(item.totalPay * 0.05);
+            subTotal += item.discountedPrice;
+            totalTax += tax;
+
+            doc
+                .font('Helvetica')
+                .fontSize(10)
+                .text(index + 1, startX, y)
+                .text(item.product.productName, startX + columnSpacing, y, { width: columnSpacing - 10, align: 'left' })
+                .text(item.quantity, startX + columnSpacing * 2, y)
+                .text(`${item.discountedPrice.toFixed(2)}`, startX + columnSpacing * 3, y)
+                .text(`${tax.toFixed(2)}`, startX + columnSpacing * 4, y)
+                .text(`${item.totalPay.toFixed(2)}`, startX + columnSpacing * 5, y);
+
+            doc.moveDown(8);
         });
 
-        // Total
-        const totalAmount = order.orderedProducts.reduce((acc, item) => acc + item.totalPay, 0);
-        doc.font('Helvetica-Bold').fontSize(14).text(`Total amount: ${totalAmount.toFixed(2)}`, { align: 'left' })
 
-        // finalize the PDF.
-        doc.end()
+        // Total Amount Section
+        const totalAmount = order.orderedProducts.reduce((acc, item) => acc + item.totalPay, 0);
+
+        const totalSectionTop = doc.y;
+
+        doc
+            .font('Helvetica')
+            .fontSize(12)
+            .text(`Sub Total: ${subTotal.toFixed(2)}`, startX, doc.y, { align: 'right' })
+            .moveDown();
+
+        doc
+            .font('Helvetica')
+            .fontSize(12)
+            .text(`Total Tax (5%): ${totalTax.toFixed(2)}`, startX + columnSpacing, totalSectionTop + 15, { align: 'right' })
+            .moveDown(3);
+
+
+        doc
+            .font('Helvetica-Bold')
+            .fontSize(12)
+            .text(`Total Amount: ${(totalAmount).toFixed(2)}`, startX + columnSpacing * 2, totalSectionTop + 30, { align: 'right' })
+            .moveDown();
+
+        doc.end();
 
     } catch (err) {
-        console.error(`Error caught downloadInvoice in the orderController${err}`);
+        console.error(`Error in downloadInvoice: ${err}`);
         return res.status(500).json({
             message: err.message,
-            stack: err.stack
+            stack: err.stack,
         });
     }
 };

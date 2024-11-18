@@ -52,6 +52,7 @@ const getCart = async (req, res) => {
             totalDiscount,
             totalPrice,
             categories,
+            searchBox: false,
             offers,
             total,
             cart,

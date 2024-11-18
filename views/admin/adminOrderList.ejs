@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin: Order List</title>
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/style.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -90,7 +91,9 @@
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
                                                         <% let returnedProducts=order.orderedProducts.find(item=>
                                                             item.returnStatus)%>
-                                                            <%= returnedProducts? returnedProducts.returnStatus : '' %>
+                                                            <%= returnedProducts? `${returnedProducts.returnStatus
+                                                                }(${order.orderedProducts.filter(item=>
+                                                                item.returnStatus).length})`: '' %>
                                                     </td>
 
                                                     <td class="p-4 text-[15px] text-center text-gray-800"><a

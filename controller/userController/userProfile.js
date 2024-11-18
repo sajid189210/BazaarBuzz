@@ -13,8 +13,9 @@ const renderProfile = async () => {
         const category = await Category.find();
 
         res.render('user/userProfile', {
+            searchBox: false,
+            category,
             user,
-            category
         });
 
     } catch (err) {

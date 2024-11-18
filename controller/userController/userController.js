@@ -74,7 +74,11 @@ const userSignUp = (req, res) => {
 
     } catch (err) {
         console.error(`Error caught userSignUp in the userController. ${err}`);
-        res.status(500).json({ Error: "Internal Server Error!" });
+        res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
     }
 }
 
@@ -164,7 +168,11 @@ const userSignIn = (req, res) => {
         res.render('user/userSignInPage', { authErrors });
     } catch (err) {
         console.error(`Error caught userSignIn in the userController. ${err}`);
-        res.status(500).json({ Error: "Internal Server Error!" });
+        res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+            stack: err.stack,
+        });
     }
 };
 
@@ -207,10 +215,13 @@ const userHomepage = async (req, res) => {
 
         if (req.session.user) {
             const userId = req.session.user.userId;
-            const [cart, wallet] = await Promise([
+            const [cart, wallet] = await Promise.all([
                 Cart.findOne({ user: userId }),
                 Wallet.findOne({ user: userId })
             ]);
+
+            console.log(cart)
+            console.log(wallet)
 
             if (!cart) {
                 const newCart = new Cart({ user: userId });
@@ -226,7 +237,8 @@ const userHomepage = async (req, res) => {
         return res.render('user/userHomepage', {
             user: req.session.user || null,
             categories,
-            products: filteredProducts
+            searchBox: true, 
+            products: filteredProducts,
         });
 
     } catch (err) {

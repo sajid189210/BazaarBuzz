@@ -25,9 +25,10 @@
 
             <div class="absolute top-[60px] w-full h-screen">
 
-                <div class="px-8 pt-8 mb-4">
-                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
-                        <li class="text-gray-500 text-base cursor-pointer">
+                <!--- Breadcrumbs --->
+                <div class="hidden lg:flex items-center px-8 mt-4">
+                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4">
+                        <li class="text-gray-500 text-sm cursor-pointer">
                             <a href="/">Home</a>
                         </li>
                         <li>
@@ -38,15 +39,35 @@
                                     clip-rule="evenodd" data-original="#000000"></path>
                             </svg>
                         </li>
-                        <li class="text-black text-xl font-bold cursor-pointer">
-                            <a href="#">Order</a>
+                        <li class="text-gray-500 text-sm cursor-pointer">
+                            <a href="#">Orders</a>
                         </li>
                     </ul>
                 </div>
 
                 <main class="relative">
-                    <div class="mx-auto p-4 w-3/4 ">
-                        <h1 class="text-3xl font-medium">Orders</h1>
+
+                    <div class="md:mx-auto p-4 md:w-3/4">
+                        <!--- Search Component --->
+                        <div
+                            class="flex justify-start h-10 mt-4 w-full md:w-1/2 lg:w-2/4 rounded-md border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent <%= orders.length?'':'hidden'%>">
+                            <div class="relative flex w-full">
+                                <div class="flex w-full">
+                                    <input type="email" placeholder="Enter valid date." id="orderSearch"
+                                        class="w-full bg-transparent text-[15px] font-semibold text-gray-600 outline-none" />
+                                </div>
+                            </div>
+                            <button id="search_btn" type="button"
+                                class="bg-pink-500 hover:bg-pink-600 px-4 flex justify-center items-center rounded-r-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px"
+                                    class="rotate-90 fill-white">
+                                    <path
+                                        d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+
                         <div class="grid gap-4 mt-8 ">
                             <div class="md:col-span-2 space-y-4">
                                 <%if(orders.length>0) {%>
@@ -59,13 +80,13 @@
                                             </button>
                                             <%}%>
                                                 <div>
-                                                    <h1 class="text-xl text-gray-800 font-medium">
-                                                        Order ID: <span class="text-lg text-gray-600">
+                                                    <h1 class="text-lg md:text-xl text-gray-800 font-medium">
+                                                        Order ID: <span class="text-md md:text-lg text-gray-600">
                                                             <%= order._id%>
                                                         </span>
                                                     </h1>
-                                                    <h1 class="text-xl text-gray-800 font-medium">
-                                                        Date: <span class="text-lg text-gray-600">
+                                                    <h1 class="text-lg md:text-xl text-gray-800 font-medium">
+                                                        Date: <span class="text-md md:text-lg text-gray-600">
                                                             <%= order.createdAt.toLocaleString()%>
                                                         </span>
                                                     </h1>
@@ -79,14 +100,15 @@
                                                         <% order.orderedProducts.forEach(item=> {%>
                                                             <div
                                                                 class="px-4 py-6 rounded-md shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)] ">
-                                                                <div class="flex gap-4">
+                                                                <div class="md:flex gap-4">
                                                                     <div
-                                                                        class="w-28 h-28 max-sm:w-24 max-sm:h-24 shrink-0">
+                                                                        class="w-full md:w-28 md:h-28 md:max-sm:w-24 md:max-sm:h-24 shrink-0">
                                                                         <img src='<%= item.product.images[0]%>'
                                                                             class="w-full h-full object-contain" />
                                                                     </div>
 
-                                                                    <div class="flex flex-col gap-4 w-1/2">
+                                                                    <div
+                                                                        class="mt-2 md:mt-0 flex flex-col gap-4 md:w-1/2">
                                                                         <div>
                                                                             <h3
                                                                                 class="text-base font-bold text-gray-800">
@@ -128,10 +150,11 @@
                                                                             </p>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="w-full pr-8 flex justify-end">
-                                                                        <div>
+                                                                    <div
+                                                                        class="md:w-full md:pr-8 md:flex md:justify-end">
+                                                                        <div class="mt-6 md:mt-0">
                                                                             <p
-                                                                                class="text-lg font-medium flex items-center text-gray-900 mb-6">
+                                                                                class="text-md md:text-lg font-medium flex items-center text-gray-900 md:mb-6">
                                                                                 Order Status: <span id="orderStatus"
                                                                                     class="inline-block pl-2 font-normal text-gray-800">
                                                                                     <%= item.orderStatus%>
@@ -193,18 +216,129 @@
 
                                                                         <div class="h-10 w-full"></div>
                                                                         <% })%>
-                                                                            <% }%>
-                                                                                <div class="flex gap-4 justify-end">
-                                                                                    <%if(currentPage> 1){%>
-                                                                                        <a href="/user/orders?page=<%=currentPage-1%>%limit=<%=limit%>"
-                                                                                            class="block px-4 py-2 bg-gray-100 hover:bg-gray-200">Previous</a>
-                                                                                        <%}%>
-                                                                                            <%if(currentPage <
-                                                                                                totalPages){%>
-                                                                                                <a href="/user/orders?page=<%=currentPage+1%>&limit=<%=limit%>"
-                                                                                                    class="block px-4 py-2 bg-gray-100 hover:bg-gray-200">Next</a>
-                                                                                                <%}%>
+                                                                            <% }else{%>
+                                                                                <div
+                                                                                    class="min-h-[400px] w-full col-span-full flex justify-center items-center">
+                                                                                    <div>
+                                                                                        <svg width="245" height="215"
+                                                                                            viewBox="0 0 245 215"
+                                                                                            fill="none"
+                                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                                            <path
+                                                                                                d="M32.9507 157.487C34.0722 157.487 34.9814 156.578 34.9814 155.457C34.9814 154.336 34.0722 153.428 32.9507 153.428C31.8291 153.428 30.9199 154.336 30.9199 155.457C30.9199 156.578 31.8291 157.487 32.9507 157.487Z"
+                                                                                                fill="#CFCFCF" />
+                                                                                            <path
+                                                                                                d="M164.639 72.6684C147.295 72.6684 129.64 71.9643 113.124 67.3672C96.9195 62.8737 82.0411 54.1558 68.779 44.0712C60.0964 37.5069 52.2013 32.2679 40.9285 33.0547C29.9004 33.6511 19.3544 37.7664 10.8401 44.7959C-3.49952 57.3447 -1.34443 80.5994 4.39557 96.8755C13.0159 121.455 39.25 138.581 61.547 149.659C87.3045 162.519 115.611 169.994 143.979 174.28C168.846 178.07 200.799 180.803 222.35 164.589C242.14 149.659 247.569 115.616 242.72 92.6305C241.543 85.8401 237.925 79.7132 232.545 75.4018C218.641 65.2343 197.898 72.0264 182.274 72.3577C176.471 72.482 170.566 72.6269 164.639 72.6684Z"
+                                                                                                fill="#F2F2F2" />
+                                                                                            <path
+                                                                                                d="M128.521 176.848C141.442 176.848 151.916 166.381 151.916 153.469C151.916 140.558 141.442 130.09 128.521 130.09C115.6 130.09 105.126 140.558 105.126 153.469C105.126 166.381 115.6 176.848 128.521 176.848Z"
+                                                                                                fill="#D2D2D2" />
+                                                                                            <path
+                                                                                                d="M104.346 7.51423C105.64 7.22602 106.977 7.19521 108.283 7.42359C109.588 7.65196 110.836 8.13504 111.954 8.84523C113.073 9.55543 114.041 10.4788 114.802 11.5627C115.563 12.6466 116.104 13.8698 116.392 15.1624L120.131 31.9175L100.391 36.316L96.6523 19.5609C96.3631 18.2649 96.3329 16.9246 96.5634 15.6169C96.7939 14.3092 97.2805 13.0598 97.9954 11.9406C98.7102 10.8213 99.6392 9.85408 100.729 9.0945C101.819 8.33491 103.048 7.79788 104.346 7.51423Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M196.573 138.953L76.6128 165.666C75.8676 165.833 75.0918 165.803 74.3618 165.579C73.6317 165.355 72.9727 164.945 72.4498 164.389C71.9268 163.833 71.5579 163.15 71.3794 162.408C71.201 161.666 71.2192 160.891 71.4323 160.158L71.9296 158.439C76.074 143.757 79.6796 127.585 76.3641 112.675L69.2772 80.8685C63.3092 54.135 79.3481 26.9046 105.955 20.3403C112.443 18.7307 119.188 18.4343 125.792 19.4685C132.397 20.5026 138.727 22.8464 144.412 26.362C150.096 29.8776 155.02 34.4938 158.892 39.9392C162.765 45.3845 165.508 51.5488 166.961 58.0695L174.276 90.9531C177.612 105.863 187.683 119.033 197.754 130.505L198.935 131.851C199.413 132.427 199.737 133.116 199.875 133.851C200.013 134.587 199.962 135.346 199.726 136.057C199.489 136.767 199.076 137.406 198.524 137.913C197.973 138.42 197.301 138.778 196.573 138.953Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M147.247 95.4253C147.701 100.241 146.491 105.066 143.818 109.099C141.145 113.132 137.171 116.128 132.556 117.589C127.942 119.049 122.966 118.887 118.458 117.128C113.95 115.369 110.18 112.119 107.778 107.921"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M144.85 84.8443C146.475 84.8443 147.792 83.5278 147.792 81.9039C147.792 80.2799 146.475 78.9634 144.85 78.9634C143.225 78.9634 141.907 80.2799 141.907 81.9039C141.907 83.5278 143.225 84.8443 144.85 84.8443Z"
+                                                                                                fill="#BABABA" />
+                                                                                            <path
+                                                                                                d="M99.2199 95.0118C100.845 95.0118 102.162 93.6953 102.162 92.0713C102.162 90.4474 100.845 89.1309 99.2199 89.1309C97.5948 89.1309 96.2773 90.4474 96.2773 92.0713C96.2773 93.6953 97.5948 95.0118 99.2199 95.0118Z"
+                                                                                                fill="#BABABA" />
+                                                                                            <path
+                                                                                                d="M154.092 4.39536C155.214 4.39536 156.123 3.48679 156.123 2.36601C156.123 1.24524 155.214 0.33667 154.092 0.33667C152.971 0.33667 152.062 1.24524 152.062 2.36601C152.062 3.48679 152.971 4.39536 154.092 4.39536Z"
+                                                                                                fill="#CFCFCF" />
+                                                                                            <path
+                                                                                                d="M32.9507 157.487C34.0722 157.487 34.9814 156.578 34.9814 155.457C34.9814 154.336 34.0722 153.428 32.9507 153.428C31.8291 153.428 30.9199 154.336 30.9199 155.457C30.9199 156.578 31.8291 157.487 32.9507 157.487Z"
+                                                                                                fill="#CFCFCF" />
+                                                                                            <path
+                                                                                                d="M210.207 51.3809V60.2851"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M205.752 55.833H214.662"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M214.269 185.442V194.346"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M209.813 189.894H218.724"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M58.4805 17.6276V26.5318"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M54.0254 22.0797H62.9359"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M123.03 214.577C165.042 214.577 199.1 212.454 199.1 209.835C199.1 207.216 165.042 205.093 123.03 205.093C81.017 205.093 46.959 207.216 46.959 209.835C46.959 212.454 81.017 214.577 123.03 214.577Z"
+                                                                                                fill="#F2F2F2" />
+                                                                                            <path
+                                                                                                d="M195.702 46.3282C195.697 52.6259 193.191 58.664 188.735 63.1171C184.279 67.5702 178.236 70.0744 171.934 70.0798C171.159 70.0797 170.384 70.0383 169.613 69.9556L162.568 81.4483L160.371 67.0565C156.711 65.0197 153.654 62.0522 151.511 58.4546C149.368 54.8571 148.214 50.7573 148.168 46.5708C148.121 42.3843 149.182 38.2598 151.244 34.6152C153.306 30.9706 156.296 27.9355 159.91 25.8173C163.523 23.6992 167.634 22.5733 171.823 22.5537C176.013 22.5342 180.133 23.6217 183.767 25.706C187.4 27.7903 190.418 30.7974 192.514 34.4226C194.61 38.0478 195.71 42.1622 195.702 46.3489V46.3282Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M161.78 48.7303C163.107 48.7303 164.183 47.6549 164.183 46.3282C164.183 45.0016 163.107 43.9261 161.78 43.9261C160.452 43.9261 159.376 45.0016 159.376 46.3282C159.376 47.6549 160.452 48.7303 161.78 48.7303Z"
+                                                                                                fill="#D2D2D2"
+                                                                                                stroke="#D2D2D2"
+                                                                                                stroke-miterlimit="10" />
+                                                                                            <path
+                                                                                                d="M171.934 48.7303C173.262 48.7303 174.338 47.6549 174.338 46.3282C174.338 45.0016 173.262 43.9261 171.934 43.9261C170.606 43.9261 169.53 45.0016 169.53 46.3282C169.53 47.6549 170.606 48.7303 171.934 48.7303Z"
+                                                                                                fill="#D2D2D2"
+                                                                                                stroke="#D2D2D2"
+                                                                                                stroke-miterlimit="10" />
+                                                                                            <path
+                                                                                                d="M182.087 48.7303C183.415 48.7303 184.491 47.6549 184.491 46.3282C184.491 45.0016 183.415 43.9261 182.087 43.9261C180.76 43.9261 179.684 45.0016 179.684 46.3282C179.684 47.6549 180.76 48.7303 182.087 48.7303Z"
+                                                                                                fill="#D2D2D2"
+                                                                                                stroke="#D2D2D2"
+                                                                                                stroke-miterlimit="10" />
+                                                                                        </svg>
+                                                                                        <p
+                                                                                            class="text-xl font-semibold text-[#939090] text-center mt-2">
+                                                                                            No Orders</p>
+                                                                                        <p
+                                                                                            class="text-md text-[#939090] text-center mt-2">
+                                                                                            You have&apos;nt ordered any products.</p>
+                                                                                    </div>
                                                                                 </div>
+                                                                                <%}%>
+                                                                                    <div class="flex gap-4 justify-end">
+                                                                                        <%if(currentPage> 1){%>
+                                                                                            <a href="/user/orders?page=<%=currentPage-1%>%limit=<%=limit%>"
+                                                                                                class="block px-4 py-2 bg-gray-100 hover:bg-gray-200">Previous</a>
+                                                                                            <%}%>
+                                                                                                <%if((currentPage <
+                                                                                                    totalPages)&&
+                                                                                                    orders.length>
+                                                                                                    0){%>
+                                                                                                    <a href="/user/orders?page=<%=currentPage+1%>&limit=<%=limit%>"
+                                                                                                        class="block px-4 py-2 bg-gray-100 hover:bg-gray-200">Next</a>
+                                                                                                    <%}%>
+                                                                                    </div>
 
                             </div>
                         </div>
@@ -377,8 +511,6 @@
                     cancelButtonText: 'no'
                 });
 
-                console.info(isConfirmed)
-
                 if (isConfirmed) {
                     const response = await fetch('/user/orders/cancel', {
                         method: 'PATCH',
@@ -389,8 +521,7 @@
                     const data = await response.json();
 
                     if (!data.success) {
-                        alert(data.message);
-                        return;
+                        return Toast.fire({ icon: 'info', title: data.message })
                     }
 
                     await Toast.fire({
@@ -514,6 +645,19 @@
                 alert("Error");
             }
         };
+
+
+        document.getElementById('search_btn').addEventListener('click', async function () {
+            const searchElement = document.getElementById('orderSearch');
+            const searchInput = new Date(searchElement.value)
+
+            if (typeof new Date() === typeof searchInput) {
+                Toast.fire({ icon: 'info', title: searchInput })
+            }
+
+
+
+        });
 
     </script>
 </body>

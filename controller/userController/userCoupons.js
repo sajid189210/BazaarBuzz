@@ -19,6 +19,7 @@ const renderCoupons = async (req, res) => {
         res.render('user/userCoupons', {
             user: req.session.user || null,
             userDetails,
+            searchBox: false,
             coupons
         });
 

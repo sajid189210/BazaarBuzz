@@ -52,11 +52,12 @@
 
                                                         <div class="absolute top-[120px] lg:top-[80px] w-full">
 
-                                                            <div class="px-8 pt-4 mb-4 hidden">
+                                                            <!--- Breadcrumbs --->
+                                                            <div class="hidden lg:flex items-center px-8 mt-4">
                                                                 <ul
-                                                                    class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
-                                                                    <li class="text-gray-500 text-base cursor-pointer">
-                                                                        <a href="/user/homepage">Home</a>
+                                                                    class="flex items-center justify-start font-[sans-serif] space-x-4">
+                                                                    <li class="text-gray-500 text-sm cursor-pointer">
+                                                                        <a href="/">Home</a>
                                                                     </li>
                                                                     <li>
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -68,8 +69,7 @@
                                                                                 data-original="#000000"></path>
                                                                         </svg>
                                                                     </li>
-                                                                    <li
-                                                                        class="text-black text-xl font-bold cursor-pointer">
+                                                                    <li class="text-gray-500 text-sm cursor-pointer">
                                                                         <a href="#">Cart</a>
                                                                     </li>
                                                                 </ul>
@@ -80,9 +80,8 @@
                                                                     brandDiscount=0; %>
 
                                                                     <div class="mx-8 p-4">
-                                                                        <h1 class="text-2xl font-semibold text-gray-800 mt-8">
-                                                                            Your Cart</h1>
-                                                                        <div class="relative flex flex-wrap gap-4 mt-8 min-h-[450px]">
+                                                                        <div
+                                                                            class="relative flex flex-wrap gap-4 mt-8 min-h-[450px]">
                                                                             <div
                                                                                 class="mx-auto grid gap-4 max-w-[800px] overflow-auto hide-scrollbar">
                                                                                 <%if(cart && cart.items.length>0){%>
@@ -327,14 +326,106 @@
 
                                                                             </div>
                                                                             <%} else {%>
-                                                                                <div class="col-span-full text-center">
-                                                                                    <p
-                                                                                        class="text-2xl font-semibold text-slate-500">
-                                                                                        No
-                                                                                        items
-                                                                                        are
-                                                                                        added
-                                                                                    </p>
+                                                                                <div
+                                                                                    class="min-h-[400px] w-full col-span-full flex justify-center items-center">
+                                                                                    <div>
+                                                                                        <svg width="256" height="217"
+                                                                                            viewBox="0 0 256 217"
+                                                                                            fill="none"
+                                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                                            <path
+                                                                                                d="M172.424 77.8282C154.329 77.8282 135.91 77.1399 118.68 72.6459C101.774 68.2531 86.2515 59.7307 72.4155 49.8722C63.3572 43.4551 55.1204 38.3335 43.3598 39.1028C31.8545 39.6858 20.8521 43.7088 11.9694 50.5807C-2.9908 62.8482 -0.742454 85.5814 5.24594 101.493C14.2394 125.521 41.6087 142.263 64.8705 153.093C91.7426 165.664 121.274 172.972 150.87 177.162C176.812 180.867 210.149 183.539 232.632 167.688C253.278 153.093 258.942 119.813 253.883 97.3427C252.656 90.7047 248.881 84.7151 243.269 80.5003C228.762 70.5609 207.122 77.2007 190.821 77.5246C184.768 77.646 178.607 77.7877 172.424 77.8282Z"
+                                                                                                fill="#F2F2F2" />
+                                                                                            <path
+                                                                                                d="M129.013 216.555C172.844 216.555 208.376 214.48 208.376 211.92C208.376 209.36 172.844 207.284 129.013 207.284C85.1827 207.284 49.6509 209.36 49.6509 211.92C49.6509 214.48 85.1827 216.555 129.013 216.555Z"
+                                                                                                fill="#F2F2F2" />
+                                                                                            <path
+                                                                                                d="M17.0283 33.1917L45.1327 30.965C48.6373 30.6776 52.1409 31.5262 55.0571 33.3688C57.9733 35.2113 60.1251 37.936 61.1522 41.0866L88.0892 125.501L82.8142 134.347C81.4593 136.627 80.7905 139.208 80.879 141.815C80.9675 144.422 81.81 146.958 83.3167 149.152C84.8234 151.347 86.9378 153.117 89.4344 154.274C91.9311 155.432 94.7164 155.933 97.4934 155.724L205.371 147.141"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M65.1733 53.9006L190.562 43.9409C191.797 43.8419 193.041 44.0044 194.2 44.4166C195.358 44.8288 196.403 45.48 197.257 46.322C198.11 47.1639 198.75 48.175 199.13 49.2802C199.509 50.3854 199.618 51.5564 199.448 52.7063L190.951 110.137C190.693 111.86 189.824 113.451 188.483 114.656C187.142 115.86 185.407 116.607 183.558 116.776L88.0892 125.501L65.1733 53.9006Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M109.492 175.077C115.115 175.077 119.674 170.808 119.674 165.542C119.674 160.277 115.115 156.008 109.492 156.008C103.868 156.008 99.3091 160.277 99.3091 165.542C99.3091 170.808 103.868 175.077 109.492 175.077Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M180.401 169.449C186.025 169.449 190.584 165.181 190.584 159.915C190.584 154.649 186.025 150.38 180.401 150.38C174.778 150.38 170.219 154.649 170.219 159.915C170.219 165.181 174.778 169.449 180.401 169.449Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M39.2837 28.6856L12.7879 30.7908C10.4917 30.9732 8.78831 32.864 8.98314 35.0141C9.17797 37.1641 11.1973 38.7591 13.4934 38.5767L39.9893 36.4715C42.2854 36.2891 43.9888 34.3983 43.794 32.2482C43.5991 30.0982 41.5798 28.5032 39.2837 28.6856Z"
+                                                                                                fill="#D2D2D2" />
+                                                                                            <path
+                                                                                                d="M117.966 98.2537C118.483 94.5592 120.334 91.1412 123.21 88.5667C126.087 85.9922 129.817 84.4158 133.782 84.0992C137.747 83.7825 141.708 84.7445 145.009 86.8257C148.31 88.9068 150.752 91.982 151.929 95.5411"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M152.21 76.4112C153.548 76.4112 154.632 75.3961 154.632 74.144C154.632 72.8918 153.548 71.8767 152.21 71.8767C150.873 71.8767 149.789 72.8918 149.789 74.144C149.789 75.3961 150.873 76.4112 152.21 76.4112Z"
+                                                                                                fill="#BABABA" />
+                                                                                            <path
+                                                                                                d="M113.837 79.4477C115.174 79.4477 116.258 78.4326 116.258 77.1805C116.258 75.9283 115.174 74.9132 113.837 74.9132C112.5 74.9132 111.416 75.9283 111.416 77.1805C111.416 78.4326 112.5 79.4477 113.837 79.4477Z"
+                                                                                                fill="#BABABA" />
+                                                                                            <path
+                                                                                                d="M45.6299 162.729V171.453"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M40.9819 167.081H50.278"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M194.172 0.539307V9.24392"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M189.524 4.8916H198.82"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M84.1113 26.552V35.2566"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M79.4414 30.9043H88.7591"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M217.369 58.5566C218.587 58.5566 219.574 57.6322 219.574 56.4918C219.574 55.3515 218.587 54.427 217.369 54.427C216.151 54.427 215.164 55.3515 215.164 56.4918C215.164 57.6322 216.151 58.5566 217.369 58.5566Z"
+                                                                                                fill="white"
+                                                                                                stroke="#BABABA"
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round" />
+                                                                                            <path
+                                                                                                d="M134.958 39.9934C136.129 39.9934 137.077 39.1052 137.077 38.0096C137.077 36.914 136.129 36.0258 134.958 36.0258C133.788 36.0258 132.84 36.914 132.84 38.0096C132.84 39.1052 133.788 39.9934 134.958 39.9934Z"
+                                                                                                fill="#CFCFCF" />
+                                                                                            <path
+                                                                                                d="M149.184 183.964C150.354 183.964 151.302 183.076 151.302 181.98C151.302 180.884 150.354 179.996 149.184 179.996C148.013 179.996 147.065 180.884 147.065 181.98C147.065 183.076 148.013 183.964 149.184 183.964Z"
+                                                                                                fill="#CFCFCF" />
+                                                                                        </svg>
+                                                                                        <p
+                                                                                            class="text-xl font-semibold text-[#939090] text-center mt-2">
+                                                                                            Your cart is Empty!</p>
+                                                                                        <p
+                                                                                            class="text-md text-[#939090] text-center mt-2">
+                                                                                            Add items to it now.</p>
+                                                                                    </div>
 
                                                                                 </div>
                                                                                 <%}%>

@@ -19,8 +19,6 @@ const handleStock = async (order, paymentMethod) => {
     const orderedProductDetails = order.orderedProducts.filter(item => item.product);
 
     orderedProductDetails.forEach(async (orderedProduct) => {
-        const product = await Product.findById(orderedProduct.product);
-
         const updatedProduct = await Product.updateOne(
             { _id: orderedProduct.product.toString(), 'variants.size': orderedProduct.selectedSize },
             { $inc: { 'variants.$.stock': -(1 * orderedProduct.quantity) } },
@@ -71,6 +69,7 @@ const getCheckout = async (req, res) => {
             totalProductDiscountedValue,
             brandDiscount,
             totalPrice,
+            searchBox: false,
             total,
             cart,
             user,
@@ -105,7 +104,8 @@ const getOrderSummary = async (req, res) => {
             originalTotalPrice,
             totalDiscountApplied,
             user: req.session.user || null,
-            category
+            category,
+            searchBox: false
         });
 
     } catch (err) {

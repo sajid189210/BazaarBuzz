@@ -32,6 +32,7 @@ const renderWallet = async (req, res) => {
             transactions: paginatedTransactions,
             currentPage: page,
             totalPages: Math.ceil(totalTransactions / limit),
+            searchBox: false,
             category,
             wallet,
             limit,

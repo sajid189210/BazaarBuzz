@@ -27,6 +27,7 @@ const viewProduct = async (req, res) => {
             offerDiscountValue,
             totalDiscount,
             categories,
+            searchBox: true,
             product,
             user: req.session.user || null,
         });
