@@ -32,7 +32,7 @@ router.delete("/category/delete/:id", categoryController.deleteCategory);
 
 //*---------------[User Management]-------------------------
 router.get('/userList/', userManagement.userManagementPage);
-router.post('/search', userManagement.searchUser);
+// router.post('/search', userManagement.searchUser);
 router.put('/userList/blocked/:id', userManagement.blockUser);
 router.put('/userList/unblocked/:id', userManagement.unBlockUser);
 

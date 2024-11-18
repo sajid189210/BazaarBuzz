@@ -4,17 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>View Orders</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
-        .body {
-            font
-        }
-    </style>
 </head>
 
 <body>
@@ -50,7 +46,7 @@
                     <div class="md:mx-auto p-4 md:w-3/4">
                         <!--- Search Component --->
                         <div
-                            class="flex justify-start h-10 mt-4 w-full md:w-1/2 lg:w-2/4 rounded-md border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent <%= orders.length?'':'hidden'%>">
+                            class="flex justify-start h-10 mt-4 w-full md:w-1/2 lg:w-2/4 rounded-md border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent">
                             <div class="relative flex w-full">
                                 <div class="flex w-full">
                                     <input type="email" placeholder="Enter valid date." id="orderSearch"
@@ -320,24 +316,33 @@
                                                                                         <p
                                                                                             class="text-xl font-semibold text-[#939090] text-center mt-2">
                                                                                             No Orders</p>
-                                                                                        <p
-                                                                                            class="text-md text-[#939090] text-center mt-2">
-                                                                                            You have&apos;nt ordered any products.</p>
+
                                                                                     </div>
                                                                                 </div>
                                                                                 <%}%>
-                                                                                    <div class="flex gap-4 justify-end">
-                                                                                        <%if(currentPage> 1){%>
-                                                                                            <a href="/user/orders?page=<%=currentPage-1%>%limit=<%=limit%>"
-                                                                                                class="block px-4 py-2 bg-gray-100 hover:bg-gray-200">Previous</a>
-                                                                                            <%}%>
-                                                                                                <%if((currentPage <
-                                                                                                    totalPages)&&
-                                                                                                    orders.length>
-                                                                                                    0){%>
-                                                                                                    <a href="/user/orders?page=<%=currentPage+1%>&limit=<%=limit%>"
-                                                                                                        class="block px-4 py-2 bg-gray-100 hover:bg-gray-200">Next</a>
-                                                                                                    <%}%>
+                                                                                    <div
+                                                                                        class="flex gap-4 justify-between">
+                                                                                        <div
+                                                                                            class="font-[poppins] text-sm text-gray-600">
+                                                                                            You&apos;re currently
+                                                                                            viewing
+                                                                                            page
+                                                                                            <%=currentPage%> of
+                                                                                                <%=totalPages%>
+                                                                                        </div>
+                                                                                        <div class="flex gap-4">
+                                                                                            <%if(currentPage> 1){%>
+                                                                                                <a href="/user/orders?page=<%=currentPage-1%>%limit=<%=limit%>"
+                                                                                                    class="block w-[100px] text-center py-2 bg-[#f080ac] hover:bg-[#ec4899] text-white">Previous</a>
+                                                                                                <%}%>
+                                                                                                    <%if((currentPage <
+                                                                                                        totalPages)&&
+                                                                                                        orders.length>
+                                                                                                        0){%>
+                                                                                                        <a href="/user/orders?page=<%=currentPage+1%>&limit=<%=limit%>"
+                                                                                                            class="block w-[100px] text-center py-2 bg-[#f080ac] hover:bg-[#ec4899] text-white">Next</a>
+                                                                                                        <%}%>
+                                                                                        </div>
                                                                                     </div>
 
                             </div>
@@ -649,13 +654,19 @@
 
         document.getElementById('search_btn').addEventListener('click', async function () {
             const searchElement = document.getElementById('orderSearch');
-            const searchInput = new Date(searchElement.value)
+            const searchInput = searchElement.value;
 
-            if (typeof new Date() === typeof searchInput) {
-                Toast.fire({ icon: 'info', title: searchInput })
+            if (!searchInput) {
+                return window.location.href = `/user/orders`;
             }
 
+            const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
 
+            if (!regex.test(searchInput)) {
+                return Toast.fire({ icon: 'warning', title: 'Invalid date. Enter date in the format MM/DD/YYYY.' })
+            }
+
+            window.location.href = `/user/orders?search=${encodeURIComponent(searchInput)}`;
 
         });
 

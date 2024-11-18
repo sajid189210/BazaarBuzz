@@ -10,14 +10,19 @@ const getUserById = async (id) => {
 const userManagementPage = async (req, res) => {
     try {
         if (!req.session.admin) return res.redirect('/admin/signIn');
-        
-        // const searchTerm = req.query.search || ''
+
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
-
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
         const skip = (page - 1) * limit;
+        let filter = {}
 
-        const users = await userModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
+        if (search) {
+            const regex = new RegExp(search, 'i');
+            filter.email = regex;
+        }
+
+        const users = await userModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
 
         const count = await userModel.countDocuments();
 
@@ -47,58 +52,26 @@ const userManagementPage = async (req, res) => {
     }
 };
 
-// const userManagementPage = async (req, res) => {
+
+// //*--------------------Search User-------------------------
+// const searchUser = async (req, res) => {
 //     try {
-//         // if (!req.session.admin) return res.redirect('/admin/signIn');
-//         const searchTerm = req.query.search || '';
-//         const page = parseInt(req.query.page) || 1;
-//         const limit = parseInt(req.query.limit) || 5;
+//         const search = req.query.search || '';
 
-//         const skip = (page - 1) * limit;
+//         const regex = new RegExp(search, 'i');
 
-//         const filteredUsers = await searchUser(req, res);
-//         const paginatedUsers = filteredUsers.slice(skip, skip + limit);
+//         const users = await userModel.find({ email: regex });
 
-//         const count = await userModel.countDocuments({ email: new RegExp(searchTerm, 'i') });
-
-//         res.render('admin/userManagementPage', {
-//             users: paginatedUsers,
-//             totalPages: Math.ceil(count / limit),
-//             currentPage: page,
-//             limit,
-//             page,
-//             searchTerm
-//         });
+//         res.json({ users });
 
 //     } catch (err) {
-//         console.error(`Error in userManagementPage: ${err.message}`);
+//         console.error(`Error in searchUser in userManagementController: ${err.message}`);
 //         res.status(500).json({
 //             error: 'Internal Server Error',
-//             message: err.message,
-//             stack: err.stack
+//             message: err.message
 //         });
 //     }
-// };
-
-//*--------------------Search User-------------------------
-const searchUser = async (req, res) => {
-    try {
-        const search = req.query.search || '';
-
-        const regex = new RegExp(search, 'i');
-
-        const users = await userModel.find({ email: regex });
-
-        res.json({ users });
-
-    } catch (err) {
-        console.error(`Error in searchUser in userManagementController: ${err.message}`);
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: err.message
-        });
-    }
-}
+// }
 
 //*----------------User Status: unblock----------------------
 const unBlockUser = async (req, res) => {
@@ -122,11 +95,13 @@ const unBlockUser = async (req, res) => {
             });
         }
 
-        const updatedUser = await userModel.findByIdAndUpdate(
+        await userModel.findByIdAndUpdate(
             { _id: id },
             { $set: { isBlocked: 'unblocked' } },
             { new: true }
         );
+
+        req.session.user = true;
 
         return res.status(200).json({
             success: true,
@@ -165,7 +140,7 @@ const blockUser = async (req, res) => {
             });
         }
 
-        const updatedUser = await userModel.findByIdAndUpdate(
+        await userModel.findByIdAndUpdate(
             { _id: id },
             { $set: { isBlocked: 'blocked' } },
             { new: true }
@@ -192,7 +167,6 @@ const blockUser = async (req, res) => {
 
 module.exports = {
     userManagementPage,
-    searchUser,
     unBlockUser,
     blockUser,
 }

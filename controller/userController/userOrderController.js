@@ -31,7 +31,14 @@ const handleStock = async (order, paymentMethod) => {
     });
 };
 
+//? Validate date
+const validateDate = (date) => {
+    const [month, day, year] = date.split('/').map(Number);
+    const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
+    return { startOfDay, endOfDay }
+}
 
 const getOrders = async (req, res) => {
     if (!req.session.user) return res.redirect('/user/signIn');
@@ -39,11 +46,28 @@ const getOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-
+        const search = req.query.search || '';
         const totalOrders = await Order.countDocuments();
 
-        const category = await Category.find();
-        const orders = await Order.find({ user: userId })
+        let filter = { user: userId }
+
+        if (search) {
+            const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+            console.log(search)
+            if (regex.test(search)) {
+                const { startOfDay, endOfDay } = validateDate(search);
+
+                console.log(startOfDay, endOfDay)
+
+                filter.createdAt = {
+                    $gte: startOfDay,
+                    $lte: endOfDay
+                }
+            }
+        }
+
+        console.log(filter)
+        const orders = await Order.find(filter)
             .populate('orderedProducts.product')
             .sort({ createdAt: -1 })
             .limit(limit)
@@ -53,7 +77,6 @@ const getOrders = async (req, res) => {
             totalPages: Math.ceil(totalOrders / limit),
             currentPage: page,
             searchBox: false,
-            category,
             orders,
             limit,
             user: req.session.user || null,
