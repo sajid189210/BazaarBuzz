@@ -341,17 +341,23 @@ const getStockStatus = async () => {
 const fetchOrders = async (limit, page) => {
 
     const filter = {
+        // $or: [
+        //     {
+        //         $nor: [
+        //             {
+        //                 $and: [
+        //                     { allOrdersStatus: { $in: ['delivered', 'returned'] } },
+        //                     { paymentStatus: 'paid' }
+        //                 ]
+        //             }
+        //         ]
+        //     },
+        //     { 'orderedProducts.returnStatus': 'requested' }
+        // ]
+
         $or: [
-            {
-                $nor: [
-                    {
-                        $and: [
-                            { allOrdersStatus: 'delivered' },
-                            { paymentStatus: 'paid' }
-                        ]
-                    }
-                ]
-            },
+            { paymentStatus: 'pending' },
+            { allOrdersStatus: 'processing' },
             { 'orderedProducts.returnStatus': 'requested' }
         ]
     };

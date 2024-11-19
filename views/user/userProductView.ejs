@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Product View</title>
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/style.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -22,9 +23,10 @@
         <%- include('../partials/userHeader') %>
 
             <div class="absolute top-[80px] w-full h-screen">
-                <div class="px-8 pt-8 hidden lg:block">
-                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
-                        <li class="text-gray-500 text-base cursor-pointer">
+                <!--- Breadcrumbs --->
+                <div class="hidden lg:flex items-center px-8 mt-4">
+                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4">
+                        <li class="text-gray-500 text-sm cursor-pointer">
                             <a href="/">Home</a>
                         </li>
                         <li>
@@ -35,7 +37,7 @@
                                     clip-rule="evenodd" data-original="#000000"></path>
                             </svg>
                         </li>
-                        <li class="text-black text-xl font-semibold cursor-pointer">
+                        <li class="text-gray-500 text-sm cursor-pointer">
                             <a href="#">Product Overview</a>
                         </li>
                     </ul>
@@ -208,6 +210,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
     <script src="/javascript/user/userProductView.js"></script>
     <script src="/javascript/user/homesearch.js"></script>
+    <script src="/javascript/user/buttonSearch.js"></script>
 
 
 

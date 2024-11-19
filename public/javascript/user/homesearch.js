@@ -14,7 +14,7 @@ homeSearch.addEventListener('input', async function (event) {
     }
 
     //show the loading... message
-    resultsContainer.innerHTML = '<span class="w-full p-2 bg-white text-slate-600 text-medium">loading...</span>'
+    resultsContainer.innerHTML = '<span class="w-full p-2 text-left">loading...</span>'
 
     try {
 
@@ -28,18 +28,18 @@ homeSearch.addEventListener('input', async function (event) {
         resultsContainer.innerHTML = '';
 
         if (data.products.length === 0) {
-            resultsContainer.innerHTML = '<span class="w-full font-regular p-2 bg-white text-slate-600 text-medium">Product not found.</span>';
+            resultsContainer.innerHTML = '<span class="w-full p-2 text-left">Product not found.</span>';
         } else {
             data.products.forEach(product => {
                 if (product) {
                     const link = document.createElement('a');
-                    link.classList.add('overflow-hidden', 'text-ellipsis', 'whitespace-nowrap', 'p-2');
+                    link.classList.add('truncate', 'p-2', 'text-gray-80', 'hover:bg-gray-50', 'rounded-lg');
                     link.innerText = product.productName;
                     link.href = `/user/viewProduct/?productId=${product._id}`;
 
                     resultsContainer.appendChild(link)
                 } else {
-                    resultsContainer.innerHTML = '<span class="border-b text-sm border-gray-200 px-6 py-4">No products were found.</span>';
+                    resultsContainer.innerHTML = '<span class="w-full p-2 text-left">No products were found.</span>';
                 }
             });
         }

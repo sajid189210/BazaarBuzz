@@ -66,7 +66,6 @@ const getOrders = async (req, res) => {
             }
         }
 
-        console.log(filter)
         const orders = await Order.find(filter)
             .populate('orderedProducts.product')
             .sort({ createdAt: -1 })

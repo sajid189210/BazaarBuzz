@@ -1,7 +1,6 @@
-const Category = require('../../model/categoryModel');
 const User = require('../../model/userModel');
 
-const renderProfile = async () => {
+const renderProfile = async (req, res) => {
     try {
 
         if (!req.session.user) return res.redirect('user/signIn');
@@ -10,11 +9,8 @@ const renderProfile = async () => {
 
         const user = await User.findById(userId);
 
-        const category = await Category.find();
-
         res.render('user/userProfile', {
             searchBox: false,
-            category,
             user,
         });
 
