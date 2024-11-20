@@ -237,7 +237,7 @@ const userHomepage = async (req, res) => {
         return res.render('user/userHomepage', {
             user: req.session.user || null,
             categories,
-            searchBox: true, 
+            searchBox: true,
             products: filteredProducts,
         });
 
@@ -449,6 +449,7 @@ const renderProfile = async (req, res) => {
         res.render('user/userProfile', {
             user: req.session.user || null,
             userDetails,
+            searchBox: false,
             category
         });
 
