@@ -154,3 +154,27 @@ html.dark #resultsContainer {
   background-color: #1e293b !important;
   border-color: #475569 !important;
 }
+
+html.dark #searchBar {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+html.dark #searchBar.focus-within,
+html.dark #searchBar:focus-within {
+  border-color: #e91e63 !important;
+  box-shadow: 0 0 16px rgba(233, 30, 99, 0.4) !important;
+  background-color: #1e293b !important;
+}
+
+html.dark #searchBar svg.text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+html.dark #searchBar input::placeholder {
+  color: #64748b !important;
+}
+
+html.dark #searchBar input {
+  color: #e2e8f0 !important;
+}

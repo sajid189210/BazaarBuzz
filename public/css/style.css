@@ -2191,6 +2191,11 @@ html {
   background-color: rgb(245 246 250 / var(--tw-bg-opacity, 1));
 }
 
+.bg-\[\#e91e63\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(233 30 99 / var(--tw-bg-opacity, 1));
+}
+
 .bg-\[\#f080ac\] {
   --tw-bg-opacity: 1;
   background-color: rgb(240 128 172 / var(--tw-bg-opacity, 1));
@@ -3316,6 +3321,16 @@ html {
   line-height: 1.25rem;
 }
 
+.placeholder\:text-gray-400::-moz-placeholder {
+  --tw-text-opacity: 1;
+  color: rgb(156 163 175 / var(--tw-text-opacity, 1));
+}
+
+.placeholder\:text-gray-400::placeholder {
+  --tw-text-opacity: 1;
+  color: rgb(156 163 175 / var(--tw-text-opacity, 1));
+}
+
 .before\:fixed::before {
   content: var(--tw-content);
   position: fixed;
@@ -3488,8 +3503,19 @@ html {
   border-color: rgb(0 176 112 / var(--tw-border-opacity, 1));
 }
 
+.focus-within\:border-\[\#e91e63\]:focus-within {
+  --tw-border-opacity: 1;
+  border-color: rgb(233 30 99 / var(--tw-border-opacity, 1));
+}
+
 .focus-within\:bg-transparent:focus-within {
   background-color: transparent;
+}
+
+.focus-within\:shadow-\[0_0_12px_rgba\(233\2c 30\2c 99\2c 0\.3\)\]:focus-within {
+  --tw-shadow: 0 0 12px rgba(233,30,99,0.3);
+  --tw-shadow-colored: 0 0 12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 .hover\:-translate-y-2:hover {
@@ -3526,6 +3552,11 @@ html {
 .hover\:bg-\[\#EAF0DC\]:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(234 240 220 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-\[\#d81b60\]:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(216 27 96 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-\[\#ec4899\]:hover {
