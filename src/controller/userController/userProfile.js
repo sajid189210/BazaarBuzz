@@ -19,7 +19,7 @@ const renderProfile = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };

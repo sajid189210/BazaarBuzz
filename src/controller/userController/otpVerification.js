@@ -90,7 +90,7 @@ const requestOTP = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -124,7 +124,7 @@ const verifyOTP = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -162,7 +162,7 @@ const handleOtpExpiry = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message || 'An error occurred while processing your request.',
-            stack: err.stack
+            
         });
     }
 };

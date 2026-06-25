@@ -42,7 +42,7 @@ const renderOrderList = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -61,7 +61,7 @@ const renderOrderView = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }
@@ -137,7 +137,7 @@ const changeStatus = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -150,7 +150,7 @@ const returnStatus = async (req, res) => {
 
     try {
 
-        if (!orderItemId, !productId) throw new Error("orderItemId or productId not found");
+        if (!orderItemId || !productId) throw new Error("orderItemId or productId not found");
 
         // Prepare update object
         if (!process) {
@@ -176,7 +176,7 @@ const returnStatus = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -260,7 +260,7 @@ const refund = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };

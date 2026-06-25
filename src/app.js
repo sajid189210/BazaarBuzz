@@ -13,9 +13,9 @@ const cors = require('cors');
 
 //* Middleware Setup
 app.use(nocache());
-// app.use(helmet());
-// app.use(cors());
-// app.use(morgan('dev'));
+app.use(helmet());
+app.use(cors());
+app.use(morgan('dev'));
 
 app.use(session({
     secret: process.env.SECRET_KEY,
@@ -63,8 +63,7 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({
         Error: err.message,
-        message: 'Something went wrong!',
-        stack: err.stack
+        message: 'Something went wrong!'
     });
 });
 
