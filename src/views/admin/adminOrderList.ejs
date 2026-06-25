@@ -116,11 +116,11 @@
                             </div>
                             <div class="flex gap-2 my-4">
                                 <%if(currentPage>1){%>
-                                    <a href="/admin/orders?page=<%= currentPage - 1%>%limit=<%=limit%>"
+                                    <a href="/admin/orders?page=<%= currentPage - 1%>&limit=<%=limit%>"
                                         class="block w-[100px] text-center py-2 rounded-md hover:bg-gray-200 bg-gray-100">previous</a>
                                     <%}%>
                                         <%if(currentPage<totalPages){%>
-                                            <a href="/admin/orders?page=<%= currentPage + 1%>%limit=<%=limit%>"
+                                            <a href="/admin/orders?page=<%= currentPage + 1%>&limit=<%=limit%>"
                                                 class="block w-[100px] text-center py-2 rounded-md hover:bg-gray-200  bg-gray-100">next</a>
                                             <%}%>
                             </div>

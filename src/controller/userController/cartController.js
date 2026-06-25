@@ -19,7 +19,7 @@ const getCart = async (req, res) => {
 
         if (!cart) {
             const newCart = Cart({ user: userId });
-            newCart.save();
+            await newCart.save();
             return res.render('user/userCart', {
                 user: req.session.user || null,
                 cart,
@@ -32,7 +32,7 @@ const getCart = async (req, res) => {
             return variant && variant.stock > 0;
         });
 
-        cart.save();
+        await cart.save();
 
         const totalPrice = cart.items.reduce((acc, item) => acc + (item.product.productPrice * item.quantity), 0);
         const totalDiscount = cart.items.reduce((acc, item) => acc + ((item.product.productPrice * item.product.discount) / 100), 0);
@@ -162,7 +162,7 @@ const addToCart = async (req, res) => {
             throw new Error("Error while saving product in the cart", err)
         }
 
-        return res.status(400).json({
+        return res.status(200).json({
             session: true,
             success: true,
             message: "Product successfully added in the cart.",

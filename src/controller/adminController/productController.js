@@ -35,7 +35,7 @@ const getCategory = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/SignIn');
+        if (!req.session.admin) return res.redirect('/admin/signIn');
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
@@ -72,7 +72,7 @@ const getProducts = async (req, res) => {
 const getCreateProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/SignIn');
+        if (!req.session.admin) return res.redirect('/admin/signIn');
         const Category = await categoryModel.find();
 
         if (!Category) throw new Error("Error caught while fetching category data.");

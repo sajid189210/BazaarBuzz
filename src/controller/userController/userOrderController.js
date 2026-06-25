@@ -170,7 +170,7 @@ const cancelProduct = async (req, res) => {
         }
 
         // increases stock.
-        handleStock(order, paymentMethod);
+        await handleStock(order, paymentMethod);
 
         //* Handle online payment refunds and save the wallet history.
         if (paymentMethod === 'razorpay' || paymentMethod === 'wallet') {
@@ -189,7 +189,7 @@ const cancelProduct = async (req, res) => {
 
             // Add the transaction to the wallet and save it.
             wallet.transactions.push(transactionDetails);
-            wallet.save();
+            await wallet.save();
 
             const updateWalletBalance = await Wallet.findOneAndUpdate(
                 { user: userId },
@@ -386,10 +386,12 @@ const downloadInvoice = async (req, res) => {
 
     } catch (err) {
         console.error(`Error in downloadInvoice: ${err}`);
-        return res.status(500).json({
-            message: err.message,
+        if (!res.headersSent) {
+            return res.status(500).json({
+                message: err.message,
 
-        });
+            });
+        }
     }
 };
 

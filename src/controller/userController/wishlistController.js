@@ -18,7 +18,13 @@ const renderWishlist = async (req, res) => {
         if (!user) throw new Error('Could not find the user or the wishlist.');
 
         if (!wishlist) {
-            await new Wishlist({ user: userId }).save();
+            const newWishlist = new Wishlist({ user: userId });
+            await newWishlist.save();
+            return res.render('user/userWishlist', {
+                searchBox: false,
+                wishlist: newWishlist,
+                user: req.session.user || null,
+            });
         }
 
         res.render('user/userWishlist', {

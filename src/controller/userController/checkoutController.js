@@ -203,7 +203,7 @@ const proceedToPayment = async (req, res) => {
                     await newOrder.save();
 
                     // reduce the  stock.
-                    handleStock(newOrder, paymentMethod);
+                    await handleStock(newOrder, paymentMethod);
 
                     return res.status(200).json({
                         success: true,
@@ -260,7 +260,7 @@ const proceedToPayment = async (req, res) => {
                 await newOrder.save();
 
                 // reduce the  stock.
-                handleStock(newOrder, paymentMethod);
+                await handleStock(newOrder, paymentMethod);
 
                 // clears the cart.
                 clearCart(userId);
@@ -296,7 +296,7 @@ const proceedToPayment = async (req, res) => {
             await newOrder.save();
 
             // reduce the  stock.
-            handleStock(newOrder, paymentMethod);
+            await handleStock(newOrder, paymentMethod);
 
             // clears the cart.
             clearCart(userId);
