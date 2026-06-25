@@ -1,3 +1,8 @@
+<style>
+  .ken-burns { overflow: hidden; height: 100%; }
+  .ken-burns img { animation: kenBurns 12s ease-in-out infinite alternate; }
+  @keyframes kenBurns { 0% { transform: scale(1); } 100% { transform: scale(1.08); } }
+</style>
 <div id="carouselExampleIndicators" class="relative w-full h-[66vh]" data-twe-carousel-init data-twe-ride="carousel">
   <div class="absolute right-0 left-0 z-[2] mx-[15%] mb-4 flex list-none justify-center p-0 bottom-0" data-twe-carousel-indicators>
     <button type="button" data-twe-target="#carouselExampleIndicators" data-twe-slide-to="0" data-twe-carousel-active class="mx-[3px] box-content h-[3px] w-[30px] flex-initial cursor-pointer border-0 border-y-[10px] border-solid border-transparent bg-white bg-clip-padding p-0 -indent-[999px] opacity-50 transition-opacity duration-[600ms] ease-[cubic-bezier(0.25,0.1,0.25,1.0)] motion-reduce:transition-none"></button>
@@ -6,13 +11,13 @@
   </div>
   <div class="relative w-full h-full overflow-hidden after:clear-both after:block after:content-['']">
     <div class="relative float-left -mr-[100%] w-full h-full transition-transform duration-[600ms] ease-in-out motion-reduce:transition-none" data-twe-carousel-item data-twe-carousel-active>
-      <img src="https://images.unsplash.com/photo-1774691799598-71e688b1bf7f?fm=jpg&q=60&w=1200&h=500&fit=crop" class="block w-full h-full object-cover" alt="Fashion collection" />
+      <div class="ken-burns"><img src="https://images.unsplash.com/photo-1774691799598-71e688b1bf7f?fm=jpg&q=60&w=1200&h=500&fit=crop" class="block w-full h-full object-cover" alt="Fashion collection" /></div>
     </div>
     <div class="relative float-left -mr-[100%] w-full h-full transition-transform duration-[600ms] ease-in-out motion-reduce:transition-none" data-twe-carousel-item>
-      <img src="https://images.unsplash.com/photo-1777188631996-a69291045973?fm=jpg&q=60&w=1200&h=500&fit=crop" class="block w-full h-full object-cover" alt="Storefront" />
+      <div class="ken-burns"><img src="https://images.unsplash.com/photo-1777188631996-a69291045973?fm=jpg&q=60&w=1200&h=500&fit=crop" class="block w-full h-full object-cover" alt="Storefront" /></div>
     </div>
     <div class="relative float-left -mr-[100%] w-full h-full transition-transform duration-[600ms] ease-in-out motion-reduce:transition-none" data-twe-carousel-item>
-      <img src="https://images.unsplash.com/photo-1770902971692-e4b9e3cf3933?fm=jpg&q=60&w=1200&h=500&fit=crop" class="block w-full h-full object-cover" alt="Modern boutique" />
+      <div class="ken-burns"><img src="https://images.unsplash.com/photo-1770902971692-e4b9e3cf3933?fm=jpg&q=60&w=1200&h=500&fit=crop" class="block w-full h-full object-cover" alt="Modern boutique" /></div>
     </div>
   </div>
   <button class="absolute bottom-0 left-0 top-0 z-[1] flex w-[15%] items-center justify-center border-0 bg-none p-0 text-center text-white opacity-50 transition-opacity duration-150 ease-[cubic-bezier(0.25,0.1,0.25,1.0)] hover:text-white hover:no-underline hover:opacity-90 hover:outline-none focus:text-white focus:no-underline focus:opacity-90 focus:outline-none motion-reduce:transition-none" type="button" data-twe-target="#carouselExampleIndicators" data-twe-slide="prev">
