@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Wallet = require('../../model/walletModel');
 const Cart = require('../../model/userCartModel');
 const User = require('../../model/userModel');
