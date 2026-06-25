@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "build": "tailwind -i ./src/tailwind.css -o ./public/css/style.css",
+    "start": "node src/server.js",
+    "build": "tailwind -i ./tailwind.css -o ./public/css/style.css",
     "lint": "eslint"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "5.1.1",
     "cloudinary": "^1.22.0",
     "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
@@ -28,19 +28,19 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nocache": "^4.0.0",
     "nodemailer": "^6.9.15",
-    "nodemon": "^3.1.4",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "pdfkit": "^0.15.1",
     "razorpay": "^2.9.5",
-    "tailwindcss": "^3.4.10",
-    "tw-elements": "^2.0.0",
     "versions": "^12.1.2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "globals": "^15.11.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.4",
+    "tailwindcss": "^3.4.10",
+    "tw-elements": "^2.0.0"
   }
 }
