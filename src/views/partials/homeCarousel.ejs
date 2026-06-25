@@ -1,52 +1,67 @@
-
-
-<div id="default-carousel" class="relative w-full" data-carousel="slide">
-    <!-- Carousel wrapper -->
-    <div class="relative h-56 overflow-hidden rounded-lg md:h-96">
-         <!-- Item 1 -->
-        <!-- <div class="gz duration-700 ease-in-out" data-carousel-item>
-            <img src="/uploads/banner1gif.gif" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
-        </div> -->
-        <!-- Item 2 -->
-        <div class=" duration-700 ease-in-out" data-carousel-item>
-            <img src="/uploads/banner2.gif" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
-        </div>
-        <!-- Item 3 -->
-        <!-- <div class=" duration-700 ease-in-out" data-carousel-item>
-            <img src="/uploads/Chroma-Admin-Dashboard.png" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
-        </div> -->
-        <!-- Item 4 -->
-        <!-- <div class=" duration-700 ease-in-out" data-carousel-item>
-            <img src="/uploads/Chroma-Admin-Dashboard.png" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
-        </div> -->
-        <!-- Item 5 -->
-        <!-- <div class=" duration-700 ease-in-out" data-carousel-item>
-            <img src="/uploads/Chroma-Admin-Dashboard.png" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
-        </div> -->
+<div id="homeCarousel" class="relative w-full h-[100vh] overflow-hidden bg-gray-900">
+  <div class="relative w-full h-full">
+    <% const videos = ['banner-video-3.mp4', 'banner-video-2.mp4', 'banner-video-1.mp4']; %>
+    <% videos.forEach(function(v, i) { %>
+    <div class="carousel-slide absolute inset-0 w-full h-full transition-opacity duration-700 <%= i === 0 ? 'opacity-100' : 'opacity-0' %>" data-index="<%= i %>">
+      <video autoplay muted loop playsinline class="w-full h-full object-cover">
+        <source src="/uploads/<%= v %>" type="video/mp4">
+      </video>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none"></div>
     </div>
-    <!-- Slider indicators -->
-    <div class="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
-        <button type="button" class="w-3 h-3 rounded-full" aria-current="true" aria-label="Slide 1" data-carousel-slide-to="0"></button>
-        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 2" data-carousel-slide-to="1"></button>
-        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 3" data-carousel-slide-to="2"></button>
-        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 4" data-carousel-slide-to="3"></button>
-        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 5" data-carousel-slide-to="4"></button>
-    </div>
-    <!-- Slider controls -->
-    <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
-            <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
-            </svg>
-            <span class="sr-only">Previous</span>
-        </span>
-    </button>
-    <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
-            <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-            </svg>
-            <span class="sr-only">Next</span>
-        </span>
-    </button>
+    <% }); %>
+  </div>
+
+  <div class="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+    <% for (let i = 0; i < videos.length; i++) { %>
+    <button type="button" class="carousel-dot w-8 h-1 rounded-full transition-all duration-300 <%= i === 0 ? 'bg-white w-12' : 'bg-white/50' %>" data-index="<%= i %>" aria-label="Slide <%= i + 1 %>"></button>
+    <% } %>
+  </div>
+
+  <button type="button" id="carouselPrev" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-70 hover:opacity-100">
+    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/></svg>
+    <span class="sr-only">Previous</span>
+  </button>
+  <button type="button" id="carouselNext" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-70 hover:opacity-100">
+    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+    <span class="sr-only">Next</span>
+  </button>
 </div>
+
+<script>
+(function() {
+  var container = document.getElementById('homeCarousel');
+  var slides = container.querySelectorAll('.carousel-slide');
+  var dots = container.querySelectorAll('.carousel-dot');
+  var prevBtn = document.getElementById('carouselPrev');
+  var nextBtn = document.getElementById('carouselNext');
+  var current = 0;
+  var total = slides.length;
+  var interval;
+
+  function goTo(index) {
+    if (index === current) return;
+    slides[current].classList.remove('opacity-100');
+    slides[current].classList.add('opacity-0');
+    dots[current].classList.remove('bg-white', 'w-12');
+    dots[current].classList.add('bg-white/50');
+    current = index;
+    slides[current].classList.remove('opacity-0');
+    slides[current].classList.add('opacity-100');
+    dots[current].classList.remove('bg-white/50');
+    dots[current].classList.add('bg-white', 'w-12');
+  }
+
+  function next() { goTo((current + 1) % total); }
+  function prev() { goTo((current - 1 + total) % total); }
+  function startAuto() { interval = setInterval(next, 5000); }
+  function stopAuto() { clearInterval(interval); }
+
+  nextBtn.addEventListener('click', function() { stopAuto(); next(); startAuto(); });
+  prevBtn.addEventListener('click', function() { stopAuto(); prev(); startAuto(); });
+  dots.forEach(function(d) {
+    d.addEventListener('click', function() { stopAuto(); goTo(parseInt(this.getAttribute('data-index'))); startAuto(); });
+  });
+
+  startAuto();
+})();
+</script>
