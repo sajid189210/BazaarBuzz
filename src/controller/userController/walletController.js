@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Wallet = require('../../model/walletModel');
 const Category = require('../../model/categoryModel');
 
@@ -40,13 +41,7 @@ const renderWallet = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught renderWallet in the walletController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 const createRazorpayOrder = async (req, res) => {
@@ -57,10 +52,7 @@ const createRazorpayOrder = async (req, res) => {
         const walletMoneyInput = parseInt(req.body.walletMoneyInput, 10);
 
         if (isNaN(walletMoneyInput) || walletMoneyInput <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Please input a valid amount greater than 0."
-            });
+            return response.error(res, "Please input a valid amount greater than 0.", 400);
         }
 
         const totalAmount = walletMoneyInput * 100;
@@ -72,7 +64,7 @@ const createRazorpayOrder = async (req, res) => {
             payment_capture: 1,
         });
 
-        res.status(200).json({
+        response.success(res, {
             success: true,
             order: razorpayOrder,
             key_id: process.env.RAZORPAY_KEY_ID,
@@ -81,14 +73,7 @@ const createRazorpayOrder = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught createRazorpayOrder in walletController${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 module.exports = {

@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Product = require('../../model/productModel');
 const Order = require('../../model/orderModel');
 
@@ -410,12 +411,7 @@ const getDashboard = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught dashboard in admin controller ${err}`);
-        res.status(500).json({
-            error: err.message,
-            message: 'Internal Server Error',
-            
-        });
+        response.serverError(res, err);
     }
 };
 

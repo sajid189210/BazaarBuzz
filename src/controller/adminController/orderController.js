@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
@@ -17,7 +18,7 @@ const renderOrderList = async (req, res) => {
                 filter._id = search;  // Search by _id
             } else {
                 // Optionally, handle invalid ObjectId search input
-                return res.status(400).json({ error: "Invalid ObjectId format" });
+                return response.error(res, "Invalid ObjectId format", 400);
             }
         }
 
@@ -38,12 +39,7 @@ const renderOrderList = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught renderOrderList in the admin OrderController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -57,12 +53,7 @@ const renderOrderView = async (req, res) => {
         res.render('admin/adminOrderView', { order });
 
     } catch (err) {
-        console.error(`Error caught renderOrderView in the admin OrderController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 }
 
@@ -72,10 +63,7 @@ const changeStatus = async (req, res) => {
     try {
         // Validate input
         if (!orderStatus || !orderItemId || !productId) {
-            return res.status(400).json({
-                success: false,
-                error: "Missing required fields: orderStatus, orderItemId, or productId",
-            });
+            return response.error(res, "Missing required fields: orderStatus, orderItemId, or productId", 400);
         }
 
         // Prepare update object
@@ -95,10 +83,7 @@ const changeStatus = async (req, res) => {
 
         // Handles case where the order was not found
         if (!order) {
-            return res.status(404).json({
-                success: false,
-                error: "Order item not found",
-            });
+            return response.error(res, "Order item not found", 404);
         }
 
         const allProductsDeliveredAndPaid = order.orderedProducts.every(product => {
@@ -132,13 +117,7 @@ const changeStatus = async (req, res) => {
         res.json({ success: true });
 
     } catch (err) {
-        console.error(`Error caught in changeStatus admin OrderController: ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -163,21 +142,12 @@ const returnStatus = async (req, res) => {
             { new: true }
         );
 
-        if (!orderRequest) return res.status(400).json({
-            success: false,
-            message: 'Error while rejecting the return'
-        });
+        if (!orderRequest) return response.error(res, "Error while rejecting the return", 400);
 
         res.json({ success: true });
 
     } catch (err) {
-        console.error(`Error caught in returnStatus admin OrderController ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -188,7 +158,7 @@ const refund = async (req, res) => {
 
         // Validate input
         if (!orderItemId || !productId) {
-            return res.status(400).json({ success: false, message: "orderItemId and productId are required" });
+            return response.error(res, "orderItemId and productId are required", 400);
         }
 
         // Update the order's return and payment status
@@ -222,7 +192,7 @@ const refund = async (req, res) => {
         }
 
         if (!order) {
-            return res.status(400).json({ success: false, message: 'Error while processing the refund' });
+            return response.error(res, "Error while processing the refund", 400);
         }
 
         // Calculate total amount to refund
@@ -249,19 +219,13 @@ const refund = async (req, res) => {
         );
 
         if (!updatedWallet) {
-            return res.status(404).json({ success: false, message: 'User wallet not found' });
+            return response.error(res, "User wallet not found", 404);
         }
 
         res.json({ success: true, message: 'Refund processed successfully' });
 
     } catch (err) {
-        console.error(`Error caught in refund admin OrderController ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 

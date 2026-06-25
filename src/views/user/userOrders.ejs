@@ -49,7 +49,7 @@
                             class="flex justify-start h-10 mt-4 w-full md:w-1/2 lg:w-2/4 rounded-md border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent">
                             <div class="relative flex w-full">
                                 <div class="flex w-full">
-                                    <input type="email" placeholder="Enter valid date." id="orderSearch"
+                                    <input type="text" placeholder="Enter valid date." id="orderSearch"
                                         class="w-full bg-transparent text-[15px] font-semibold text-gray-600 outline-none" />
                                 </div>
                             </div>
@@ -596,7 +596,7 @@
                 const options = {
                     key: data.RAZORPAY_KEY_ID,
                     amount: Math.round(data.amount * 100),
-                    name: 'BuzaarBuzz',
+                    name: 'BazaarBuzz',
                     order_id: data.razorPayOrderId,
                     handler: async function (response) {
                         const verificationData = await verifyPayment(response, data);

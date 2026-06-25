@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
@@ -43,19 +44,13 @@ const userSignUpValidation = async (req, res, next) => {
             userName: user.username
         };
 
-        res.status(201).json({
+        response.success(res, {
             success: true,
             redirectUrl: '/'
         });
 
     } catch (err) {
-        console.error(`Error caught userSignUpValidation in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 }
 
 
@@ -73,13 +68,7 @@ const userSignUp = (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught userSignUp in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 }
 
 //-----------------------------------------------------------Sign In Page--------------------------------------------------------
@@ -126,10 +115,7 @@ const updatePassword = async (req, res) => {
     try {
         const user = await User.findOne({ email });
 
-        if (!user) return res.status(400).json({
-            success: false,
-            message: 'Provide a valid email.'
-        });
+        if (!user) return response.error(res, "Provide a valid email.", 400);
 
         const hashedPassword = await bcrypt.hash(newInput, 10);
 
@@ -139,19 +125,10 @@ const updatePassword = async (req, res) => {
             { new: true }
         );
 
-        res.status(200).json({
-            success: true,
-            message: 'Password Updated Successfully'
-        });
+        response.success(res, {}, "Password Updated Successfully");
 
     } catch (err) {
-        console.error(`Error caught updatePassword in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 
@@ -167,13 +144,7 @@ const userSignIn = (req, res) => {
 
         res.render('user/userSignInPage', { authErrors });
     } catch (err) {
-        console.error(`Error caught userSignIn in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //-----------------------------User Homepage-------------------------------
@@ -242,13 +213,7 @@ const userHomepage = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught userHomepage in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //*--------------[Search a single product] ---------------
@@ -261,16 +226,10 @@ const searchSingleProduct = async (req, res) => {
 
         const products = await Product.find({ productName: regex });
 
-        res.json({ products });
+        response.success(res, { products });
 
     } catch (err) {
-        console.error(`Error caught searchProduct in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //*--------------[Search multiple products] ---------------
@@ -285,16 +244,10 @@ const searchMultipleProducts = async (req, res) => {
 
         req.session.searchResult = products;
 
-        res.json({ products });
+        response.success(res, { products });
 
     } catch (err) {
-        console.error(`Error caught searchProduct in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 
@@ -316,13 +269,7 @@ const getAddress = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught getAddress in the userController. ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //*--------------[Saves Address] ---------------
@@ -338,20 +285,10 @@ const saveAddress = async (req, res) => {
 
         if (!user) throw new Error("Error while adding new address.");
 
-        res.status(200).json({
-            success: true,
-            message: 'You have successfully added address.'
-        });
+        response.success(res, {}, "You have successfully added address.");
 
     } catch (err) {
-        console.error(`Error caught getAddress in the userController. ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //*--------------[Removes Address] ---------------
@@ -360,10 +297,7 @@ const removeAddress = async (req, res) => {
     const userId = req.session.user.userId;
     try {
 
-        if (!addressId || !userId) return res.status(400).json({
-            success: false,
-            message: 'address or user not found'
-        });
+        if (!addressId || !userId) return response.error(res, "address or user not found", 400);
 
         const result = await User.updateOne(
             { _id: userId },
@@ -372,26 +306,13 @@ const removeAddress = async (req, res) => {
         );
 
         if (!result.modifiedCount) {
-            return res.status(404).json({
-                success: false,
-                message: 'Address not found'
-            });
+            return response.error(res, "Address not found", 404);
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Address Successfully removed'
-        });
+        response.success(res, {}, "Address Successfully removed");
 
     } catch (err) {
-        console.error(`Error caught removeAddress in the userController. ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 }
 
 //*--------------[Edit Address] ---------------
@@ -401,10 +322,7 @@ const editAddress = async (req, res) => {
     const { addressId } = req.query;
     try {
 
-        if (!formInputs || !userId) return res.status(400).json({
-            success: false,
-            message: 'Form inputs or user not found.'
-        });
+        if (!formInputs || !userId) return response.error(res, "Form inputs or user not found.", 400);
 
         const result = await User.updateOne(
             { _id: userId, 'addressId._id': addressId },
@@ -413,26 +331,13 @@ const editAddress = async (req, res) => {
         );
 
         if (!result.modifiedCount) {
-            return res.status(400).json({
-                success: false,
-                message: 'Address not found',
-            });
+            return response.error(res, 'Address not found', 400);
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Address Successfully Updated.'
-        });
+        response.success(res, {}, "Address Successfully Updated.");
 
     } catch (err) {
-        console.error(`Error caught editAddress in the userController. ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 const renderProfile = async (req, res) => {
@@ -454,13 +359,7 @@ const renderProfile = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught getOrders in the cartController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 
@@ -473,9 +372,7 @@ const userSignOut = (req, res) => {
         res.redirect('/user/signIn');
 
     } catch (err) {
-        console.error(`Error caught userSignOut in the userController. ${err}`);
-        res.status(500).json({ Error: "Internal Server Error!" });
-    }
+        response.serverError(res, err);}
 };
 
 module.exports = {

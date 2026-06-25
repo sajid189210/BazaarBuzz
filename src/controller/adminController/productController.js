@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 const mongoose = require('mongoose');
 const Product = require('../../model/productModel');
@@ -10,24 +11,12 @@ const getCategory = async (req, res) => {
     const categoryId = req.params.id;
     try {
         const category = await categoryModel.findById(categoryId);
-        if (!category) return res.status(400).json({
-            success: false,
-            message: 'Category not found'
-        });
+        if (!category) return response.error(res, "Category not found", 400);
 
-        return res.status(200).json({
-            success: true,
-            message: 'Category found',
-            category
-        });
+        return response.success(res, { category }, 'Category found');
 
     } catch (err) {
-        console.error(`Error caught getId in the productController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -59,12 +48,7 @@ const getProducts = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught getProducts in the productController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -80,12 +64,7 @@ const getCreateProducts = async (req, res) => {
         res.render('admin/createProduct', { Category });
 
     } catch (err) {
-        console.error(`Error caught createProducts in the productController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -94,10 +73,7 @@ const createProducts = async (req, res) => {
     const { productDetails } = req.body;
     try {
 
-        if (!productDetails) return res.status(201).json({
-            success: false,
-            message: 'Product details not found.'
-        });
+        if (!productDetails) return response.error(res, 'Product details not found.', 400);
 
         const newProduct = new Product(productDetails);
 
@@ -108,19 +84,10 @@ const createProducts = async (req, res) => {
             throw new Error("Error caught while save product data to the db.", err);
         }
 
-        res.status(201).json({
-            success: true,
-            message: 'Product successfully created.'
-        });
+        response.success(res, {}, "Product successfully created.", 201);
 
     } catch (err) {
-        console.error(`Error caught createProducts in the productController${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -131,33 +98,19 @@ const productUpdate = async (req, res) => {
         const { productId } = req.query;
         const { productDetails } = req.body;
 
-        if (!productDetails || !productId) return res.status(400).json({
-            success: false,
-            message: "Missing required fields. Please provide both productId and productDetails"
-        });
+        if (!productDetails || !productId) return response.error(res, "Missing required fields. Please provide both productId and productDetails", 400);
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
             { $set: productDetails },
             { new: true }
         );
 
-        if (!updatedProduct) return res.status(404).json({
-            success: false,
-            message: "Product not found"
-        });
+        if (!updatedProduct) return response.error(res, "Product not found", 404);
 
-        res.status(200).json({
-            success: true,
-            message: "Product details updated successfully",
-        });
+        response.success(res, {}, "$1");
 
     } catch (err) {
-        console.error(`Error caught productUpdate in the productController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -167,28 +120,17 @@ const isActive = async (req, res) => {
 
         const product = await Product.findById(productId);
 
-        if (!product) return res.status(400).json({
-            success: false,
-            message: 'Product not found'
-        });
+        if (!product) return response.error(res, "Product not found", 400);
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
             { $set: { isActive: req.body.isActive } },
             { new: true }
         );
 
-        res.status(200).json({
-            success: true,
-            updatedProduct
-        });
+        response.success(res, { updatedProduct });
 
     } catch (err) {
-        console.error(`Error caught createProducts in the productController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -199,14 +141,10 @@ const searchProduct = async (req, res) => {
         const regex = new RegExp(search, 'i');
         const products = await Product.find({ productName: regex });
 
-        res.json({ products });
+        response.success(res, { products });
 
     } catch (err) {
-        console.error(`Error in searchUser in userManagementController: ${err.message}`);
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: err.message
-        });
+        response.serverError(res, err);
     }
 }
 
@@ -226,12 +164,7 @@ const extractFilePath = async (req, res) => {
         res.json({ success: true, imageUrl });
 
     } catch (err) {
-        console.error(`Error in extractFilePath: ${err.message}`);
-        res.status(500).json({
-            success: false,
-            error: 'Internal Server Error',
-            message: err.message
-        });
+        response.serverError(res, err);
     }
 }
 
@@ -239,17 +172,11 @@ const removeProduct = async (req, res) => {
     const { productId } = req.query;
     try {
 
-        if (!productId) return res.status(400).json({
-            success: false,
-            message: 'Product ID not found.'
-        });
+        if (!productId) return response.error(res, "Product ID not found.", 400);
 
         const product = await Product.findById(productId);
 
-        if (!product) return res.status(404).json({
-            success: false,
-            message: 'Product not found.'
-        });
+        if (!product) return response.error(res, "Product not found.", 404);
 
         const removedProduct = await Product.findByIdAndUpdate(
             productId,
@@ -257,19 +184,10 @@ const removeProduct = async (req, res) => {
             { new: true }
         );
 
-        return res.status(200).json({
-            success: true,
-            message: "Product removed successfully",
-            product: removedProduct
-        });
+        return response.success(res, { product: removedProduct }, 'Product removed successfully');
 
     } catch (err) {
-        console.error(`Error in removeProduct: ${err.message}`);
-        res.status(500).json({
-            success: false,
-            error: 'Internal Server Error',
-            message: err.message
-        });
+        response.serverError(res, err);
     }
 }
 

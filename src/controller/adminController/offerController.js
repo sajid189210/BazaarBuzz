@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Offer = require('../../model/offerModel');
 
@@ -14,13 +15,7 @@ const renderOffer = async (req, res) => {
         res.render('admin/offer', { category, offers })
 
     } catch (err) {
-        console.error(`Error in renderOffer : ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -30,13 +25,13 @@ const createOffer = async (req, res) => {
 
     try {
         if (!offerName || !brandName || !discountValue) {
-            return res.status(400).json({ success: false, message: 'Required fields are missing.' });
+            return response.error(res, "Required fields are missing.", 400);
         }
 
         const offer = await Offer.find();
 
         if (offer && offer.brandName === brandName) {
-            return res.status(400).json({ success: false, message: 'Brand with offer already exists.' });
+            return response.error(res, "Brand with offer already exists.", 400);
         }
 
         const newOffer = new Offer({
@@ -47,16 +42,10 @@ const createOffer = async (req, res) => {
 
         await newOffer.save();
 
-        res.status(201).json({ success: true, message: 'Offer created successfully' })
+        response.success(res, {}, "Offer created successfully", 201)
 
     } catch (err) {
-        console.error(`Error in createOffer : ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -70,19 +59,13 @@ const changeStatus = async (req, res) => {
         const updatedOffer = await Offer.findByIdAndUpdate(offerId, { $set: { isActive: status } }, { new: true });
 
         if (!updatedOffer) {
-            return res.status(400).json({ success: false, message: 'Sorry!, Something happened!' })
+            return response.error(res, "Sorry!, Something happened!", 400)
         }
 
-        res.status(200).json({ success: true, message: 'status changed' });
+        response.success(res, {}, "status changed");
 
     } catch (err) {
-        console.error(`Error in changeStatus : ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -98,23 +81,17 @@ const updateOffer = async (req, res) => {
         );
 
         if (!updateOffer) {
-            return res.status(400).json({ success: false, message: 'Could not find offer' });
+            return response.error(res, "Could not find offer", 400);
         }
 
-        res.status(200).json({ success: true, message: 'Offer updated successfully' });
+        response.success(res, {}, "Offer updated successfully");
     } catch (err) {
         if (err.code === 11000) { // MongoDB duplicate key error code
             console.error(`MongoDB duplicate key error: ${err}`);
-            return res.status(409).json({ success: false, message: 'Offer name must be unique.' });
+            return response.error(res, "Offer name must be unique.", 409);
         }
 
-        console.error(`Error in updateOffer : ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -125,10 +102,10 @@ const removeOffer = async (req, res) => {
     console.log(result)
 
     if (!result) {
-        return res.status(400).json({ success: false, message: 'Could not remove the offer.' })
+        return response.error(res, "Could not remove the offer.", 400)
     }
 
-    res.status(200).json({ success: true, message: 'Offer removed successfully' })
+    response.success(res, {}, "Offer removed successfully")
 }
 
 module.exports = {

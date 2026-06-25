@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
 
@@ -91,13 +92,7 @@ const renderProductList = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught in renderProductList: ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //* this endpoint filters the product based on the selection.
@@ -124,7 +119,7 @@ const filterProductsList = async (req, res) => {
             // Apply filters
             filteredProducts = await filterProducts(filterData, products);
 
-            return res.status(200).json({
+            return response.success(res, {
                 success: true,
                 products: filteredProducts,
                 collectionId
@@ -132,7 +127,7 @@ const filterProductsList = async (req, res) => {
         } else {
 
             // If no filters are applied, return all products
-            return res.status(200).json({
+            return response.success(res, {
                 success: false,
                 message: "Please select a filter",
                 products,
@@ -141,14 +136,7 @@ const filterProductsList = async (req, res) => {
         }
 
     } catch (err) {
-        console.error(`Error caught in filterProductsEndpoint: ${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 module.exports = {
