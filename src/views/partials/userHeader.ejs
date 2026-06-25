@@ -1,5 +1,5 @@
 
-<header class="fixed bg-white w-full z-50 font-[poppins] flex flex-col gap-3 px-2">
+<header id="mainHeader" class="fixed w-full z-50 font-[poppins] flex flex-col gap-3 px-2 transition-all duration-300 bg-transparent text-white">
     <section class="flex md:min-h-[75px] flex-wrap items-center px-4 pt-3 500">
 
         <div class="w-full flex justify-between">
@@ -141,3 +141,20 @@
         </div>
         <%}%>
 </header>
+
+<script>
+(function() {
+  var header = document.getElementById('mainHeader');
+  function updateHeader() {
+    if (window.scrollY > 80) {
+      header.classList.add('bg-white', 'text-gray-800');
+      header.classList.remove('bg-transparent', 'text-white');
+    } else {
+      header.classList.remove('bg-white', 'text-gray-800');
+      header.classList.add('bg-transparent', 'text-white');
+    }
+  }
+  window.addEventListener('scroll', updateHeader);
+  updateHeader();
+})();
+</script>

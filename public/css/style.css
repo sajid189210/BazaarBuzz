@@ -1252,6 +1252,10 @@ html {
   height: 100px;
 }
 
+.h-\[100vh\] {
+  height: 100vh;
+}
+
 .h-\[12rem\] {
   height: 12rem;
 }
@@ -1278,10 +1282,6 @@ html {
 
 .h-\[80px\] {
   height: 80px;
-}
-
-.h-\[80vh\] {
-  height: 80vh;
 }
 
 .h-auto {
@@ -4249,10 +4249,6 @@ html {
 
   .md\:top-\[35\%\] {
     top: 35%;
-  }
-
-  .md\:top-\[80px\] {
-    top: 80px;
   }
 
   .md\:col-span-2 {
