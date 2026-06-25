@@ -5,7 +5,7 @@ const Product = require('../../model/productModel');
 // ? getting category from the database.
 const getCategory = async () => {
     try {
-        return await Category.find({ isActive: true });
+        return await Category.find({});
     } catch (err) {
         throw new Error("Error caught while getting categories from db.", err);
     }
@@ -16,7 +16,6 @@ const getProduct = async () => {
     try {
         return await Product.find({ isActive: true, isDeleted: false }).populate({
             path: 'categoryId',
-            match: { isActive: true },
             model: 'Category',
         });
     } catch (err) {
@@ -33,7 +32,7 @@ const filterProducts = async (filterData, products) => {
 
         // filter based on category.
         if (filterData.category) {
-            filterResult = products.filter(product => product.categoryId.title === filterData.category);
+            filterResult = products.filter(product => product.categoryId && product.categoryId.title === filterData.category);
         }
 
         // filter based on price if specified.

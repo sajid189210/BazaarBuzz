@@ -131,59 +131,46 @@
                                 </button>
                             </div>
 
-                            <div id="productCard" class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
+                            <div id="productCard" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 mt-6 px-4">
                                 <%if(products && products.length) {%>
-                                    <%products.forEach((product, index)=> {%>
-                                        <div
-                                            class="relative cursor-pointer overflow-hidden rounded-lg bg-white lg:shadow-md lg:transition-all lg:hover:-translate-y-2">
-                                            <button type="button" onclick="addToWishlist('<%= product._id%>')"
-                                                class="hidden absolute right-3 top-3 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16px" id="heart"
-                                                    class="fill-gray-800" viewBox="0 0 64 64">
-                                                    <path
-                                                        d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z"
-                                                        data-original="#000000"></path>
-                                                </svg>
-                                            </button>
-                                            <a href="/user/viewProduct?productId=<%=product._id%>">
-
-                                                <div class="aspect-w-16 aspect-h-8 mx-auto h-[260px] overflow-hidden">
-                                                    <img src="<%= product.images[0]%>" alt="Product 1"
-                                                        class="h-full w-full object-contain" />
+                                    <%products.forEach((product, index)=> {
+                                        var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
+                                    %>
+                                    <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+                                        <a href="/user/viewProduct?productId=<%=product._id%>">
+                                            <div class="relative overflow-hidden aspect-[3/4] bg-gray-50">
+                                                <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
+                                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                <% if(product.discount) { %>
+                                                <div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] lg:text-xs font-bold px-2 py-1 rounded-md">
+                                                    -<%= product.discount %>% off
                                                 </div>
-
-                                                <div class="bg-white p-6">
-                                                    <h3 class="text-lg font-bold text-gray-800">
-                                                        <%= product.productName%>
-                                                    </h3>
-
-                                                    <div class="my-2 flex space-x-2">
-                                                        <%for(let i=0; i < 5; i++){%>
-                                                            <svg class="w-4 fill-[#facc15]" viewBox="0 0 14 13"
-                                                                fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path
-                                                                    d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                                                            </svg>
-                                                            <%}%>
-                                                    </div>
-
-                                                    <h4 class="mt-2 text-xl font-bold text-gray-800">₹
-                                                        <%const offerPrice=product.productPrice*
-                                                            (1-(parseFloat(product.discount)/100))%>
-                                                            <%=Math.round(offerPrice)%>/-
-                                                    </h4>
-
-                                                    <p class="my-2 text-lg text-gray-600"><strike class="mr-1 text-sm">₹
-                                                            <%= product.productPrice%>
-                                                        </strike>
-                                                        <%= product.discount%>% off
-                                                    </p>
-
+                                                <% } %>
+                                            </div>
+                                            <div class="p-3 lg:p-4">
+                                                <p class="text-[10px] lg:text-xs text-gray-400 uppercase tracking-wider font-medium"><%= product.brand || 'Premium' %></p>
+                                                <h3 class="text-sm lg:text-base font-semibold text-gray-800 mt-1 truncate"><%= product.productName %></h3>
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    <% if(product.discount) { %>
+                                                    <span class="text-base lg:text-lg font-bold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
+                                                    <span class="text-xs lg:text-sm text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
+                                                    <% } else { %>
+                                                    <span class="text-base lg:text-lg font-bold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
+                                                    <% } %>
                                                 </div>
-                                            </a>
-                                        </div>
-                                        <%})%>
-                                            <%} %>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <%})%>
+                                <%} else { %>
+                                <div class="col-span-full flex flex-col items-center justify-center py-20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 mb-4">
+                                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                    <h3 class="text-xl font-semibold text-gray-500">No products found</h3>
+                                    <p class="text-sm text-gray-400 mt-1">Try adjusting your search or filter criteria</p>
+                                </div>
+                                <%} %>
                             </div>
                         </div>
                     </main>
@@ -246,34 +233,42 @@
                     productListElement.innerHTML = '';
 
                     if (data.products.length === 0) {
-                        productListElement.innerHTML = '<div>No products</div>';
+                        productListElement.innerHTML = `
+                            <div class="col-span-full flex flex-col items-center justify-center py-20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 mb-4">
+                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <h3 class="text-xl font-semibold text-gray-500">No products found</h3>
+                                <p class="text-sm text-gray-400 mt-1">Try adjusting your search or filter criteria</p>
+                            </div>`;
                         return;
                     }
 
                     // Render new filtered products
                     data.products.forEach(product => {
-                        const productElement = document.createElement('a');
-                        productElement.href = `/user/viewProduct?productId=${product._id}`;
+                        const discPrice = Math.round(product.productPrice * (1 - (parseFloat(product.discount) / 100)));
+                        const productElement = document.createElement('div');
+                        productElement.className = 'group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden';
                         productElement.innerHTML = `
-                                                <div class="relative cursor-pointer overflow-hidden rounded-lg bg-gray-50 shadow-md transition-all hover:-translate-y-2">
-                                                    <div class="absolute right-3 top-3 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" class="inline-block fill-gray-800" viewBox="0 0 64 64">
-                                                            <path d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z"></path>
-                                                        </svg>
-                                                    </div>
-                                                    <div class="aspect-w-16 aspect-h-8 mx-auto h-[260px] overflow-hidden">
-                                                        <img src="${product.images[0]}" alt="${product.productName}" class="h-full w-full object-contain" />
-                                                    </div>
-                                                    <div class="bg-white p-6">
-                                                        <h3 class="text-lg font-bold text-gray-800">${product.productName}</h3>
-                                                        <div class="my-2 flex space-x-2">
-                                                             <!-- Assuming you have a function to generate star ratings -->
-                                                        </div>
-                                                        <h4 class="mt-2 text-xl font-bold text-gray-800">₹${Math.round(product.productPrice * (1 - (parseFloat(product.discount) / 100)))} /-</h4>
-                                                        <p class="my-2 text-lg text-gray-600"><strike class="mr-1 text-sm">₹${product.productPrice}</strike> ${product.discount}% off</p>
-                                                    </div>
-                                                </div>
-                                            `;
+                            <a href="/user/viewProduct?productId=${product._id}">
+                                <div class="relative overflow-hidden aspect-[3/4] bg-gray-50">
+                                    <img src="${product.images[0]}" alt="${product.productName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    ${product.discount ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] lg:text-xs font-bold px-2 py-1 rounded-md">-${product.discount}% off</div>` : ''}
+                                </div>
+                                <div class="p-3 lg:p-4">
+                                    <p class="text-[10px] lg:text-xs text-gray-400 uppercase tracking-wider font-medium">${product.brand || 'Premium'}</p>
+                                    <h3 class="text-sm lg:text-base font-semibold text-gray-800 mt-1 truncate">${product.productName}</h3>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        ${product.discount ? `
+                                            <span class="text-base lg:text-lg font-bold text-gray-900">₹${discPrice.toLocaleString()}</span>
+                                            <span class="text-xs lg:text-sm text-gray-400 line-through">₹${product.productPrice.toLocaleString()}</span>
+                                        ` : `
+                                            <span class="text-base lg:text-lg font-bold text-gray-900">₹${product.productPrice.toLocaleString()}</span>
+                                        `}
+                                    </div>
+                                </div>
+                            </a>
+                        `;
                         productListElement.appendChild(productElement);
                     });
 
