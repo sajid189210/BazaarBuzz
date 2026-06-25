@@ -4,6 +4,12 @@ const User = require('../model/userModel');
 
 require('dotenv').config();
 
+console.log('[Google OAuth] Environment variables loaded:', {
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? '✓ Set' : '✗ MISSING',
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? '✓ Set' : '✗ MISSING',
+    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI || '✗ MISSING',
+});
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
