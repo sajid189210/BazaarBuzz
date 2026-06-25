@@ -17,9 +17,7 @@ const upload = multer({ storage });
 //*------------------[Admin]----------------------
 router.get("/signIn", adminController.adminSignIn);
 router.get("/signOut", adminController.adminSignOut);
-router.get("/changePassword", adminController.adminChangePassword)
 router.post("/signIn", adminController.validateCredentials);
-router.post("/changePassword", adminController.validateChangePassword);
 
 
 //*--------------------[Category]----------------
