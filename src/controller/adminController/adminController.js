@@ -1,4 +1,6 @@
 //validating admin credentials.
+const response = require('../../Services/responseMapper');
+
 const validateCredentials = async (req, res) => {
 
     const { email, password } = req.body;
@@ -18,8 +20,7 @@ const validateCredentials = async (req, res) => {
         res.redirect('/admin/dashboard');
 
     } catch (err) {
-        console.error(`Error caught validateCredentials in admin controller. ${err}`);
-        res.status(500).json('Internal sever Error!');
+        response.serverError(res, err);
     }
 };
 
@@ -35,8 +36,7 @@ const adminSignIn = async (req, res) => {
         res.render('admin/adminSignIn', { message: req.flash() });
 
     } catch (err) {
-        console.error(`Error caught while rendering admin sign in page. ${err}`);
-        res.status(500).json('Internal sever error!');
+        response.serverError(res, err);
     }
 };
 
@@ -50,8 +50,7 @@ const adminSignOut = (req, res) => {
         res.redirect("/admin/signIn")
 
     } catch (err) {
-        console.error(`Error caught adminSignOut in admin controller ${err}`);
-        res.status(500).json("Internal server error!");
+        response.serverError(res, err);
     }
 }
 

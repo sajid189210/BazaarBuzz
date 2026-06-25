@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
 const Wallet = require('../../model/walletModel');
@@ -82,13 +83,7 @@ const getOrders = async (req, res) => {
         })
 
     } catch (err) {
-        console.error(`Error caught getOrders in the orderController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 }
 
 const returnProduct = async (req, res) => {
@@ -106,24 +101,12 @@ const returnProduct = async (req, res) => {
             { new: true }
         );
 
-        if (!order) return res.status(400).json({
-            success: false,
-            message: 'Error handling return...'
-        });
+        if (!order) return response.error(res, "Error handling return...", 400);
 
-        res.status(200).json({
-            success: true,
-            message: 'Order successfully requested for return. Order will be returned when approved.'
-        })
+        response.success(res, {}, "Order successfully requested for return. Order will be returned when approved.")
 
     } catch (err) {
-        console.error(`Error caught returnProducts in the orderController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 const cancelProduct = async (req, res) => {
@@ -144,9 +127,7 @@ const cancelProduct = async (req, res) => {
 
         // Validate existence of user, order, and wallet
         if (!user || !order || !wallet) {
-            return res.status(404).json({
-                success: false, message: !user ? "User not found." : !order ? "Order not found." : "Wallet not found."
-            });
+            return response.error(res, !user ? "User not found." : !order ? "Order not found." : "Wallet not found.", 404);
         }
 
         const { paymentMethod, orderedProducts } = order;
@@ -170,7 +151,7 @@ const cancelProduct = async (req, res) => {
         }
 
         // increases stock.
-        handleStock(order, paymentMethod);
+        await handleStock(order, paymentMethod);
 
         //* Handle online payment refunds and save the wallet history.
         if (paymentMethod === 'razorpay' || paymentMethod === 'wallet') {
@@ -189,7 +170,7 @@ const cancelProduct = async (req, res) => {
 
             // Add the transaction to the wallet and save it.
             wallet.transactions.push(transactionDetails);
-            wallet.save();
+            await wallet.save();
 
             const updateWalletBalance = await Wallet.findOneAndUpdate(
                 { user: userId },
@@ -198,32 +179,17 @@ const cancelProduct = async (req, res) => {
             );
 
             if (!updateWalletBalance) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Refund has failed.'
-                });
+                return response.error(res, "Refund has failed.", 400);
             }
 
-            return res.status(200).json({
-                success: true,
-                message: 'You have cancelled the product. Money has been refunded into your wallet.'
-            });
+            return response.success(res, {}, "You have cancelled the product. Money has been refunded into your wallet.");
         }
 
         //* Return if payment method is COD
-        return res.status(200).json({
-            success: true,
-            message: 'You have cancelled the product.'
-        });
+        return response.success(res, {}, "You have cancelled the product.");
 
     } catch (err) {
-        console.error(`Error caught cancelProduct in the orderController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 const retryPayment = async (req, res) => {
@@ -237,7 +203,7 @@ const retryPayment = async (req, res) => {
         const repayingOrder = await Order.findById(orderId);
 
         if (!repayingOrder || !user) {
-            return res.status(400).json({ success: false, message: 'Order or user was not found' });
+            return response.error(res, "Order or user was not found", 400);
         }
 
         const totalPay = repayingOrder.orderedProducts.reduce((acc, item) => acc + item.totalPay, 0);
@@ -252,10 +218,10 @@ const retryPayment = async (req, res) => {
         razorPayInstance.orders.create(options, async (err, order) => {
             if (err) {
                 console.log(err);
-                return res.status(400).json({ success: false, message: `Something went wrong! ${err}` });
+                return response.error(res, `Something went wrong! ${err}`, 400);
             }
 
-            return res.status(200).json({
+            return response.success(res, {
                 success: true,
                 razorPayOrderId: order.id,
                 currency: order.currency,
@@ -267,13 +233,7 @@ const retryPayment = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error creating Razorpay order`);
-        console.error(`Error caught retryPayment in the orderController${err}`);
-        return res.status(500).json({
-            success: false,
-            message: "Payment processing failed. Please try again.",
-            details: err.message
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -385,11 +345,9 @@ const downloadInvoice = async (req, res) => {
         doc.end();
 
     } catch (err) {
-        console.error(`Error in downloadInvoice: ${err}`);
-        return res.status(500).json({
-            message: err.message,
-
-        });
+        if (!res.headersSent) {
+            response.serverError(res, err);
+        }
     }
 };
 

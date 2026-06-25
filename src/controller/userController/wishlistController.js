@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Wishlist = require('../../model/wishlistModel');
 const User = require('../../model/userModel');
 const Product = require('../../model/productModel');
@@ -18,7 +19,13 @@ const renderWishlist = async (req, res) => {
         if (!user) throw new Error('Could not find the user or the wishlist.');
 
         if (!wishlist) {
-            await new Wishlist({ user: userId }).save();
+            const newWishlist = new Wishlist({ user: userId });
+            await newWishlist.save();
+            return res.render('user/userWishlist', {
+                searchBox: false,
+                wishlist: newWishlist,
+                user: req.session.user || null,
+            });
         }
 
         res.render('user/userWishlist', {
@@ -28,21 +35,12 @@ const renderWishlist = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught renderWishlist in the wishlistController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 const addToWishList = async (req, res) => {
     try {
-        if (!req.session.user) return res.status(400).json({
-            session: false,
-            success: false,
-            message: "Please Sign In to view the cart.",
+        if (!req.session.user) return response.error(res, "Please Sign In to view the cart.", 400, { session: false,
             redirectUrl: '/user/signIn'
         });
 
@@ -50,39 +48,23 @@ const addToWishList = async (req, res) => {
         const { productId } = req.body;
         const wishlist = await Wishlist.findOne({ user: userId });
 
-        if (!wishlist) return res.status(404).json({
-            session: true,
-            success: false,
-            message: 'Could not find the wishlist.'
-        });
+        if (!wishlist) return response.error(res, "Could not find the wishlist.", 404, { session: true });
 
         const existingItem = wishlist.items.find(item => item.product.toString() === productId);
 
-        if (existingItem) return res.status(409).json({
-            session: true,
-            success: false,
-            message: 'Product already exists in the wishlist.',
-            redirectUrl: '/user/wishlist'
-        });
+        if (existingItem) return response.error(res, "Product already exists in the wishlist.", 409, { session: true, redirectUrl: "/user/wishlist" });
 
         wishlist.items.push({ product: productId });
         await wishlist.save();
 
-        res.status(200).json({
+        response.success(res, {
             session: true,
             success: true,
             message: 'Product Successfully Added.'
         });
 
     } catch (err) {
-        console.error(`Error caught viewProduct in the productViewController${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 }
 
 const removeProduct = async (req, res) => {
@@ -105,26 +87,13 @@ const removeProduct = async (req, res) => {
 
         // Checking if a product was removed
         if (result.modifiedCount === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Product not found in the wishlist.'
-            });
+            return response.error(res, "Product not found in the wishlist.", 404);
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Product successfully removed from the wishlist.'
-        });
+        response.success(res, {}, "Product successfully removed from the wishlist.");
 
     } catch (err) {
-        console.error(`Error caught removeProduct in the wishlistController${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 }
 
 module.exports = {

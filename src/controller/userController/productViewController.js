@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Product = require('../../model/productModel');
 const Category = require('../../model/categoryModel');
 const Offer = require('../../model/offerModel');
@@ -33,13 +34,7 @@ const viewProduct = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught viewProduct in the productViewController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 

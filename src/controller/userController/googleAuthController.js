@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const passport = require('passport');
 const User = require('../../model/userModel');
 
@@ -19,8 +20,7 @@ const callback = async (req, res, next) => {
 
     }, async (authError, authResult) => {
         if (authError) {
-            console.error('Authentication error:', authError);
-            res.status(500).json('Authentication error');
+            response.serverError(res, authError);
             return;
         }
 

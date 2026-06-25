@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Coupon = require('../../model/couponModel');
 const User = require('../../model/userModel');
 
@@ -24,11 +25,7 @@ const renderCoupons = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught verifyPayment in the checkoutController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message
-        });
+        response.serverError(res, err);
     }
 }
 

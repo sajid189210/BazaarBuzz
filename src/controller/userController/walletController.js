@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Wallet = require('../../model/walletModel');
 const Category = require('../../model/categoryModel');
 
@@ -40,69 +41,39 @@ const renderWallet = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error caught renderWallet in the walletController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 const createRazorpayOrder = async (req, res) => {
     try {
         if (!req.session.user) return res.redirect('/user/signIn');
 
-        // const userId = req.session.user.userId;
+        const userId = req.session.user.userId;
+        const walletMoneyInput = parseInt(req.body.walletMoneyInput, 10);
 
-        // Parse the walletMoneyInput correctly from the request body
-        const walletMoneyInput = parseInt(req.body.walletMoneyInput, 10); //? Specify the base.
+        if (isNaN(walletMoneyInput) || walletMoneyInput <= 0) {
+            return response.error(res, "Please input a valid amount greater than 0.", 400);
+        }
 
         const totalAmount = walletMoneyInput * 100;
 
-        const option = {
+        const razorpayOrder = await razorpayInstance.orders.create({
             amount: totalAmount,
             currency: 'INR',
             receipt: `receipt_${new Date().getTime()}`,
             payment_capture: 1,
-        };
+        });
 
-        // razorpayInstance.orders
-        // // Validate the input
-        // if (isNaN(walletMoneyInput) || walletMoneyInput <= 0) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "Please input a valid amount greater than 0."
-        //     });
-        // }
-
-        // const wallet = await Wallet.findOne({ user: userId });
-
-        // if (!wallet) {
-        //     // Create a new wallet if it doesn't exist
-        //     const createWallet = new Wallet({ user: userId, balance: wallet.balance + walletMoneyInput });
-        //     await createWallet.save();
-        // } else {
-        //     // Update the existing wallet balance
-        //     wallet.balance += walletMoneyInput;
-        //     await wallet.save();
-        // }
-
-        // res.status(200).json({
-        //     success: true,
-        //     message: "Amount successfully added.",
-        //     balance: wallet.balance
-        // });
+        response.success(res, {
+            success: true,
+            order: razorpayOrder,
+            key_id: process.env.RAZORPAY_KEY_ID,
+            amount: totalAmount,
+            currency: 'INR',
+        });
 
     } catch (err) {
-        console.error(`Error caught proceedToPayment in the checkoutController${err}`);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 module.exports = {

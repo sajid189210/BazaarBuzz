@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
 const Coupon = require('../../model/couponModel');
@@ -13,12 +14,7 @@ const renderCouponPage = async (req, res) => {
         res.render('admin/coupon', { coupons });
 
     } catch (err) {
-        console.error(`Error caught renderCouponPage in the couponController${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -30,10 +26,7 @@ const createCoupons = async (req, res) => {
 
     // Check for required fields
     if (!couponCode || !couponType || !couponValue || !minAmount || !expiry || !count) {
-        return res.status(400).json({
-            success: false,
-            message: 'Required fields are empty!'
-        });
+        return response.error(res, "Required fields are empty!", 400);
     }
 
     try {
@@ -45,29 +38,23 @@ const createCoupons = async (req, res) => {
             if (existingCoupon.couponType !== couponType) {
                 const newCoupon = new Coupon({ couponCode, couponType, couponValue, minAmount, expiry, count });
                 await newCoupon.save();
-                return res.status(201).json({ success: true, message: 'Coupon created successfully.' });
+                return response.success(res, {}, "Coupon created successfully.", 201);
             }
-            return res.status(400).json({ success: false, message: 'Coupon already exists.' });
+            return response.error(res, "Coupon already exists.", 400);
         }
 
         // Create new coupon
         const newCoupon = new Coupon({ couponCode, couponType, couponValue, minAmount, expiry, count });
         await newCoupon.save();
-        return res.status(201).json({ success: true, message: 'Coupon has been successfully created.' });
+        return response.success(res, {}, "Coupon has been successfully created.", 201);
 
     } catch (err) {
         if (err.code === 11000) { // MongoDB duplicate key error code
             console.error(`MongoDB duplicate key error: ${err}`);
-            return res.status(409).json({ success: false, message: 'Coupon code must be unique.' });
+            return response.error(res, "Coupon code must be unique.", 409);
         }
 
-        console.error(`Error in createCoupons: ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -79,10 +66,7 @@ const updateCoupons = async (req, res) => {
 
         // Check for required fields
         if (!couponCode || !couponType || !couponValue || !minAmount || !expiry || !count) {
-            return res.status(400).json({
-                success: false,
-                message: 'Required fields are empty!'
-            });
+            return response.error(res, "Required fields are empty!", 400);
         }
 
         const updatedCoupon = await Coupon.findOneAndUpdate(
@@ -92,25 +76,13 @@ const updateCoupons = async (req, res) => {
         )
 
         if (!updatedCoupon) {
-            return res.status(400).json({
-                success: false,
-                message: 'Coupon Code was not found.'
-            });
+            return response.error(res, "Coupon Code was not found.", 400);
         }
 
-        return res.status(200).json({
-            success: true,
-            message: 'You have successfully updated the coupon.'
-        });
+        return response.success(res, {}, "You have successfully updated the coupon.");
 
     } catch (err) {
-        console.error(`Error in updateCoupons: ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -122,25 +94,13 @@ const deleteCoupons = async (req, res) => {
         const deletedCoupon = await Coupon.findByIdAndDelete(req.query.couponId);
 
         if (deletedCoupon) {
-            res.status(200).json({
-                success: true,
-                message: 'You have successfully deleted the coupon.'
-            });
+            response.success(res, {}, "You have successfully deleted the coupon.");
         } else {
-            res.status(400).json({
-                success: false,
-                message: 'Coupon ID was not found.'
-            });
+            response.error(res, "Coupon ID was not found.", 400);
         }
 
     } catch (err) {
-        console.error(`Error in deleteCoupons : ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 }
 

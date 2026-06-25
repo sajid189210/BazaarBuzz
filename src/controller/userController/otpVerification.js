@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const User = require('../../model/userModel');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
@@ -31,10 +32,7 @@ const requestOTP = async (req, res) => {
         const user = await getUser(email);
 
         if (user) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email already taken'
-            });
+            return response.error(res, "Email already taken", 400);
         }
 
         const otpNumber = crypto.randomInt(1000, 9999);
@@ -59,16 +57,12 @@ const requestOTP = async (req, res) => {
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
                     console.error(`Error sending email: ${err}`);
-                    return res.status(500).json({
-                        success: false,
-                        message: `Failed to send OTP: ${err.message}`,
-                        errorDetails: err
-                    });
+                    return response.error(res, `Failed to send OTP: ${err.message}`, 500);
                 }
 
                 console.info('Email sent successfully:', info.response);
 
-                res.status(200).json({
+                response.success(res, {
                     success: true,
                     message: 'OTP sent to your email',
                     otpId: newOTP._id
@@ -77,21 +71,11 @@ const requestOTP = async (req, res) => {
             });
 
         } catch (err) {
-            console.error('Error creating OTP:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to create OTP',
-                errorDetails: err.message
-            });
+            response.serverError(res, err);
         }
 
     } catch (err) {
-        console.error(`Error caught in requestOTP: ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -104,29 +88,20 @@ const verifyOTP = async (req, res) => {
 
         const otp = await OTP.findById(otpId);
 
-        if (otpValue !== otp.otpNumber || Date.now() > otp.expiry) return res.status(400).json({
-            success: false,
-            message: 'Invalid or expired otp'
-        });
+        if (otpValue !== otp.otpNumber || Date.now() > otp.expiry) return response.error(res, "Invalid or expired otp", 400);
 
         //updates the isVerified:false to true.
         const verifiedOtp = await OTP.findByIdAndUpdate(otpId, { $set: { isVerified: true } }, { new: true });
 
         await OTP.findByIdAndDelete(otpId);
 
-        res.status(200).json({
+        response.success(res, {
             success: true,
             otp: verifiedOtp
         });
 
     } catch (err) {
-        console.error(`Error caught verifyOTP in the otpVerification controller${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-
-        });
-    }
+        response.serverError(res, err);}
 };
 
 //* ---------------------[Handles OTP Expiry]-----------------------------------------
@@ -135,10 +110,7 @@ const handleOtpExpiry = async (req, res) => {
     try {
 
         if (!req.query.otpId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid OTP ID'
-            });
+            return response.error(res, "Invalid OTP ID", 400);
         }
 
         const otp = await OTP.findByIdAndDelete(req.query.otpId);
@@ -146,24 +118,16 @@ const handleOtpExpiry = async (req, res) => {
         console.log(otp)
 
         if (!otp) {
-            return res.status(404).json({
-                success: false,
-                message: 'OTP not found'
-            });
+            return response.error(res, "OTP not found", 404);
         }
 
-        res.status(200).json({
+        response.success(res, {
             success: true,
             message: 'OTP has been expired',
         });
 
     } catch (err) {
-        console.error(`Error handling OTP expiry: ${err}`);
-        res.status(500).json({
-            error: "Internal server error",
-            message: err.message || 'An error occurred while processing your request.',
-            
-        });
+        response.serverError(res, err);
     }
 };
 

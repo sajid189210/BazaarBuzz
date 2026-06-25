@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const userModel = require('../../model/userModel');
 
 //?------finding the user by ID--------------
@@ -43,14 +44,10 @@ const userManagementPage = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error in userManagementPage: ${err.message}`);
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: err.message,
-            
-        });
+        response.serverError(res, err);
     }
 };
+
 
 
 // //*--------------------Search User-------------------------
@@ -80,19 +77,13 @@ const unBlockUser = async (req, res) => {
         const id = req.params.id;
 
         if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid user ID provided.'
-            });
+            return response.error(res, "Invalid user ID provided.", 400);
         }
 
         const user = await getUserById(id);
 
         if (user.isBlocked === 'unblocked') {
-            return res.status(400).json({
-                success: false,
-                message: 'User is already unblocked'
-            });
+            return response.error(res, "User is already unblocked", 400);
         }
 
         await userModel.findByIdAndUpdate(
@@ -103,18 +94,10 @@ const unBlockUser = async (req, res) => {
 
         req.session.user = true;
 
-        return res.status(200).json({
-            success: true,
-            message: 'User has been successfully unblocked'
-        })
+        return response.success(res, {}, "User has been successfully unblocked")
 
     } catch (err) {
-        console.error(`Error caught unBlockUser in the userManagementController. ${err}`);
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: err.message,
-            
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -125,19 +108,13 @@ const blockUser = async (req, res) => {
         const id = req.params.id;
 
         if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid user ID provided.'
-            });
+            return response.error(res, "Invalid user ID provided.", 400);
         }
 
         const user = await getUserById(id);
 
         if (user.isBlocked === 'blocked') {
-            return res.status(400).json({
-                success: false,
-                message: 'User is already blocked.'
-            });
+            return response.error(res, "User is already blocked.", 400);
         }
 
         await userModel.findByIdAndUpdate(
@@ -148,18 +125,10 @@ const blockUser = async (req, res) => {
 
         req.session.user = false;
 
-        return res.status(200).json({
-            success: true,
-            message: 'User has been successfully blocked'
-        });
+        return response.success(res, {}, "User has been successfully blocked");
 
     } catch (err) {
-        console.error(`Error caught unBlockUser in the userManagementController. ${err}`);
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: err.message,
-            
-        });
+        response.serverError(res, err);
     }
 }
 

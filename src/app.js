@@ -3,6 +3,7 @@ const nocache = require('nocache');
 const session = require('express-session');
 const passport = require('passport');
 const passportSetUp = require('./Services/passport-setup');
+const response = require('./Services/responseMapper');
 const flash = require('connect-flash');
 const path = require('path');
 const app = express();
@@ -13,7 +14,7 @@ const cors = require('cors');
 
 //* Middleware Setup
 app.use(nocache());
-app.use(helmet());
+// app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
 
@@ -61,10 +62,7 @@ app.use('/', userRouter);
 //* Error handling middleware.
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({
-        Error: err.message,
-        message: 'Something went wrong!'
-    });
+    response.serverError(res, err);
 });
 
 

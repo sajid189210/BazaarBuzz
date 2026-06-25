@@ -860,11 +860,11 @@
             const paymentMethod = paymentRadio ? paymentRadio.value : null;
 
             if (!address) {
-                return showToast(Toast, 'Please add an address!', 'success');
+                return showToast(Toast, 'Please add an address!', 'error');
             }
 
             if (!paymentMethod) {
-                showToast(Toast, 'Please select a payment method', 'success');
+                showToast(Toast, 'Please select a payment method', 'error');
                 window.scrollTo(0, 0);
                 return;
             }

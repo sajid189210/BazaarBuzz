@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const Order = require('../../model/orderModel');
 const xlsx = require('xlsx');
 const PDFDocument = require('pdfkit')
@@ -35,7 +36,7 @@ const renderReport = async (req, res) => {
                     match.createdAt = { $gte: startDate };
                     break;
                 default:
-                    return res.status(400).json({ success: false, message: "Invalid date selection." });
+                    return response.error(res, "Invalid date selection.", 400);
             }
         }
 
@@ -62,13 +63,7 @@ const renderReport = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(`Error in renderReport : ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
 
@@ -178,24 +173,13 @@ const downloadReport = async (req, res) => {
             // Finalize PDF file
             doc.end();
         } else {
-            return res.status(400).json({ success: false, message: "Invalid format selection." });
+            return response.error(res, "Invalid format selection.", 400);
         }
 
     } catch (err) {
-        console.error(`Error in downloadReport: ${err}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal server error",
-            message: err.message,
-
-        });
+        response.serverError(res, err);
     }
 };
-
-module.exports = {
-    downloadReport,
-};
-
 
 module.exports = {
     downloadReport,

@@ -1,3 +1,4 @@
+const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 
 
@@ -41,18 +42,12 @@ const createCategory = async (req, res) => {
     const { title, brand } = req.body;
     try {
 
-        if (!title || !brand) res.status(400).json({
-            success: false,
-            message: 'title and brand were not found'
-        });
+        if (!title || !brand) response.error(res, "title and brand were not found", 400);
 
         const modTitle = title.trim().toLowerCase();
         const modBrand = brand.trim().toLowerCase();
 
-        if (!modTitle || !modBrand) return res.status(400).json({
-            success: false,
-            message: "Please fill out all the fields *"
-        })
+        if (!modTitle || !modBrand) return response.error(res, "Please fill out all the fields *", 400)
 
         const capitalizedTitle = capitalizeFirstLetter(modTitle);
 
@@ -63,10 +58,7 @@ const createCategory = async (req, res) => {
             //If the category exists, check if the brand is in the category's brand list.
             if (category.brands.includes(brand)) {
 
-                return res.status(400).json({
-                    success: false,
-                    message: "Brand already exists in this category!"
-                });
+                return response.error(res, "Brand already exists in this category!", 400);
 
             } else {
 
@@ -74,10 +66,7 @@ const createCategory = async (req, res) => {
                 category.brands.push(brand);
                 await category.save();
 
-                return res.status(200).json({
-                    success: true,
-                    message: "Item successfully added!"
-                });
+                return response.success(res, {}, "Item successfully added!");
             }
 
         } else {
@@ -85,14 +74,10 @@ const createCategory = async (req, res) => {
             //If the category doesn't exist, create a new one.
             const newCategory = createCategoryInstance(capitalizedTitle, brand);
             await saveToDatabase(newCategory)
-            return res.status(201).json({
-                success: true,
-                message: "Category created successfully!"
-            });
+            return response.success(res, {}, "Category created successfully!", 201);
         }
     } catch (err) {
-        console.error(`Error caught createCategory in categoryController ${err}`);
-        res.status(500).json({ error: `Internal server error!` });
+        response.serverError(res, err);
     }
 
 }
@@ -104,15 +89,9 @@ const updateCategory = async (req, res) => {
 
         const { title, brandToBeDeleted, categoryId } = req.body
 
-        if (!(title && brandToBeDeleted && categoryId)) return res.status(400).json({
-            success: false,
-            message: 'title, brandToBeDeleted, or categoryId not found.'
-        });
+        if (!(title && brandToBeDeleted && categoryId)) return response.error(res, "title, brandToBeDeleted, or categoryId not found.", 400);
 
-        if (!title || title.trim() === '') return res.status(400).json({
-            success: false,
-            message: "Title cannot be empty!"
-        });
+        if (!title || title.trim() === '') return response.error(res, "Title cannot be empty!", 400);
 
         const modTitle = capitalizeFirstLetter(title);
 
@@ -130,19 +109,12 @@ const updateCategory = async (req, res) => {
             { new: true }
         );
 
-        if (!result || result.modifiedCount === 0) return res.status(404).json({
-            success: false,
-            message: "Failed to update the category!"
-        });
+        if (!result || result.modifiedCount === 0) return response.error(res, "Failed to update the category!", 404);
 
-        res.status(200).json({
-            success: true,
-            message: "Successfully updated the category!"
-        });
+        response.success(res, {}, "Successfully updated the category!");
 
     } catch (err) {
-        console.error(`Error caught updateCategory in categoryController ${err}`);
-        res.status(500).json("Internal server error!");
+        response.serverError(res, err);
     }
 }
 
@@ -154,33 +126,19 @@ const deleteCategory = async (req, res) => {
         const category = await categoryModel.findById(id);
 
         if (!category) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found!"
-            });
+            return response.error(res, "Category not found!", 404);
         }
 
         const result = await categoryModel.deleteOne({ _id: id }, { new: true });
 
         if (result.deletedCount === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Failed to delete category!"
-            });
+            return response.error(res, "Failed to delete category!", 400);
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Category deleted successfully!",
-        });
+        response.success(res, {}, "$1");
 
     } catch (err) {
-        console.error(`Error caught deleteCategory in categoryController ${err}`);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            error: err.message
-        });
+        response.serverError(res, err);
     }
 }
 
@@ -203,8 +161,7 @@ const adminCategory = async (req, res) => {
         res.render('admin/adminCategory', { categories });
 
     } catch (err) {
-        console.error(`Error caught adminCategory in categoryController ${err}`);
-        res.status(500).json("Internal server error!");
+        response.serverError(res, err);
     }
 };
 
@@ -215,17 +172,11 @@ const changeCategoryStatus = async (req, res) => {
 
         const id = req.params.id;
 
-        if (!id) return res.status(400).json({
-            success: false,
-            message: 'Category ID not found.'
-        });
+        if (!id) return response.error(res, "Category ID not found.", 400);
 
         const { selectedOption } = req.body;
 
-        if (!selectedOption) res.status(400).json({
-            success: false,
-            message: 'selectedOption not found.'
-        });
+        if (!selectedOption) response.error(res, "selectedOption not found.", 400);
 
         const value = selectedOption === 'active' ? true : false;
 
@@ -235,19 +186,12 @@ const changeCategoryStatus = async (req, res) => {
             { new: true }
         );
 
-        if (!category) return res.status(404).json({
-            success: false,
-            message: "Category not found."
-        })
+        if (!category) return response.error(res, "Category not found.", 404)
 
-        res.status(200).json({
-            success: true,
-            isActive: category.isActive
-        });
+        response.success(res, { isActive: category.isActive });
 
     } catch (err) {
-        console.error(`Error caught changeCategoryStatus in categoryController ${err}`);
-        res.status(500).json({ message: "Internal server error!" });
+        response.serverError(res, err);
     }
 }
 
