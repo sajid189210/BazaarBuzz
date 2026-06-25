@@ -86,7 +86,7 @@ const getOrders = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }
@@ -121,7 +121,7 @@ const returnProduct = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -221,7 +221,7 @@ const cancelProduct = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -388,7 +388,7 @@ const downloadInvoice = async (req, res) => {
         console.error(`Error in downloadInvoice: ${err}`);
         return res.status(500).json({
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };

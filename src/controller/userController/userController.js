@@ -53,7 +53,7 @@ const userSignUpValidation = async (req, res, next) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }
@@ -77,7 +77,7 @@ const userSignUp = (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }
@@ -149,7 +149,7 @@ const updatePassword = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -171,7 +171,7 @@ const userSignIn = (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -246,7 +246,7 @@ const userHomepage = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -268,7 +268,7 @@ const searchSingleProduct = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -292,7 +292,7 @@ const searchMultipleProducts = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -320,7 +320,7 @@ const getAddress = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -349,7 +349,7 @@ const saveAddress = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -389,7 +389,7 @@ const removeAddress = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }
@@ -430,7 +430,7 @@ const editAddress = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -458,7 +458,7 @@ const renderProfile = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };

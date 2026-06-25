@@ -414,7 +414,7 @@ const getDashboard = async (req, res) => {
         res.status(500).json({
             error: err.message,
             message: 'Internal Server Error',
-            stack: err.stack
+            
         });
     }
 };

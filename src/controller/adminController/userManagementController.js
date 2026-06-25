@@ -47,7 +47,7 @@ const userManagementPage = async (req, res) => {
         res.status(500).json({
             error: 'Internal Server Error',
             message: err.message,
-            stack: err.stack
+            
         });
     }
 };
@@ -113,7 +113,7 @@ const unBlockUser = async (req, res) => {
         res.status(500).json({
             error: 'Internal Server Error',
             message: err.message,
-            stack: err.stack
+            
         });
     }
 };
@@ -158,7 +158,7 @@ const blockUser = async (req, res) => {
         res.status(500).json({
             error: 'Internal Server Error',
             message: err.message,
-            stack: err.stack
+            
         });
     }
 }

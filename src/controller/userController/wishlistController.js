@@ -32,7 +32,7 @@ const renderWishlist = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -80,7 +80,7 @@ const addToWishList = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }
@@ -122,7 +122,7 @@ const removeProduct = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 }

@@ -95,7 +95,7 @@ const renderProductList = async (req, res) => {
         res.status(500).json({
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -146,7 +146,7 @@ const filterProductsList = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };

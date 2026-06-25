@@ -27,8 +27,7 @@ const renderCoupons = async (req, res) => {
         console.error(`Error caught verifyPayment in the checkoutController${err}`);
         res.status(500).json({
             error: "Internal server error",
-            message: err.message,
-            stack: err.stack,
+            message: err.message
         });
     }
 }

@@ -19,7 +19,7 @@ const renderOffer = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -55,7 +55,7 @@ const createOffer = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -81,7 +81,7 @@ const changeStatus = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
@@ -113,7 +113,7 @@ const updateOffer = async (req, res) => {
             success: false,
             error: "Internal server error",
             message: err.message,
-            stack: err.stack,
+
         });
     }
 };
