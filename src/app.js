@@ -13,7 +13,7 @@ const cors = require('cors');
 
 //* Middleware Setup
 app.use(nocache());
-app.use(helmet());
+// app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
 
