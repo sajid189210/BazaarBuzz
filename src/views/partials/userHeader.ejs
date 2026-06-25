@@ -117,25 +117,27 @@
     </section>
     <!-- Search Component -->
     <%if(searchBox){%>
-        <div
-            class="md:absolute md:top-[35%] lg:top[28%] md:left-[25%] flex justify-start h-8 lg:h-10 w-full md:w-1/2 lg:w-2/4 rounded-full border border-transparent bg-gray-100 pl-6 md:mr-1 lg:mx-auto focus-within:border-[#00b070] focus-within:bg-transparent">
+        <div id="searchBar"
+            class="md:absolute md:top-[35%] lg:top[28%] md:left-[25%] flex justify-start h-8 lg:h-10 w-full md:w-1/2 lg:w-2/4 rounded-full border-2 border-gray-300 bg-white pl-6 md:mr-1 lg:mx-auto focus-within:border-[#e91e63] focus-within:shadow-[0_0_12px_rgba(233,30,99,0.3)] transition-all duration-300">
 
-            <div class="relative flex w-full">
-                <div class="flex w-full">
-                    <input type="search" placeholder="Search..." id="homeSearch"
-                        class="w-full bg-transparent text-[15px] font-semibold text-gray-600 outline-none" />
+            <div class="relative flex w-full items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400 shrink-0">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <div class="flex w-full ml-2">
+                    <input type="search" placeholder="Search products..." id="homeSearch"
+                        class="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" />
                 </div>
                 <div id="resultsContainer"
-                    class="hidden left-30 bg-white border border-slate-400 absolute top-10 z-20 flex w-full flex-col rounded-lg text-left">
+                    class="hidden left-0 bg-white border border-slate-300 absolute top-10 z-20 flex w-full flex-col rounded-lg text-left shadow-lg">
                 </div>
             </div>
             <button id="search_btn" type="button"
-                class="bg-pink-500 hover:bg-pink-600 w-12 flex justify-center items-center rounded-r-full">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px"
-                    class="rotate-90 fill-white">
-                    <path
-                        d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
-                    </path>
+                class="bg-[#e91e63] hover:bg-[#d81b60] w-10 flex justify-center items-center rounded-r-full shrink-0 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
                 </svg>
             </button>
         </div>
@@ -144,6 +146,7 @@
 
 <script>
 (function() {
+  document.documentElement.classList.add('dark');
   var header = document.getElementById('mainHeader');
   function updateHeader() {
     if (window.scrollY > 80) {

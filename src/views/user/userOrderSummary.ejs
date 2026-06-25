@@ -1,168 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Summary</title>
+    <title>Order Confirmed</title>
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dark-theme.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div class="relative">
-
-        <!-- Header -->
+    <div class="relative font-[poppins]">
         <%- include('../partials/userHeader') %>
 
-            <div class="absolute top-[50px] w-full h-screen">
+        <div class="absolute top-[60px] w-full min-h-screen bg-[#F5F6FA]">
+            <div class="max-w-3xl mx-auto px-4 py-8">
 
-                <div class="px-8 pt-8 mb-4">
-                    <!-- BreadCrumbs -->
+                <!-- Success Banner -->
+                <div class="bg-white rounded-2xl shadow-sm p-8 text-center mb-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Order Confirmed!</h1>
+                    <p class="text-gray-500 mt-2">Thanks for your order, <span class="font-semibold text-gray-800"><%= user.userName %></span></p>
                 </div>
-                <main class="w-full">
-                    <div class="mx-auto max-w-[1000px] py-6 px-4">
-                        <!-- Order Summary Header -->
-                        <h1 class="text-4xl font-semibold pb-6 text-center text-gray-900">Order Summary</h1>
 
-                        <!-- Thank you message -->
-                        <h2 class="text-2xl font-medium pb-4 text-center text-gray-800">
-                            Thanks for your order, <span class="font-semibold text-indigo-600">
-                                <%= user.userName %>
-                            </span>!
-                        </h2>
-
-                        <!-- Order Confirmation Text -->
-                        <p class="text-lg text-gray-700 mb-6 text-center">
-                            We&apos;ve received your order <span class="font-semibold text-indigo-600">
-                                <%= order._id %>
-                            </span> and will begin processing it right away.
-                        </p>
-                        <p class="text-lg text-gray-700 mb-6 text-center">
-                            You&apos;ll receive an email with your order details, including a tracking number, so you
-                            can
-                            easily follow its journey to you.
-                        </p>
-                        <p class="text-lg text-gray-700 text-center mb-8">
-                            If you have any questions or need assistance, don't hesitate to reach out. We&apos;re here
-                            to
-                            help!
-                        </p>
-
-                        <!-- Billing & Delivery Information Header -->
-                        <h2 class="my-4 text-xl font-medium text-left w-2/3 px-10 underline text-gray-800">
-                            Billing & Delivery Information
-                        </h2>
-
-                        <!-- Billing & Delivery Information -->
-                        <div class="mx-auto flex flex-col lg:flex-row justify-between w-2/3 px-10">
-                            <!-- Left Column: Shipping Address -->
-                            <div class="mt-4 flex flex-col gap-y-2">
-                                <p class="uppercase font-medium text-gray-800">Shipping Address</p>
-                                <p class="text-gray-700">
-                                    <%= user.userName %>
-                                </p>
-                                <p class="text-gray-700">
-                                    <%= order.shippingAddress.building %>
-                                </p>
-                                <p class="text-gray-700">
-                                    <%= order.shippingAddress.street %>, <%= order.shippingAddress.landmark %>
-                                </p>
-                                <p class="text-gray-700">Pincode: <%= order.shippingAddress.pincode %>
-                                </p>
-                                <p class="text-gray-700">
-                                    <%= order.shippingAddress.district %>, <%= order.shippingAddress.state %>
-                                </p>
-                            </div>
-
-                            <!-- Right Column: Order Details -->
-                            <div class="mt-4 flex flex-col gap-y-2">
-                                <p class="text-gray-700"><span class="uppercase font-semibold text-gray-800">Order
-                                        ID:</span>
-                                    <%= order._id %>
-                                </p>
-                                <p class="text-gray-700"><span class="uppercase font-semibold text-gray-800">Payment
-                                        Method:</span>
-                                    <%= order.paymentMethod %>
-                                </p>
-                                <p class="text-gray-700"><span class="uppercase font-semibold text-gray-800">Ordered
-                                        On:</span>
-                                    <%= order.createdAt.toLocaleString() %>
-                                </p>
-                            </div>
+                <!-- Invoice Card -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 lg:p-8">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start pb-6 border-b border-gray-200">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">INVOICE</h2>
+                            <p class="text-sm text-gray-400 mt-1">#<%= order._id %></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-400">Ordered on</p>
+                            <p class="text-sm font-medium text-gray-700"><%= order.createdAt.toLocaleDateString() %></p>
                         </div>
                     </div>
 
-                    <!-- Product Details Section -->
-                    <div class="mx-8 p-4 max-md:max-w-xl">
-                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Product Details
-                        </h2>
-
-                        <div class="mx-auto w-2/3 px-10">
-                            <table class="w-full table-auto">
-                                <thead>
-                                    <tr class="border-b-2 border-slate-400">
-                                        <th class="text-left py-3">SL NO.</th>
-                                        <th class="text-left py-3">Product Name</th>
-                                        <th class="text-left py-3">Quantity</th>
-                                        <th class="text-left py-3">Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% order.orderedProducts.forEach((item, index)=> { %>
-                                        <tr class="border-b">
-                                            <td class="py-3 pl-4">
-                                                <%= index + 1 %>.
-                                            </td>
-                                            <td class="w-1/2">
-                                                <%= item.product.productName %>
-                                            </td>
-                                            <td class="pl-6">
-                                                <%= item.quantity %>
-                                            </td>
-                                            <td>₹ <%= item.totalPay %>/-</td>
-                                        </tr>
-                                        <% }) %>
-                                </tbody>
-                            </table>
+                    <!-- Shipping & Payment -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 border-b border-gray-200">
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Shipping To</h3>
+                            <p class="text-sm font-medium text-gray-800"><%= user.userName %></p>
+                            <p class="text-sm text-gray-500"><%= order.shippingAddress.building %></p>
+                            <p class="text-sm text-gray-500"><%= order.shippingAddress.street %>, <%= order.shippingAddress.landmark %></p>
+                            <p class="text-sm text-gray-500"><%= order.shippingAddress.district %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Payment</h3>
+                            <p class="text-sm font-medium text-gray-800"><%= order.paymentMethod %></p>
+                            <p class="text-xs text-gray-400 mt-1">Order ID: <%= order._id %></p>
                         </div>
                     </div>
 
-                    <!-- Product Pricing Section -->
-                    <div class="mx-8 p-4 max-md:max-w-xl">
-                        <h2 class="mx-auto my-4 text-xl font-medium text-left w-2/3 px-10 underline">Product Pricing
-                        </h2>
-                        <div class="flex justify-between mx-auto w-2/3 px-10">
-                            <div>
-                                <p class="font-medium mb-2">Total Price</p>
-                                <p class="font-medium mb-2">Total Discount</p>
-                                <p class="font-medium mb-4">Delivery Charges</p>
-                                <p class="font-medium text-xl">Total</p>
-                            </div>
-                            <div>
-                                <p>₹ <%= originalTotalPrice %>/-</p>
-                                <p class="text-red-600 mb-2">₹ <%= totalDiscountApplied %>/-</p>
-                                <p class="text-red-600 mb-2">
-                                    <%= totalPay < 1000 ? '₹ 40/-' : 'Free' %>
-                                </p>
-                                <p class="font-medium text-xl">₹ <%= totalPay %>/-</p>
-                            </div>
+                    <!-- Items Table -->
+                    <div class="py-6 border-b border-gray-200">
+                        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Items Ordered</h3>
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-xs text-gray-400 uppercase border-b border-gray-100">
+                                    <th class="text-left pb-2 font-medium">Item</th>
+                                    <th class="text-center pb-2 font-medium">Qty</th>
+                                    <th class="text-right pb-2 font-medium">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.orderedProducts.forEach((item, index)=> { %>
+                                <tr class="border-b border-gray-50">
+                                    <td class="py-3">
+                                        <p class="text-sm font-medium text-gray-800"><%= item.product.productName %></p>
+                                        <p class="text-xs text-gray-400"><%= item.selectedColor %> / <%= item.selectedSize %></p>
+                                    </td>
+                                    <td class="py-3 text-center text-sm text-gray-600"><%= item.quantity %></td>
+                                    <td class="py-3 text-right text-sm text-gray-800">₹<%= item.totalPay %></td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="pt-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-500">Subtotal</span>
+                            <span class="text-gray-700">₹<%= originalTotalPrice %></span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-500">Discount</span>
+                            <span class="text-red-500">-₹<%= totalDiscountApplied %></span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-4">
+                            <span class="text-gray-500">Delivery</span>
+                            <span class="text-gray-700"><%= totalPay < 1000 ? '₹40' : 'Free' %></span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold pt-4 border-t border-gray-200">
+                            <span class="text-gray-900">Total</span>
+                            <span class="text-gray-900">₹<%= totalPay %></span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex gap-6 justify-center p-6">
-                        <a href="/user/homepage" class="bg-pink-600 p-2 text-white rounded-lg">Back to shopping</a>
-                        <a href="/user/orders" class="bg-pink-600 p-2 text-white rounded-lg">Go to Orders</a>
-                    </div>
-                </main>
-
+                <!-- Actions -->
+                <div class="flex gap-3 justify-center mt-6">
+                    <a href="/" class="px-6 py-2.5 border border-gray-300 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">Back to Home</a>
+                    <a href="/user/orders" class="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-xl transition-colors">View Orders</a>
+                </div>
             </div>
+        </div>
     </div>
-
 </body>
-
 </html>
