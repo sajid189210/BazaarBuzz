@@ -14,28 +14,23 @@ const authenticate = (req, res, next) => {
 const callback = async (req, res, next) => {
     console.log('Handling Google callback...');
 
-    passport.authenticate('google', {
-        successRedirect: '/',
-        failureRedirect: '/user/signIn'
-
-    }, async (authError, authResult) => {
+    passport.authenticate('google', {}, async (authError, authResult) => {
         if (authError) {
             response.serverError(res, authError);
             return;
         }
 
-        if (authResult) {
-            req.session.user = {
-                userId: authResult._id,
-                googleId: authResult.googleId,
-                userName: authResult.username,
-                userEmail: authResult.email
-            }
-            res.redirect(authResult.successRedirect || '/');
-
-        } else {
-            res.redirect(authResult.failureRedirect || '/user/signIn');
+        if (!authResult) {
+            return res.redirect('/user/signIn');
         }
+
+        req.session.user = {
+            userId: authResult._id,
+            googleId: authResult.googleId,
+            userName: authResult.username,
+            userEmail: authResult.email
+        };
+        res.redirect('/');
     })(req, res, next);
 };
 
