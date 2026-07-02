@@ -14,7 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
 
 <body style="font-family: 'Poppins', system-ui;" class="h-screen">
@@ -84,6 +85,7 @@
                                         <td class="p-4 text-[15px] text-center text-gray-800">
                                             <div class="flex gap-4 w-full justify-center">
                                                 <button onclick="openUpdateCouponModal(this)"
+                                                    data-coupon-id="<%= coupon._id %>"
                                                     data-coupon-code="<%= coupon.couponCode%>"
                                                     data-coupon-type="<%= coupon.couponType%>"
                                                     data-coupon-value="<%= coupon.couponValue%>"
@@ -205,6 +207,7 @@
                             class="float-right mr-4 mt-4 font-bold hover:bg-slate-100 px-2 rounded-full">X</button>
                         <h1 class="font-medium text-lg mb-4">Update Coupon Details</h1>
 
+                        <input id="couponId" type="text" disabled class="hidden">
                         <div>
                             <div class="flex flex-col gap-4 mb-2">
                                 <label for="couponCodeForUpdate" class="font-medium">Coupon Code</label>
@@ -290,19 +293,19 @@
             document.querySelector('#couponCodeError').textContent = '';
             document.querySelector('#couponTypeError').textContent = '';
             document.querySelector('#couponValueError').textContent = '';
-            document.querySelector('#couponValueError').textContent = '';
             document.querySelector('#minAmountError').textContent = '';
             document.querySelector('#expiryError').textContent = '';
             document.querySelector('#countError').textContent = '';
         }
 
         function openCreateCouponModal() {
-            document.querySelector('#createCouponModal').classList.remove('hidden');
             clearAllMessagesForCreateModal();
 
             // Validating the minimum expiry date.
             const formattedDate = new Date().toISOString().split('T')[0];
             document.getElementById('expiry').setAttribute('min', formattedDate);
+
+            document.querySelector('#createCouponModal').classList.remove('hidden');
         }
 
         function closeCreateCouponModal() {
@@ -410,6 +413,8 @@
                         icon: 'warning',
                         title: data.message
                     });
+
+
                     return;
                 }
 
@@ -509,6 +514,7 @@
             const minAmount = event.dataset.minAmount;
             const expiry = event.dataset.expiry;
             const count = event.dataset.count;
+            const couponId = event.dataset.couponId;
 
             if (!(couponValue && couponType && couponCode && minAmount && expiry && count)) {
                 alert('Error required fields not found*');
@@ -521,6 +527,7 @@
             document.querySelector('#minAmountForUpdate').value = minAmount;
             document.querySelector('#expiryForUpdate').value = new Date(expiry).toISOString().split('T')[0];
             document.querySelector('#countForUpdate').value = count;
+            document.querySelector('#couponId').value = couponId;
 
             // Validating the minimum new Date(expiry) date.
             const formattedDate = new Date().toISOString().split('T')[0];
@@ -544,6 +551,7 @@
                 const minAmount = document.querySelector('#minAmountForUpdate').value;
                 const expiry = document.querySelector('#expiryForUpdate').value;
                 const count = document.querySelector('#countForUpdate').value;
+                const couponId = document.querySelector('#couponId').value;
 
 
                 const isValid = validateFieldsForUpdate(couponCode, couponType, couponValue, minAmount, expiry, count);
@@ -554,7 +562,7 @@
                 const response = await fetch('/admin/coupon', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ couponCode, couponType, couponValue, minAmount, expiry, count })
+                    body: JSON.stringify({ couponCode, couponType, couponValue, minAmount, expiry, count, couponId })
                 });
 
                 const data = await response.json();
@@ -563,19 +571,21 @@
                     toast: true,
                     position: "top-end",
                     showConfirmButton: false,
-                    timer: 1000,
+                    timer: 3000,
                     timerProgressBar: true,
                     didOpen: (toast) => {
                         toast.onmouseenter = Swal.stopTimer;
                         toast.onmouseleave = Swal.resumeTimer;
                     }
                 });
-
                 if (!data.success) {
-                    await Toast.fire({
-                        icon: 'warning',
-                        title: data.message
-                    });
+                    const errors = data.errors;
+                    for (let err in errors) {
+                        await Toast.fire({
+                            icon: 'error',
+                            title: errors[err]
+                        });
+                    }
                     return;
                 }
 
