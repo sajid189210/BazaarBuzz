@@ -409,12 +409,13 @@
                 });
 
                 if (!data.success) {
-                    Toast.fire({
-                        icon: 'warning',
-                        title: data.message
-                    });
-
-
+                    const errors = data.errors;
+                    for (let err in errors) {
+                        await Toast.fire({
+                            icon: 'error',
+                            title: errors[err]
+                        });
+                    }
                     return;
                 }
 
@@ -578,8 +579,10 @@
                         toast.onmouseleave = Swal.resumeTimer;
                     }
                 });
+
                 if (!data.success) {
                     const errors = data.errors;
+                    console.log(errors)
                     for (let err in errors) {
                         await Toast.fire({
                             icon: 'error',

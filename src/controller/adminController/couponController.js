@@ -35,23 +35,27 @@ const createCoupons = async (req, res) => {
 
     const couponExists = await Coupon.exists({ couponCode: couponCode.toUpperCase() });
     if (couponExists) {
-        return response.serverError(res, "Coupon already exists", 400);
+        return response.error(res, "Coupon already exists", 400);
     }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (expiry < today) {
-        return response.serverError(res, "Expiry date must be today or a future date", 400);
+    const expiryDate = new Date(expiry);
+
+    expiryDate.setHours(0, 0, 0, 0);
+
+    if (expiryDate < today) {
+        return response.error(res, "Expiry date must be today or a future date", 400);
     }
 
     try {
         const newCoupon = new Coupon({
-            couponCode: couponCode.trim().toUpperCase(),
+            couponCode,
             couponType,
             couponValue,
             minAmount,
-            expiry,
-            count
+            expiry: expiryDate,
+            count,
         });
         await newCoupon.save();
         return response.success(res, {}, "Coupon created successfully.", 201);

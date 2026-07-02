@@ -3,17 +3,12 @@ const mongoose = require('mongoose');
 const couponSchema = new mongoose.Schema({
     couponCode: {
         type: String,
-        unique: true,
         required: true,
         trim: true,
         uppercase: true,
         match: [/^[A-Z0-9]+$/, 'Coupon code can contain only letters and numbers.'],
         minlength: [3, 'Coupon code must be at least 3 characters.'],
         maxlength: [20, 'Coupon code cannot exceed 20 characters.'],
-        validate: {
-            validator: Number.isInteger,
-            message: 'Coupon count must be a whole number.'
-        }
     },
     couponType: {
         type: String,
