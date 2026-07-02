@@ -1,9 +1,14 @@
 //validating admin credentials.
 const response = require('../../Services/responseMapper');
+const adminModel = require('../../model/adminModel');
+const bcrypt = require('bcryptjs');
 
+
+// validate signin credentials
 const validateCredentials = async (req, res) => {
 
     const { email, password } = req.body;
+
     try {
 
         if (!email || !password) {
@@ -11,7 +16,16 @@ const validateCredentials = async (req, res) => {
             return res.redirect('/admin/signIn');
         }
 
-        if (email !== process.env.ADMIN_EMAIL || password !== process.env.ADMIN_PASSWORD) {
+        const admin = await adminModel.findOne({ email }).lean();
+
+        if (!admin) {
+            req.flash('error', "Invalid credentials");
+            return res.redirect("/admin/signIn");
+        }
+
+        const isPasswordMatch = await bcrypt.compare(password, admin.password);
+
+        if (!isPasswordMatch) {
             req.flash("error", "Invalid credentials *");
             return res.redirect("/admin/signIn");
         }
@@ -39,8 +53,6 @@ const adminSignIn = async (req, res) => {
         response.serverError(res, err);
     }
 };
-
-
 
 //admin sign out.
 const adminSignOut = (req, res) => {
