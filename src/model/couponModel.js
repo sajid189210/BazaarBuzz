@@ -7,7 +7,13 @@ const couponSchema = new mongoose.Schema({
         required: true,
         trim: true,
         uppercase: true,
-        match: [/^[A-Z0-9]+$/, 'Coupon code can contain only letters and numbers.']
+        match: [/^[A-Z0-9]+$/, 'Coupon code can contain only letters and numbers.'],
+        minlength: [3, 'Coupon code must be at least 3 characters.'],
+        maxlength: [20, 'Coupon code cannot exceed 20 characters.'],
+        validate: {
+            validator: Number.isInteger,
+            message: 'Coupon count must be a whole number.'
+        }
     },
     couponType: {
         type: String,
@@ -51,7 +57,7 @@ const couponSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: [1, 'Minimum amount must be greater than or equal to 1'],
-        max: [10000, 'Limit exceeded']
+        max: [10000, 'Minimum amount must be between 1 and 100000.']
     },
     expiry: {
         type: Date,
