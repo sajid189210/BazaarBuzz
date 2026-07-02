@@ -17,18 +17,18 @@ const couponSchema = new mongoose.Schema({
     couponValue: {
         type: Number,
         required: true,
-        max: [10000, "Maximum value must be less than 10000"],
         validate: {
             validator: function (value) {
                 const couponType = this.get?.('couponType') ?? this.couponType;
 
                 if (couponType === 'price') {
-                    return value >= 1;
+                    return value >= 1 && value <= 10000;
                 }
 
                 if (couponType === 'percentage') {
                     return value >= 1 && value <= 100;
                 }
+
 
                 return false;
             },
@@ -36,7 +36,7 @@ const couponSchema = new mongoose.Schema({
                 const couponType = this.get?.('couponType') ?? this.couponType;
 
                 if (couponType === 'price') {
-                    return 'Coupon value must be greater than or equal to 1.';
+                    return 'Coupon value must be between 1 and 10000.';
                 }
 
                 if (couponType === 'percentage') {
@@ -57,15 +57,17 @@ const couponSchema = new mongoose.Schema({
         type: Date,
         required: true,
         validate: {
-            validator: function (value) {
+            validator(value) {
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                today.setUTCHours(0, 0, 0, 0);
 
-                return value >= today;
+                const expiry = new Date(value);
+                expiry.setUTCHours(0, 0, 0, 0);
+
+                return expiry >= today;
             },
             message: 'Expiry date must be today or a future date.'
         }
-
     },
     count: {
         type: Number,
