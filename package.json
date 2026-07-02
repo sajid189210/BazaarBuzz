@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node src/server.js",
     "build": "tailwind -i ./tailwind.css -o ./public/css/style.css",
-    "lint": "eslint"
+    "lint": "eslint",
+    "create-admin": "node seed/createAdmin.js"
   },
   "author": "",
   "license": "ISC",
