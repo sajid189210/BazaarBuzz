@@ -11,6 +11,7 @@ const dotenv = require('dotenv').config();
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 
 //* Middleware Setup
 app.use(nocache());
@@ -30,6 +31,18 @@ app.use(flash());
 //* Parsing Middleware 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    statusCode: 429,
+    message: {
+        success: false,
+        message: "Too many requests. Please try again later."
+    }
+}));
 
 
 //* Passport initialization
