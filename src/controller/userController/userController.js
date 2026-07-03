@@ -191,9 +191,6 @@ const userHomepage = async (req, res) => {
                 Wallet.findOne({ user: userId })
             ]);
 
-            console.log(cart)
-            console.log(wallet)
-
             if (!cart) {
                 const newCart = new Cart({ user: userId });
                 await newCart.save();

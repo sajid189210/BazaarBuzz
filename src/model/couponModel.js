@@ -52,7 +52,7 @@ const couponSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: [1, 'Minimum amount must be greater than or equal to 1'],
-        max: [10000, 'Minimum amount must be between 1 and 100000.']
+        max: [10000, 'Minimum amount must be between 1 and 10000.']
     },
     expiry: {
         type: Date,

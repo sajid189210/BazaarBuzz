@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
 </head>
 <style>
@@ -81,361 +82,343 @@
                                                             </div>
 
                                                             <main>
-                                                                <%let price=0; let discount=0; let discountValue=0; let
-                                                                    brandDiscount=0; %>
-
-                                                                    <div class="mx-8 p-4">
+                                                                <div class="mx-8 p-4">
+                                                                    <div
+                                                                        class="relative flex flex-wrap gap-4 mt-8 min-h-[450px]">
                                                                         <div
-                                                                            class="relative flex flex-wrap gap-4 mt-8 min-h-[450px]">
-                                                                            <div
-                                                                                class="mx-auto grid gap-4 max-w-[800px] overflow-auto hide-scrollbar">
-                                                                                <%if(cart && cart.items.length>0){%>
-                                                                                    <%cart.items.forEach(item=> {%>
-                                                                                        <%let
-                                                                                            discountPrice=((item.product.productPrice*
-                                                                                            (1-(item.product.discount)/100)))%>
-                                                                                            <div class=" md:col-span-2">
+                                                                            class="mx-auto grid gap-4 max-w-[800px] overflow-auto hide-scrollbar">
+                                                                            <%if(cart && cart.items.length>0){%>
+                                                                                <%cart.items.forEach(item=> {%>
+                                                                                    <div class=" md:col-span-2">
+                                                                                        <div
+                                                                                            class="md:flex rounded-md px-4 py-6 md:shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
+                                                                                            <div
+                                                                                                class="relative flex flex-col md:flex-row gap-4">
                                                                                                 <div
-                                                                                                    class="md:flex rounded-md px-4 py-6 md:shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
+                                                                                                    class="w-[12rem] h-[12rem]  md:h-28 md:w-28 shrink-0 md:max-sm:h-24 md:max-sm:w-24">
+                                                                                                    <img src="<%=item.product.images[0]%>"
+                                                                                                        class="h-full w-full md:object-contain" />
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    class="flex flex-col gap-4">
                                                                                                     <div
-                                                                                                        class="relative flex flex-col md:flex-row gap-4">
-                                                                                                        <div
-                                                                                                            class="w-[12rem] h-[12rem]  md:h-28 md:w-28 shrink-0 md:max-sm:h-24 md:max-sm:w-24">
-                                                                                                            <img src="<%=item.product.images[0]%>"
-                                                                                                                class="h-full w-full md:object-contain" />
-                                                                                                        </div>
+                                                                                                        class="flex gap-2 flex-col">
+                                                                                                        <h3
+                                                                                                            class="text-sm md:text-lg font-medium text-gray-800 whitespace-wrap">
+                                                                                                            <a href="/user/viewProduct?productId=<%=item.product._id%>"
+                                                                                                                class="lg:hover:underline">
+                                                                                                                <%=item.product.productName%>
+                                                                                                            </a>
+                                                                                                        </h3>
+                                                                                                        <h3
+                                                                                                            class="text-xs md:text-md font-medium text-gray-600">
+                                                                                                            Brand:
+                                                                                                            <%=item.product.brand%>
+                                                                                                                <% let
+                                                                                                                    index=offers.findIndex(offer=>
+                                                                                                                    offer.brandName===item.product.brand)%>
 
-                                                                                                        <div
-                                                                                                            class="flex flex-col gap-4">
-                                                                                                            <div
-                                                                                                                class="flex gap-2 flex-col">
-                                                                                                                <h3
-                                                                                                                    class="text-sm md:text-lg font-medium text-gray-800 whitespace-wrap">
-                                                                                                                    <a href="/user/viewProduct?productId=<%=item.product._id%>"
-                                                                                                                        class="lg:hover:underline">
-                                                                                                                        <%=item.product.productName%>
-                                                                                                                    </a>
-                                                                                                                </h3>
-                                                                                                                <h3
-                                                                                                                    class="text-xs md:text-md font-medium text-gray-600">
-                                                                                                                    Brand:
-                                                                                                                    <%=item.product.brand%>
-                                                                                                                        <% let
-                                                                                                                            index=offers.findIndex(offer=>
-                                                                                                                            offer.brandName===item.product.brand)%>
-
-                                                                                                                            <%if(index!==-1){%>
-                                                                                                                                <%discountValue=offers[index].discount;%>
-                                                                                                                                    <%= discountValue? '| '
-                                                                                                                                        +discountValue+`%Brand
-                                                                                                                                        Offer`: ''
-                                                                                                                                        %>
-                                                                                                                                        <%
-                                                                                                                                            }%>
-                                                                                                                                            |
-                                                                                                                                            <%=item.product.discount%>
-                                                                                                                                                %Product
-                                                                                                                                                Offer
-                                                                                                                </h3>
-                                                                                                                <p
-                                                                                                                    class="mt-2 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500">
-                                                                                                                    Size:
-                                                                                                                    <span
-                                                                                                                        class="inline-block h-5 w-5 flex items-center rounded-md">
-                                                                                                                        <%=
-                                                                                                                            item.selectedSize%>
-                                                                                                                    </span>
-                                                                                                                </p>
-                                                                                                                <p
-                                                                                                                    class="mt-2 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500">
-                                                                                                                    Color:
-                                                                                                                    <span
-                                                                                                                        class="inline-block w-3 h-3 md:h-5 md:w-5 rounded-full"
-                                                                                                                        style="background-color: <%=item.selectedColor%>;"></span>
-                                                                                                                </p>
-                                                                                                            </div>
-
-                                                                                                            <div
-                                                                                                                class="mt-auto flex items-center gap-3">
-                                                                                                                <div
-                                                                                                                    class="flex gap-3 items-center">
-                                                                                                                    <button
-                                                                                                                        id="decreaseButton_<%= item._id %>"
-                                                                                                                        type="button"
-                                                                                                                        onclick="decreaseQuantity('<%= item._id%>', this)"
-                                                                                                                        class="flex w-4 h-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-gray-400 outline-none <%= item.quantity <= 1 ? 'hidden' : '' %> ">
-                                                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                            class="w-2 fill-white"
-                                                                                                                            viewBox="0 0 124 124">
-                                                                                                                            <path
-                                                                                                                                d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
-                                                                                                                                data-original="#000000">
-                                                                                                                            </path>
-                                                                                                                        </svg>
-                                                                                                                    </button>
-                                                                                                                    <span
-                                                                                                                        id="quantity_<%=item._id%>"
-                                                                                                                        class="text-xs md:text-sm font-bold leading-[18px] ">
-                                                                                                                        <%=
-                                                                                                                            item.quantity%>
-                                                                                                                    </span>
-                                                                                                                    <button
-                                                                                                                        id="increaseButton_<%= item._id %>"
-                                                                                                                        type="button"
-                                                                                                                        onclick="increaseQuantity('<%=item._id%>', this)"
-                                                                                                                        class="flex w-4 h-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-gray-400 outline-none <%= item.quantity >=5 ? 'hidden' : '' %> ">
-                                                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                            class="w-2 fill-white"
-                                                                                                                            viewBox="0 0 42 42">
-                                                                                                                            <path
-                                                                                                                                d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
-                                                                                                                                data-original="#000000">
-                                                                                                                            </path>
-                                                                                                                        </svg>
-                                                                                                                    </button>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                        </div>
-
+                                                                                                                    <%if(index!==-1){%>
+                                                                                                                        <%let
+                                                                                                                            discountValue=offers[index].discount;%>
+                                                                                                                            <%= discountValue? '| '
+                                                                                                                                +discountValue+`%Product
+                                                                                                                                Offer`: ''
+                                                                                                                                %>
+                                                                                                                                <%
+                                                                                                                                    }%>
+                                                                                                                                    |
+                                                                                                                                    <%=item.product.discount%>
+                                                                                                                                        %Brand
+                                                                                                                                        Offer
+                                                                                                        </h3>
+                                                                                                        <p
+                                                                                                            class="mt-2 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500">
+                                                                                                            Size:
+                                                                                                            <span
+                                                                                                                class="inline-block h-5 w-5 flex items-center rounded-md">
+                                                                                                                <%=item.selectedSize%>
+                                                                                                            </span>
+                                                                                                        </p>
+                                                                                                        <p
+                                                                                                            class="mt-2 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500">
+                                                                                                            Color:
+                                                                                                            <span
+                                                                                                                class="inline-block w-3 h-3 md:h-5 md:w-5 rounded-full"
+                                                                                                                style="background-color: <%=item.selectedColor%>;"></span>
+                                                                                                        </p>
                                                                                                     </div>
+
                                                                                                     <div
-                                                                                                        class="flex flex-col w-1/2">
+                                                                                                        class="mt-auto flex items-center gap-3">
                                                                                                         <div
-                                                                                                            class="flex items-start justify-end">
+                                                                                                            class="flex gap-3 items-center">
                                                                                                             <button
+                                                                                                                id="decreaseButton_<%= item._id %>"
                                                                                                                 type="button"
-                                                                                                                class="p-2"
-                                                                                                                onclick="removeItem('<%= item._id%>')">
+                                                                                                                onclick="updateQuantity('<%= item._id %>', false, this)"
+                                                                                                                class="
+                                                                                                                flex w-4
+                                                                                                                h-4
+                                                                                                                md:h-5
+                                                                                                                md:w-5
+                                                                                                                items-center
+                                                                                                                justify-center
+                                                                                                                rounded-full
+                                                                                                                bg-gray-400
+                                                                                                                outline-none
+                                                                                                                <%=item.quantity
+                                                                                                                <=1
+                                                                                                                ? 'hidden'
+                                                                                                                : '' %>
+                                                                                                                ">
                                                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                    class="inline-block w-4 cursor-pointer fill-gray-400"
-                                                                                                                    viewBox="0 0 24 24">
+                                                                                                                    class="w-2 fill-white"
+                                                                                                                    viewBox="0 0 124 124">
                                                                                                                     <path
-                                                                                                                        d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
+                                                                                                                        d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
                                                                                                                         data-original="#000000">
                                                                                                                     </path>
+                                                                                                                </svg>
+                                                                                                            </button>
+                                                                                                            <span
+                                                                                                                id="quantity_<%=item._id%>"
+                                                                                                                class="text-xs md:text-sm font-bold leading-[18px] ">
+                                                                                                                <%=
+                                                                                                                    item.quantity%>
+                                                                                                            </span>
+                                                                                                            <button
+                                                                                                                id="increaseButton_<%= item._id %>"
+                                                                                                                type="button"
+                                                                                                                onclick="updateQuantity('<%= item._id %>', true, this)"
+                                                                                                                class="flex w-4 h-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-gray-400 outline-none <%= item.quantity >=5 ? 'hidden' : '' %> ">
+                                                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                                                    class="w-2 fill-white"
+                                                                                                                    viewBox="0 0 42 42">
                                                                                                                     <path
-                                                                                                                        d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
+                                                                                                                        d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
                                                                                                                         data-original="#000000">
                                                                                                                     </path>
                                                                                                                 </svg>
                                                                                                             </button>
                                                                                                         </div>
-                                                                                                        <div
-                                                                                                            class="mt-auto flex gap-2 items-center justify-end w-full">
-
-                                                                                                            <h4
-                                                                                                                class="text-sm lg:text-md text-slate-600 font-medium">
-                                                                                                                <strike
-                                                                                                                    id="originalPrice_<%=item._id%>">
-                                                                                                                    ₹
-                                                                                                                    <%=(item.product.productPrice*item.quantity).toFixed(2)%>
-                                                                                                                </strike>
-                                                                                                            </h4>
-
-                                                                                                            <h3 id="discountPrice_<%=item._id%>"
-                                                                                                                data-discount-price="<%=item.discountedPrice%>"
-                                                                                                                class="text-md lg:text-lg font-medium text-black-800">
-
-                                                                                                                ₹
-                                                                                                                <%=(item.discountedPrice).toFixed(2)%>
-                                                                                                            </h3>
-                                                                                                            <h2
-                                                                                                                class="hidden md:block text-md lg:text-xl font-medium text-red-500">
-                                                                                                                <%=Math.round(100-((item.discountedPrice*100)
-                                                                                                                    /(item.product.productPrice
-                                                                                                                    *
-                                                                                                                    item.quantity)))%>
-                                                                                                                    %off
-                                                                                                            </h2>
-                                                                                                        </div>
                                                                                                     </div>
                                                                                                 </div>
+
                                                                                             </div>
-                                                                                            <% })%>
+                                                                                            <div
+                                                                                                class="flex flex-col w-1/2">
+                                                                                                <div
+                                                                                                    class="flex items-start justify-end">
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        class="p-2"
+                                                                                                        onclick="removeItem('<%= item._id%>')">
+                                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                                            class="inline-block w-4 cursor-pointer fill-gray-400"
+                                                                                                            viewBox="0 0 24 24">
+                                                                                                            <path
+                                                                                                                d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
+                                                                                                                data-original="#000000">
+                                                                                                            </path>
+                                                                                                            <path
+                                                                                                                d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
+                                                                                                                data-original="#000000">
+                                                                                                            </path>
+                                                                                                        </svg>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                <div
+                                                                                                    class="mt-auto flex gap-2 items-center justify-end w-full">
 
-                                                                            </div>
+                                                                                                    <h4
+                                                                                                        class="text-sm lg:text-md text-slate-600 font-medium">
+                                                                                                        <strike
+                                                                                                            id="originalPrice_<%=item._id%>">
+                                                                                                            <%=formatRupees(item.product.productPrice*item.quantity)%>
+                                                                                                        </strike>
+                                                                                                    </h4>
 
-
-                                                                            <div
-                                                                                class="flex-1 h-max rounded-md bg-white md:px-4 md:py-6 md:shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
-                                                                                <ul class="space-y-4 text-gray-800">
-                                                                                    <li
-                                                                                        class="flex flex-wrap gap-4 text-md">
-                                                                                        Price
-                                                                                        (
-                                                                                        <%=cart.items.length%>
-                                                                                            items)<span
-                                                                                                id="totalOriginalPrice"
-                                                                                                class="ml-auto font-[sans-serif]">₹
-                                                                                                <%=totalPrice.toFixed(2)%>
-                                                                                            </span>
-                                                                                    </li>
-                                                                                    <li
-                                                                                        class="flex flex-wrap gap-4 text-md">
-                                                                                        Discount
-                                                                                        <span id="totalDiscountPrice"
-                                                                                            class="ml-auto font-[sans-serif] text-red-400">-₹
-                                                                                            <%=totalDiscount.toFixed(2)%>
-                                                                                        </span>
-                                                                                    </li>
-                                                                                    <%if(totalOfferDiscountValue){%>
-                                                                                        <li
-                                                                                            class="flex flex-wrap gap-4 text-md">
-                                                                                            Brand Discount:
-                                                                                            <span id="brandDiscount"
-                                                                                                class="ml-auto font-[sans-serif] text-red-400">-₹
-                                                                                                <%=totalOfferDiscountValue.toFixed(2)
-                                                                                                    %>
-                                                                                            </span>
-                                                                                        </li>
-                                                                                        <%}%>
-                                                                                            <li
-                                                                                                class="flex flex-wrap gap-4 text-md">
-                                                                                                Delivery
-                                                                                                Charges
-                                                                                                <span
-                                                                                                    class="ml-auto font-[sans-serif]"><strike
-                                                                                                        class="mr-2">₹40</strike>Free</span>
-                                                                                            </li>
-                                                                                            <li
-                                                                                                class="flex flex-wrap gap-4 text-md">
-                                                                                                Tax (5%)
-                                                                                                <span
-                                                                                                    class="ml-auto font-[sans-serif]">+
-                                                                                                    ₹
-                                                                                                    <%=tax.toFixed(2)%>
-                                                                                                </span>
-                                                                                            </li>
-                                                                                            </li>
-                                                                                            <hr
-                                                                                                class="border-gray-300" />
-                                                                                            <li
-                                                                                                class="flex flex-wrap gap-4 text-lg">
-                                                                                                Total
-                                                                                                <span id="total"
-                                                                                                    class="ml-auto font-[sans-serif]">₹
-                                                                                                    <%=(total +
-                                                                                                        tax).toFixed(2)%>
-                                                                                                </span>
-                                                                                            </li>
-                                                                                </ul>
-
-                                                                                <div class="mt-8 space-y-2">
-                                                                                    <a href="/user/checkout"
-                                                                                        class="block text-center w-full rounded-md bg-gray-800 px-4 py-2.5 text-sm font-semibold tracking-wide text-white hover:bg-gray-900">Checkout</a>
-                                                                                    <a href="/user/homepage"
-                                                                                        class="block text-center w-full rounded-md border border-gray-300 bg-transparent px-4 py-2.5 text-sm font-semibold tracking-wide text-gray-800 hover:bg-gray-100">Continue
-                                                                                        Shopping</a>
-                                                                                </div>
-
-
-                                                                            </div>
-                                                                            <%} else {%>
-                                                                                <div
-                                                                                    class="min-h-[400px] w-full col-span-full flex justify-center items-center">
-                                                                                    <div>
-                                                                                        <svg width="256" height="217"
-                                                                                            viewBox="0 0 256 217"
-                                                                                            fill="none"
-                                                                                            xmlns="http://www.w3.org/2000/svg">
-                                                                                            <path
-                                                                                                d="M172.424 77.8282C154.329 77.8282 135.91 77.1399 118.68 72.6459C101.774 68.2531 86.2515 59.7307 72.4155 49.8722C63.3572 43.4551 55.1204 38.3335 43.3598 39.1028C31.8545 39.6858 20.8521 43.7088 11.9694 50.5807C-2.9908 62.8482 -0.742454 85.5814 5.24594 101.493C14.2394 125.521 41.6087 142.263 64.8705 153.093C91.7426 165.664 121.274 172.972 150.87 177.162C176.812 180.867 210.149 183.539 232.632 167.688C253.278 153.093 258.942 119.813 253.883 97.3427C252.656 90.7047 248.881 84.7151 243.269 80.5003C228.762 70.5609 207.122 77.2007 190.821 77.5246C184.768 77.646 178.607 77.7877 172.424 77.8282Z"
-                                                                                                fill="#F2F2F2" />
-                                                                                            <path
-                                                                                                d="M129.013 216.555C172.844 216.555 208.376 214.48 208.376 211.92C208.376 209.36 172.844 207.284 129.013 207.284C85.1827 207.284 49.6509 209.36 49.6509 211.92C49.6509 214.48 85.1827 216.555 129.013 216.555Z"
-                                                                                                fill="#F2F2F2" />
-                                                                                            <path
-                                                                                                d="M17.0283 33.1917L45.1327 30.965C48.6373 30.6776 52.1409 31.5262 55.0571 33.3688C57.9733 35.2113 60.1251 37.936 61.1522 41.0866L88.0892 125.501L82.8142 134.347C81.4593 136.627 80.7905 139.208 80.879 141.815C80.9675 144.422 81.81 146.958 83.3167 149.152C84.8234 151.347 86.9378 153.117 89.4344 154.274C91.9311 155.432 94.7164 155.933 97.4934 155.724L205.371 147.141"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M65.1733 53.9006L190.562 43.9409C191.797 43.8419 193.041 44.0044 194.2 44.4166C195.358 44.8288 196.403 45.48 197.257 46.322C198.11 47.1639 198.75 48.175 199.13 49.2802C199.509 50.3854 199.618 51.5564 199.448 52.7063L190.951 110.137C190.693 111.86 189.824 113.451 188.483 114.656C187.142 115.86 185.407 116.607 183.558 116.776L88.0892 125.501L65.1733 53.9006Z"
-                                                                                                fill="white"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M109.492 175.077C115.115 175.077 119.674 170.808 119.674 165.542C119.674 160.277 115.115 156.008 109.492 156.008C103.868 156.008 99.3091 160.277 99.3091 165.542C99.3091 170.808 103.868 175.077 109.492 175.077Z"
-                                                                                                fill="white"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M180.401 169.449C186.025 169.449 190.584 165.181 190.584 159.915C190.584 154.649 186.025 150.38 180.401 150.38C174.778 150.38 170.219 154.649 170.219 159.915C170.219 165.181 174.778 169.449 180.401 169.449Z"
-                                                                                                fill="white"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M39.2837 28.6856L12.7879 30.7908C10.4917 30.9732 8.78831 32.864 8.98314 35.0141C9.17797 37.1641 11.1973 38.7591 13.4934 38.5767L39.9893 36.4715C42.2854 36.2891 43.9888 34.3983 43.794 32.2482C43.5991 30.0982 41.5798 28.5032 39.2837 28.6856Z"
-                                                                                                fill="#D2D2D2" />
-                                                                                            <path
-                                                                                                d="M117.966 98.2537C118.483 94.5592 120.334 91.1412 123.21 88.5667C126.087 85.9922 129.817 84.4158 133.782 84.0992C137.747 83.7825 141.708 84.7445 145.009 86.8257C148.31 88.9068 150.752 91.982 151.929 95.5411"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M152.21 76.4112C153.548 76.4112 154.632 75.3961 154.632 74.144C154.632 72.8918 153.548 71.8767 152.21 71.8767C150.873 71.8767 149.789 72.8918 149.789 74.144C149.789 75.3961 150.873 76.4112 152.21 76.4112Z"
-                                                                                                fill="#BABABA" />
-                                                                                            <path
-                                                                                                d="M113.837 79.4477C115.174 79.4477 116.258 78.4326 116.258 77.1805C116.258 75.9283 115.174 74.9132 113.837 74.9132C112.5 74.9132 111.416 75.9283 111.416 77.1805C111.416 78.4326 112.5 79.4477 113.837 79.4477Z"
-                                                                                                fill="#BABABA" />
-                                                                                            <path
-                                                                                                d="M45.6299 162.729V171.453"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M40.9819 167.081H50.278"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M194.172 0.539307V9.24392"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M189.524 4.8916H198.82"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M84.1113 26.552V35.2566"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M79.4414 30.9043H88.7591"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M217.369 58.5566C218.587 58.5566 219.574 57.6322 219.574 56.4918C219.574 55.3515 218.587 54.427 217.369 54.427C216.151 54.427 215.164 55.3515 215.164 56.4918C215.164 57.6322 216.151 58.5566 217.369 58.5566Z"
-                                                                                                fill="white"
-                                                                                                stroke="#BABABA"
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round" />
-                                                                                            <path
-                                                                                                d="M134.958 39.9934C136.129 39.9934 137.077 39.1052 137.077 38.0096C137.077 36.914 136.129 36.0258 134.958 36.0258C133.788 36.0258 132.84 36.914 132.84 38.0096C132.84 39.1052 133.788 39.9934 134.958 39.9934Z"
-                                                                                                fill="#CFCFCF" />
-                                                                                            <path
-                                                                                                d="M149.184 183.964C150.354 183.964 151.302 183.076 151.302 181.98C151.302 180.884 150.354 179.996 149.184 179.996C148.013 179.996 147.065 180.884 147.065 181.98C147.065 183.076 148.013 183.964 149.184 183.964Z"
-                                                                                                fill="#CFCFCF" />
-                                                                                        </svg>
-                                                                                        <p
-                                                                                            class="text-xl font-semibold text-[#939090] text-center mt-2">
-                                                                                            Your cart is Empty!</p>
-                                                                                        <p
-                                                                                            class="text-md text-[#939090] text-center mt-2">
-                                                                                            Add items to it now.</p>
+                                                                                                    <h3 id="discountPrice_<%=item._id%>"
+                                                                                                        data-discount-price="<%=item.discountedPrice%>"
+                                                                                                        class="text-md lg:text-lg font-medium text-black-800">
+                                                                                                        <%=formatRupees(item.discountedPrice*item.quantity)%>
+                                                                                                    </h3>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
                                                                                     </div>
+                                                                                    <% })%>
 
-                                                                                </div>
-                                                                                <%}%>
                                                                         </div>
+
+
+                                                                        <div
+                                                                            class="flex-1 h-max rounded-md bg-white md:px-4 md:py-6 md:shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
+                                                                            <ul class="space-y-4 text-gray-800">
+                                                                                <li
+                                                                                    class="flex flex-wrap gap-4 text-md">
+                                                                                    Price
+                                                                                    (<%=cart.items.length%>
+                                                                                        items)<span
+                                                                                            id="totalOriginalPrice"
+                                                                                            class="ml-auto font-[sans-serif]">
+                                                                                            <%=formatRupees(subTotal)%>
+                                                                                        </span>
+                                                                                </li>
+                                                                                <li
+                                                                                    class="flex flex-wrap gap-4 text-md">
+                                                                                    Discount
+                                                                                    <span id="totalDiscountPrice"
+                                                                                        class="ml-auto font-[sans-serif] text-red-400">-
+                                                                                        <%=formatRupees(totalDiscount)%>
+                                                                                    </span>
+                                                                                </li>
+
+                                                                                <li
+                                                                                    class="flex flex-wrap gap-4 text-md">
+                                                                                    Delivery
+                                                                                    Charges
+                                                                                    <span
+                                                                                        class="ml-auto font-[sans-serif]"><strike
+                                                                                            class="mr-2">₹40</strike>Free</span>
+                                                                                </li>
+                                                                                <li
+                                                                                    class="flex flex-wrap gap-4 text-md">
+                                                                                    Tax (5%)
+                                                                                    <span
+                                                                                        class="ml-auto font-[sans-serif]">+
+                                                                                        <%=formatRupees(taxAmount)%>
+                                                                                    </span>
+                                                                                </li>
+                                                                                </li>
+                                                                                <hr class="border-gray-300" />
+                                                                                <li
+                                                                                    class="flex flex-wrap gap-4 text-lg">
+                                                                                    Total
+                                                                                    <span id="total"
+                                                                                        class="ml-auto font-[sans-serif]">
+                                                                                        <%=formatRupees(total)%>
+                                                                                    </span>
+                                                                                </li>
+                                                                            </ul>
+
+                                                                            <div class="mt-8 space-y-2">
+                                                                                <a href="/user/checkout"
+                                                                                    class="block text-center w-full rounded-md bg-gray-800 px-4 py-2.5 text-sm font-semibold tracking-wide text-white hover:bg-gray-900">Checkout</a>
+                                                                                <a href="/user/homepage"
+                                                                                    class="block text-center w-full rounded-md border border-gray-300 bg-transparent px-4 py-2.5 text-sm font-semibold tracking-wide text-gray-800 hover:bg-gray-100">Continue
+                                                                                    Shopping</a>
+                                                                            </div>
+
+
+                                                                        </div>
+                                                                        <%} else {%>
+                                                                            <div
+                                                                                class="min-h-[400px] w-full col-span-full flex justify-center items-center">
+                                                                                <div>
+                                                                                    <svg width="256" height="217"
+                                                                                        viewBox="0 0 256 217"
+                                                                                        fill="none"
+                                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                                        <path
+                                                                                            d="M172.424 77.8282C154.329 77.8282 135.91 77.1399 118.68 72.6459C101.774 68.2531 86.2515 59.7307 72.4155 49.8722C63.3572 43.4551 55.1204 38.3335 43.3598 39.1028C31.8545 39.6858 20.8521 43.7088 11.9694 50.5807C-2.9908 62.8482 -0.742454 85.5814 5.24594 101.493C14.2394 125.521 41.6087 142.263 64.8705 153.093C91.7426 165.664 121.274 172.972 150.87 177.162C176.812 180.867 210.149 183.539 232.632 167.688C253.278 153.093 258.942 119.813 253.883 97.3427C252.656 90.7047 248.881 84.7151 243.269 80.5003C228.762 70.5609 207.122 77.2007 190.821 77.5246C184.768 77.646 178.607 77.7877 172.424 77.8282Z"
+                                                                                            fill="#F2F2F2" />
+                                                                                        <path
+                                                                                            d="M129.013 216.555C172.844 216.555 208.376 214.48 208.376 211.92C208.376 209.36 172.844 207.284 129.013 207.284C85.1827 207.284 49.6509 209.36 49.6509 211.92C49.6509 214.48 85.1827 216.555 129.013 216.555Z"
+                                                                                            fill="#F2F2F2" />
+                                                                                        <path
+                                                                                            d="M17.0283 33.1917L45.1327 30.965C48.6373 30.6776 52.1409 31.5262 55.0571 33.3688C57.9733 35.2113 60.1251 37.936 61.1522 41.0866L88.0892 125.501L82.8142 134.347C81.4593 136.627 80.7905 139.208 80.879 141.815C80.9675 144.422 81.81 146.958 83.3167 149.152C84.8234 151.347 86.9378 153.117 89.4344 154.274C91.9311 155.432 94.7164 155.933 97.4934 155.724L205.371 147.141"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M65.1733 53.9006L190.562 43.9409C191.797 43.8419 193.041 44.0044 194.2 44.4166C195.358 44.8288 196.403 45.48 197.257 46.322C198.11 47.1639 198.75 48.175 199.13 49.2802C199.509 50.3854 199.618 51.5564 199.448 52.7063L190.951 110.137C190.693 111.86 189.824 113.451 188.483 114.656C187.142 115.86 185.407 116.607 183.558 116.776L88.0892 125.501L65.1733 53.9006Z"
+                                                                                            fill="white"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M109.492 175.077C115.115 175.077 119.674 170.808 119.674 165.542C119.674 160.277 115.115 156.008 109.492 156.008C103.868 156.008 99.3091 160.277 99.3091 165.542C99.3091 170.808 103.868 175.077 109.492 175.077Z"
+                                                                                            fill="white"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M180.401 169.449C186.025 169.449 190.584 165.181 190.584 159.915C190.584 154.649 186.025 150.38 180.401 150.38C174.778 150.38 170.219 154.649 170.219 159.915C170.219 165.181 174.778 169.449 180.401 169.449Z"
+                                                                                            fill="white"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M39.2837 28.6856L12.7879 30.7908C10.4917 30.9732 8.78831 32.864 8.98314 35.0141C9.17797 37.1641 11.1973 38.7591 13.4934 38.5767L39.9893 36.4715C42.2854 36.2891 43.9888 34.3983 43.794 32.2482C43.5991 30.0982 41.5798 28.5032 39.2837 28.6856Z"
+                                                                                            fill="#D2D2D2" />
+                                                                                        <path
+                                                                                            d="M117.966 98.2537C118.483 94.5592 120.334 91.1412 123.21 88.5667C126.087 85.9922 129.817 84.4158 133.782 84.0992C137.747 83.7825 141.708 84.7445 145.009 86.8257C148.31 88.9068 150.752 91.982 151.929 95.5411"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M152.21 76.4112C153.548 76.4112 154.632 75.3961 154.632 74.144C154.632 72.8918 153.548 71.8767 152.21 71.8767C150.873 71.8767 149.789 72.8918 149.789 74.144C149.789 75.3961 150.873 76.4112 152.21 76.4112Z"
+                                                                                            fill="#BABABA" />
+                                                                                        <path
+                                                                                            d="M113.837 79.4477C115.174 79.4477 116.258 78.4326 116.258 77.1805C116.258 75.9283 115.174 74.9132 113.837 74.9132C112.5 74.9132 111.416 75.9283 111.416 77.1805C111.416 78.4326 112.5 79.4477 113.837 79.4477Z"
+                                                                                            fill="#BABABA" />
+                                                                                        <path
+                                                                                            d="M45.6299 162.729V171.453"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M40.9819 167.081H50.278"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M194.172 0.539307V9.24392"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path d="M189.524 4.8916H198.82"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M84.1113 26.552V35.2566"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M79.4414 30.9043H88.7591"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M217.369 58.5566C218.587 58.5566 219.574 57.6322 219.574 56.4918C219.574 55.3515 218.587 54.427 217.369 54.427C216.151 54.427 215.164 55.3515 215.164 56.4918C215.164 57.6322 216.151 58.5566 217.369 58.5566Z"
+                                                                                            fill="white"
+                                                                                            stroke="#BABABA"
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round" />
+                                                                                        <path
+                                                                                            d="M134.958 39.9934C136.129 39.9934 137.077 39.1052 137.077 38.0096C137.077 36.914 136.129 36.0258 134.958 36.0258C133.788 36.0258 132.84 36.914 132.84 38.0096C132.84 39.1052 133.788 39.9934 134.958 39.9934Z"
+                                                                                            fill="#CFCFCF" />
+                                                                                        <path
+                                                                                            d="M149.184 183.964C150.354 183.964 151.302 183.076 151.302 181.98C151.302 180.884 150.354 179.996 149.184 179.996C148.013 179.996 147.065 180.884 147.065 181.98C147.065 183.076 148.013 183.964 149.184 183.964Z"
+                                                                                            fill="#CFCFCF" />
+                                                                                    </svg>
+                                                                                    <p
+                                                                                        class="text-xl font-semibold text-[#939090] text-center mt-2">
+                                                                                        Your cart is Empty!</p>
+                                                                                    <p
+                                                                                        class="text-md text-[#939090] text-center mt-2">
+                                                                                        Add items to it now.</p>
+                                                                                </div>
+
+                                                                            </div>
+                                                                            <%}%>
                                                                     </div>
+                                                                </div>
                                                             </main>
                                                             <%- include('../partials/userFooter')%>
 

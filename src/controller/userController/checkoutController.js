@@ -38,21 +38,28 @@ const clearCart = async (userId) => {
 };
 
 
-
 const getCheckout = async (req, res) => {
     try {
         if (!req.session.user) return res.redirect('/user/signIn');
 
         const userId = req.session.user.userId;
 
-        const user = await User.findById(userId);
-        const cart = await Cart.findOne({ user: userId }).populate('items.product').populate('items.offer');
-        const wallet = await Wallet.findOne({ user: userId })
+        const [user, cart, wallet] = await Promise.all([
+            User.findById(userId),
+            Cart.findOne({ user: userId }).populate('items.product').populate('items.offer'),
+            Wallet.findOne({ user: userId }),
+        ]);
+
+        if (!user, !cart, !wallet) {
+            return response.error(res, 'Failed to load checkout', 400);
+        }
 
         // Total amount of the original price.
         const totalPrice = cart.items.reduce((acc, item) => acc + (item.product.productPrice * item.quantity), 0);
+
         // Total discount applied from the product offer.
         const totalProductDiscountedValue = cart.items.reduce((acc, item) => acc + (((item.product.productPrice * item.product.discount) / 100) * item.quantity), 0);
+
         // Total discount applied from the brand offer.
         const brandDiscount = cart.items.reduce((acc, item) => {
             if (item.offer && item.offer.isActive) {
@@ -60,6 +67,7 @@ const getCheckout = async (req, res) => {
             }
             return acc;
         }, 0);
+
         // Final amount price.
         const total = cart.items.reduce((acc, item) => acc + item.discountedPrice, 0);
         const tax = Math.round((total * 5) / 100);
@@ -78,7 +86,8 @@ const getCheckout = async (req, res) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 const getOrderSummary = async (req, res) => {
@@ -104,7 +113,8 @@ const getOrderSummary = async (req, res) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 }
 
 const proceedToPayment = async (req, res) => {
@@ -210,7 +220,8 @@ const proceedToPayment = async (req, res) => {
                 });
 
             } catch (err) {
-                response.serverError(res, err);}
+                response.serverError(res, err);
+            }
 
         } else if (paymentMethod === 'wallet') {
 
@@ -266,7 +277,8 @@ const proceedToPayment = async (req, res) => {
                 }
 
                 // General error response
-                response.serverError(res, err);}
+                response.serverError(res, err);
+            }
 
         } else {
             // Save the order to the database
@@ -282,45 +294,51 @@ const proceedToPayment = async (req, res) => {
         }
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 const applyCoupon = async (req, res) => {
+    if (!req.session.user) return res.redirect('/user/signIn');
+
+    const { cartId, inputValue } = req.body;
+    const userId = req.session.user.userId;
+
+    if (!cartId || !inputValue) {
+        return response.error(res, "Invalid input", 400);
+    }
+
     try {
-        // Validate input
-        if (!req.session.user || !req.body.cartId || !req.body.inputValue) {
-            return response.error(res, "Invalid input", 400);
-        }
-
-        const { cartId } = req.body;
-        const inputValue = req.body.inputValue;
-
-        // Find coupon, cart, user.
-        const coupon = await Coupon.findOne({ couponCode: inputValue });
-        const user = await User.findById(req.session.user.userId);
-        const cart = await Cart.findById(cartId).populate('coupon').populate('items.offer');
+        const [coupon, user, cart] = await Promise.all([
+            Coupon.findOne({ couponCode: inputValue }),
+            User.findById(req.session.user.userId),
+            Cart.findById(cartId).populate('coupon').populate('items.offer')
+        ]);
 
         if (!coupon || !user || !cart) {
-            return response.error(res, "Coupon, user or cart was not found", 400);
+            return response.error(res, "Failed to apply coupon.", 400);
         }
 
         // Calculate total price
         const totalPrice = cart.items.reduce((acc, item) => acc + item.discountedPrice, 0);
-
-        const now = new Date();
-        const expiryDate = new Date(coupon.expiry);
+        console.log(totalPrice)
 
         if (totalPrice < coupon.minAmount) {
-            return response.error(res, "Total price must be above ${coupon.minAmount} to apply that coupon", 400);
+            return response.error(res, `Total price must be above ${coupon.minAmount} to apply that coupon`, 400);
         }
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const expiryDate = new Date(coupon.expiry);
+        expiryDate.setHours(0, 0, 0, 0);
 
         if (now > expiryDate) {
             return response.error(res, "Coupon has expired", 400, { toast: false });
         }
 
         // checking the coupon use count.
-        const index = user.usedCoupons.findIndex(couponItem => couponItem.couponCode === coupon.couponCode);
-        if (index != -1 && user.usedCoupons[index].count >= coupon.count) {
+        const index = user.usedCoupons.findIndex(couponItem => couponItem.couponCode.toUpperCase() === coupon.couponCode.toUpperCase());
+        if (index != -1 && user.usedCoupons[index].count > coupon.count) {
             return response.error(res, "You have exceeded the maximum use counts.", 400, { toast: false });
         }
 
@@ -333,8 +351,8 @@ const applyCoupon = async (req, res) => {
         }
 
         // re-validating the min-amount;
-        if (couponAppliedPrice < coupon.minAmount) {
-            return response.error(res, 'Coupon is not applicable for this amount.', 400, { toast: false });
+        if (couponAppliedPrice < coupon.minAmount || couponAppliedPrice < 0) {
+            couponAppliedPrice = coupon.minAmount;
         }
 
         await Cart.findByIdAndUpdate(
@@ -352,7 +370,8 @@ const applyCoupon = async (req, res) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 const verifyPayment = async (req, res) => {
@@ -392,7 +411,8 @@ const verifyPayment = async (req, res) => {
         }
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 const handlePaymentFailure = async (req, res) => {
@@ -417,7 +437,8 @@ const handlePaymentFailure = async (req, res) => {
         response.success(res, { success: true });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 module.exports = {

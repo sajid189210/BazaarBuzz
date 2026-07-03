@@ -4,16 +4,30 @@ const productSchema = new mongoose.Schema({
     productName: {
         type: String,
         required: true,
+        trim: true,
     },
     productPrice: {
         type: Number,
-        required: true
+        required: true,
+        min: [1, 'Minimum amount must be greater than or equal to 1'],
+        max: [10000, 'Minimum amount must be between 1 and 10000.']
     },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
     },
-    discount: { type: Number },
+    discount: {
+        type: Number,
+        validate: {
+            validator: function (value) {
+                const discount = this.get?.('discount') ?? this.discount;
+                return productPrice > 0 && productPrice <= 100;
+            },
+            message: function () {
+                return "Discount value must be between 1 and 100"
+            }
+        }
+    },
     brand: { type: String },
     images: [{ type: String }],
     description: { type: String },
