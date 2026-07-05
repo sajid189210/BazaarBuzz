@@ -6,3 +6,5 @@ Extras
 .env
 eslint-config.mjs
 .agents*
+
+.skills-lock.json
