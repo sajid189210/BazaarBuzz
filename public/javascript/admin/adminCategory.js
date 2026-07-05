@@ -1,267 +1,83 @@
-//?for modal only
-let brandToBeDeleted = []; //?This contains the brands that needs to be removed.
-
-
-//*---------------create category-------------
-const createCategory = async function () {
-    try {
-
-        const brand = document.getElementById('brand').value.trim();
-        const title = document.getElementById('title').value.trim();
-
-        if (!brand || !title) {
-            await Swal.fire({
-                title: 'Empty!',
-                text: 'All fields must be filled.',
-                icon: 'warning',
-                confirmButtonText: 'Ok'
-            });
-            return;
-        }
-
-        const response = await fetch("/admin/category/create", {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, brand })
-        });
-
-        const data = await response.json();
-
-        if (!data.success) {
-            await Swal.fire({
-                title: 'Warning',
-                icon: 'warning',
-                text: data.message,
-                confirmButtonText: 'Ok'
-            });
-            return;
-        }
-
-        await Swal.fire({
-            title: 'Success',
-            icon: 'success',
-            text: data.message,
-            confirmButtonText: 'Ok'
-        });
-
-        window.location.reload();
-
-    } catch (err) {
-        console.error(`Error creating category: ${err.message}`);
-        alert(`An error occurred while creating category in the category.${err.message}.`);
-    }
-
+function openCategoryModal() {
+    document.getElementById('categoryModal').classList.remove('hidden');
+    document.getElementById('categoryModalTitle').textContent = 'Add Category';
+    document.getElementById('categoryId').value = '';
+    document.getElementById('categoryForm').reset();
 }
 
-
-//*----------------------------------------[Modal Area]----------------------------------------------
-
-//creating html inputs to store the brand items
-function createInputElement(brand) {
-    try {
-
-        const inputContainer = document.createElement('div');
-        inputContainer.classList.add('flex', 'items-center', 'mb-2', 'mt-2');
-
-        //creating input element for each brand.
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = brand;
-        input.id = brand;
-        input.classList.add('px-4', 'py-3', 'mr-4', 'bg-white', 'text-gray-800', 'w-full', 'text-sm', 'border', 'border-gray-300', 'focus:border-blue-600', 'outline-none', 'rounded-lg');
-
-        //creating remove buttons for each brand.
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.classList.add('ml-4', 'w-3.5', 'cursor-pointer', 'shrink-0', 'fill-gray-400', 'hover:fill-red-500', 'float-right');
-        removeButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                         </svg>`;
-
-        removeButton.addEventListener('click', function () {
-            brandToBeDeleted.push(brand);
-            inputContainer.remove();
-        });
-
-        inputContainer.appendChild(input);
-        inputContainer.appendChild(removeButton);
-
-        return inputContainer;
-
-    } catch (err) {
-        console.error(`Error creating brand input: ${err.message}`);
-        alert(`An error occurred while creating brand input in the category.${err.message}.`);
-    }
-
+function closeCategoryModal() {
+    document.getElementById('categoryModal').classList.add('hidden');
 }
 
-//opens the modal
-function openModal(category) {
-    try {
-        const categoryData = JSON.parse(category)
-
-        document.getElementById("editTitle").value = categoryData.title;
-        document.getElementById('categoryId').value = categoryData._id;
-
-        const brandDiv = document.getElementById("brandContainer");
-
-        brandDiv.innerHTML = '';
-
-        categoryData.brands.forEach(brand => {
-            const container = createInputElement(brand);
-            brandDiv.appendChild(container);
-        });
-
-        document.getElementById("modal").classList.remove('hidden');
-
-    } catch (err) {
-        console.error(`Error opening modal: ${err.message}`);
-        alert(`An error occurred while opening modal in the category.${err.message}.`);
-    }
+function editCategory(id, title, brandName) {
+    document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+    document.getElementById('categoryId').value = id;
+    document.getElementById('categoryTitle').value = title;
+    document.getElementById('brandName').value = brandName || '';
+    document.getElementById('categoryModal').classList.remove('hidden');
 }
 
-//close modal
-function closeModal() {
-    try {
-
-        document.getElementById("modal").classList.add('hidden');
-        brandToBeDeleted = [];
-
-    } catch (err) {
-        console.error(`Error closing modal: ${err.message}`);
-        alert(`An error occurred while closing modal in the category.${err.message}.`);
-    }
-}
-
-//* -------------[updates category]-------------
-const updateCategory = async function () {
-    try {
-
-        const title = document.getElementById("editTitle").value.trim();
-        const categoryId = document.getElementById("categoryId").value;
-
-        const response = await fetch('/admin/category/update', {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ brandToBeDeleted, title, categoryId })
-        });
-
-        const data = await response.json();
-
-        if (!data.success) {
-            Swal.fire({
-                title: 'Error',
-                icon: 'error',
-                text: data.message,
-                confirmButtonText: 'Ok'
-            });
-            return;
-        }
-
-        await Swal.fire({
-            title: 'Success',
-            icon: 'success',
-            text: data.message,
-            confirmButtonText: 'Ok'
-        });
-
-        window.location.reload();
-
-    } catch (err) {
-        console.error(`Error updating category: ${err.message}`);
-        alert(`An error occurred while updating category in the category.${err.message}.`);
-    }
-}
-
-
-//*-------------delete category----------
-const deleteCategory = async function (id) {
+async function toggleCategory(id) {
     try {
         const { isConfirmed } = await Swal.fire({
-            title: 'Warning!',
-            text: 'Are you sure you want to delete the category?',
+            title: 'Toggle Status?',
+            text: 'Change the category status?',
             icon: 'warning',
             showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
         });
-
-        if (isConfirmed) {
-            const response = await fetch(`/admin/category/delete/${id}`, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                await Swal.fire({
-                    title: 'Sorry, Try again.',
-                    text: data.message,
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            await Swal.fire({
-                title: 'Success',
-                text: data.message,
-                icon: 'success',
-                confirmButtonText: 'Ok'
-            });
-
-            window.location.reload();
-        } else return;
-
-    } catch (error) {
-        console.error(`Error deleting category: ${err.message}`);
-        alert(`An error occurred while deleting category in the category.${err.message}.`);
-    }
-}
-
-
-//*toggles between active and inactive.
-const toggleCategoryStatus = async (element, id) => {
-    try {
-
-        //gets the selected option.
-        const selectedOption = element.options[element.selectedIndex];
-
-        const response = await fetch(`/admin/categoryStatus/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ selectedOption: selectedOption.value })
-        });
-
-        const data = await response.json();
-
-        if (!data.success) {
-            alert(data.message);
-            return;
-        }
-
-        if (data.isActive) {
-            Swal.fire({
-                title: 'Success',
-                text: 'Category has been successfully activated!',
-                confirmButtonText: "Ok",
-                icon: 'success'
-            });
+        if (!isConfirmed) return;
+        const res = await fetch(`/admin/categoryStatus/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const data = await res.json();
+        if (data.success) {
+            Swal.fire({ title: 'Success', text: 'Status updated', icon: 'success' });
+            setTimeout(() => location.reload(), 1000);
         } else {
-            Swal.fire({
-                title: 'Success',
-                text: 'Category has been successfully inactivated!',
-                confirmButtonText: "Ok",
-                icon: 'success'
-            });
-
+            Swal.fire({ title: 'Error', text: data.message || 'Failed to update status', icon: 'error' });
         }
-    } catch (err) {
-        console.error(`Error toggling category status: ${err.message}`);
-        alert(`An error occurred while toggling category status in the category client side.${err.message}.`);
-    }
+    } catch (e) { console.log(e); }
 }
+
+async function deleteCategory(id) {
+    try {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Delete Category?',
+            text: 'This action cannot be undone. All brands under this category will be removed.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: '#e53e3e',
+            cancelButtonText: 'Cancel'
+        });
+        if (!isConfirmed) return;
+        const res = await fetch(`/admin/category/delete/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            Swal.fire({ title: 'Deleted', text: 'Category deleted successfully', icon: 'success' });
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            Swal.fire({ title: 'Error', text: data.message || 'Failed to delete category', icon: 'error' });
+        }
+    } catch (e) { console.log(e); }
+}
+
+document.getElementById('categoryForm')?.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const categoryId = formData.get('categoryId');
+    const title = formData.get('title');
+    const brandName = formData.get('brandName');
+    const url = categoryId ? '/admin/category/update' : '/admin/category/create';
+    const method = categoryId ? 'PATCH' : 'POST';
+    try {
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categoryId, title, brandName }) });
+        const data = await res.json();
+        if (data.success) {
+            Swal.fire({ title: 'Success', text: data.message, icon: 'success' });
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            Swal.fire({ title: 'Error', text: data.message || 'Failed to save category', icon: 'error' });
+        }
+    } catch (e) { console.log(e); }
+});

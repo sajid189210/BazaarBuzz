@@ -1,252 +1,140 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Category</title>
+    <title>Admin — Categories</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/dark-theme.css">
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-    .custom-table {
-        opacity: 0.8;
-        filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.92));
-        border-radius: 12px;
-        background-color: #fff;
-    }
-
-    .btn {
-        background: #ff6d2fed;
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-        border-radius: 20px;
-        color: white;
-    }
-</style>
-
-<body style="font-family: 'Poppins', system-ui;" class="h-screen overflow-hidden">
-
-    <div class="flex h-screen">
-        <%- include('../partials/adminSideMenu')%>
-
-            <header class="fixed border-b w-full bg-white top-0 left-[250px] z-50 p-5">
-                <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
-                    <li class="text-gray-500 text-base cursor-pointer">
-                        <a href="/admin/dashboard">Dashboard</a>
-                    </li>
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3.5 -rotate-90"
-                            viewBox="0 0 24 24">
-                            <path fill-rule="evenodd"
-                                d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
-                                clip-rule="evenodd" data-original="#000000"></path>
-                        </svg>
-                    </li>
-                    <li class="text-black-500 text-xl font-bold cursor-pointer">
-                        <a href="#">Category List</a>
-                    </li>
-                </ul>
+<body class="bg-gray-50 antialiased">
+    <div class="flex min-h-screen">
+        <%- include('../partials/adminSideMenu') %>
+        <div class="flex-1 ml-[250px]">
+            <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <a href="/admin/dashboard" class="hover:text-gray-700">Dashboard</a>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <span class="text-gray-900 font-semibold">Categories</span>
+                </div>
             </header>
-
-            <main class=" relative">
-                <div class="flex absolute left-[300px] top-[80px] mt-10">
-                    <table class="custom-table bg-white">
-                        <thead class="bg-[#BABABA] bg-opacity-25 whitespace-nowrap">
-                            <tr class="bg-[#495057] ">
-                                <th class="p-4 text-left text-sm font-bold text-white">
-                                    SlNo.
-                                </th>
-                                <th class="p-4 text-left text-sm font-bold text-white">
-                                    Category Name
-                                </th>
-                                <th class="p-4 text-left text-sm font-bold text-white">
-                                    Brand Name
-                                </th>
-                                <th class="p-4 text-left text-sm font-bold text-white">
-                                    Created At
-                                </th>
-                                <th class="p-4 text-left text-sm font-bold text-white">
-                                    Actions
-                                </th>
-                                <th class="p-4 text-left text-sm font-bold text-white">
-                                    Status
-                                </th>
-                            </tr>
-                        </thead>
-
-                        <!-- ejs------------------------------------------------------------------------------ -->
-                        <tbody class="whitespace-nowrap">
-                            <% if( categories.length> 0 ) { %>
-
-                                <% categories.forEach( ( category, index )=> { %>
-                                    <%= %>
-                                        <tr class="even:bg-[#dee2e6] odd:bg-[#f8f9fa]">
-                                            <td class="p-4 text-sm text-[#343a40]">
-                                                <%= index + 1 %>.
-                                            </td>
-                                            <td class="p-4 text-sm text-[#343a40]">
-                                                <%= category.title %>
-                                            </td>
-                                            <td class="p-4 text-sm text-[#343a40]">
-                                                <ul>
-                                                    <% category.brands.forEach(brand=> { %>
-                                                        <li class="mb-2">
-                                                            <%= brand %>
-                                                        </li>
-                                                        <% }); %>
-                                                </ul>
-                                            </td>
-                                            <td class="p-4 text-sm text-[#343a40]">
-                                                2024-09-15
-                                            </td>
-
-                                            <td class="p-4">
-                                                <button type="button" class="mr-4" title="Edit"
-                                                    onclick="openModal('<%= JSON.stringify(category) %>')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="w-5 fill-[#17a2b8] hover:fill-blue-700"
-                                                        viewBox="0 0 348.882 348.882">
-                                                        <path
-                                                            d="m333.988 11.758-.42-.383A43.363 43.363 0 0 0 304.258 0a43.579 43.579 0 0 0-32.104 14.153L116.803 184.231a14.993 14.993 0 0 0-3.154 5.37l-18.267 54.762c-2.112 6.331-1.052 13.333 2.835 18.729 3.918 5.438 10.23 8.685 16.886 8.685h.001c2.879 0 5.693-.592 8.362-1.76l52.89-23.138a14.985 14.985 0 0 0 5.063-3.626L336.771 73.176c16.166-17.697 14.919-45.247-2.783-61.418zM130.381 234.247l10.719-32.134.904-.99 20.316 18.556-.904.99-31.035 13.578zm184.24-181.304L182.553 197.53l-20.316-18.556L294.305 34.386c2.583-2.828 6.118-4.386 9.954-4.386 3.365 0 6.588 1.252 9.082 3.53l.419.383c5.484 5.009 5.87 13.546.861 19.03z"
-                                                            data-original="#000000" />
-                                                        <path
-                                                            d="M303.85 138.388c-8.284 0-15 6.716-15 15v127.347c0 21.034-17.113 38.147-38.147 38.147H68.904c-21.035 0-38.147-17.113-38.147-38.147V100.413c0-21.034 17.113-38.147 38.147-38.147h131.587c8.284 0 15-6.716 15-15s-6.716-15-15-15H68.904C31.327 32.266.757 62.837.757 100.413v180.321c0 37.576 30.571 68.147 68.147 68.147h181.798c37.576 0 68.147-30.571 68.147-68.147V153.388c.001-8.284-6.715-15-14.999-15z"
-                                                            data-original="#000000" />
-                                                    </svg>
-                                                </button>
-                                                <button type="button" class="mr-4" title="Delete"
-                                                    onclick="deleteCategory('<%= category._id %>')" id="openModal">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="w-5 fill-[#e4606d] hover:fill-[#dc3545]"
-                                                        viewBox="0 0 24 24">
-                                                        <path
-                                                            d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
-                                                            data-original="#000000" />
-                                                        <path
-                                                            d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
-                                                            data-original="#000000" />
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                            <td class="p-4 text-sm text-black">
-                                                <select name="categoryStatus" id="categoryStatus"
-                                                    class="bg-[#5cb85c] p-1.5 rounded-full"
-                                                    onchange="toggleCategoryStatus(this, '<%= category._id %>')">
-                                                    <option value="active" <%=category.isActive===true ? 'selected' : ''
-                                                        %>>Active</option>
-                                                    <option value="inactive" <%=category.isActive===false ? 'selected'
-                                                        : '' %>>Inactive</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <% } ); %>
-
-                                            <% } else { %>
-                                                <tr class="">
-                                                    <td colspan="6" class="w-full p-4 text-center">No categories
-                                                        were
-                                                        added.</td>
-
-                                                </tr>
-                                                <% } %>
-
-                        </tbody>
-                    </table>
-
-                    <!-- Create Category ----------------------------------------------------------------------------- -->
-
-                    <div class="ml-6 mt-10">
-                        <form>
-                            <div class="mb-3 flex justify-center">
-                                <input type="text" placeholder="Category Name" class="border-2 border-slate-300 rounded-md ps-2 py-1.5
-                                        w-80 placeholder:text-sm placeholder:ps-1. focus:outline-blue-500" name="title"
-                                    id="title">
-                            </div>
-
-                            <div class="mb-3 flex justify-center">
-                                <input type="text" placeholder="Brand Name" class="border-2 border-slate-300 rounded-md ps-2 py-1.5
-                                        w-80 placeholder:text-sm placeholder:ps-1. focus:outline-blue-500" name="brand"
-                                    id="brand">
-                            </div>
-
-                            <div class="w-full flex justify-center">
-                                <button type="button"
-                                    class="w-32 rounded-lg py-2 bg-orange-500 hover:bg-orange-600  text-white"
-                                    onclick="createCategory()">Create</button>
-                            </div>
-                        </form>
+            <main class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Categories</h1>
+                        <p class="text-sm text-gray-500 mt-1">Manage product categories and brands</p>
+                    </div>
+                    <button onclick="openCategoryModal()" class="rounded-lg bg-gray-900 hover:bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Add Category
+                    </button>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-100 bg-gray-50/80">
+                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">#</th>
+                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Category</th>
+                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Brands</th>
+                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Created</th>
+                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</th>
+                                    <th class="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <% if(categories && categories.length > 0) { %>
+                                <% categories.forEach((cat, index) => { %>
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="px-5 py-4 text-gray-400 text-xs font-medium"><%= index + 1 %></td>
+                                    <td class="px-5 py-4">
+                                        <span class="text-gray-900 font-medium"><%= cat.title %></span>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <% if(cat.brands && cat.brands.length > 0) { %>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <% cat.brands.forEach(function(b) { %>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100"><%= b %></span>
+                                            <% }); %>
+                                        </div>
+                                        <% } else { %>
+                                        <span class="text-gray-400">—</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="px-5 py-4 text-gray-500 text-sm">
+                                        <% const d = new Date(cat.createdAt); %>
+                                        <%= !isNaN(d) ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—' %>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full <%= cat.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' %>">
+                                            <span class="w-1.5 h-1.5 rounded-full <%= cat.isActive ? 'bg-emerald-500' : 'bg-rose-500' %>"></span>
+                                            <%= cat.isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-1.5">
+                                            <button onclick="editCategory('<%= cat._id %>', '<%= cat.title.replace(/'/g, "\\'") %>', '<%= cat.brands ? cat.brands.join(', ').replace(/'/g, "\\'") : '' %>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                Edit
+                                            </button>
+                                            <button onclick="toggleCategory('<%= cat._id %>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors <%= cat.isActive ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50' %>">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="<%= cat.isActive ? 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' : 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' %>"/></svg>
+                                                <%= cat.isActive ? 'Block' : 'Unblock' %>
+                                            </button>
+                                            <button onclick="deleteCategory('<%= cat._id %>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="px-5 py-12 text-center">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                            <span class="text-gray-400 text-sm">No categories found</span>
+                                            <button onclick="openCategoryModal()" class="text-sm text-rose-500 hover:text-rose-600 font-medium mt-1">Add your first category</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-
             </main>
+        </div>
     </div>
 
-    <!--Category Update Modal------------------------------------------------------- -->
-
-    <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000]
-            before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto
-            font-[sans-serif] hidden" id="modal">
-        <div class="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 relative">
-            <button type="button" onclick="closeModal()"
-                class="w-3.5 cursor-pointer shrink-0 fill-gray-400 hover:fill-red-500 float-right">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320.591 320.591">
-                    <path
-                        d="M30.391 318.583a30.37 30.37 0 0 1-21.56-7.288c-11.774-11.844-11.774-30.973 0-42.817L266.643 10.665c12.246-11.459 31.462-10.822 42.921 1.424 10.362 11.074 10.966 28.095 1.414 39.875L51.647 311.295a30.366 30.366 0 0 1-21.256 7.288z"
-                        data-original="#000000"></path>
-                    <path
-                        d="M287.9 318.583a30.37 30.37 0 0 1-21.257-8.806L8.83 51.963C-2.078 39.225-.595 20.055 12.143 9.146c11.369-9.736 28.136-9.736 39.504 0l259.331 257.813c12.243 11.462 12.876 30.679 1.414 42.922-.456.487-.927.958-1.414 1.414a30.368 30.368 0 0 1-23.078 7.288z"
-                        data-original="#000000"></path>
-                </svg>
+    <!-- Category Modal -->
+    <div id="categoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeCategoryModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8">
+            <button type="button" onclick="closeCategoryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
-
-            <div class="my-8 text-center">
-                <h4 class="text-3xl text-gray-800 font-extrabold">Edit Category</h4>
-            </div>
-
-            <form class="space-y-4">
-
-                <div class="flex flex-col items-start" id="titleContainer">
-                    <label class="text-sm mb-2 text-gray-500" for="editTitle">Category Name</label>
-                    <input type="text" placeholder=""
-                        class="px-4 py-3 bg-white text-gray-800 w-full text-sm border border-gray-300 focus:border-blue-600 outline-none rounded-lg"
-                        id="editTitle" />
-                    <input type="hidden" id="categoryId">
+            <h2 id="categoryModalTitle" class="text-xl font-bold text-gray-900 mb-6">Add Category</h2>
+            <form id="categoryForm" class="space-y-4">
+                <input type="hidden" name="categoryId" id="categoryId">
+                <div>
+                    <label for="categoryTitle" class="block text-sm font-medium text-gray-700">Category Name</label>
+                    <input type="text" id="categoryTitle" name="title" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
                 </div>
-
-                <div class="">
-                    <label class="text-sm mb-2 block text-gray-500" for="editBrands">Brand Names</label>
-                    <div class="grid col-span-full" id="brandContainer">
-                        <!-- displays the brands -->
-                    </div>
+                <div>
+                    <label for="brandName" class="block text-sm font-medium text-gray-700">Brand Name</label>
+                    <input type="text" id="brandName" name="brandName"
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
                 </div>
-
-                <div class="!mt-8 space-y-4">
-                    <button type="button"
-                        class="px-5 py-2.5 w-full bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg tracking-wide"
-                        onclick="updateCategory()">
-                        Update Category</button>
-                </div>
-
+                <button type="submit" class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors">Save</button>
             </form>
-
         </div>
     </div>
 
     <script src="/javascript/admin/adminCategory.js"></script>
-
-    <script>
-
-
-
-    </script>
-
 </body>
-
 </html>

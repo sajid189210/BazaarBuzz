@@ -152,7 +152,7 @@ const userSignIn = (req, res) => {
 // ? getting category from the database.
 const getCategory = async () => {
     try {
-        return await Category.find({ isActive: true });
+        return await Category.find({ isActive: { $ne: false } });
     } catch (err) {
         throw new Error("Error caught while getting categories from db.", err);
     }
@@ -161,11 +161,7 @@ const getCategory = async () => {
 // ? getting product from the database.
 const getProduct = async () => {
     try {
-        return await Product.find({ isActive: true, isDeleted: false }).populate({
-            path: 'categoryId',
-            match: { isActive: true },
-            model: 'Category',
-        }).sort({ createdAt: -1 });
+        return await Product.find({ isActive: true, isDeleted: false }).sort({ createdAt: -1 });
     } catch (err) {
         throw new Error("Error caught while getting products from db.", err);
     }
@@ -181,7 +177,7 @@ const userHomepage = async (req, res) => {
         const products = await getProduct();
 
         const filteredProducts = products.filter(product => {
-            return product.categoryId !== null;
+            return product.category;
         });
 
         if (req.session.user) {
@@ -202,11 +198,14 @@ const userHomepage = async (req, res) => {
             }
         }
 
+        const heroMode = req.query.hero || 'image';
+
         return res.render('user/userHomepage', {
             user: req.session.user || null,
             categories,
             searchBox: true,
             products: filteredProducts,
+            heroMode,
         });
 
     } catch (err) {
@@ -346,20 +345,35 @@ const renderProfile = async (req, res) => {
 
         const userDetails = await User.findById(userId);
 
-        const category = await getCategory();
+        const categories = await getCategory();
 
         res.render('user/userProfile', {
             user: req.session.user || null,
             userDetails,
             searchBox: false,
-            category
+            categories
         });
 
     } catch (err) {
         response.serverError(res, err);}
 };
 
+const updateProfile = async (req, res) => {
+    try {
+        if (!req.session.user) return res.redirect('/user/signIn');
 
+        const userId = req.session.user.userId;
+        const { username, email, phone } = req.body;
+
+        await User.findByIdAndUpdate(userId, { username, email, phone }, { runValidators: true });
+
+        req.session.user.userName = username;
+
+        response.success(res, {}, "Profile updated successfully.");
+
+    } catch (err) {
+        response.serverError(res, err);}
+};
 
 //*---------------[SignOut]----------------
 const userSignOut = (req, res) => {
@@ -380,6 +394,7 @@ module.exports = {
     updatePassword,
     removeAddress,
     renderProfile,
+    updateProfile,
     userHomepage,
     saveAddress,
     editAddress,

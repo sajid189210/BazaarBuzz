@@ -1,27 +1,40 @@
-<div id="homeCarousel" class="relative w-full h-[100vh] overflow-hidden bg-gray-900">
-  <div class="relative w-full h-full">
+<%
+  const useVideo = typeof heroMode !== 'undefined' ? heroMode === 'video' : false;
+%>
+
+<% if (useVideo) { %>
+<!-- ===== VIDEO HERO ===== -->
+<div id="homeCarousel" class="relative w-full min-h-[100dvh] overflow-hidden bg-gray-900">
+  <div class="relative w-full min-h-[100dvh]">
     <% const videos = ['banner-video-3.mp4', 'banner-video-2.mp4', 'banner-video-1.mp4','banner-video-4.mp4']; %>
     <% videos.forEach(function(v, i) { %>
-    <div class="carousel-slide absolute inset-0 w-full h-full transition-opacity duration-700 <%= i === 0 ? 'opacity-100' : 'opacity-0' %>" data-index="<%= i %>">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
+    <div class="carousel-slide absolute inset-0 w-full min-h-[100dvh] transition-opacity duration-700 <%= i === 0 ? 'opacity-100' : 'opacity-0' %>" data-index="<%= i %>">
+      <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
         <source src="/uploads/<%= v %>" type="video/mp4">
       </video>
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none"></div>
+      <div class="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] text-center px-4">
+        <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-rose-300 mb-4 md:mb-6">New Collection</p>
+        <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-none max-w-4xl">Discover Your<br><span class="text-rose-400">Style</span></h1>
+        <p class="mt-4 md:mt-6 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">Curated fashion for those who dare to stand out. Explore the latest trends and timeless essentials.</p>
+        <div class="mt-6 md:mt-8 flex gap-3">
+          <a href="/user/getProductList/featured" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 bg-rose-500 hover:bg-rose-600 text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">Shop Now<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a href="/user/getProductList/newArraival" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 border-2 border-white/30 hover:border-white/60 text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">New Arrivals</a>
+        </div>
+      </div>
     </div>
     <% }); %>
   </div>
-
   <div class="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
     <% for (let i = 0; i < videos.length; i++) { %>
     <button type="button" class="carousel-dot w-8 h-1 rounded-full transition-all duration-300 <%= i === 0 ? 'bg-white w-12' : 'bg-white/50' %>" data-index="<%= i %>" aria-label="Slide <%= i + 1 %>"></button>
     <% } %>
   </div>
-
-  <button type="button" id="carouselPrev" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-70 hover:opacity-100">
+  <button type="button" id="carouselPrev" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-70 hover:opacity-100">
     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/></svg>
     <span class="sr-only">Previous</span>
   </button>
-  <button type="button" id="carouselNext" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-70 hover:opacity-100">
+  <button type="button" id="carouselNext" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-70 hover:opacity-100">
     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
     <span class="sr-only">Next</span>
   </button>
@@ -30,6 +43,7 @@
 <script>
 (function() {
   var container = document.getElementById('homeCarousel');
+  if (!container) return;
   var slides = container.querySelectorAll('.carousel-slide');
   var dots = container.querySelectorAll('.carousel-dot');
   var prevBtn = document.getElementById('carouselPrev');
@@ -63,5 +77,45 @@
   });
 
   startAuto();
+})();
+</script>
+
+<% } else { %>
+<!-- ===== IMAGE HERO ===== -->
+<section class="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-gray-900">
+  <div class="absolute inset-0">
+    <img src="/uploads/hero/hero-1.jpg" alt="Fashion hero" class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent"></div>
+  </div>
+  <div class="relative z-10 flex flex-col items-center text-center px-4 py-24">
+    <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-rose-300 mb-4 md:mb-6">New Collection</p>
+    <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-none max-w-4xl">Discover Your<br><span class="text-rose-400">Style</span></h1>
+    <p class="mt-4 md:mt-6 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">Curated fashion for those who dare to stand out. Explore the latest trends and timeless essentials.</p>
+    <div class="mt-6 md:mt-8 flex gap-3">
+      <a href="/user/getProductList/featured" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 bg-rose-500 hover:bg-rose-600 text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">Shop Now<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <a href="/user/getProductList/newArraival" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 border-2 border-white/30 hover:border-white/60 text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">New Arrivals</a>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- Hero toggle pill -->
+<div id="heroToggle" class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1.5 text-xs text-white/70 cursor-pointer hover:bg-white/20 transition-all select-none shadow-lg">
+  <span id="heroToggleIcon" class="text-xs"><% if (useVideo) { %>🎬<% } else { %>🖼️<% } %></span>
+  <span id="heroToggleLabel"><% if (useVideo) { %>Video<% } else { %>Image<% } %></span>
+</div>
+
+<script>
+(function() {
+  var toggle = document.getElementById('heroToggle');
+  if (!toggle) return;
+
+  toggle.addEventListener('click', function() {
+    var params = new URLSearchParams(window.location.search);
+    var current = params.get('hero') || 'image';
+    var next = current === 'video' ? 'image' : 'video';
+    params.set('hero', next);
+    window.location.search = params.toString();
+  });
 })();
 </script>

@@ -1,561 +1,93 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin- Dashboard</title>
+    <title>Admin — Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/dark-theme.css">
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
-
-
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-
-<body>
-    <div class="flex h-screen">
-        <div class="z-50">
-            <%- include('../partials/adminSideMenu')%>
+<body class="bg-gray-50 antialiased">
+    <div class="flex min-h-screen">
+        <%- include('../partials/adminSideMenu') %>
+        <div class="flex-1 ml-[250px]">
+            <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <a href="/admin/dashboard" class="text-gray-900 font-semibold">Dashboard</a>
+                </div>
+            </header>
+            <main class="p-6 space-y-8">
+                <!-- Sales Charts Row -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Sales</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-xl border border-gray-200 p-4"><div id="salesRevenue_bar"></div></div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-4"><div id="salesByBrand"></div></div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-4"><div id="AOV"></div></div>
+                    </div>
+                </div>
+                <!-- Customer Chart -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Customers</h2>
+                    <div class="bg-white rounded-xl border border-gray-200 p-4"><div id="customerChart"></div></div>
+                </div>
+                <!-- Products Charts -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Products</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-xl border border-gray-200 p-4"><div id="topSellingProductChart"></div></div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-4"><div id="inStockChart"></div></div>
+                    </div>
+                </div>
+                <!-- Recent Orders Table -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
+                        <a href="/admin/orders" class="text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">View All</a>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">OrderID</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">User Email</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Total Amount</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Order Date</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Order Status</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Payment Status</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Return Status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <% if(orders && orders.length) { %>
+                                    <% orders.forEach(order => { %>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 text-gray-900 font-medium"><%= order._id %></td>
+                                        <td class="px-4 py-3 text-gray-600"><%= order.user?.email || '-' %></td>
+                                        <td class="px-4 py-3 text-gray-900">₹<%= order.totalAmount?.toLocaleString() || 0 %></td>
+                                        <td class="px-4 py-3 text-gray-600"><%= new Date(order.createdAt).toLocaleDateString('en-IN') %></td>
+                                        <td class="px-4 py-3"><span class="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full <%= order.status === 'Delivered' ? 'bg-green-50 text-green-700' : order.status === 'Cancelled' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700' %>"><%= order.status %></span></td>
+                                        <td class="px-4 py-3"><span class="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full <%= order.paymentStatus === 'Paid' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700' %>"><%= order.paymentStatus %></span></td>
+                                        <td class="px-4 py-3 text-gray-600"><%= order.returnStatus || 'N/A' %></td>
+                                        <td class="px-4 py-3"><a href="/admin/viewOrder/<%= order._id %>" class="text-xs font-medium text-rose-500 hover:text-rose-600">View</a></td>
+                                    </tr>
+                                    <% }) %>
+                                    <% } else { %>
+                                    <tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">No orders yet</td></tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-
-        <header class="fixed border-b w-full bg-white top-0 left-[250px] z-50 p-5">
-            <ul class="flex items-center justify-start font-[sans-serif] space-x-4 mt-4">
-                <li class="text-black-500 text-xl font-bold">
-                    <a href="/admin/dashboard">Dashboard</a>
-                </li>
-            </ul>
-        </header>
-
-        <main class="w-full h-full pl-[250px] pt-[80px]">
-            <div class="flex flex-col gap-8 w-full h-full p-6">
-                <div>
-                    <h1 class="text-2xl font-medium mb-4">Sales</h1>
-                    <div class="grid grid-cols-3 gap-2">
-                        <!-- Monthly Sales Revenue -->
-                        <div class=" rounded-md shadow-md p-2 ">
-                            <div id="salesRevenue_bar"></div>
-                        </div>
-
-                        <div class="rounded-md shadow-md p-2">
-                            <div id="salesByBrand"></div>
-                        </div>
-                        <div class="rounded-md shadow-md p-2">
-                            <div id="AOV"></div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-medium mb-4">Customer</h1>
-                    <div class="grid grid-cols-1 shadow-md p-2 ">
-                        <div id="customerChart"></div>
-                    </div>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-medium mb-4">Products</h1>
-                    <div class="grid grid-cols-2 w-full">
-                        <div class="rounded-md shadow-md p-2 ">
-                            <div id="topSellingProductChart"></div>
-                        </div>
-                        <div class=" rounded-md shadow-md p-2 ">
-                            <div id="inStockChart"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <h1 class="text-2xl font-medium mb-4">Orders</h1>
-                    <table class="min-w-full bg-white p-6">
-                        <thead class="bg-gray-100 whitespace-nowrap">
-                            <th class="text-center p-4 font-semibold text-gray-800">OrderID</th>
-                            <th class="text-center p-4 font-semibold text-gray-800">User Email</th>
-                            <th class="text-center p-4 font-semibold text-gray-800">Total Amount</th>
-                            <th class="text-center p-4 font-semibold text-gray-800">Order Date</th>
-                            <th class="text-center p-4 font-semibold text-gray-800">Order Status</th>
-                            <th class="text-center p-4 font-semibold text-gray-800">Payment Status</th>
-                            <th class="text-center p-4 font-semibold text-gray-800">Return Status</th>
-                            <th></th>
-                        </thead>
-                        <tbody>
-                            <%if (orders && orders.length>0){%>
-                                <%orders.forEach(order=> {%>
-                                    <% let totalPay=order.items.reduce((acc, item)=> acc + (item.finalPrice * item.quantity),
-                                        0);%>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%=order._id%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%=order.user.email%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%=totalPay%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%=order.createdAt.toLocaleString()%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%=order.status%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%= order.payment?.status || order.paymentStatus%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%let requestedProducts=order.items.filter(item=>
-                                                    item.return?.status==='requested');%>
-                                                    <%=requestedProducts.length>0?'requested': ''%>
-                                            </td>
-                                            <td class="p-4 text-[15px] text-center text-gray-800"><a
-                                                    href="/admin/order/view?orderId=<%= order._id%>"
-                                                    class="hover:underline text-blue-600">view</a></td>
-                                        </tr>
-                                        <%})%>
-                                            <%}%>
-                        </tbody>
-                    </table>
-                    <div class="flex justify-between m-2 items-center h-[100px]">
-                        <div class="font-[poppins] text-sm text-gray-600">
-                            You&apos;re currently viewing page <%=currentPage%> of <%=totalPages%>
-                        </div>
-                        <div class="flex gap-2">
-                            <%if(currentPage> 1){%>
-                                <a href="/admin/dashboard?page=<%=currentPage-1%>&limit=<%=limit%>"
-                                    class="block min-w-24 px-4 py-2 text-center bg-gray-100 hover:bg-gray-200">previous</a>
-                                <%}%>
-                                    <%if(currentPage < totalPages){%>
-                                        <a href="/admin/dashboard?page=<%=currentPage+1%>&limit=<%=limit%>"
-                                            class="block min-w-24 px-4 py-2 text-center bg-gray-100 hover:bg-gray-200">next</a>
-                                        <%}%>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
     </div>
-
-    <!-- Storing data -->
-    <div id="salesData" data-sales-data="<%=JSON.stringify(salesData)%>"></div>
-    <div id="revenueData" data-revenue="<%=JSON.stringify(revenueByBrand)%>"></div>
-    <div id="aovData" data-aovData="<%=JSON.stringify(aovData)%>"></div>
-    <div id="repeatedCustomer" data-repeatedCustomer="<%=JSON.stringify(repeatedCustomer)%>"></div>
-    <div id="newCustomer" data-newCustomer="<%=JSON.stringify(newCustomer)%>"></div>
-    <div id="clvData" data-clvData="<%=JSON.stringify(clvData)%>"></div>
-    <div id="topProducts" data-topProducts="<%=JSON.stringify(topProducts)%>"></div>
-    <div id="stock" data-stock="<%=JSON.stringify(stock)%>"></div>
-
-    <script>
-        const salesData = JSON.parse(document.getElementById('salesData').getAttribute('data-sales-data'));
-        const salesRevenueOption = {
-            series: [{
-                data: salesData  // Monthly sales data
-            }],
-            chart: {
-                type: 'bar',
-                height: 350,
-                toolbar: {
-                    show: false // Hide the toolbar if you don’t need it
-                }
-            },
-            plotOptions: {
-                bar: {
-                    borderRadius: 4,
-                    horizontal: true,
-                    columnWidth: '60%', // Adjust the bar width
-                }
-            },
-            title: {
-                text: 'Monthly Sales Revenue',
-                align: 'left',
-                style: {
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    fontFamily: 'Arial, sans-serif',
-                }
-            },
-            dataLabels: {
-                enabled: true,
-                formatter: function (val) {
-                    return '₹' + val.toLocaleString(); // Format numbers with commas and dollar sign
-                },
-                offsetX: 5, // Adjust data label positioning if needed
-            },
-            xaxis: {
-                categories: [
-                    'January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ], // Monthly categories
-                title: {
-                    text: 'Revenue (in INR)',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'normal'
-                    }
-                },
-            },
-            yaxis: {
-                title: {
-                    text: 'Months',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'normal'
-                    }
-                },
-            },
-            grid: {
-                borderColor: '#e7e7e7', // Light grid lines for better clarity
-                strokeDashArray: 5,
-            },
-            colors: ['#4caf50'], // customize bar color
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                        return '₹' + val.toLocaleString(); // Format tooltip value
-                    }
-                }
-            }
-        };
-
-        const salesRevenue_bar = new ApexCharts(document.querySelector("#salesRevenue_bar"), salesRevenueOption);
-        salesRevenue_bar.render();
-
-
-        //--------------------------------------------------------------------------------------------------------------------
-        const dataRevenue = JSON.parse(document.getElementById('revenueData').getAttribute('data-revenue'));
-        const brandNames = dataRevenue.map(item => item._id);
-        const brandRevenue = dataRevenue.map(item => item.totalRevenue);
-        const salesByBrandOption = {
-            series: [{
-                data: brandRevenue  // Revenue values for each brand
-            }],
-            chart: {
-                type: 'bar',
-                height: 380
-            },
-            plotOptions: {
-                bar: {
-                    barHeight: '100%',
-                    distributed: true,
-                    horizontal: true,
-                    dataLabels: {
-                        position: 'bottom'  // Position the data labels at the bottom of the bars
-                    },
-                }
-            },
-            colors: [
-                '#33b2df', '#546E7A', '#d4526e', '#13d8aa', '#A5978B', '#2b908f',
-                '#f9a3a4', '#90ee7e', '#f48024', '#69d2e7'
-            ],  // Custom colors for each bar
-            dataLabels: {
-                enabled: true,
-                textAnchor: 'start',  // Position text labels at the start
-                style: {
-                    colors: ['#fff']  // White color for data labels
-                },
-                formatter: function (val, opt) {
-                    return opt.w.globals.labels[opt.dataPointIndex] + ":  ₹" + val.toLocaleString();  // Show brand name and formatted sales value
-                },
-                offsetX: 0,
-                dropShadow: {
-                    enabled: true  // Enable drop shadow for better visibility
-                }
-            },
-            stroke: {
-                width: 1,
-                colors: ['#fff']  // White stroke around bars
-            },
-            xaxis: {
-                categories: brandNames,
-            },
-            yaxis: {
-                labels: {
-                    show: false  // Hide y-axis labels
-                }
-            },
-            title: {
-                text: 'Sales by Brand',
-                align: 'center',
-                floating: true
-            },
-            subtitle: {
-                text: 'Revenue generated by each brand in INR',
-                align: 'center',
-            },
-            tooltip: {
-                theme: 'dark',
-                x: {
-                    show: false  // Hide x-axis tooltip (brand name)
-                },
-                y: {
-                    title: {
-                        formatter: function () {
-                            return ''
-                        }
-                    }
-                }
-            }
-        };
-
-        const salesByBrand = new ApexCharts(document.querySelector("#salesByBrand"), salesByBrandOption);
-        salesByBrand.render();
-
-        //--------------------------------------------------------------------------------------------------------------------
-        const aovData = JSON.parse(document.getElementById('aovData').getAttribute('data-aovData'));
-        const aovValues = aovData.map(item => item.AOV);
-        const months = aovData.map(item => {
-            const date = new Date(item.year, item.month - 1);
-            return date.toLocaleString('default', { month: "short" });
-        });
-        const AOVOption = {
-            series: [{
-                name: "Average Order Value (AOV)",
-                data: aovValues
-            }],
-            chart: {
-                height: 350,
-                type: 'line',
-                zoom: {
-                    enabled: false
-                }
-            },
-            dataLabels: {
-                enabled: false  // Data labels are disabled to keep the chart clean
-            },
-            stroke: {
-                curve: 'smooth'  // Smooth line curve for better visual effect
-            },
-            title: {
-                text: 'Average Order Value by Month',
-                align: 'left'
-            },
-            subtitle: {
-                text: 'Track the average amount spent per order each month',
-                align: 'left',
-                margin: 10,
-                offsetX: 0,
-                style: {
-                    fontSize: '12px',
-                    fontWeight: 'normal',
-                    fontFamily: 'Arial, sans-serif',
-                }
-            },
-            grid: {
-                row: {
-                    colors: ['#f3f3f3', 'transparent'],  // Alternating grid row colors for clarity
-                    opacity: 0.5
-                },
-            },
-            xaxis: {
-                categories: months,
-                title: {
-                    text: 'Month',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'normal'
-                    }
-                },
-            },
-            yaxis: {
-                title: {
-                    text: 'Average Order Value (INR)',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'normal'
-                    }
-                },
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                        return '₹' + val.toFixed(2);
-                    }
-                }
-            }
-        };
-
-        const AOV = new ApexCharts(document.querySelector("#AOV"), AOVOption);
-        AOV.render();
-
-        // ------------------------------------------------------------------------------------
-        const newCustomer = JSON.parse(document.getElementById('newCustomer').getAttribute('data-newCustomer'));
-        const repeatCustomerRate = JSON.parse(document.getElementById('repeatedCustomer').getAttribute('data-repeatedCustomer'));
-        const clv = JSON.parse(document.getElementById('clvData').getAttribute('data-clvData'));
-
-        const newCustomersData = newCustomer.map(entry => entry.newCustomer);
-        const repeatRateData = repeatCustomerRate.map(entry => entry.repeatRate);
-        const clvData = clv.map(entry => entry.clv);
-
-        // Generate dynamic months
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const dynamicMonths = newCustomer.map(entry => {
-            const monthIndex = entry._id.month - 1; // Subtract 1 because your `month` field starts from 1 (January)
-            return monthNames[monthIndex];
-        });
-
-        const customerOption = {
-            series: [
-                {
-                    name: "New Customers",
-                    data: newCustomersData
-                },
-                {
-                    name: "Repeat Customer Rate (%)",
-                    data: repeatRateData
-                },
-                {
-                    name: "Customer Lifetime Value (CLV)",
-                    data: clvData
-                }
-            ],
-            chart: {
-                type: 'line',
-                height: 350
-            },
-            stroke: {
-                curve: 'smooth',  // Smooth line curve for better readability
-                width: 3
-            },
-            title: {
-                text: 'Customer Metrics Over Time',
-                align: 'left'
-            },
-            xaxis: {
-                categories: dynamicMonths,
-                title: {
-                    text: 'Months',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'normal'
-                    }
-                },
-            },
-            yaxis: [
-                {
-                    title: {
-                        text: 'New Customers',
-                        style: {
-                            fontSize: '14px',
-                            fontWeight: 'normal'
-                        }
-                    },
-                },
-                {
-                    opposite: true,
-                    title: {
-                        text: 'Percentage / CLV',
-                        style: {
-                            fontSize: '14px',
-                            fontWeight: 'normal'
-                        }
-                    }
-                }
-            ],
-            grid: {
-                row: {
-                    colors: ['#f3f3f3', 'transparent'],  // Alternating row colors for better clarity
-                    opacity: 0.5
-                },
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val, { seriesIndex }) {
-                        if (seriesIndex === 0) {
-                            return val + ' new customers';
-                        } else if (seriesIndex === 1) {
-                            return val + '% repeat rate';
-                        } else {
-                            return '₹' + val.toFixed(2);
-                        }
-                    }
-                }
-            }
-        };
-
-        const customerChart = new ApexCharts(document.querySelector("#customerChart"), customerOption);
-        customerChart.render();
-
-        // --------------------------------------------------------------------------------------------
-
-        const topProducts = JSON.parse(document.getElementById('topProducts').getAttribute('data-topProducts'));
-
-        const productNames = topProducts.map(product => product.productName);
-        const quantitiesSold = topProducts.map(product => product.quantity);
-
-        const topSellingOption = {
-            series: [{
-                data: quantitiesSold
-            }],
-            chart: {
-                type: 'bar',
-                height: 350
-            },
-            plotOptions: {
-                bar: {
-                    borderRadius: 4,
-                    horizontal: true,  // Horizontal bars
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            xaxis: {
-                categories: productNames,
-                title: {
-                    text: 'Top Selling Products',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'normal'
-                    }
-                }
-            },
-            title: {
-                text: 'Top Selling Products',
-                align: 'left'
-            }
-        };
-
-        const topSellingProductChart = new ApexCharts(document.querySelector("#topSellingProductChart"), topSellingOption);
-        topSellingProductChart.render();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        const sizeStockData = JSON.parse(document.getElementById('stock').getAttribute('data-stock'));
-
-        const sizes = sizeStockData.map(entry => entry._id);
-        const stockCounts = sizeStockData.map(entry => entry.totalStock);
-
-        var optionsPie = {
-            series: stockCounts,  // Stock count data for each size
-            chart: {
-                type: 'pie',  // Pie chart type
-                height: 350
-            },
-            labels: sizes,  // Labels corresponding to the sizes
-            title: {
-                text: 'Stock Distribution by Size',
-                align: 'center',
-                style: {
-                    fontSize: '16px',
-                    fontWeight: 'bold'
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                        return val + ' units';  // Display the stock count in the tooltip
-                    }
-                }
-            },
-            colors: ['#FF5733', '#4CAF50', '#FFC300', '#3E8E41', '#36A9E1', '#9C27B0']  // Custom colors for each slice
-        };
-
-        const chartPie = new ApexCharts(document.querySelector("#inStockChart"), optionsPie);
-        chartPie.render();
-
-
-    </script>
+    <script src="/javascript/admin/dashboard.js"></script>
 </body>
-
 </html>

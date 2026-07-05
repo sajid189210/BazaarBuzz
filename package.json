@@ -6,6 +6,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "build": "tailwind -i ./tailwind.css -o ./public/css/style.css",
+    "watch:css": "tailwind -i ./tailwind.css -o ./public/css/style.css --watch",
     "lint": "eslint",
     "create-admin": "node seed/createAdmin.js"
   },

@@ -1,223 +1,159 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product View</title>
+    <title><%= product ? product.productName : 'Product' %> — BazaarBuzz</title>
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/dark-theme.css">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 
-<style>
-</style>
+<body class="bg-white min-h-screen antialiased">
+    <%- include('../partials/userHeader') %>
+    <%- include('../partials/userNav') %>
 
-<body>
-    <div class="relative">
+    <% if(product) { %>
+    <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+        <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">
+            <a href="/" class="hover:text-rose-500 transition-colors">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <a href="/user/productList" class="hover:text-rose-500 transition-colors">Products</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="text-gray-800 font-medium"><%= product.productName %></span>
+        </nav>
 
-        <!-- Header -->
-        <%- include('../partials/userHeader') %>
-
-            <div class="absolute top-[80px] w-full h-screen">
-                <!--- Breadcrumbs --->
-                <div class="hidden lg:flex items-center px-8 mt-4">
-                    <ul class="flex items-center justify-start font-[sans-serif] space-x-4">
-                        <li class="text-gray-500 text-sm cursor-pointer">
-                            <a href="/">Home</a>
-                        </li>
-                        <li>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3.5 -rotate-90"
-                                viewBox="0 0 24 24">
-                                <path fill-rule="evenodd"
-                                    d="M11.99997 18.1669a2.38 2.38 0 0 1-1.68266-.69733l-9.52-9.52a2.38 2.38 0 1 1 3.36532-3.36532l7.83734 7.83734 7.83734-7.83734a2.38 2.38 0 1 1 3.36532 3.36532l-9.52 9.52a2.38 2.38 0 0 1-1.68266.69734z"
-                                    clip-rule="evenodd" data-original="#000000"></path>
-                            </svg>
-                        </li>
-                        <li class="text-gray-500 text-sm cursor-pointer">
-                            <a href="#">Product Overview</a>
-                        </li>
-                    </ul>
+        <div class="lg:flex lg:gap-12">
+            <div class="lg:w-1/2">
+                <div class="sticky top-24">
+                    <div class="relative overflow-hidden rounded-2xl bg-gray-50">
+                        <img id="mainImage" src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg' %>" alt="<%= product.productName %>" class="w-full h-auto object-cover aspect-[4/5]" />
+                        <% if(product.discount) { %>
+                        <div class="absolute top-4 left-4 bg-rose-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full">-<%= product.discount %>% off</div>
+                        <% } %>
+                    </div>
+                    <% if(product.images && product.images.length > 1) { %>
+                    <div class="flex gap-3 mt-4">
+                        <% product.images.forEach((img, index) => { %>
+                        <button onclick="document.getElementById('mainImage').src='<%= img %>'; document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('ring-2','ring-rose-500')); this.classList.add('ring-2','ring-rose-500')" class="thumb w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 <%= index === 0 ? 'ring-2 ring-rose-500' : '' %>">
+                            <img src="<%= img %>" alt="" class="w-full h-full object-cover" />
+                        </button>
+                        <% }) %>
+                    </div>
+                    <% } %>
                 </div>
-                <div class="font-[poppins] p-6 ">
-                    <div class="p-4 lg:max-w-6xl max-w-2xl max-lg:mx-auto">
-                        <div class="grid items-start grid-cols-1 lg:grid-cols-2 gap-8 max-lg:gap-16">
+            </div>
 
-                            <div class="w-full lg:sticky top-0 text-center">
-                                <div class="">
-                                    <div class="lg:h-[560px] relative">
-                                        <img src="<%= product.images[0] %>" alt="Product"
-                                            class="lg:w-11/12 w-full h-full rounded-md object-cover object-top"
-                                            id="mainImageContainer" />
-                                        <div class="zoomed-image"
-                                            style="background-image: url('<%= product.images[0] %>'); display: none;">
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="mt-8 lg:mt-0 lg:w-1/2">
+                <p class="text-xs text-gray-400 uppercase tracking-widest"><%= product.brand || 'BazaarBuzz' %></p>
+                <h1 class="mt-2 text-2xl lg:text-3xl font-bold text-gray-900"><%= product.productName %></h1>
 
-                                <div class="flex flex-wrap gap-4 justify-center mx-auto mt-4">
-                                    <% for (let i=0; i < product.images.length; i++) { %>
-                                        <img src="<%= product.images[i] %>" alt="Product" onclick="changeImage(this)"
-                                            class="w-16 cursor-pointer rounded-md outline" />
-                                        <% } %>
-                                </div>
-                            </div>
+                <div class="flex items-center gap-4 mt-4">
+                    <% if(product.discount) { %>
+                    <span class="text-2xl font-bold text-gray-900">₹<%= Math.round(product.productPrice - (product.productPrice * product.discount / 100)).toLocaleString() %></span>
+                    <span class="text-lg text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
+                    <span class="text-sm font-semibold text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full">Save <%= product.discount %>%</span>
+                    <% } else { %>
+                    <span class="text-2xl font-bold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
+                    <% } %>
+                </div>
 
-                            <div>
-                                <div class="relative flex flex-wrap items-start gap-4">
-                                    <div>
-                                        <h1 class="text-gray-500 mt-2">
-                                            <%=product.brand%>
-                                        </h1>
-                                        <h2 class="text-2xl font-bold text-gray-800">
-                                            <%=product.productName%>
-                                        </h2>
-                                    </div>
+                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"><%= product.description %></p>
 
-                                </div>
+                <form class="mt-8 space-y-5" id="cart-form">
+                    <input type="hidden" name="productId" value="<%= product._id %>">
 
-                                <hr class="my-8" />
-
-                                <div class="relative flex flex-col gap-y-4">
-                                    <div>
-                                        <p class="text-gray-800 text-4xl font-bold">₹
-                                            <!-- New Value = Original Value * (1 - Discount Percentage) -->
-                                            <%= offerDiscountedPrice%>
-
-                                        </p>
-                                        <p>
-                                            <strike class="text-red-500">
-                                                <span class="text-red-400 text-sm mt-2">M.R.P: ₹
-                                                    <%=product.productPrice%>/-
-                                                </span>
-                                            </strike>
-                                        </p>
-                                        <p class="mt-2 text-xl text-green-500 font-medium">
-                                            <%=Math.round(totalDiscount)%> <span
-                                                    class="text-2xl font-bsemiold font-[sans-serif]">%
-                                                    off</span>
-                                        </p>
-                                    </div>
-                                    <div class="flex">
-                                        <div class="flex items-center space-x-2">
-                                            <%for(let i=0; i < 5; i++){%>
-                                                <svg class="w-4 fill-[#facc15]" viewBox="0 0 14 13" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                                                </svg>
-                                                <%}%>
-                                        </div>
-                                        <p class="ml-2 text-sm text-gray-500 block">Reviews</p>
-                                    </div>
-
-                                </div>
-
-                                <hr class="my-4" />
-
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-800">Sizes Available:</h3>
-                                    <div class="flex flex-wrap gap-4 mt-4">
-                                        <% product.variants.forEach((variant, index)=> { %>
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="radio" name="size" class="peer hidden"
-                                                    onchange="sizeSelect()" value="<%= variant.size %>"
-                                                    data-product="<%= JSON.stringify(product)%>" <%=index===0
-                                                    ? 'checked' : '' %>>
-                                                <span
-                                                    class="peer-checked:bg-[#111827] peer-checked:text-white w-10 h-10 ml-3 flex items-center justify-center border-2 border-gray-300 rounded-full transition duration-200 ease-in-out"
-                                                    style="border-radius: 9999px;">
-                                                    <%= variant.size %>
-                                                </span>
-                                            </label>
-                                            <% }) %>
-                                    </div>
-                                    <input type="hidden" id="selectedSize">
-                                </div>
-
-                                <hr class="my-8" />
-
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-800">Colors Available:</h3>
-                                    <div id="colorContainer" class="flex flex-wrap gap-4 mt-4">
-                                        <%# Colors goes here... %>
-                                    </div>
-                                    <input type="hidden" id="selectedColor">
-                                </div>
-
-                                <hr class=" my-8" />
-
-                                <div>
-                                    <h3 class="text-ld font-medium text-gray-700">Offers Applied:</h3>
-                                    <ul id="colorContainer" class="mt-3">
-                                        <li class="text-md text-gray-500">Product Offer: <%=product.discount%>% off</li>
-                                        <%if(offerDiscountValue){%>
-                                            <li class="text-md text-gray-500">Brand Offer: <%=offerDiscountValue%>%
-                                                    off
-                                            </li>
-                                            <%}%>
-                                    </ul>
-                                    <input type="hidden" id="selectedColor">
-                                </div>
-
-                                <div class="my-8">
-                                    <div class="flex flex-wrap gap-4 mt-4">
-                                        <p class="text-md text-gray-800 font-bold mt-2" id="stockValue">
-                                            <%# stock values are displayed here... %>
-                                        </p>
-                                    </div>
-                                    <input type="hidden" id="selectedStock">
-                                </div>
-
-                                <div class="flex flex-wrap gap-4">
-                                    <button type="button" onclick="addToWishList('<%= product._id%>')"
-                                        class="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded-md">Add
-                                        to wishlist</button>
-                                    <button type="button" onclick="addToCart('<%=product._id%>')"
-                                        class="min-w-[200px] px-4 py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-md">Add
-                                        to cart</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-20 max-w-4xl">
-                            <ul class="flex border-b">
-                                <li
-                                    class="text-gray-800 font-semibold text-sm bg-gray-100 py-3 px-8 border-b-2 border-gray-800 cursor-pointer transition-all">
-                                    Description</li>
-                                <li
-                                    class="text-gray-500 font-semibold text-sm hover:bg-gray-100 py-3 px-8 cursor-pointer transition-all">
-                                    Reviews</li>
-                            </ul>
-
-                            <div class="mt-8">
-                                <h3 class="text-xl font-bold text-gray-800">Product Description</h3>
-                                <p class="text-sm text-gray-500 mt-4">
-                                    <%=product.description%>
-                                </p>
-                            </div>
+                    <% if(product.variants && product.variants.length > 0) { %>
+                    <div>
+                        <label class="text-sm font-medium text-gray-900">Size</label>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <% const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))]; %>
+                            <% uniqueSizes.forEach(s => { %>
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="size" value="<%= s %>" class="sr-only peer" <%= s === 'M' ? 'checked' : '' %> required>
+                                <div class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white hover:border-gray-400 transition-all"><%= s %></div>
+                            </label>
+                            <% }) %>
                         </div>
                     </div>
-                </div>
-                <%- include('../partials/userFooter')%>
+                    <% } %>
+
+                    <% const allColors = [...new Set(product.variants.flatMap(v => v.colors || []).filter(Boolean))]; %>
+                    <% if(allColors.length > 0) { %>
+                    <div>
+                        <label class="text-sm font-medium text-gray-900">Color</label>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <% allColors.forEach((c, i) => { %>
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="color" value="<%= c %>" class="sr-only peer" <%= i === 0 ? 'checked' : '' %> required>
+                                <div class="w-8 h-8 rounded-full border-2 border-gray-300 peer-checked:border-gray-900 peer-checked:ring-2 peer-checked:ring-gray-900/20 transition-all" style="background:<%= c %>"></div>
+                            </label>
+                            <% }) %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-900">Quantity</label>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button type="button" onclick="decrementQuantity()" class="w-9 h-9 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                            <span id="quantityValue" class="w-10 text-center text-sm font-semibold text-gray-900">1</span>
+                            <input type="hidden" name="quantity" id="quantity" value="1" />
+                            <button type="button" onclick="incrementQuantity()" class="w-9 h-9 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit" id="addToCartBtn"
+                            class="flex-1 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 transition-colors">Add to Cart</button>
+                        <button type="button" onclick="addToWishList('<%= product._id %>')"
+                            class="w-12 h-12 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:border-rose-300 hover:text-rose-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </button>
+                    </div>
+
+                    <div id="responseMessage" class="text-sm text-center"></div>
+                </form>
             </div>
+        </div>
     </div>
+    <% } else { %>
+    <div class="flex flex-col items-center justify-center py-24">
+        <h2 class="text-xl font-semibold text-gray-500">Product not found</h2>
+    </div>
+    <% } %>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+    <%- include('../partials/userFooter') %>
+
     <script src="/javascript/user/userProductView.js"></script>
-    <script src="/javascript/user/homesearch.js"></script>
-    <script src="/javascript/user/buttonSearch.js"></script>
-
-
-
+    <script>
+        function incrementQuantity() {
+            const input = document.getElementById('quantity');
+            const display = document.getElementById('quantityValue');
+            let val = parseInt(input.value) || 1;
+            if (val < 10) { val++; input.value = val; display.textContent = val; }
+        }
+        function decrementQuantity() {
+            const input = document.getElementById('quantity');
+            const display = document.getElementById('quantityValue');
+            let val = parseInt(input.value) || 1;
+            if (val > 1) { val--; input.value = val; display.textContent = val; }
+        }
+        async function addToWishList(productId) {
+            if (!productId) return;
+            try {
+                const res = await fetch('/user/wishlist', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productId }) });
+                const data = await res.json();
+                if (!data.session) { await Swal.fire({ title: 'Sign In!', text: data.message, icon: 'info' }); window.location.href = data.redirectUrl; return; }
+                if (!data.success) { await Swal.fire({ title: 'Failed', text: data.message, icon: 'warning' }); if (data.redirectUrl) window.location.href = data.redirectUrl; return; }
+                Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: data.message });
+            } catch (e) { console.log(e); alert('Error'); }
+        }
+    </script>
 </body>
-
 </html>

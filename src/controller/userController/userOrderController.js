@@ -114,6 +114,8 @@ const getOrders = async (req, res) => {
             .limit(limit)
             .skip((page - 1) * limit);
 
+        const categories = await Category.find({ isActive: { $ne: false } });
+
         res.render('user/userOrders', {
             totalPages: Math.ceil(totalOrders / limit),
             currentPage: page,
@@ -121,6 +123,7 @@ const getOrders = async (req, res) => {
             orders,
             limit,
             user: req.session.user || null,
+            categories,
         })
 
     } catch (err) {

@@ -45,6 +45,8 @@ router.post('/productList/create', productManagement.createProducts);
 router.post('/uploadImage', upload.single('croppedImage'), productManagement.extractFilePath);
 router.put('/status', productManagement.isActive);
 router.put('/productList/update', productManagement.productUpdate);
+router.get('/editProduct/:id', productManagement.getEditProduct);
+router.post('/editProduct/:id', productManagement.postEditProduct);
 
 //*------------------[Order Management]--------------------
 router.get('/orders', orderController.renderOrderList);

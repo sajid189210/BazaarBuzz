@@ -31,7 +31,7 @@ const getProducts = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
-        const products = await Product.find({ isDeleted: false }).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('categoryId');
+        const products = await Product.find({ isDeleted: false }).skip(skip).limit(limit).sort({ createdAt: -1 });
         const categories = await categoryModel.find();
         const count = await Product.countDocuments({ isDeleted: false });
 
@@ -70,21 +70,42 @@ const getCreateProducts = async (req, res) => {
 
 //*----------------Create Product Page : POST------------------------------------------------------------------------------------
 const createProducts = async (req, res) => {
-    const { productDetails } = req.body;
     try {
+        const { productName, brand, category, productPrice, stock, discount, productDescription } = req.body;
+        const sizes = Array.isArray(req.body.size) ? req.body.size : (req.body.size ? [req.body.size] : []);
+        const colors = req.body.colors ? (Array.isArray(req.body.colors) ? req.body.colors : [req.body.colors]) : [];
 
-        if (!productDetails) return response.error(res, 'Product details not found.', 400);
-
-        const newProduct = new Product(productDetails);
-
-        try {
-            await newProduct.save();
-        } catch (err) {
-            console.error(err)
-            throw new Error("Error caught while save product data to the db.", err);
+        if (sizes.length === 0) {
+            return res.redirect('/admin/productList/create');
         }
 
-        response.success(res, {}, "Product successfully created.", 201);
+        let categoryName;
+        if (category) {
+            const catDoc = await categoryModel.findById(category);
+            if (catDoc) categoryName = catDoc.title;
+        }
+
+        const productData = {
+            productName,
+            brand,
+            category: categoryName || undefined,
+            productPrice: Number(productPrice),
+            discount: Number(discount) || 0,
+            description: productDescription,
+            variants: sizes.length > 0 ? sizes.map(s => ({
+                size: s,
+                stock: Number(stock) || 0,
+                colors: colors.length > 0 ? colors : []
+            })) : undefined,
+            images: req.body.images || []
+        };
+
+        Object.keys(productData).forEach(k => productData[k] === undefined && delete productData[k]);
+
+        const newProduct = new Product(productData);
+        await newProduct.save();
+
+        res.redirect('/admin/productList');
 
     } catch (err) {
         response.serverError(res, err);
@@ -107,7 +128,7 @@ const productUpdate = async (req, res) => {
 
         if (!updatedProduct) return response.error(res, "Product not found", 404);
 
-        response.success(res, {}, "$1");
+        response.success(res, {}, "Product updated successfully");
 
     } catch (err) {
         response.serverError(res, err);
@@ -115,7 +136,7 @@ const productUpdate = async (req, res) => {
 };
 
 const isActive = async (req, res) => {
-    const { isActive, productId } = req.body;
+    const { productId } = req.body;
     try {
 
         const product = await Product.findById(productId);
@@ -123,11 +144,12 @@ const isActive = async (req, res) => {
         if (!product) return response.error(res, "Product not found", 400);
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
-            { $set: { isActive: req.body.isActive } },
+            { $set: { isActive: !product.isActive } },
             { new: true }
         );
 
-        response.success(res, { updatedProduct });
+        const status = updatedProduct.isActive ? 'active' : 'inactive';
+        response.success(res, { updatedProduct }, `Product is now ${status}`);
 
     } catch (err) {
         response.serverError(res, err);
@@ -168,6 +190,68 @@ const extractFilePath = async (req, res) => {
     }
 }
 
+const getEditProduct = async (req, res) => {
+    try {
+        if (!req.session.admin) return res.redirect('/admin/signIn');
+        const productId = req.params.id;
+        const product = await Product.findById(productId);
+        const categories = await categoryModel.find();
+        if (!product) return res.redirect('/admin/productList');
+        res.render('admin/editProduct', { product, categories });
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+const postEditProduct = async (req, res) => {
+    try {
+        if (!req.session.admin) return res.redirect('/admin/signIn');
+        const productId = req.params.id;
+        const { productName, brand, category, productPrice, stock, discount, productDescription } = req.body;
+        const sizes = Array.isArray(req.body.size) ? req.body.size : (req.body.size ? [req.body.size] : []);
+        const colors = req.body.colors ? (Array.isArray(req.body.colors) ? req.body.colors : [req.body.colors]) : [];
+        const images = req.body.images ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) : [];
+
+        if (sizes.length === 0) {
+            return res.redirect('/admin/productList');
+        }
+
+        let categoryName;
+        if (category) {
+            const catDoc = await categoryModel.findById(category);
+            if (catDoc) categoryName = catDoc.title;
+        }
+
+        const updateData = {
+            productName,
+            brand,
+            category: categoryName || undefined,
+            productPrice: Number(productPrice),
+            discount: Number(discount) || 0,
+            description: productDescription,
+            images: images.length > 0 ? images : undefined,
+            variants: sizes.length > 0 ? sizes.map(s => ({
+                size: s,
+                stock: Number(stock) || 0,
+                colors: colors.length > 0 ? colors : []
+            })) : undefined
+        };
+
+        // Remove undefined keys
+        Object.keys(updateData).forEach(k => updateData[k] === undefined && delete updateData[k]);
+
+        const updated = await Product.findByIdAndUpdate(productId,
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!updated) return response.error(res, "Product not found", 404);
+        res.redirect('/admin/productList');
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
 const removeProduct = async (req, res) => {
     const { productId } = req.query;
     try {
@@ -201,5 +285,7 @@ module.exports = {
     getProducts,
     isActive,
     getCategory,
-    removeProduct
+    removeProduct,
+    getEditProduct,
+    postEditProduct
 }

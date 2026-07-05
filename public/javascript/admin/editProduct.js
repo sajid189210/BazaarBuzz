@@ -39,9 +39,9 @@ document.getElementById('productDetailForm')?.addEventListener('submit', functio
     if (discount && (Number(discount) < 0 || Number(discount) > 100)) setError('discount', 'Discount must be between 0 and 100.');
     if (!description || description.length < 20) setError('productDescription', 'Description must be at least 20 characters.');
     if (sizes.length === 0) {
-        const sc = document.getElementById('sizeContainer');
+        const sc = document.querySelector('.sizes-wrapper');
         if (sc) {
-            const errSpan = sc.parentElement.querySelector('.error-msg');
+            const errSpan = sc.querySelector('.error-msg');
             if (errSpan) {
                 errSpan.textContent = 'At least one variant is required.';
                 errSpan.classList.remove('hidden');
@@ -98,6 +98,15 @@ document.querySelectorAll('.remove-color').forEach(function (btn) {
         if (document.querySelectorAll('.color-row').length > 1) {
             this.closest('.color-row').remove();
         }
+    });
+});
+
+// ---- Remove existing images ----
+document.querySelectorAll('.remove-existing-image').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const wrapper = this.closest('.relative');
+        wrapper.querySelector('input[type="hidden"]').remove();
+        wrapper.remove();
     });
 });
 
@@ -184,14 +193,12 @@ document.getElementById('confirmCrop')?.addEventListener('click', function () {
 function addImagePreview(url) {
     const container = document.getElementById('imagePreview');
 
-    // Hidden input for form submission
     const hidden = document.createElement('input');
     hidden.type = 'hidden';
     hidden.name = 'images[]';
     hidden.value = url;
     document.getElementById('productDetailForm').appendChild(hidden);
 
-    // Preview element
     const wrapper = document.createElement('div');
     wrapper.className = 'relative group';
 

@@ -15,7 +15,7 @@ const renderWallet = async (req, res) => {
 
         let wallet = await Wallet.findOne({ user: userId });
 
-        const category = await Category.find();
+        const categories = await Category.find();
 
         if (!wallet) {
             const newWallet = new Wallet({ user: userId, balance: 0 });
@@ -34,7 +34,7 @@ const renderWallet = async (req, res) => {
             currentPage: page,
             totalPages: Math.ceil(totalTransactions / limit),
             searchBox: false,
-            category,
+            categories,
             wallet,
             limit,
             user: req.session.user || null,

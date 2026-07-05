@@ -17,7 +17,7 @@ const getCart = async (req, res) => {
         const userId = req.session.user.userId;
 
         const [categories, cart, offers] = await Promise.all([
-            Category.find({ isActive: true }),
+            Category.find({ isActive: { $ne: false } }),
             Cart.findOne({ user: userId }).populate('items.product').populate('items.offer'),
             Offer.find({ isActive: true })
         ]);

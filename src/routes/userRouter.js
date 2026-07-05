@@ -32,6 +32,7 @@ router.post('/address', userController.saveAddress);
 router.put('/address', userController.editAddress);
 router.delete('/address', userController.removeAddress);
 router.get('/profile', userController.renderProfile);
+router.put('/profile', userController.updateProfile);
 
 //*-------------------[View Product Page]----------------
 router.get('/viewProduct', productViewController.viewProduct);

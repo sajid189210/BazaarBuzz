@@ -9,6 +9,7 @@ const Wallet = require("../../model/walletModel");
 const Order = require('../../model/orderModel');
 const Cart = require('../../model/userCartModel');
 const User = require('../../model/userModel');
+const Category = require('../../model/categoryModel');
 
 require('dotenv').config();
 
@@ -67,12 +68,14 @@ const getCheckout = async (req, res) => {
     const userId = req.session.user.userId;
 
     try {
-        const [user, cart] = await Promise.all([
+        const [user, cart, wallet, categories] = await Promise.all([
             User.findById(userId),
             Cart.findOne({ user: userId })
                 .populate('items.product')
                 .populate('items.offer')
                 .populate('coupon'),
+            Wallet.findOne({ user: userId }),
+            Category.find({ isActive: { $ne: false } }),
         ]);
 
         if (!user || !cart) {
@@ -110,6 +113,8 @@ const getCheckout = async (req, res) => {
             total: round(total),
             cart,
             user,
+            wallet,
+            categories,
             taxAmount: round(taxAmount),
             hasCouponApplied,
         });
@@ -127,10 +132,12 @@ const getOrderSummary = async (req, res) => {
         const order = await Order.findById(orderId);
         if (!order) throw new Error("Couldn't find the order summary.");
 
+        const categories = await Category.find({ isActive: { $ne: false } });
         res.render('user/userOrderSummary', {
             order,
             user: req.session.user || null,
-            searchBox: false
+            searchBox: false,
+            categories,
         });
 
     } catch (err) {
@@ -156,17 +163,12 @@ const proceedToPayment = async (req, res) => {
 
         const cart = await Cart.findOne({ user: userId })
             .populate('items.product')
-            .populate('items.product.categoryId')
             .populate('coupon')
             .populate('items.offer');
 
         if (!cart.items?.length) {
             req.flash("error", "Your cart is empty. Add some items before proceeding to checkout.");
             return res.redirect("/user/cart");
-        }
-
-        if (cart?.items?.some(item => !item.product?.categoryId)) {
-            return response.error(res, "Failed to load product details.", 400);
         }
 
         //* Update user's usedCoupons if used.
@@ -206,7 +208,7 @@ const proceedToPayment = async (req, res) => {
                 name: item.product.productName,
                 image: item.product.images[0],
                 brand: item.product.brand,
-                category: item.product.categoryId.title,
+                category: item.product.category,
                 quantity: item.quantity,
                 selectedSize: item.selectedSize,
                 selectedColor: item.selectedColor,
