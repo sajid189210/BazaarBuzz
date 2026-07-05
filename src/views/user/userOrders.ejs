@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
 </head>
 
@@ -72,7 +73,7 @@
                             <div class="md:col-span-2 space-y-4">
                                 <%if(orders.length>0) {%>
                                     <% orders.forEach(order=> {%>
-                                        <%if(order.paymentStatus==='failed'){%>
+                                        <%if(order.payment.status==='failed'){%>
                                             <button type="button" id="cancelOrder"
                                                 onclick="retryPayment('<%= order._id%>')"
                                                 class="text-md text-red-400 hover:underline">
@@ -97,14 +98,14 @@
                                                         <span>Coupon applied!</span>
                                                     </div>
                                                     <% }%>
-                                                        <% order.orderedProducts.forEach(item=> {%>
+                                                        <% order.items.forEach(item=> {%>
                                                             <div
                                                                 class="px-4 py-6 rounded-md shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)] ">
                                                                 <div class="md:flex gap-4">
                                                                     <div
                                                                         class="w-full md:w-28 md:h-28 md:max-sm:w-24 md:max-sm:h-24 shrink-0">
-                                                                        <img src='<%= item.product.images[0]%>'
-                                                                            class="w-full h-full object-contain" />
+<img src='<%= item.image%>'
+                                                                             class="w-full h-full object-contain" />
                                                                     </div>
 
                                                                     <div
@@ -112,7 +113,7 @@
                                                                         <div>
                                                                             <h3
                                                                                 class="text-base font-bold text-gray-800">
-                                                                                <%= item.product.productName%>
+                                                                                <%= item.name%>
                                                                             </h3>
                                                                             <p
                                                                                 class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
@@ -138,14 +139,14 @@
                                                                                 class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
                                                                                 Payment Status: <span
                                                                                     class="inline-block w-5 h-5">
-                                                                                    <%= item.paymentStatus%>
+                                                                                    <%= order.payment.status%>
                                                                                 </span>
                                                                             </p>
                                                                             <p
                                                                                 class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
                                                                                 Payment Method: <span
                                                                                     class="inline-block w-5 h-5 uppercase">
-                                                                                    <%= order.paymentMethod%>
+                                                                                    <%= order.payment.method%>
                                                                                 </span>
                                                                             </p>
                                                                         </div>
@@ -157,43 +158,36 @@
                                                                                 class="text-md md:text-lg font-medium flex items-center text-gray-900 md:mb-6">
                                                                                 Order Status: <span id="orderStatus"
                                                                                     class="inline-block pl-2 font-normal text-gray-800">
-                                                                                    <%= item.orderStatus%>
+                                                                                    <%= item.status%>
                                                                                 </span>
                                                                             </p>
                                                                             <p
-                                                                                class="text-lg font-medium flex items-center text-gray-900 mb-6 <%= item.returnStatus ? '' : 'hidden'%>">
+                                                                                class="text-lg font-medium flex items-center text-gray-900 mb-6 <%= item.return?.status ? '' : 'hidden'%>">
                                                                                 Return Status: <span
                                                                                     class="inline-block pl-2 font-normal text-gray-800">
-                                                                                    <%= item.returnStatus%>
+                                                                                    <%= item.return?.status%>
                                                                                 </span>
                                                                             </p>
                                                                             <p
                                                                                 class="text-lg flex items-center text-gray-900 mb-8">
                                                                                 Total amount: <span
                                                                                     class="inline-block pl-2 font-normal text-gray-800">
-                                                                                    ₹<%= item.totalPay%>
+                                                                                    ₹<%= item.unitPrice%>
                                                                                 </span>
                                                                             </p>
-                                                                            <% if(item.orderStatus==='delivered' &&
-                                                                                item.paymentStatus==='paid' &&
-                                                                                !item.returnStatus){%>
+                                                                            <% if(item.return?.status==='requested' ){%>
                                                                                 <button type="button"
                                                                                     onclick="openModal(this)"
-                                                                                    data-product-id="<%=item.product._id%>"
+                                                                                    data-product-id="<%= item.productId%>"
                                                                                     data-order-item-id="<%=item._id%>"
                                                                                     class="text-md text-blue-800 hover:underline ">
                                                                                     Return Order
                                                                                 </button>
                                                                                 <%}%>
-                                                                                    <%if(item.orderStatus !=='delivered'
-                                                                                        && item.paymentStatus
-                                                                                        !=='failed' && item.orderStatus
-                                                                                        !=='cancelled' &&
-                                                                                        item.orderStatus !=='returned'
-                                                                                        ){%>
+                                                                                    <%if(item.status==='processing' ){%>
                                                                                         <a type="button"
                                                                                             id="cancelOrder"
-                                                                                            onclick="cancelOrder('<%=item.product._id%>', '<%=item._id%>', '<%= order._id%>')"
+                                                                                            onclick="cancelOrder('<%=item.productId%>', '<%=item._id%>', '<%= order._id%>')"
                                                                                             class="block text-md text-blue-800 hover:underline cursor-pointer">
                                                                                             Cancel Order
                                                                                         </a>
@@ -205,8 +199,7 @@
                                                                 </div>
                                                             </div>
                                                             <%})%>
-                                                                <%if(order.allOrdersStatus !=='cancelled' &&
-                                                                    order.allOrdersStatus==='delivered' ){%>
+                                                                <%if(order.status==='delivered' ){%>
                                                                     <div class="w-full flex justify-center">
                                                                         <a href="/user/orders/invoice?orderId=<%=order._id%>"
                                                                             class="px-6 py-3 bg-pink-400 hover:bg-pink-500 text-white rounded-lg">Download

@@ -77,6 +77,10 @@ const couponSchema = new mongoose.Schema({
         max: [10000, 'Coupon count cannot exceed 10000']
 
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 }, { timestamps: true });
 
 const Coupon = mongoose.model('Coupon', couponSchema);

@@ -82,7 +82,7 @@
                         <tbody>
                             <%if (orders && orders.length>0){%>
                                 <%orders.forEach(order=> {%>
-                                    <% let totalPay=order.orderedProducts.reduce((acc, pay)=> acc+pay.totalPay,
+                                    <% let totalPay=order.items.reduce((acc, item)=> acc + (item.finalPrice * item.quantity),
                                         0);%>
                                         <tr class="hover:bg-gray-50">
                                             <td class="p-4 text-[15px] text-center text-gray-800">
@@ -98,14 +98,14 @@
                                                 <%=order.createdAt.toLocaleString()%>
                                             </td>
                                             <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%=order.allOrdersStatus%>
+                                                <%=order.status%>
                                             </td>
                                             <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%= order.paymentStatus%>
+                                                <%= order.payment?.status || order.paymentStatus%>
                                             </td>
                                             <td class="p-4 text-[15px] text-center text-gray-800">
-                                                <%let requestedProducts=order.orderedProducts.filter(product=>
-                                                    product.returnStatus&&product.returnStatus==='requested');%>
+                                                <%let requestedProducts=order.items.filter(item=>
+                                                    item.return?.status==='requested');%>
                                                     <%=requestedProducts.length>0?'requested': ''%>
                                             </td>
                                             <td class="p-4 text-[15px] text-center text-gray-800"><a

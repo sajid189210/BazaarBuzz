@@ -46,8 +46,6 @@ const renderReport = async (req, res) => {
         // Fetch filtered orders with pagination
         const orders = await Order.find(match)
             .populate('user')
-            .populate('orderedProducts.product')
-            .populate('coupon')
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit);
@@ -72,27 +70,23 @@ const downloadReport = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
     try {
         // Fetch orders based on any filters applied
-        const orders = await Order.find(match) // Assuming you have 'match' defined for filtering
-            .populate('user')
-            .populate('orderedProducts.product')
-            .populate('coupon');
+        const orders = await Order.find(match)
+            .populate('user');
 
-        // Calculate metrics for the report
         const totalRevenue = orders.reduce((acc, order) =>
-            acc + order.orderedProducts.reduce((pAcc, product) => pAcc + product.totalPay, 0),
+            acc + order.items.reduce((pAcc, item) => pAcc + (item.finalPrice * item.quantity), 0),
             0
         );
         const totalOrders = orders.length;
         const averageOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
 
-        // Prepare data for Excel
         const excelData = orders.map(order => ({
             OrderID: order._id.toString(),
             UserEmail: order.user.email,
-            TotalProducts: order.orderedProducts.length,
-            TotalAmount: order.orderedProducts.reduce((acc, product) => acc + product.totalPay, 0),
-            CouponDiscount: order.coupon ? order.coupon.couponValue : 'Not applied',
-            PaymentStatus: order.allOrdersStatus,
+            TotalProducts: order.items.length,
+            TotalAmount: order.items.reduce((acc, item) => acc + (item.finalPrice * item.quantity), 0),
+            CouponDiscount: order.coupon ? order.coupon.discount : 'Not applied',
+            PaymentStatus: order.status,
         }));
 
         // Determine the format based on the request body

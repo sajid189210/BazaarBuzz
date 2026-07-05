@@ -23,7 +23,7 @@ const getCart = async (req, res) => {
         ]);
 
         if (!cart) {
-            return res.redirect('/user/userHomepage');
+            return res.redirect('/user');
         }
 
         const originalLength = cart.items.length;
@@ -171,13 +171,11 @@ const addToCart = async (req, res) => {
             quantity: 1,
             selectedColor: color,
             selectedSize: size,
-            selectedStock: selectedVariant.stock,
             discountedPrice: round(finalPrice),
             offer: offer?._id || null
         });
 
         await cart.save();
-
 
         return response.success(res, {
             session: true,

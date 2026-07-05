@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     },
     usedCoupons: [
         {
+            couponId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Coupon"
+            },
             couponCode: { type: String },
             couponValue: { type: Number },
             count: { type: Number, default: 0 }

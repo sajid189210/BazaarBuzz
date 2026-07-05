@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
 </head>
 
@@ -68,24 +69,23 @@
                                     <button>Coupon applied!</button>
                                     <div
                                         class="absolute shadow-lg hidden group-hover:block bg-green-400 text-white font-semibold px-3 py-2 text-[13px] left-full ml-3 top-0 bottom-0 my-auto h-max w-max rounded before:w-4 before:h-4 before:rotate-45 before:bg-green-400 before:absolute before:z-[-1] before:bottom-0 before:top-0 before:my-auto before:-left-1 before:mx-auto">
-                                        <%= order.coupon.couponCode%>
+                                        <%= order.coupon.code%>
                                     </div>
                                 </div>
                                 <% }%>
-                                    <% order.orderedProducts.forEach(item=> {%>
+                                    <% order.items.forEach(item=> {%>
 
                                         <div id="wrapper"
                                             class="px-4 py-6 rounded-md shadow-[0_2px_12px_-3px_rgba(6,81,237,0.3)]">
                                             <div class="flex gap-4">
                                                 <div class="w-28 h-28 max-sm:w-24 max-sm:h-24 shrink-0">
-                                                    <img src='<%= item.product.images[0]%>'
-                                                        class="w-full h-full object-contain" />
+                                                    <img src='<%= item.image%>' class="w-full h-full object-contain" />
                                                 </div>
 
                                                 <div class="flex flex-col gap-4 w-1/2">
                                                     <div>
                                                         <h3 class="text-base font-bold text-gray-800">
-                                                            <%= item.product.productName%>
+                                                            <%= item.name%>
                                                         </h3>
                                                         <p
                                                             class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
@@ -107,14 +107,14 @@
                                                         <p
                                                             class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
                                                             Payment Status: <span class="inline-block w-5 h-5">
-                                                                <%= item.paymentStatus%>
+                                                                <%= order.payment.status%>
                                                             </span>
                                                         </p>
                                                         <p
                                                             class="text-sm font-semibold text-gray-800 mt-2 flex items-center gap-2">
                                                             Payment Method: <span
                                                                 class="inline-block w-5 h-5 uppercase">
-                                                                <%= order.paymentMethod%>
+                                                                <%= order.payment.method%>
                                                             </span>
                                                         </p>
                                                     </div>
@@ -124,71 +124,70 @@
                                                         <p class="text-lg font-medium flex items-center text-gray-900">
                                                             Order Status: <span id="orderStatusText"
                                                                 class="inline-block pl-2 font-normal text-gray-800">
-                                                                <%= item.orderStatus%>
+                                                                <%= item.status%>
                                                             </span>
                                                         </p>
 
-                                                        <%if(item.orderStatus !=='delivered' && item.orderStatus
-                                                            !=='returned' && item.paymentStatus !=='failed' &&
-                                                            item.orderStatus !=='cancelled' ){%>
+                                                        <%if(item.status !=='delivered' && item.status !=='returned' &&
+                                                            order.payment.status !=='failed' && item.status
+                                                            !=='cancelled' ){%>
                                                             <select name="orderStatus" id="orderStatus"
+                                                                data-order-id="<%= order._id %>"
                                                                 data-order-item-id="<%= item._id %>"
-                                                                data-product-id="<%= item.product._id %>"
-                                                                data-payment-status="<%= item.paymentStatus%>"
-                                                                class="border-2 p-1.5 cursor-pointer uppercase ">
+                                                                class="border-2 p-1.5 cursor-pointer uppercase">
                                                                 <option value="">Status</option>
-                                                                <option value="shipped" <%=item.orderStatus==='shipped'
+                                                                <option value="shipped" <%=item.status==='shipped'
                                                                     ? 'disabled' : '' %>
                                                                     >Shipped
                                                                 </option>
                                                                 <option value="cancelled"
-                                                                    <%=item.orderStatus==='cancelled' ? 'disabled' : ''
+                                                                    <%=item.status==='cancelled' ? 'disabled' : ''
                                                                     %>
                                                                     >Cancelled
                                                                 </option>
                                                                 <option value="delivered"
-                                                                    <%=item.orderStatus==='delivered' ? 'disabled' : ''
+                                                                    <%=item.status==='delivered' ? 'disabled' : ''
                                                                     %>
                                                                     >Delivered
                                                                 </option>
                                                             </select>
                                                             <%}%>
 
-                                                                <p
-                                                                    class="text-lg flex items-center text-gray-900 font-medium <%= item.returnStatus? '' : 'hidden'%>">
-                                                                    Return Status: <span
-                                                                        class="inline-block pl-2 font-normal text-gray-800">
-                                                                        <%= item.returnStatus%>
+                                                            <p
+                                                                class="text-lg flex items-center text-gray-900 font-medium <%= item.return?.status ? '' : 'hidden'%>">
+                                                                Return Status: <span
+                                                                         class="inline-block pl-2 font-normal text-gray-800">
+                                                                         <%= item.return?.status%>
                                                                     </span>
                                                                 </p>
 
                                                                 <p class="text-lg flex items-center text-gray-900">
                                                                     Total amount: <span
                                                                         class="inline-block pl-2 font-normal text-gray-800">
-                                                                        ₹<%= item.discountedPrice%>
+                                                                        ₹<%= item.finalPrice%>
                                                                     </span>
                                                                 </p>
 
-                                                                <button type="button" id="refund" onclick="refund(this)"
-                                                                    data-product-id="<%= item.product._id%>"
-                                                                    data-order-item-id="<%= item._id%>"
-                                                                    class="text-md text-left text-blue-800 hover:underline cursor-pointer <%= item.returnStatus==='approved'? '':'hidden'%>">
-                                                                    Refund
-                                                                </button>
+                                                            <button type="button" id="refund" onclick="refund(this)"
+                                                                data-product-id="<%= item.productId%>"
+                                                                data-order-item-id="<%= item._id%>"
+                                                                class="text-md text-left text-blue-800 hover:underline cursor-pointer <%= item.return?.status==='approved'? '':'hidden'%>">
+                                                                Refund
+                                                            </button>
 
-                                                                <button type="button" id="requestAuthorize"
-                                                                    onclick="openModal(this, '<%= item.returnReason%>')"
-                                                                    data-product-id="<%= item.product._id%>"
-                                                                    data-order-item-id="<%= item._id%>"
-                                                                    class="text-md text-blue-800 hover:underline cursor-pointer <%= item.returnStatus && item.returnStatus==='requested'? '':'hidden'%>">
-                                                                    Authorize Request For Return
-                                                                </button>
+                                                            <button type="button" id="requestAuthorize"
+                                                                onclick="openModal(this, '<%= item.return?.reason%>')"
+                                                                data-order-item-id="<%= item._id%>"
+                                                                data-order-id="<%= order._id %>"
+                                                                class="text-md text-blue-800 hover:underline cursor-pointer <%= item.return?.status && item.return?.status==='requested'? '':'hidden'%>">
+                                                                Authorize Request For Return
+                                                            </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <input type="hidden" name="returnReason" value="<%= item.returnReason || ''%>">
+                                        <input type="hidden" name="returnReason" value="<%= item.return?.reason%>">
 
                                         <%})%>
                                             <div class="h-10 w-full"></div>
@@ -211,11 +210,11 @@
                                         <textarea name="reasonText" id="" cols="" rows="5" class="w-full p-4 border"
                                             disabled></textarea>
                                         <div class="flex justify-between p-4">
-                                            <button type="button" onclick="reject()"
+                                            <button type="button" onclick="handleReturns('rejected')"
                                                 class="bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg text-white">
                                                 Reject
                                             </button>
-                                            <button type="button" onclick="approve()"
+                                            <button type="button" onclick="handleReturns('approved')"
                                                 class="bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg text-white">
                                                 Approve
                                             </button>
@@ -233,8 +232,8 @@
 
     <script>
         //? for the returned product
-        let productId;
-        let orderItemId;//?
+        let orderItemId = '';
+        let orderId;
 
         //* This is for selecting order status.
         const selectElement = document.querySelectorAll('#orderStatus');
@@ -242,10 +241,7 @@
             element.addEventListener('change', async function (event) {
                 const orderStatus = event.target.value;
                 const orderItemId = event.target.dataset.orderItemId;
-                const productId = event.target.dataset.productId;
-                const paymentStatus = event.target.dataset.paymentStatus;
-
-                console.log(orderStatus, orderItemId, productId, paymentStatus);
+                const orderId = event.target.dataset.orderId;
 
                 const { isConfirmed } = await Swal.fire({
                     title: 'Are you sure?',
@@ -253,13 +249,14 @@
                     confirmButtonText: 'Yes',
                     cancelButtonText: 'No'
                 });
+
                 if (isConfirmed) {
 
                     try {
                         const response = await fetch('/admin/order/changeStatus', {
                             method: 'PATCH',
                             headers: { 'Content-type': 'application/json' },
-                            body: JSON.stringify({ orderStatus, orderItemId, productId })
+                            body: JSON.stringify({ orderStatus, orderItemId, orderId })
                         });
 
                         const data = await response.json();
@@ -288,72 +285,23 @@
         function closeModal() {
             document.querySelector('#returnModal').classList.add('hidden');
             orderItemId = '';
-            productId = '';
         }
 
         // this function opens the modal and assigns values.
         function openModal(event, reason) {
-            try {
-                document.querySelector('textarea[name="reasonText"]').value = reason;
-                document.querySelector('#returnModal').classList.remove('hidden');
-                productId = event.dataset.productId;
-                orderItemId = event.dataset.orderItemId;
-            } catch (err) {
-                console.error(err);
-                alert('Error');
-            }
+            document.querySelector('textarea[name="reasonText"]').value = reason;
+            document.querySelector('#returnModal').classList.remove('hidden');
+            orderItemId = event.dataset.orderItemId;
+            orderId = event.dataset.orderId;
         }
 
-        //* This function is for rejecting the return request.
-        async function reject() {
+        async function handleReturns(status) {
+            const reason = document.querySelector('textarea[name="reasonText"]').value;
             try {
-                if (!orderItemId || !productId) {
-                    console.log('orderId or productId not found');
-                    alert('Error');
-                    return;
-                }
-
                 const response = await fetch('/admin/order/returns', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderItemId, productId, process: false })
-                });
-
-                const data = await response.json();
-
-                if (!data.success) {
-                    await Swal.fire({
-                        title: 'Error',
-                        text: data.message,
-                        icon: 'error',
-                        confirmButtonText: 'Ok'
-                    });
-                    return;
-                }
-
-                closeModal();
-                window.location.reload();
-
-            } catch (err) {
-                console.error(err);
-                alert('Error');
-            }
-        }
-
-
-        //* This function is for approving the return request.
-        async function approve() {
-            try {
-                if (!orderItemId || !productId) {
-                    console.log('orderId or productId not found');
-                    alert('Error');
-                    return;
-                }
-
-                const response = await fetch('/admin/order/returns', {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderItemId, productId, process: true })
+                    body: JSON.stringify({ orderItemId, status, orderId, reason })
                 });
 
                 const data = await response.json();

@@ -1,87 +1,253 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-        required: true
+const orderItemSchema = new mongoose.Schema(
+    {
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: true,
+        },
+
+        // Product snapshot
+        name: {
+            type: String,
+            required: true,
+        },
+
+        image: {
+            type: String,
+            required: true,
+        },
+
+        brand: {
+            type: String,
+        },
+
+        category: {
+            type: String,
+        },
+
+        quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+            validate: {
+                validator: Number.isInteger,
+                message: "Quantity must be an integer.",
+            },
+        },
+
+        selectedSize: {
+            type: String,
+            required: true,
+        },
+
+        selectedColor: {
+            type: String,
+            required: true,
+        },
+
+        // Price snapshot
+        unitPrice: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+
+        finalPrice: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+
+        status: {
+            type: String,
+            enum: [
+                "processing",
+                "shipped",
+                "delivered",
+                "cancelled",
+                "returned",
+            ],
+            default: "processing",
+        },
+
+        return: {
+            type: {
+                status: {
+                    type: String,
+                    enum: [
+                        "requested",
+                        "approved",
+                        "rejected",
+                        "completed",
+                    ],
+                },
+
+                reason: {
+                    type: String,
+                },
+
+                refundedAmount: {
+                    type: Number,
+                    default: 0,
+                },
+            },
+            default: null,
+        },
     },
-    orderedProducts: [
-        {
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product"
+);
+
+const orderSchema = new mongoose.Schema(
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "user",
+            required: true,
+        },
+
+        items: {
+            type: [orderItemSchema],
+            required: true,
+            validate: {
+                validator: (items) => items.length > 0,
+                message: "Order must contain at least one item.",
             },
-            quantity: { type: Number },
-            selectedSize: { type: String },
-            selectedColor: { type: String },
-            discountedPrice: { type: Number },
-            couponAdded: {
-                type: Number,
-                default: 0
-            },
-            totalPay: {     // (discountedPrice * quantity) - couponAdded
-                type: Number,
-                required: true
-            },
-            orderStatus: {
+        },
+
+        shippingAddress: {
+            contactName: {
                 type: String,
-                enum: ['processing', 'shipped', 'cancelled', 'returned', 'delivered', 'pending'],
-                default: 'processing'
+                required: true,
             },
-            paymentStatus: {
+
+            contactNumber: {
                 type: String,
-                enum: ['pending', 'paid', 'failed', 'refunded'],
+                required: true,
             },
-            returnStatus: {
+
+            building: {
                 type: String,
-                enum: ['requested', 'approved', 'returned', 'rejected', 'refunded'],
+                required: true,
             },
-            returnReason: { type: String },
-            returnPaymentMethod: {
+
+            street: {
                 type: String,
-                enum: ['cod', 'razorpay', 'wallet']
+                required: true,
             },
-            returnPaymentStatus: {
+
+            landmark: {
                 type: String,
-                enum: ['pending', 'paid', 'failed', 'refunded']
             },
-        }
-    ],
-    paymentMethod: {
-        type: String,
-        enum: ['cod', 'razorpay', 'wallet'],
+
+            district: {
+                type: String,
+                required: true,
+            },
+
+            state: {
+                type: String,
+                required: true,
+            },
+
+            pincode: {
+                type: String,
+                required: true,
+            },
+        },
+
+        payment: {
+            method: {
+                type: String,
+                enum: ["cod", "razorpay", "wallet"],
+                required: true,
+            },
+
+            status: {
+                type: String,
+                enum: ["pending", "paid", "failed", "refunded"],
+                default: "pending",
+            },
+
+            transactionId: {
+                type: String,
+                default: null,
+            },
+
+            gatewayOrderId: {
+                type: String,
+                default: null,
+            },
+
+            paidAt: {
+                type: Date,
+                default: null,
+            },
+        },
+
+        coupon: {
+            type: {
+                code: {
+                    type: String,
+                },
+
+                discount: {
+                    type: Number,
+                    default: 0,
+                },
+            },
+            default: null
+        },
+
+        subtotal: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+
+        productDiscount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        tax: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        shippingFee: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        total: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+
+        status: {
+            type: String,
+            enum: [
+                "processing",
+                "shipped",
+                "partially_delivered",
+                "delivered",
+                "cancelled",
+                "partially_returned",
+                "returned",
+            ],
+            default: "processing",
+        },
     },
-    paymentStatus: {
-        type: String,
-        enum: ['pending', 'paid', 'failed', 'refunded'],
-        default: 'pending',
-    },
-    allOrdersStatus: {
-        type: String,
-        enum: ['processing', 'shipped', 'cancelled', 'returned', 'delivered'],
-        default: 'processing'
-    },
-    shippingAddress: {
-        contactName: { type: String },
-        contactNumber: { type: String },
-        building: { type: String },
-        district: { type: String },
-        landmark: { type: String },
-        pincode: { type: String },
-        street: { type: String },
-        state: { type: String }
-    },
-    shippingFee: {
-        type: Number,
-        default: 0
-    },
-    coupon: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Coupon'
+    {
+        timestamps: true,
     }
+);
 
-}, { timestamps: true });
+const Order = mongoose.model("Order", orderSchema);
 
-const Order = mongoose.model('order', orderSchema);
 module.exports = Order;

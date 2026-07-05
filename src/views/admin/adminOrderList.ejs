@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
 </head>
 
@@ -68,7 +69,7 @@
                                 <%if(orders && orders.length>0){%>
                                     <%orders.forEach(order=> {%>
                                         <%let totalPay=0;%>
-                                            <% order.orderedProducts.forEach( pay=> totalPay+=pay.totalPay)%>
+                                            <% order.items.forEach( pay=> totalPay+= pay.finalPrice * pay.quantity)%>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
                                                         <%= order._id%>
@@ -80,24 +81,24 @@
                                                         <%= order.createdAt.toLocaleString()%>
                                                     </td>
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
-                                                        <%= order.allOrdersStatus%>
+                                                        <%= order.status%>
                                                     </td>
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
-                                                        <%= order.paymentMethod%>
+                                                        <%= order.payment.method%>
                                                     </td>
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
-                                                        <%= order.paymentStatus%>
+                                                        <%= order.payment.status%>
                                                     </td>
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
                                                         ₹ <%= totalPay%>
                                                     </td>
 
                                                     <td class="p-4 text-[15px] text-center text-gray-800">
-                                                        <% let returnedProducts=order.orderedProducts.find(item=>
-                                                            item.returnStatus)%>
-                                                            <%= returnedProducts? `${returnedProducts.returnStatus
-                                                                }(${order.orderedProducts.filter(item=>
-                                                                item.returnStatus).length})`: '' %>
+                                                        <% let returnedProducts=order.items.find(item=>
+                                                            item.return?.status)%>
+                                                            <%= returnedProducts? `${returnedProducts.return?.status
+                                                                }(${order.items.filter(item=>
+                                                                item.return?.status).length})`: '' %>
                                                     </td>
 
                                                     <td class="p-4 text-[15px] text-center text-gray-800"><a
