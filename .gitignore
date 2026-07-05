@@ -7,4 +7,4 @@ Extras
 eslint-config.mjs
 .agents*
 
-.skills-lock.json
+skills-lock.json
