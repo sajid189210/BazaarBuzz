@@ -13,7 +13,14 @@ const getCategory = async (req, res) => {
         const category = await categoryModel.findById(categoryId);
         if (!category) return response.error(res, "Category not found", 400);
 
-        return response.success(res, { category }, 'Category found');
+        // Return category with brands array for dynamic brand dropdown
+        return response.success(res, { 
+            category: {
+                _id: category._id,
+                title: category.title,
+                brands: category.brands || []
+            }
+        }, 'Category found');
 
     } catch (err) {
         response.serverError(res, err);
@@ -28,12 +35,70 @@ const getProducts = async (req, res) => {
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
+        const search = req.query.search || '';
+        const category = req.query.category || '';
+        const status = req.query.status || '';
+        const stock = req.query.stock || '';
 
         const skip = (page - 1) * limit;
 
-        const products = await Product.find({ isDeleted: false }).skip(skip).limit(limit).sort({ createdAt: -1 });
+        // Build filter query
+        const filter = { isDeleted: false };
+        
+        if (search) {
+            filter.$or = [
+                { productName: { $regex: search, $options: 'i' } },
+                { brand: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (category) {
+            filter.category = category;
+        }
+        
+        if (status !== '') {
+            filter.isActive = status === 'true';
+        }
+        
+        // Build the base query
+        let query = Product.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+        
+        // Apply stock filter using aggregation for variant stock checking
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            query = Product.aggregate([
+                { $match: filter },
+                { $addFields: { 
+                    totalStock: { $sum: "$variants.stock" },
+                    hasStock: { $gt: [{ $sum: "$variants.stock" }, 0] }
+                }},
+                { $match: { 
+                    totalStock: stockFilter 
+                }},
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit }
+            ]);
+        }
+
+        const products = await query;
         const categories = await categoryModel.find();
-        const count = await Product.countDocuments({ isDeleted: false });
+        
+        // Get total count with stock filter applied
+        let count;
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            const countResult = await Product.aggregate([
+                { $match: filter },
+                { $addFields: { totalStock: { $sum: "$variants.stock" } } },
+                { $match: { totalStock: stockFilter } },
+                { $count: "total" }
+            ]);
+            count = countResult.length > 0 ? countResult[0].total : 0;
+        } else {
+            count = await Product.countDocuments(filter);
+        }
 
 
         if (!products) throw new Error("Error caught while fetching product data.");
@@ -44,8 +109,98 @@ const getProducts = async (req, res) => {
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             limit,
-            page
+            page,
+            searchQuery: search,
+            categoryFilter: category,
+            statusFilter: status,
+            stockFilter: stock,
+            totalCount: count
         });
+
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+// JSON endpoint for AJAX requests
+const getProductsJson = async (req, res) => {
+    try {
+
+        if (!req.session.admin) return response.error(res, 'Unauthorized', 401);
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 8;
+        const search = req.query.search || '';
+        const category = req.query.category || '';
+        const status = req.query.status || '';
+        const stock = req.query.stock || '';
+
+        const skip = (page - 1) * limit;
+
+        // Build filter query
+        const filter = { isDeleted: false };
+        
+        if (search) {
+            filter.$or = [
+                { productName: { $regex: search, $options: 'i' } },
+                { brand: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (category) {
+            filter.category = category;
+        }
+        
+        if (status !== '') {
+            filter.isActive = status === 'true';
+        }
+        
+        // Build the base query
+        let query = Product.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+        
+        // Apply stock filter using aggregation for variant stock checking
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            query = Product.aggregate([
+                { $match: filter },
+                { $addFields: { 
+                    totalStock: { $sum: "$variants.stock" },
+                    hasStock: { $gt: [{ $sum: "$variants.stock" }, 0] }
+                }},
+                { $match: { 
+                    totalStock: stockFilter 
+                }},
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit }
+            ]);
+        }
+
+        const products = await query;
+        
+        // Get total count with stock filter applied
+        let count;
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            const countResult = await Product.aggregate([
+                { $match: filter },
+                { $addFields: { totalStock: { $sum: "$variants.stock" } } },
+                { $match: { totalStock: stockFilter } },
+                { $count: "total" }
+            ]);
+            count = countResult.length > 0 ? countResult[0].total : 0;
+        } else {
+            count = await Product.countDocuments(filter);
+        }
+
+        response.success(res, {
+            products,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit),
+            totalCount: count,
+            limit
+        }, 'Products fetched successfully');
 
     } catch (err) {
         response.serverError(res, err);
@@ -71,11 +226,12 @@ const getCreateProducts = async (req, res) => {
 //*----------------Create Product Page : POST------------------------------------------------------------------------------------
 const createProducts = async (req, res) => {
     try {
-        const { productName, brand, category, productPrice, stock, discount, productDescription } = req.body;
-        const sizes = Array.isArray(req.body.size) ? req.body.size : (req.body.size ? [req.body.size] : []);
-        const colors = req.body.colors ? (Array.isArray(req.body.colors) ? req.body.colors : [req.body.colors]) : [];
-
-        if (sizes.length === 0) {
+        const { productName, brand, category, productPrice, discount, productDescription } = req.body;
+        
+        // Handle new variant structure: variants[size][stock], variants[size][colors]
+        const variants = req.body.variants || [];
+        
+        if (!variants || variants.length === 0) {
             return res.redirect('/admin/productList/create');
         }
 
@@ -85,6 +241,13 @@ const createProducts = async (req, res) => {
             if (catDoc) categoryName = catDoc.title;
         }
 
+        // Process variants - each variant has size, stock, and colors array
+        const processedVariants = variants.map(v => ({
+            size: v.size,
+            stock: Number(v.stock) || 0,
+            colors: v.colors ? (Array.isArray(v.colors) ? v.colors : [v.colors]) : []
+        }));
+
         const productData = {
             productName,
             brand,
@@ -92,11 +255,7 @@ const createProducts = async (req, res) => {
             productPrice: Number(productPrice),
             discount: Number(discount) || 0,
             description: productDescription,
-            variants: sizes.length > 0 ? sizes.map(s => ({
-                size: s,
-                stock: Number(stock) || 0,
-                colors: colors.length > 0 ? colors : []
-            })) : undefined,
+            variants: processedVariants,
             images: req.body.images || []
         };
 
@@ -207,12 +366,13 @@ const postEditProduct = async (req, res) => {
     try {
         if (!req.session.admin) return res.redirect('/admin/signIn');
         const productId = req.params.id;
-        const { productName, brand, category, productPrice, stock, discount, productDescription } = req.body;
-        const sizes = Array.isArray(req.body.size) ? req.body.size : (req.body.size ? [req.body.size] : []);
-        const colors = req.body.colors ? (Array.isArray(req.body.colors) ? req.body.colors : [req.body.colors]) : [];
+        const { productName, brand, category, productPrice, discount, productDescription } = req.body;
+        
+        // Handle new variant structure: variants[size][stock], variants[size][colors]
+        const variants = req.body.variants || [];
         const images = req.body.images ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) : [];
 
-        if (sizes.length === 0) {
+        if (!variants || variants.length === 0) {
             return res.redirect('/admin/productList');
         }
 
@@ -222,6 +382,13 @@ const postEditProduct = async (req, res) => {
             if (catDoc) categoryName = catDoc.title;
         }
 
+        // Process variants - each variant has size, stock, and colors array
+        const processedVariants = variants.map(v => ({
+            size: v.size,
+            stock: Number(v.stock) || 0,
+            colors: v.colors ? (Array.isArray(v.colors) ? v.colors : [v.colors]) : []
+        }));
+
         const updateData = {
             productName,
             brand,
@@ -230,11 +397,7 @@ const postEditProduct = async (req, res) => {
             discount: Number(discount) || 0,
             description: productDescription,
             images: images.length > 0 ? images : undefined,
-            variants: sizes.length > 0 ? sizes.map(s => ({
-                size: s,
-                stock: Number(stock) || 0,
-                colors: colors.length > 0 ? colors : []
-            })) : undefined
+            variants: processedVariants
         };
 
         // Remove undefined keys
@@ -253,7 +416,7 @@ const postEditProduct = async (req, res) => {
 };
 
 const removeProduct = async (req, res) => {
-    const { productId } = req.query;
+    const productId = req.params.id;
     try {
 
         if (!productId) return response.error(res, "Product ID not found.", 400);
@@ -283,6 +446,7 @@ module.exports = {
     searchProduct,
     extractFilePath,
     getProducts,
+    getProductsJson,
     isActive,
     getCategory,
     removeProduct,

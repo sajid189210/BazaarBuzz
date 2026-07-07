@@ -13,30 +13,66 @@ const OTP = require('../../model/otpModel');
 //*-------------User sign Up validation---------------------
 const userSignUpValidation = async (req, res, next) => {
     try {
-        const checkExistingUser = await User.findOne({ email: req.body.email });
+        const { username, email, password, confirmPassword } = req.body;
 
-        if (checkExistingUser) {
-            req.session.userAuthErrorMessages = 'Email is already taken.';
+        // Username validation: letters only, min 3 chars
+        if (!username || !/^[A-Za-z]{3,}$/.test(username)) {
             return res.json({
                 success: false,
-                redirectUrl: '/user/signUp'
+                message: 'Username must contain only letters and be at least 3 characters long.'
+            });
+        }
+
+        // Email validation: basic format
+        if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            return res.json({
+                success: false,
+                message: 'Please enter a valid email address.'
+            });
+        }
+
+        // Password validation: min 8 chars, at least 1 number, 1 special char
+        if (!password || !/^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
+            return res.json({
+                success: false,
+                message: 'Password must be at least 8 characters long and contain at least one number and one special character (@$!%*?&).'
+            });
+        }
+
+        // Confirm password match
+        if (password !== confirmPassword) {
+            return res.json({
+                success: false,
+                message: 'Passwords do not match.'
+            });
+        }
+
+        // Check if email already exists
+        const checkExistingUser = await User.findOne({ email: email });
+        if (checkExistingUser) {
+            return res.json({
+                success: false,
+                message: 'Email is already taken.'
             });
         }
 
         const details = {
-            username: req.body.username,
-            email: req.body.email,
-            password: bcrypt.hashSync(req.body.password, 10),
-        }
+            username: username,
+            email: email,
+            password: bcrypt.hashSync(password, 10),
+        };
 
         try {
             const newUser = new User(details);
             await newUser.save();
         } catch (err) {
-            throw new Error("Error caught while saving new user to db.");
+            return res.json({
+                success: false,
+                message: 'Error creating user. Please try again.'
+            });
         }
 
-        const user = await User.findOne({ email: req.body.email })
+        const user = await User.findOne({ email: email });
 
         req.session.user = {
             userId: user._id,
@@ -50,8 +86,9 @@ const userSignUpValidation = async (req, res, next) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
-}
+        response.serverError(res, err);
+    }
+};
 
 
 //*------------Rendering user sign up page--------------
@@ -77,21 +114,54 @@ const userSignUp = (req, res) => {
 //*-------------sign in validation-----------------------
 const userSignInValidation = async (req, res) => {
     try {
+        const { email, password } = req.body;
 
-        if (!req.body.email || !req.body.password) throw new Error("All fields must be filled.");
-
-        const user = await User.findOne({ email: req.body.email });
-
-        if (!user) throw new Error("User not found");
-
-        if (user.isBlocked === 'blocked') throw new Error("You are blocked by the admin.");
-
-        if (user.googleId) {
-            throw new Error("Login failed. Please ensure you are using the correct method. If you signed up with Google, please log in using the Google option.");
+        // Email validation
+        if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            return res.json({
+                success: false,
+                message: 'Please enter a valid email address.'
+            });
         }
 
-        const isMatchPassword = await bcrypt.compare(req.body.password, user.password);
-        if (!isMatchPassword) throw new Error("Invalid password");
+        // Password required
+        if (!password) {
+            return res.json({
+                success: false,
+                message: 'Password is required.'
+            });
+        }
+
+        const user = await User.findOne({ email: email });
+
+        if (!user) {
+            return res.json({
+                success: false,
+                message: 'User not found. Please check your email or sign up.'
+            });
+        }
+
+        if (user.isBlocked === 'blocked') {
+            return res.json({
+                success: false,
+                message: 'You are blocked by the admin. Please contact support.'
+            });
+        }
+
+        if (user.googleId) {
+            return res.json({
+                success: false,
+                message: 'Login failed. Please ensure you are using the correct method. If you signed up with Google, please log in using the Google option.'
+            });
+        }
+
+        const isMatchPassword = await bcrypt.compare(password, user.password);
+        if (!isMatchPassword) {
+            return res.json({
+                success: false,
+                message: 'Invalid password. Please try again.'
+            });
+        }
 
         req.session.user = {
             userId: user._id,
@@ -103,8 +173,10 @@ const userSignInValidation = async (req, res) => {
 
     } catch (err) {
         console.error(`Error caught userSignInValidation in the userController. ${err.message}`);
-        req.session.signInAuthErrorMessages = err.message;
-        return res.redirect('/user/signIn');
+        return res.json({
+            success: false,
+            message: 'An unexpected error occurred. Please try again.'
+        });
     }
 };
 

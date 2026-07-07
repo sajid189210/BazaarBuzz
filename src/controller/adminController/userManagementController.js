@@ -15,60 +15,75 @@ const userManagementPage = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || '';
+        const statusFilter = req.query.status || '';
+        const startDate = req.query.startDate || '';
+        const endDate = req.query.endDate || '';
         const skip = (page - 1) * limit;
-        let filter = {}
+        let filter = {};
 
         if (search) {
             const regex = new RegExp(search, 'i');
-            filter.email = regex;
+            filter.$or = [
+                { email: regex },
+                { username: regex }
+            ];
+        }
+
+        if (statusFilter === 'blocked') {
+            filter.isBlocked = 'blocked';
+        } else if (statusFilter === 'unblocked') {
+            filter.isBlocked = 'unblocked';
+        }
+
+        if (startDate || endDate) {
+            filter.createdAt = {};
+            if (startDate) {
+                filter.createdAt.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                // Set to end of the day
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                filter.createdAt.$lte = end;
+            }
         }
 
         const users = await userModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+        const totalCount = await userModel.countDocuments(filter);
 
-        const count = await userModel.countDocuments();
-
-        if (!users) return res.render('admin/userManagementPage', {
-            users: [],
-            totalPages: Math.ceil(count / limit),
-            currentPage: page,
-            limit,
-            page,
-        })
+        // If AJAX request, return JSON
+        if (req.xhr || req.headers.accept?.includes('json')) {
+            return res.json({
+                success: true,
+                users,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: page,
+                totalCount,
+                limit,
+                search,
+                statusFilter,
+                startDate,
+                endDate
+            });
+        }
 
         res.render('admin/userManagementPage', {
             users,
-            totalPages: Math.ceil(count / limit),
+            totalPages: Math.ceil(totalCount / limit),
             currentPage: page,
             limit,
             page,
+            search,
+            statusFilter,
+            startDate,
+            endDate,
+            totalCount
         });
 
     } catch (err) {
         response.serverError(res, err);
     }
 };
-
-
-
-// //*--------------------Search User-------------------------
-// const searchUser = async (req, res) => {
-//     try {
-//         const search = req.query.search || '';
-
-//         const regex = new RegExp(search, 'i');
-
-//         const users = await userModel.find({ email: regex });
-
-//         res.json({ users });
-
-//     } catch (err) {
-//         console.error(`Error in searchUser in userManagementController: ${err.message}`);
-//         res.status(500).json({
-//             error: 'Internal Server Error',
-//             message: err.message
-//         });
-//     }
-// }
 
 //*----------------User Status: unblock----------------------
 const unBlockUser = async (req, res) => {

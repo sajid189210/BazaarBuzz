@@ -2,6 +2,52 @@ let cropper = null;
 let uploadQueue = [];
 let uploading = false;
 
+// ---- Brand Dropdown Management ----
+const categorySelect = document.getElementById('category');
+const brandSelect = document.getElementById('brand');
+
+async function fetchBrandsForCategory(categoryId) {
+    if (!categoryId) {
+        brandSelect.innerHTML = '<option value="">Select category first</option>';
+        brandSelect.disabled = true;
+        brandSelect.classList.add('opacity-50', 'cursor-not-allowed');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/fetchCategory/${categoryId}`);
+        const data = await response.json();
+        
+        if (data.success && data.category && data.category.brands) {
+            const brands = data.category.brands;
+            brandSelect.innerHTML = '<option value="">Select brand</option>';
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            });
+            brandSelect.disabled = false;
+            brandSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            brandSelect.innerHTML = '<option value="">No brands available</option>';
+            brandSelect.disabled = true;
+            brandSelect.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    } catch (error) {
+        console.error('Error fetching brands:', error);
+        brandSelect.innerHTML = '<option value="">Error loading brands</option>';
+        brandSelect.disabled = true;
+        brandSelect.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+// Category change handler
+categorySelect?.addEventListener('change', function() {
+    const categoryId = this.value;
+    fetchBrandsForCategory(categoryId);
+});
+
 // ---- Validation ----
 document.getElementById('productDetailForm')?.addEventListener('submit', function (e) {
     clearErrors();
@@ -20,14 +66,25 @@ document.getElementById('productDetailForm')?.addEventListener('submit', functio
         errors.push(msg);
     }
 
+    function setVariantError(variantRow, fieldName, msg) {
+        const field = variantRow.querySelector(`[name*="${fieldName}"]`);
+        if (field) {
+            field.classList.add('border-red-500');
+            const errSpan = field.parentElement.querySelector('.error-msg');
+            if (errSpan) {
+                errSpan.textContent = msg;
+                errSpan.classList.remove('hidden');
+            }
+        }
+        errors.push(msg);
+    }
+
     const name = document.getElementById('productName')?.value.trim();
     const brand = document.getElementById('brand')?.value.trim();
     const category = document.getElementById('category')?.value;
     const price = document.getElementById('productPrice')?.value;
-    const stock = document.getElementById('stock')?.value;
     const discount = document.getElementById('discount')?.value;
     const description = document.getElementById('productDescription')?.value.trim();
-    const sizes = document.querySelectorAll('input[name="size"]:checked');
     const uploadedUrls = document.querySelectorAll('input[name="images[]"]');
 
     if (!name || name.length < 3) setError('productName', 'Product name must be at least 3 characters.');
@@ -35,21 +92,47 @@ document.getElementById('productDetailForm')?.addEventListener('submit', functio
     if (!category) setError('category', 'Please select a category.');
     if (!price || Number(price) <= 0) setError('productPrice', 'Price must be greater than 0.');
     if (price && Number(price) > 10000) setError('productPrice', 'Price cannot exceed ₹10,000.');
-    if (stock === '' || Number(stock) < 0 || isNaN(Number(stock))) setError('stock', 'Stock must be 0 or more.');
     if (discount && (Number(discount) < 0 || Number(discount) > 100)) setError('discount', 'Discount must be between 0 and 100.');
     if (!description || description.length < 20) setError('productDescription', 'Description must be at least 20 characters.');
-    if (sizes.length === 0) {
-        const sc = document.getElementById('sizeContainer');
-        if (sc) {
-            const errSpan = sc.parentElement.querySelector('.error-msg');
-            if (errSpan) {
-                errSpan.textContent = 'At least one variant is required.';
-                errSpan.classList.remove('hidden');
-            }
+    if (!uploadedUrls || uploadedUrls.length === 0) setError('images', 'Upload at least one product image.');
+
+    // Validate variants
+    const variantRows = document.querySelectorAll('.variant-row');
+    if (variantRows.length === 0) {
+        const errSpan = document.getElementById('variantsError');
+        if (errSpan) {
+            errSpan.textContent = 'At least one variant is required.';
+            errSpan.classList.remove('hidden');
         }
         errors.push('At least one variant is required.');
+    } else {
+        const usedSizes = new Set();
+        variantRows.forEach((row, index) => {
+            const sizeSelect = row.querySelector('.variant-size');
+            const stockInput = row.querySelector('.variant-stock');
+            const colorInputs = row.querySelectorAll('.variant-colors input[type="color"]');
+
+            const size = sizeSelect?.value;
+            const stock = stockInput?.value;
+            const colors = Array.from(colorInputs).map(input => input.value);
+
+            if (!size) {
+                setVariantError(row, 'size', 'Size is required for each variant.');
+            } else if (usedSizes.has(size)) {
+                setVariantError(row, 'size', `Duplicate size: ${size}. Each variant must have a unique size.`);
+            } else {
+                usedSizes.add(size);
+            }
+
+            if (stock === '' || Number(stock) < 0 || isNaN(Number(stock))) {
+                setVariantError(row, 'stock', 'Stock must be 0 or more.');
+            }
+
+            if (colors.length === 0) {
+                setVariantError(row, 'colors', 'At least one color is required for each variant.');
+            }
+        });
     }
-    if (!uploadedUrls || uploadedUrls.length === 0) setError('images', 'Upload at least one product image.');
 
     if (errors.length > 0) {
         e.preventDefault();
@@ -78,7 +161,177 @@ document.querySelectorAll('#productDetailForm input, #productDetailForm select, 
     });
 });
 
-// ---- Color management ----
+// ---- Variant Management ----
+const variantTemplate = document.getElementById('variantTemplate');
+const variantsContainer = document.getElementById('variantsContainer');
+const addVariantBtn = document.getElementById('addVariant');
+
+function addVariantRow(data = {}) {
+    const clone = variantTemplate.content.cloneNode(true);
+    const variantRow = clone.querySelector('.variant-row');
+    
+    // Get the current index for this variant
+    const variantIndex = document.querySelectorAll('.variant-row').length;
+
+    // Replace __INDEX__ placeholder with actual index in all name attributes
+    const inputs = variantRow.querySelectorAll('[name*="__INDEX__"]');
+    inputs.forEach(input => {
+        input.name = input.name.replace('__INDEX__', variantIndex);
+    });
+
+    // Set size if provided
+    if (data.size) {
+        const sizeSelect = variantRow.querySelector('.variant-size');
+        sizeSelect.value = data.size;
+    }
+
+    // Set stock if provided
+    if (data.stock !== undefined) {
+        const stockInput = variantRow.querySelector('.variant-stock');
+        stockInput.value = data.stock;
+    }
+
+    // Set colors if provided
+    if (data.colors && data.colors.length > 0) {
+        const colorsContainer = variantRow.querySelector('.variant-colors');
+        colorsContainer.innerHTML = ''; // Clear default
+        data.colors.forEach((color, index) => {
+            const colorRow = createColorRow(variantIndex, color);
+            colorsContainer.appendChild(colorRow);
+        });
+    }
+
+    // Add remove variant handler
+    const removeBtn = variantRow.querySelector('.remove-variant');
+    removeBtn.addEventListener('click', function () {
+        if (document.querySelectorAll('.variant-row').length > 1) {
+            variantRow.remove();
+            // Re-index remaining variants
+            reindexVariants();
+        } else {
+            // If it's the last one, just clear it
+            variantRow.querySelector('.variant-size').value = '';
+            variantRow.querySelector('.variant-stock').value = '0';
+            const colorsContainer = variantRow.querySelector('.variant-colors');
+            colorsContainer.innerHTML = '';
+            colorsContainer.appendChild(createColorRow(variantIndex, '#000000'));
+        }
+    });
+
+    // Add color handlers
+    const addColorBtn = variantRow.querySelector('.add-color');
+    addColorBtn.addEventListener('click', function () {
+        const colorsContainer = variantRow.querySelector('.variant-colors');
+        colorsContainer.appendChild(createColorRow(variantIndex, '#000000'));
+    });
+
+    variantRow.querySelectorAll('.remove-color').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const colorRows = variantRow.querySelectorAll('.color-row');
+            if (colorRows.length > 1) {
+                this.closest('.color-row').remove();
+            }
+        });
+    });
+
+    variantsContainer.appendChild(variantRow);
+}
+
+function reindexVariants() {
+    const variantRows = document.querySelectorAll('.variant-row');
+    variantRows.forEach((row, index) => {
+        row.dataset.index = index;
+        // Update all name attributes in this row
+        const inputs = row.querySelectorAll('[name*="variants["]');
+        inputs.forEach(input => {
+            // Replace the index in the name attribute
+            input.name = input.name.replace(/variants\[\d+\]/, `variants[${index}]`);
+        });
+    });
+}
+
+function createColorRow(variantIndex, color = '#000000') {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'color-swatch-wrapper';
+
+    // Hidden native color input (for the picker dialog)
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.name = `variants[${variantIndex}][colors][]`;
+    colorInput.value = color;
+    colorInput.className = 'color-swatch-input';
+    colorInput.required = true;
+
+    // Visible swatch button
+    const swatchBtn = document.createElement('button');
+    swatchBtn.type = 'button';
+    swatchBtn.className = 'color-swatch-btn';
+    swatchBtn.style.backgroundColor = color;
+    swatchBtn.title = color;
+    swatchBtn.addEventListener('click', function () {
+        colorInput.click();
+    });
+
+    // Color name label (using ntc.js)
+    const colorNameSpan = document.createElement('span');
+    colorNameSpan.className = 'color-swatch-name';
+    const ntcMatch = ntc.name(color);
+    colorNameSpan.textContent = ntcMatch[1] || color;
+
+    // Update swatch when color changes
+    colorInput.addEventListener('input', function () {
+        swatchBtn.style.backgroundColor = this.value;
+        swatchBtn.title = this.value;
+        const match = ntc.name(this.value);
+        colorNameSpan.textContent = match[1] || this.value;
+    });
+
+    // Remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'color-swatch-remove';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.title = 'Remove color';
+    removeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const colorRows = wrapper.closest('.variant-row').querySelectorAll('.color-swatch-wrapper');
+        if (colorRows.length > 1) {
+            wrapper.remove();
+        }
+    });
+
+    wrapper.appendChild(colorInput);
+    wrapper.appendChild(swatchBtn);
+    wrapper.appendChild(colorNameSpan);
+    wrapper.appendChild(removeBtn);
+    return wrapper;
+}
+
+// Initialize with one variant row
+addVariantRow();
+
+// Add variant button
+addVariantBtn?.addEventListener('click', function () {
+    addVariantRow();
+});
+
+// Initialize variants from product data (for edit page)
+if (typeof window.productVariants !== 'undefined' && window.productVariants.length > 0) {
+    // Clear the default variant row
+    const defaultRow = document.querySelector('.variant-row');
+    if (defaultRow) defaultRow.remove();
+    
+    // Add variant rows from product data
+    window.productVariants.forEach(variant => {
+        addVariantRow({
+            size: variant.size,
+            stock: variant.stock,
+            colors: variant.colors || []
+        });
+    });
+}
+
+// ---- Color management (legacy - keeping for compatibility) ----
 document.getElementById('addColor')?.addEventListener('click', function () {
     const container = document.getElementById('colorContainer');
     const row = container.querySelector('.color-row');

@@ -8,152 +8,937 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Motion for micro-interactions -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.min.js"></script>
+    <style>
+        /* ==========================================
+           DESIGN TOKENS (injected from server)
+           ========================================== */
+        :root {
+            --accent: <%= designTokens?.colors?.accent || '#e11d48' %>;
+            --accent-hover: <%= designTokens?.colors?.accentHover || '#be123c' %>;
+            --accent-light: <%= designTokens?.colors?.accentLight || '#fff1f2' %>;
+            --accent-border: <%= designTokens?.colors?.accentBorder || '#fecdd3' %>;
+            --surface: <%= designTokens?.colors?.surface || '#ffffff' %>;
+            --surface-elevated: <%= designTokens?.colors?.surfaceElevated || '#fafafa' %>;
+            --text-primary: <%= designTokens?.colors?.textPrimary || '#111827' %>;
+            --text-secondary: <%= designTokens?.colors?.textSecondary || '#6b7280' %>;
+            --text-muted: <%= designTokens?.colors?.textMuted || '#9ca3af' %>;
+            --border: <%= designTokens?.colors?.border || '#e5e7eb' %>;
+            --border-hover: <%= designTokens?.colors?.borderHover || '#d1d5db' %>;
+            --success: <%= designTokens?.colors?.success || '#16a34a' %>;
+            --warning: <%= designTokens?.colors?.warning || '#f59e0b' %>;
+            --error: <%= designTokens?.colors?.error || '#dc2626' %>;
+            --radius-sm: <%= designTokens?.radius?.sm || '6px' %>;
+            --radius-md: <%= designTokens?.radius?.md || '10px' %>;
+            --radius-lg: <%= designTokens?.radius?.lg || '14px' %>;
+            --radius-xl: <%= designTokens?.radius?.xl || '18px' %>;
+            --radius-full: <%= designTokens?.radius?.full || '9999px' %>;
+            --shadow-sm: <%= designTokens?.shadow?.sm || '0 1px 2px 0 rgb(0 0 0 / 0.05)' %>;
+            --shadow-md: <%= designTokens?.shadow?.md || '0 4px 6px -1px rgb(0 0 0 / 0.1)' %>;
+            --shadow-lg: <%= designTokens?.shadow?.lg || '0 10px 15px -3px rgb(0 0 0 / 0.1)' %>;
+            --shadow-xl: <%= designTokens?.shadow?.xl || '0 20px 25px -5px rgb(0 0 0 / 0.1)' %>;
+            --spacing-xs: <%= designTokens?.spacing?.xs || '4px' %>;
+            --spacing-sm: <%= designTokens?.spacing?.sm || '8px' %>;
+            --spacing-md: <%= designTokens?.spacing?.md || '16px' %>;
+            --spacing-lg: <%= designTokens?.spacing?.lg || '24px' %>;
+            --spacing-xl: <%= designTokens?.spacing?.xl || '32px' %>;
+            --motion-fast: <%= designTokens?.motion?.fast || '150ms' %>;
+            --motion-normal: <%= designTokens?.motion?.normal || '250ms' %>;
+            --motion-slow: <%= designTokens?.motion?.slow || '400ms' %>;
+            --motion-easing: <%= designTokens?.motion?.easing || 'cubic-bezier(0.16, 1, 0.3, 1)' %>;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --surface: #18181b; /* zinc-950 */
+                --surface-elevated: #27272a; /* zinc-900 */
+                --text-primary: #fafafa; /* zinc-50 */
+                --text-secondary: #a1a1aa; /* zinc-400 */
+                --text-muted: #71717a; /* zinc-500 */
+                --border: #3f3f46; /* zinc-700 */
+                --border-hover: #52525b; /* zinc-600 */
+                --accent-light: #4a0d1b; /* rose-950 */
+                --accent-border: #881337; /* rose-800 */
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* ==========================================
+           BASE RESET & UTILITIES
+           ========================================== */
+        * { box-sizing: border-box; }
+        html { font-family: 'Geist', 'Satoshi', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+        body { margin: 0; background: var(--surface); color: var(--text-primary); line-height: 1.6; }
+        img { max-width: 100%; height: auto; display: block; }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; }
+        input { font-family: inherit; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+        /* ==========================================
+           COMPONENT STYLES
+           ========================================== */
+
+        /* --- Image Gallery --- */
+        .gallery-main {
+            position: relative;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            background: var(--surface-elevated);
+            aspect-ratio: 4 / 5;
+            cursor: zoom-in;
+            transition: box-shadow var(--motion-normal) var(--motion-easing);
+        }
+        .gallery-main:hover { box-shadow: var(--shadow-lg); }
+        .gallery-main img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--motion-slow) var(--motion-easing); }
+        .gallery-main:hover img { transform: scale(1.015); }
+
+        .gallery-badge {
+            position: absolute; top: var(--spacing-md); left: var(--spacing-md);
+            background: var(--accent); color: white;
+            font-size: 0.75rem; font-weight: 600;
+            padding: 0.375rem 0.75rem; border-radius: var(--radius-full);
+        }
+
+        .zoom-hint {
+            position: absolute; bottom: var(--spacing-md); right: var(--spacing-md);
+            background: rgba(0,0,0,0.6); color: white;
+            font-size: 0.7rem; font-weight: 500;
+            padding: 0.375rem 0.625rem; border-radius: var(--radius-full);
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            opacity: 0; transform: translateY(4px);
+            transition: opacity var(--motion-fast), transform var(--motion-fast);
+        }
+        .gallery-main:hover .zoom-hint { opacity: 1; transform: translateY(0); }
+
+        .thumbnail-strip {
+            display: flex; gap: var(--spacing-sm);
+            overflow-x: auto; padding: var(--spacing-xs);
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .thumbnail-strip::-webkit-scrollbar { height: 4px; }
+        .thumbnail-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .thumb-btn {
+            flex: 0 0 auto; width: 72px; height: 90px;
+            border-radius: var(--radius-md); overflow: hidden;
+            border: 2px solid transparent; cursor: pointer;
+            transition: border-color var(--motion-fast), transform var(--motion-fast), box-shadow var(--motion-fast);
+            scroll-snap-align: start;
+        }
+        .thumb-btn:hover { transform: scale(1.03); box-shadow: var(--shadow-md); }
+        .thumb-btn.active { border-color: var(--accent); }
+        .thumb-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .thumb-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Vertical thumbnail variant for desktop */
+        @media (min-width: 1024px) {
+            .thumbnail-strip.vertical {
+                flex-direction: column; height: 100%; max-height: 600px;
+                scroll-snap-type: y mandatory;
+            }
+            .thumbnail-strip.vertical::-webkit-scrollbar { width: 4px; height: auto; }
+            .thumbnail-strip.vertical .thumb-btn { width: 90px; height: 72px; }
+        }
+
+        /* --- Size Chips --- */
+        .size-chips { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+        .size-chip {
+            min-width: 48px; height: 48px; padding: 0 1rem;
+            border-radius: var(--radius-md); border: 2px solid var(--border);
+            background: var(--surface); font-size: 0.875rem; font-weight: 600;
+            color: var(--text-primary); white-space: nowrap;
+            transition: all var(--motion-fast) var(--motion-easing);
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+        }
+        .size-chip:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+        .size-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .size-chip.selected { border-color: var(--accent); background: var(--accent); color: white; }
+        .size-chip:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .size-chip.low-stock { border-color: var(--warning); }
+        .size-chip.out-of-stock { opacity: 0.35; cursor: not-allowed; }
+        .stock-badge-inline {
+            font-size: 0.625rem; font-weight: 700;
+            padding: 0.125rem 0.5rem; border-radius: var(--radius-full);
+            background: var(--accent-light); color: var(--accent);
+        }
+        .size-chip.out-of-stock .stock-badge-inline { background: var(--error); color: white; }
+        .size-chip.low-stock:not(.out-of-stock) .stock-badge-inline { background: #fef3c7; color: var(--warning); }
+
+        /* --- Color Swatches --- */
+        .color-swatches { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+        .color-swatch {
+            width: 40px; height: 40px; border-radius: var(--radius-full);
+            border: 2px solid var(--border); cursor: pointer; position: relative;
+            transition: all var(--motion-fast) var(--motion-easing);
+        }
+        .color-swatch:hover { transform: scale(1.1); box-shadow: var(--shadow-md); }
+        .color-swatch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .color-swatch.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+        }
+        .color-swatch:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+        .color-swatch::after {
+            content: ''; position: absolute; inset: -2px;
+            border-radius: var(--radius-full); border: 2px solid transparent;
+        }
+        .color-swatch.has-image::after { border-color: var(--accent); }
+
+        .color-tooltip {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            margin-bottom: 0.5rem; padding: 0.25rem 0.5rem;
+            background: var(--text-primary); color: var(--surface);
+            font-size: 0.625rem; font-weight: 500; white-space: nowrap;
+            border-radius: var(--radius-sm); opacity: 0; visibility: hidden;
+            transition: opacity var(--motion-fast), visibility var(--motion-fast);
+            pointer-events: none; z-index: 10;
+        }
+        .color-swatch:hover .color-tooltip { opacity: 1; visibility: visible; }
+
+        /* --- Quantity Selector --- */
+        .qty-selector { display: inline-flex; align-items: center; gap: var(--spacing-xs); }
+        .qty-btn {
+            width: 40px; height: 40px; border-radius: var(--radius-md);
+            border: 1px solid var(--border); display: inline-flex;
+            align-items: center; justify-content: center; color: var(--text-primary);
+            transition: all var(--motion-fast) var(--motion-easing);
+        }
+        .qty-btn:hover:not(:disabled) { border-color: var(--border-hover); background: var(--surface-elevated); }
+        .qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .qty-value { width: 56px; text-align: center; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .qty-hint { font-size: 0.75rem; color: var(--text-muted); margin-left: var(--spacing-sm); }
+
+        /* --- Stock & Delivery Row --- */
+        .stock-delivery-row {
+            display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-md);
+            padding: var(--spacing-md); background: var(--surface-elevated);
+            border-radius: var(--radius-lg); border: 1px solid var(--border);
+        }
+        .stock-badge {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.25rem 0.75rem; border-radius: var(--radius-full);
+            font-size: 0.6875rem; font-weight: 700;
+        }
+        .stock-badge.in-stock { background: #dcfce7; color: #166534; }
+        .stock-badge.low-stock { background: #fef3c7; color: #92400e; }
+        .stock-badge.out-of-stock { background: #fee2e2; color: #991b1b; }
+        .stock-text { font-size: 0.8125rem; color: var(--text-secondary); }
+
+        .pincode-field { display: inline-flex; align-items: center; gap: var(--spacing-sm); }
+        .pincode-field label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+        .pincode-input {
+            width: 120px; height: 40px; padding: 0 var(--spacing-sm);
+            border: 1px solid var(--border); border-radius: var(--radius-md);
+            font-size: 0.875rem; color: var(--text-primary);
+            background: var(--surface); transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+        }
+        .pincode-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+        .pincode-btn {
+            height: 40px; padding: 0 var(--spacing-md); border-radius: var(--radius-md);
+            font-size: 0.75rem; font-weight: 600; color: var(--accent);
+            background: var(--accent-light); border: 1px solid var(--accent-border);
+            transition: all var(--motion-fast) var(--motion-easing);
+        }
+        .pincode-btn:hover { background: var(--accent); color: white; }
+        .pincode-result { font-size: 0.75rem; margin-top: var(--spacing-xs); width: 100%; }
+
+        /* --- Trust Strip --- */
+        .trust-strip {
+            display: flex; flex-wrap: wrap; gap: var(--spacing-lg);
+            padding: var(--spacing-md) 0; border-top: 1px solid var(--border);
+        }
+        .trust-item {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-size: 0.75rem; font-weight: 500; color: var(--text-secondary);
+            transition: color var(--motion-fast);
+        }
+        .trust-item:hover { color: var(--text-primary); }
+        .trust-item svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
+        .trust-tooltip {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            margin-bottom: 0.5rem; padding: 0.5rem 0.75rem;
+            background: var(--text-primary); color: var(--surface);
+            font-size: 0.75rem; font-weight: 400; white-space: nowrap;
+            border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity var(--motion-fast), visibility var(--motion-fast);
+            z-index: 20;
+        }
+        .trust-item { position: relative; }
+        .trust-item:hover .trust-tooltip { opacity: 1; visibility: visible; }
+
+        /* --- Action Buttons --- */
+        .action-row { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-xs); }
+        .btn-primary {
+            flex: 1; height: 52px; border-radius: var(--radius-lg);
+            background: var(--accent); color: white;
+            font-size: 0.875rem; font-weight: 600;
+            transition: all var(--motion-fast) var(--motion-easing);
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.99); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .btn-wishlist {
+            width: 52px; height: 52px; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); display: inline-flex;
+            align-items: center; justify-content: center; color: var(--text-secondary);
+            background: var(--surface); transition: all var(--motion-fast) var(--motion-easing);
+        }
+        .btn-wishlist:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+        .btn-wishlist.filled { border-color: var(--accent); background: var(--accent); color: white; }
+        .btn-wishlist.filled:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+        .btn-wishlist:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .btn-wishlist svg { width: 22px; height: 22px; transition: transform var(--motion-fast); }
+        .btn-wishlist.filled svg { fill: currentColor; }
+        .btn-wishlist:active svg { transform: scale(0.9); }
+
+        /* --- Price Block --- */
+        .price-block { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--spacing-sm); }
+        .price-current { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800; color: var(--text-primary); line-height: 1; }
+        .price-original { font-size: 1.125rem; color: var(--text-muted); text-decoration: line-through; }
+        .price-save { font-size: 0.8125rem; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 0.25rem 0.625rem; border-radius: var(--radius-full); }
+
+        .offer-badge {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.375rem 0.75rem; background: #f0fdf4; color: var(--success);
+            border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600;
+        }
+        .offer-badge svg { width: 14px; height: 14px; }
+
+        /* --- Tabs --- */
+        .tab-bar {
+            display: flex; gap: var(--spacing-xs); overflow-x: auto;
+            border-bottom: 1px solid var(--border); padding-bottom: 1px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+        }
+        .tab-bar::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            flex: 0 0 auto; padding: var(--spacing-sm) var(--spacing-lg);
+            font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);
+            border-bottom: 2px solid transparent; white-space: nowrap;
+            transition: all var(--motion-fast) var(--motion-easing);
+            scroll-snap-align: start;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius-sm); }
+        .tab-panel { display: none; padding-top: var(--spacing-xl); animation: fadeIn var(--motion-normal) var(--motion-easing); }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        /* --- Specs Table --- */
+        .specs-table { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+        .specs-table dt, .specs-table dd { padding: var(--spacing-md) var(--spacing-lg); margin: 0; }
+        .specs-table dt { background: var(--surface-elevated); font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); border-right: 1px solid var(--border); }
+        .specs-table dd { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); border-bottom: 1px solid var(--border); }
+        .specs-table dl:last-child dd { border-bottom: none; }
+
+        /* --- Size Guide Modal --- */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; padding: var(--spacing-lg);
+            opacity: 0; transition: opacity var(--motion-normal);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-panel {
+            background: var(--surface); border-radius: var(--radius-xl);
+            max-width: 560px; width: 100%; max-height: 90vh; overflow: hidden;
+            box-shadow: var(--shadow-xl); transform: scale(0.95) translateY(8px);
+            transition: transform var(--motion-normal) var(--motion-easing);
+        }
+        .modal-overlay.active .modal-panel { transform: none; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--border); }
+        .modal-title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+        .modal-close { width: 40px; height: 40px; border-radius: var(--radius-md); display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all var(--motion-fast); }
+        .modal-close:hover { background: var(--surface-elevated); color: var(--text-primary); }
+        .modal-body { padding: var(--spacing-lg); overflow-y: auto; max-height: 60vh; }
+        .size-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        .size-table th, .size-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        .size-table th { font-weight: 600; color: var(--text-secondary); background: var(--surface-elevated); position: sticky; top: 0; }
+        .size-table td { font-weight: 500; color: var(--text-primary); }
+        .size-table tbody tr:last-child td { border-bottom: none; }
+        .modal-note { margin-top: var(--spacing-md); font-size: 0.75rem; color: var(--text-muted); }
+
+        /* --- Image Zoom Modal --- */
+        #imageModal {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.95); display: none;
+            align-items: center; justify-content: center; opacity: 0;
+            transition: opacity var(--motion-normal);
+        }
+        #imageModal.active { display: flex; opacity: 1; }
+        #imageModal img { max-width: 92vw; max-height: 92vh; object-fit: contain; }
+        .modal-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 56px; height: 56px; border-radius: var(--radius-full);
+            background: rgba(255,255,255,0.12); border: none; color: white;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all var(--motion-fast);
+            backdrop-filter: blur(8px);
+        }
+        .modal-nav:hover { background: rgba(255,255,255,0.25); transform: translateY(-50%) scale(1.05); }
+        .modal-nav:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .modal-prev { left: var(--spacing-lg); } .modal-next { right: var(--spacing-lg); }
+        .modal-close { position: absolute; top: var(--spacing-lg); right: var(--spacing-lg); width: 48px; height: 48px; border-radius: var(--radius-full); background: rgba(255,255,255,0.12); border: none; color: white; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--motion-fast); }
+        .modal-close:hover { background: rgba(255,255,255,0.25); }
+        .modal-counter { position: absolute; bottom: var(--spacing-lg); left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 0.875rem; font-weight: 500; }
+
+        /* --- Cross-sell Carousels --- */
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-lg); }
+        .section-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+        .product-carousel { display: flex; gap: var(--spacing-md); overflow-x: auto; padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-lg); scroll-snap-type: x mandatory; scroll-padding: 0 var(--spacing-lg); -webkit-overflow-scrolling: touch; }
+        .product-carousel::-webkit-scrollbar { height: 6px; }
+        .product-carousel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .carousel-card { flex: 0 0 200px; scroll-snap-align: start; }
+        .product-card { display: block; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-elevated); border: 1px solid var(--border); transition: all var(--motion-normal) var(--motion-easing); }
+        .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent-border); }
+        .product-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .product-image { position: relative; aspect-ratio: 3 / 4; overflow: hidden; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--motion-slow) var(--motion-easing); }
+        .product-card:hover .product-image img { transform: scale(1.05); }
+        .product-badge { position: absolute; top: var(--spacing-sm); left: var(--spacing-sm); display: flex; gap: var(--spacing-xs); flex-wrap: wrap; }
+        .badge { font-size: 0.625rem; font-weight: 700; padding: 0.1875rem 0.5rem; border-radius: var(--radius-full); }
+        .badge-sale { background: var(--accent); color: white; }
+        .badge-offer { background: var(--success); color: white; }
+        .product-info { padding: var(--spacing-md); }
+        .product-brand { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.25rem; }
+        .product-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: var(--spacing-xs); }
+        .product-price { display: flex; align-items: baseline; gap: var(--spacing-xs); }
+        .product-price-current { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); }
+        .product-price-original { font-size: 0.8125rem; color: var(--text-muted); text-decoration: line-through; }
+        .product-offer-note { font-size: 0.625rem; font-weight: 600; color: var(--success); margin-top: var(--spacing-xs); display: block; }
+
+        /* --- Social Proof Strip --- */
+        .social-proof { padding: var(--spacing-xl) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: var(--spacing-xl) 0; }
+        .social-proof-text { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: var(--spacing-md); text-align: center; }
+        .logo-wall { display: flex; align-items: center; justify-content: center; gap: var(--spacing-xl); flex-wrap: wrap; opacity: 0.5; transition: opacity var(--motion-normal); }
+        .logo-wall:hover { opacity: 1; }
+        .logo-wall svg { height: 28px; width: auto; color: var(--text-secondary); transition: color var(--motion-fast), transform var(--motion-fast); filter: grayscale(100%); }
+        .logo-wall svg:hover { color: var(--accent); transform: scale(1.1); filter: grayscale(0%); }
+
+        /* --- Mobile Sticky Bar (single CTA) --- */
+        .mobile-sticky-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+            background: var(--surface); border-top: 1px solid var(--border);
+            padding: var(--spacing-sm) var(--spacing-md); box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            display: flex; align-items: center; gap: var(--spacing-md);
+            transform: translateY(100%); transition: transform var(--motion-normal) var(--motion-easing);
+        }
+        .mobile-sticky-bar.visible { transform: translateY(0); }
+        @media (min-width: 1024px) { .mobile-sticky-bar { display: none !important; } }
+        .mobile-sticky-price { display: flex; flex-direction: column; min-width: 0; }
+        .mobile-sticky-label { font-size: 0.6875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+        .mobile-sticky-amount { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); }
+        .mobile-sticky-original { font-size: 0.8125rem; color: var(--text-muted); text-decoration: line-through; margin-left: var(--spacing-xs); }
+        .mobile-sticky-cta { flex: 1; height: 48px; border-radius: var(--radius-lg); background: var(--accent); color: white; font-size: 0.875rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; transition: all var(--motion-fast) var(--motion-easing); }
+        .mobile-sticky-cta:active { transform: scale(0.98); }
+
+        /* --- Breadcrumbs --- */
+        .breadcrumbs { display: none; align-items: center; gap: var(--spacing-xs); font-size: 0.8125rem; color: var(--text-muted); margin-bottom: var(--spacing-xl); }
+        .breadcrumbs a:hover { color: var(--accent); }
+        .breadcrumbs svg { width: 16px; height: 16px; flex-shrink: 0; }
+        @media (min-width: 1024px) { .breadcrumbs { display: inline-flex; } }
+
+        /* --- Page Layout --- */
+        .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 0 var(--spacing-lg); }
+        .product-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-2xl); }
+        @media (min-width: 1024px) { .product-grid { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+        .gallery-col { position: sticky; top: 100px; }
+        .buy-box { position: sticky; top: 100px; }
+
+        /* --- Product Meta --- */
+        .meta-list { display: flex; flex-direction: column; gap: var(--spacing-sm); padding-top: var(--spacing-lg); border-top: 1px solid var(--border); }
+        .meta-item { display: flex; gap: var(--spacing-md); font-size: 0.8125rem; color: var(--text-secondary); }
+        .meta-label { min-width: 80px; font-weight: 500; color: var(--text-primary); }
+    </style>
 </head>
 
-<body class="bg-white min-h-screen antialiased">
+<body class="min-h-screen antialiased">
     <%- include('../partials/userHeader') %>
     <%- include('../partials/userNav') %>
 
     <% if(product) { %>
-    <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">
-        <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">
-            <a href="/" class="hover:text-rose-500 transition-colors">Home</a>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
-            <a href="/user/productList" class="hover:text-rose-500 transition-colors">Products</a>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="text-gray-800 font-medium"><%= product.productName %></span>
+    <main class="page-wrapper" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-2xl);">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <a href="/user/getProductList/all">Products</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <span aria-current="page"><%= product.productName %></span>
         </nav>
 
-        <div class="lg:flex lg:gap-12">
-            <div class="lg:w-1/2">
-                <div class="sticky top-24">
-                    <div class="relative overflow-hidden rounded-2xl bg-gray-50">
-                        <img id="mainImage" src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg' %>" alt="<%= product.productName %>" class="w-full h-auto object-cover aspect-[4/5]" />
-                        <% if(product.discount) { %>
-                        <div class="absolute top-4 left-4 bg-rose-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full">-<%= product.discount %>% off</div>
-                        <% } %>
+        <!-- Social Proof Strip -->
+        <section class="social-proof" aria-label="Social proof">
+            <p class="social-proof-text">Trusted by 50,000+ shoppers</p>
+            <div class="logo-wall" aria-hidden="true">
+                <!-- Generated placeholder logos - replace with real brand SVGs -->
+                <svg viewBox="0 0 120 32" fill="none"><text x="0" y="24" font-size="18" font-weight="700" fill="currentColor">Nike</text></svg>
+                <svg viewBox="0 0 120 32" fill="none"><text x="0" y="24" font-size="18" font-weight="700" fill="currentColor">Adidas</text></svg>
+                <svg viewBox="0 0 120 32" fill="none"><text x="0" y="24" font-size="18" font-weight="700" fill="currentColor">Puma</text></svg>
+                <svg viewBox="0 0 120 32" fill="none"><text x="0" y="24" font-size="18" font-weight="700" fill="currentColor">Zara</text></svg>
+                <svg viewBox="0 0 120 32" fill="none"><text x="0" y="24" font-size="18" font-weight="700" fill="currentColor">H&M</text></svg>
+            </div>
+        </section>
+
+        <div class="product-grid">
+            <!-- LEFT: Image Gallery -->
+            <div class="gallery-col">
+                <div class="gallery-main" id="mainImageContainer" onclick="openImageModal(0)" role="button" tabindex="0" aria-label="Zoom product image">
+                    <img id="mainImage" src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg' %>" alt="<%= product.productName %>" loading="eager" />
+                    <% if(product.discount) { %>
+                    <div class="gallery-badge">-<%= product.discount %>% off</div>
+                    <% } %>
+                    <div class="zoom-hint">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Zoom
                     </div>
-                    <% if(product.images && product.images.length > 1) { %>
-                    <div class="flex gap-3 mt-4">
+                </div>
+
+                <!-- Thumbnail Strip -->
+                <% if(product.images && product.images.length > 1) { %>
+                <div class="mt-4" style="margin-top: var(--spacing-md);">
+                    <div class="thumbnail-strip vertical" id="thumbnailStrip" role="listbox" aria-label="Product images">
                         <% product.images.forEach((img, index) => { %>
-                        <button onclick="document.getElementById('mainImage').src='<%= img %>'; document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('ring-2','ring-rose-500')); this.classList.add('ring-2','ring-rose-500')" class="thumb w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 <%= index === 0 ? 'ring-2 ring-rose-500' : '' %>">
-                            <img src="<%= img %>" alt="" class="w-full h-full object-cover" />
+                        <button class="thumb-btn <%= index === 0 ? 'active' : '' %>" 
+                                onclick="selectThumbnail(<%= index %>, this)" 
+                                role="option" 
+                                aria-selected="<%= index === 0 ? 'true' : 'false' %>"
+                                aria-label="View image <%= index + 1 %>"
+                                tabindex="0">
+                            <img src="<%= img %>" alt="" loading="lazy" />
                         </button>
                         <% }) %>
                     </div>
-                    <% } %>
                 </div>
+                <% } %>
             </div>
 
-            <div class="mt-8 lg:mt-0 lg:w-1/2">
-                <p class="text-xs text-gray-400 uppercase tracking-widest"><%= product.brand || 'BazaarBuzz' %></p>
-                <h1 class="mt-2 text-2xl lg:text-3xl font-bold text-gray-900"><%= product.productName %></h1>
+            <!-- RIGHT: Buy Box -->
+            <div class="buy-box">
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+                    <!-- Brand & Title -->
+                    <div>
+                        <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted);"><%= product.brand || 'BazaarBuzz' %></p>
+                        <h1 style="margin-top: var(--spacing-xs); font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 800; line-height: 1.1; color: var(--text-primary);"><%= product.productName %></h1>
+                    </div>
 
-                <div class="flex items-center gap-4 mt-4">
-                    <% if(product.discount) { %>
-                    <span class="text-2xl font-bold text-gray-900">₹<%= Math.round(product.productPrice - (product.productPrice * product.discount / 100)).toLocaleString() %></span>
-                    <span class="text-lg text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
-                    <span class="text-sm font-semibold text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full">Save <%= product.discount %>%</span>
-                    <% } else { %>
-                    <span class="text-2xl font-bold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
+                    <!-- Price Block -->
+                    <div class="price-block">
+                        <span class="price-current">₹<%= offerDiscountedPrice %></span>
+                        <% if(product.discount || offerDiscountValue) { %>
+                        <span class="price-original">₹<%= product.productPrice.toLocaleString() %></span>
+                        <span class="price-save">Save <%= Math.round(totalDiscount) %>%</span>
+                        <% } %>
+                    </div>
+
+                    <!-- Offer badge -->
+                    <% if(offerDiscountValue) { %>
+                    <div class="offer-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <%= offerDiscountValue %>% brand offer applied
+                    </div>
                     <% } %>
+
+                    <!-- Trust Strip (compact) -->
+                    <div class="trust-strip" role="list" aria-label="Trust signals">
+                        <div class="trust-item" role="listitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span>Secure Payment<div class="trust-tooltip">100% encrypted checkout</div></span>
+                        </div>
+                        <div class="trust-item" role="listitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            <span>Free Shipping<div class="trust-tooltip">On orders above ₹999</div></span>
+                        </div>
+                        <div class="trust-item" role="listitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path d="M23 21v-8a1 1 0 0 0-1-1h-5"/></svg>
+                            <span>Easy Returns<div class="trust-tooltip">14 days, free pickup</div></span>
+                        </div>
+                        <div class="trust-item" role="listitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                            <span>COD Available<div class="trust-tooltip">Check at checkout</div></span>
+                        </div>
+                    </div>
+
+                    <!-- Variant Selection Form -->
+                    <form class="space-y-6" id="cart-form" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+                        <input type="hidden" name="productId" value="<%= product._id %>">
+                        <input type="hidden" name="size" id="selectedSize" value="">
+                        <input type="hidden" name="color" id="selectedColor" value="">
+                        <input type="hidden" name="quantity" id="quantity" value="1" />
+
+                        <!-- Size Selection -->
+                        <div>
+                            <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Size <span style="font-weight: 400; color: var(--text-muted);">(Required)</span></label>
+                            <div class="size-chips" id="sizeChips" role="radiogroup" aria-label="Select size">
+                                <% if(sizeData && sizeData.length > 0) { %>
+                                    <% sizeData.forEach((s, idx) => { %>
+                                        <button type="button" 
+                                                class="size-chip <%= idx === 0 && !s.isOutOfStock ? 'selected' : '' %> <%= s.isLowStock ? 'low-stock' : '' %> <%= s.isOutOfStock ? 'out-of-stock' : '' %>" 
+                                                data-size="<%= s.size %>"
+                                                data-stock="<%= s.stock %>"
+                                                onclick="selectSize(this, '<%= s.size %>', <%= s.stock %>)"
+                                                <%= s.isOutOfStock ? 'disabled' : '' %>
+                                                role="radio"
+                                                aria-checked="<%= idx === 0 && !s.isOutOfStock ? 'true' : 'false' %>"
+                                                tabindex="0">
+                                            <%= s.size %>
+                                            <% if(s.isLowStock && !s.isOutOfStock) { %>
+                                            <span class="stock-badge-inline">Low Stock</span>
+                                            <% } else if(s.isOutOfStock) { %>
+                                            <span class="stock-badge-inline">Out of Stock</span>
+                                            <% } %>
+                                        </button>
+                                    <% }) %>
+                                <% } else { %>
+                                    <span style="font-size: 0.875rem; color: var(--text-muted);">No sizes available</span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Color Selection -->
+                        <div id="colorSection" class="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'hidden' %>" style="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'display: none;' %>">
+                            <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Color <span style="font-weight: 400; color: var(--text-muted);">(Required)</span></label>
+                            <div class="color-swatches" id="colorSwatches" role="radiogroup" aria-label="Select color">
+                                <!-- Populated dynamically via JS based on selected size -->
+                            </div>
+                        </div>
+
+                        <!-- Quantity + Stock + Delivery Row (combined) -->
+                        <div class="stock-delivery-row">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-md); flex: 1; min-width: 0;">
+                                <span id="stockBadge" class="stock-badge in-stock">In Stock</span>
+                                <span id="stockText" class="stock-text"></span>
+                            </div>
+                            <div class="pincode-field">
+                                <label for="pincode">Delivery:</label>
+                                <input type="text" id="pincode" class="pincode-input" placeholder="Pincode" maxlength="6" pattern="[0-9]*" inputmode="numeric" aria-label="Enter pincode to check delivery" />
+                                <button type="button" class="pincode-btn" onclick="checkPincode()">Check</button>
+                            </div>
+                            <div id="pincodeResult" class="pincode-result" aria-live="polite"></div>
+                        </div>
+
+                        <!-- Quantity Selector (minimal) -->
+                        <div style="display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap;">
+                            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">Qty</label>
+                            <div class="qty-selector">
+                                <button type="button" class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                </button>
+                                <span id="quantityValue" class="qty-value">1</span>
+                                <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                </button>
+                                <span id="maxStockHint" class="qty-hint"></span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-row">
+                            <button type="submit" id="addToCartBtn" class="btn-primary" disabled>
+                                Add to Cart
+                            </button>
+                            <button type="button" id="wishlistBtn" onclick="toggleWishList('<%= product._id %>')" class="btn-wishlist <%= isInWishlist ? 'filled' : '' %>" aria-label="<%= isInWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </button>
+                        </div>
+
+                        <div id="responseMessage" style="font-size: 0.8125rem; text-align: center; min-height: 1.25rem;"></div>
+                    </form>
+
+                    <!-- Product Meta -->
+                    <div class="meta-list">
+                        <div class="meta-item"><span class="meta-label">Category:</span><span><%= product.category %></span></div>
+                        <div class="meta-item"><span class="meta-label">Gender:</span><span><%= product.gender %></span></div>
+                        <div class="meta-item"><span class="meta-label">Fabric:</span><span><%= product.fabric %></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAIL TABS (Below Fold) -->
+        <div style="margin-top: var(--spacing-2xl);">
+            <div class="tab-bar" role="tablist" aria-label="Product details">
+                <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-description" onclick="showTab('description')" tabindex="0">Description</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-specs" onclick="showTab('specs')" tabindex="0">Specifications</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-sizeguide" onclick="showTab('sizeguide')" tabindex="0">Size Guide</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-reviews" onclick="showTab('reviews')" tabindex="0">Reviews</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-shipping" onclick="showTab('shipping')" tabindex="0">Shipping & Returns</button>
+            </div>
+
+            <div style="max-width: 720px;">
+                <!-- Description Tab -->
+                <div id="tab-description" class="tab-panel active" role="tabpanel" aria-labelledby="tab-description">
+                    <div style="font-size: 1rem; line-height: 1.8; color: var(--text-secondary); max-width: 65ch;">
+                        <p style="white-space: pre-line; margin: 0;"><%= product.description %></p>
+                    </div>
                 </div>
 
-                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"><%= product.description %></p>
-
-                <form class="mt-8 space-y-5" id="cart-form">
-                    <input type="hidden" name="productId" value="<%= product._id %>">
-
-                    <% if(product.variants && product.variants.length > 0) { %>
-                    <div>
-                        <label class="text-sm font-medium text-gray-900">Size</label>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <% const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))]; %>
-                            <% uniqueSizes.forEach(s => { %>
-                            <label class="relative cursor-pointer">
-                                <input type="radio" name="size" value="<%= s %>" class="sr-only peer" <%= s === 'M' ? 'checked' : '' %> required>
-                                <div class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white hover:border-gray-400 transition-all"><%= s %></div>
-                            </label>
-                            <% }) %>
-                        </div>
+                <!-- Specifications Tab -->
+                <div id="tab-specs" class="tab-panel" role="tabpanel" aria-labelledby="tab-specs">
+                    <div class="specs-table" role="table">
+                        <dl role="row"><dt role="rowheader">Brand</dt><dd role="cell"><%= product.brand %></dd></dl>
+                        <dl role="row"><dt role="rowheader">Category</dt><dd role="cell"><%= product.category %></dd></dl>
+                        <dl role="row"><dt role="rowheader">Gender</dt><dd role="cell"><%= product.gender %></dd></dl>
+                        <dl role="row"><dt role="rowheader">Fabric</dt><dd role="cell"><%= product.fabric %></dd></dl>
+                        <dl role="row"><dt role="rowheader">Available Sizes</dt><dd role="cell"><%= uniqueSizes?.join(', ') || 'N/A' %></dd></dl>
+                        <dl role="row"><dt role="rowheader">Available Colors</dt><dd role="cell"><%= allColors?.join(', ') || 'N/A' %></dd></dl>
+                        <% if(product.limitedEdition) { %>
+                        <dl role="row"><dt role="rowheader">Edition</dt><dd role="cell">Limited Edition</dd></dl>
+                        <% } %>
                     </div>
-                    <% } %>
+                </div>
 
-                    <% const allColors = [...new Set(product.variants.flatMap(v => v.colors || []).filter(Boolean))]; %>
-                    <% if(allColors.length > 0) { %>
-                    <div>
-                        <label class="text-sm font-medium text-gray-900">Color</label>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <% allColors.forEach((c, i) => { %>
-                            <label class="relative cursor-pointer">
-                                <input type="radio" name="color" value="<%= c %>" class="sr-only peer" <%= i === 0 ? 'checked' : '' %> required>
-                                <div class="w-8 h-8 rounded-full border-2 border-gray-300 peer-checked:border-gray-900 peer-checked:ring-2 peer-checked:ring-gray-900/20 transition-all" style="background:<%= c %>"></div>
-                            </label>
-                            <% }) %>
-                        </div>
-                    </div>
-                    <% } %>
-
-                    <div>
-                        <label class="text-sm font-medium text-gray-900">Quantity</label>
-                        <div class="flex items-center gap-3 mt-2">
-                            <button type="button" onclick="decrementQuantity()" class="w-9 h-9 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            </button>
-                            <span id="quantityValue" class="w-10 text-center text-sm font-semibold text-gray-900">1</span>
-                            <input type="hidden" name="quantity" id="quantity" value="1" />
-                            <button type="button" onclick="incrementQuantity()" class="w-9 h-9 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3">
-                        <button type="submit" id="addToCartBtn"
-                            class="flex-1 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 transition-colors">Add to Cart</button>
-                        <button type="button" onclick="addToWishList('<%= product._id %>')"
-                            class="w-12 h-12 rounded-lg border border-gray-300 flex items-center justify-center text-gray-600 hover:border-rose-300 hover:text-rose-500 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <!-- Size Guide Tab -->
+                <div id="tab-sizeguide" class="tab-panel" role="tabpanel" aria-labelledby="tab-sizeguide">
+                    <div style="padding: var(--spacing-md) 0;">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-md);">Find your perfect fit. Measurements are in centimeters.</p>
+                        <button type="button" onclick="openSizeGuide()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; font-size: 0.8125rem; font-weight: 600; color: var(--accent); border: 1px solid var(--accent-border); background: var(--accent-light); border-radius: var(--radius-md); transition: all var(--motion-fast);" onmouseover="this.style.background='var(--accent)';this.style.color='white';" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent)';">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+                            Open Size Guide
                         </button>
                     </div>
+                </div>
 
-                    <div id="responseMessage" class="text-sm text-center"></div>
-                </form>
+                <!-- Reviews Tab (Placeholder) -->
+                <div id="tab-reviews" class="tab-panel" role="tabpanel" aria-labelledby="tab-reviews">
+                    <div style="padding: var(--spacing-2xl) 0; text-align: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto var(--spacing-md); color: var(--text-muted);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-xs);">Reviews Coming Soon</h3>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">Customer reviews will appear here once available.</p>
+                    </div>
+                </div>
+
+                <!-- Shipping & Returns Tab -->
+                <div id="tab-shipping" class="tab-panel" role="tabpanel" aria-labelledby="tab-shipping">
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
+                        <div>
+                            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">Shipping</h4>
+                            <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 2; list-style: none; padding: 0;">
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Free standard shipping on orders above ₹999</li>
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Standard delivery: 5–7 business days</li>
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Express delivery: 2–3 business days (additional charges)</li>
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Cash on Delivery available for eligible pincodes</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">Returns & Exchanges</h4>
+                            <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 2; list-style: none; padding: 0;">
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>14-day easy return policy</li>
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Items must be unworn, unwashed, with original tags</li>
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Free return pickup for first return on each order</li>
+                                <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Refund to original payment method within 5–7 business days</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--accent); margin-bottom: var(--spacing-md);">Need Help?</h4>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">Contact our support team at <a href="mailto:support@bazaarbuzz.com" style="color: var(--accent); font-weight: 500;">support@bazaarbuzz.com</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECENTLY VIEWED -->
+        <% if(recentlyViewedProducts && recentlyViewedProducts.length > 0) { %>
+        <section style="margin-top: var(--spacing-2xl);" aria-labelledby="recently-viewed-heading">
+            <div class="section-header">
+                <h2 id="recently-viewed-heading" class="section-title">Recently Viewed</h2>
+            </div>
+            <div class="product-carousel" role="list">
+                <% recentlyViewedProducts.forEach((p, i) => { %>
+                <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing) <%= i * 0.06 %>s both;">
+                    <a href="/user/viewProduct?productId=<%=p._id%>" class="product-card" tabindex="0">
+                        <div class="product-image">
+                            <img src="<%=p.images[0]%>" alt="" loading="lazy" />
+                            <% if(p.discount) { %>
+                            <div class="product-badge"><span class="badge badge-sale">-<%= p.discount %>%</span></div>
+                            <% } %>
+                        </div>
+                        <div class="product-info">
+                            <p class="product-brand"><%= p.brand || 'BazaarBuzz' %></p>
+                            <h3 class="product-name"><%= p.productName %></h3>
+                            <div class="product-price">
+                                <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
+                                <% if(p.discPrice !== p.productPrice) { %>
+                                <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- YOU MAY ALSO LIKE (Bento Grid) -->
+        <% if(relatedProducts && relatedProducts.length > 0) { %>
+        <section style="margin-top: var(--spacing-2xl);" aria-labelledby="related-heading">
+            <div class="section-header">
+                <h2 id="related-heading" class="section-title">You May Also Like</h2>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr; gap: var(--spacing-md);" aria-label="Related products">
+                <% relatedProducts.forEach((p, i) => { %>
+                <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing) <%= i * 0.06 %>s both;">
+                    <a href="/user/viewProduct?productId=<%=p._id%>" class="product-card" style="height: 100%; display: flex; flex-direction: column;" tabindex="0">
+                        <div class="product-image" style="flex-shrink: 0;">
+                            <img src="<%=p.images[0]%>" alt="" loading="lazy" />
+                            <% if(p.hasOffer && p.discount) { %>
+                            <div class="product-badge">
+                                <span class="badge badge-sale">-<%= p.discount %>%</span>
+                                <span class="badge badge-offer"><%= p.offerName %> <%= p.offerDiscount %>%</span>
+                            </div>
+                            <% } else if(p.hasOffer) { %>
+                            <div class="product-badge"><span class="badge badge-offer"><%= p.offerName %> <%= p.offerDiscount %>%</span></div>
+                            <% } else if(p.discount) { %>
+                            <div class="product-badge"><span class="badge badge-sale">-<%= p.discount %>%</span></div>
+                            <% } %>
+                        </div>
+                        <div class="product-info" style="flex: 1; display: flex; flex-direction: column;">
+                            <p class="product-brand"><%= p.brand || 'BazaarBuzz' %></p>
+                            <h3 class="product-name"><%= p.productName %></h3>
+                            <div class="product-price" style="margin-top: auto;">
+                                <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
+                                <% if(p.discPrice !== p.productPrice) { %>
+                                <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
+                                <% } %>
+                            </div>
+                            <% if(p.hasOffer) { %>
+                            <p class="product-offer-note">+ <%= p.offerName %> applied</p>
+                            <% } %>
+                        </div>
+                    </a>
+                </article>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+    </main>
+
+    <!-- IMAGE ZOOM MODAL -->
+    <div id="imageModal" role="dialog" aria-modal="true" aria-label="Product image zoom">
+        <button class="modal-close" onclick="closeImageModal()" aria-label="Close zoom">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="modal-nav modal-prev" onclick="navigateModal(-1)" aria-label="Previous image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="modal-nav modal-next" onclick="navigateModal(1)" aria-label="Next image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <img id="modalImage" src="" alt="" />
+        <div class="modal-counter" id="modalCounter">1 / <%= product.images?.length || 1 %></div>
+    </div>
+
+    <!-- SIZE GUIDE MODAL -->
+    <div id="sizeGuideModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Size guide">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <h3 class="modal-title">Size Guide - <%= product.gender %></h3>
+                <button class="modal-close" onclick="closeSizeGuide()" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="size-table" role="table">
+                    <thead>
+                        <tr role="row">
+                            <th role="columnheader" scope="col"><%= product.gender === 'men' ? "Men's Size" : product.gender === 'women' ? "Women's Size" : "Kids' Size" %></th>
+                            <th role="columnheader" scope="col">Chest (cm)</th>
+                            <th role="columnheader" scope="col">Waist (cm)</th>
+                            <th role="columnheader" scope="col">Hip (cm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(product.gender === 'men') { %>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XS</td><td role="cell">86–91</td><td role="cell">71–76</td><td role="cell">86–91</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">S</td><td role="cell">91–97</td><td role="cell">76–81</td><td role="cell">91–97</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">M</td><td role="cell">97–102</td><td role="cell">81–86</td><td role="cell">97–102</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">L</td><td role="cell">102–107</td><td role="cell">86–91</td><td role="cell">102–107</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XL</td><td role="cell">107–112</td><td role="cell">91–97</td><td role="cell">107–112</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XXL</td><td role="cell">112–117</td><td role="cell">97–102</td><td role="cell">112–117</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XXXL</td><td role="cell">117–122</td><td role="cell">102–107</td><td role="cell">117–122</td></tr>
+                        <% } else if(product.gender === 'women') { %>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XS</td><td role="cell">81–86</td><td role="cell">63–68</td><td role="cell">89–94</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">S</td><td role="cell">86–91</td><td role="cell">68–73</td><td role="cell">94–99</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">M</td><td role="cell">91–97</td><td role="cell">73–78</td><td role="cell">99–104</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">L</td><td role="cell">97–102</td><td role="cell">78–83</td><td role="cell">104–109</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XL</td><td role="cell">102–107</td><td role="cell">83–88</td><td role="cell">109–114</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XXL</td><td role="cell">107–112</td><td role="cell">88–93</td><td role="cell">114–119</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">XXXL</td><td role="cell">112–117</td><td role="cell">93–98</td><td role="cell">119–124</td></tr>
+                        <% } else { %>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">2–3Y</td><td role="cell">56–58</td><td role="cell">54–56</td><td role="cell">58–60</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">4–5Y</td><td role="cell">60–62</td><td role="cell">56–58</td><td role="cell">62–64</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">6–7Y</td><td role="cell">64–66</td><td role="cell">58–60</td><td role="cell">66–68</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">8–9Y</td><td role="cell">68–70</td><td role="cell">60–62</td><td role="cell">70–72</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">10–11Y</td><td role="cell">72–74</td><td role="cell">62–64</td><td role="cell">74–76</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">12–13Y</td><td role="cell">76–78</td><td role="cell">64–66</td><td role="cell">78–80</td></tr>
+                        <tr role="row"><td role="cell" style="font-weight: 600;">14–15Y</td><td role="cell">80–82</td><td role="cell">66–68</td><td role="cell">82–84</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                <p class="modal-note">Measurements are body measurements, not garment measurements. For best fit, measure yourself and compare.</p>
             </div>
         </div>
     </div>
-    <% } else { %>
-    <div class="flex flex-col items-center justify-center py-24">
-        <h2 class="text-xl font-semibold text-gray-500">Product not found</h2>
-    </div>
-    <% } %>
 
     <%- include('../partials/userFooter') %>
 
+    <!-- MOBILE STICKY BAR (single CTA, appears on scroll) -->
+    <div class="mobile-sticky-bar" id="mobileStickyBar" aria-hidden="true">
+        <div class="mobile-sticky-price">
+            <span class="mobile-sticky-label">Total</span>
+            <div style="display: flex; align-items: baseline; gap: var(--spacing-xs);">
+                <span class="mobile-sticky-amount">₹<%= offerDiscountedPrice %></span>
+                <% if(product.discount || offerDiscountValue) { %>
+                <span class="mobile-sticky-original">₹<%= product.productPrice.toLocaleString() %></span>
+                <% } %>
+            </div>
+        </div>
+        <button type="button" class="mobile-sticky-cta" onclick="document.getElementById('addToCartBtn').click()">Add to Cart</button>
+    </div>
+
     <script src="/javascript/user/userProductView.js"></script>
     <script>
-        function incrementQuantity() {
-            const input = document.getElementById('quantity');
-            const display = document.getElementById('quantityValue');
-            let val = parseInt(input.value) || 1;
-            if (val < 10) { val++; input.value = val; display.textContent = val; }
-        }
-        function decrementQuantity() {
-            const input = document.getElementById('quantity');
-            const display = document.getElementById('quantityValue');
-            let val = parseInt(input.value) || 1;
-            if (val > 1) { val--; input.value = val; display.textContent = val; }
-        }
-        async function addToWishList(productId) {
-            if (!productId) return;
-            try {
-                const res = await fetch('/user/wishlist', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productId }) });
-                const data = await res.json();
-                if (!data.session) { await Swal.fire({ title: 'Sign In!', text: data.message, icon: 'info' }); window.location.href = data.redirectUrl; return; }
-                if (!data.success) { await Swal.fire({ title: 'Failed', text: data.message, icon: 'warning' }); if (data.redirectUrl) window.location.href = data.redirectUrl; return; }
-                Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: data.message });
-            } catch (e) { console.log(e); alert('Error'); }
-        }
+        // Pass server data to client
+        window.productData = {
+            images: <%= JSON.stringify(product.images || []) %>,
+            variants: <%= JSON.stringify(product.variants || []) %>,
+            sizeColorStock: <%= sizeColorStock %>,
+            uniqueSizes: <%= JSON.stringify(uniqueSizes || []) %>,
+            allColors: <%= JSON.stringify(allColors || []) %>,
+            productId: '<%= product._id %>',
+            offerDiscountedPrice: '<%= offerDiscountedPrice %>',
+            productPrice: <%= product.productPrice %>,
+            discount: <%= product.discount || 0 %>,
+            isInWishlist: <%= isInWishlist ? 'true' : 'false' %>
+        };
+        
+        // Design tokens for client-side use
+        window.designTokens = <%= designTokens || '{}' %>;
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initProductPage();
+        });
     </script>
+<% } %>
 </body>
 </html>

@@ -1,91 +1,73 @@
-/* ************************************Handles Sign In Validation**************************************************** */
 let isValidEmail = false;
 let isValidUsername = false;
 let isValidPassword = false;
 let isMatchPassword = false;
+let otpTimerInterval = null;
 
-//form input validations
 const validation = {
     isValidEmail(email) {
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return regex.test(email);
     },
     isValidUsername(username) {
-        const regex = /^[a-zA-Z0-9_-]{3,20}$/;
+        const regex = /^[A-Za-z]{3,}$/;
         return regex.test(username);
     },
     isValidPassword(password) {
-        const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d_@$!%*?&]{8,12}$/;
+        const regex = /^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return regex.test(password);
     },
     isMatchPassword(password, confirmPassword) {
-        if (password !== confirmPassword) return false;
-        else return true;
+        return password === confirmPassword;
     }
 };
 
-
-// email validation
 document.querySelector('input[name="email"]').addEventListener('input', function () {
     const email = this.value;
     const errorContainer = document.getElementById('emailError');
-
-
-    // Clear previous error message
     errorContainer.innerText = '';
     errorContainer.classList.add('hidden');
 
     if (!validation.isValidEmail(email)) {
         this.classList.remove('valid');
         this.classList.add('invalid');
-        errorContainer.innerText = 'Invalid Email';
+        errorContainer.innerText = 'Please enter a valid email address.';
         errorContainer.classList.remove('hidden');
     } else {
         isValidEmail = true;
         this.classList.remove('invalid');
         this.classList.add('valid');
-
     }
-
 });
 
-// username validation
 document.querySelector('input[name="username"]').addEventListener('input', function () {
     const username = this.value;
     const errorContainer = document.getElementById('usernameError');
-
-
-    // Clear previous error message
     errorContainer.innerText = '';
     errorContainer.classList.add('hidden');
 
     if (!validation.isValidUsername(username)) {
         this.classList.remove('valid');
         this.classList.add('invalid');
-        errorContainer.innerText = 'Username must be between 3 and 20 characters';
+        errorContainer.innerText = 'Username must contain only letters and be at least 3 characters long.';
         errorContainer.classList.remove('hidden');
     } else {
         isValidUsername = true;
         this.classList.remove('invalid');
         this.classList.add('valid');
     }
-
 });
 
-//password validation
 document.querySelector('input[name="password"]').addEventListener('input', function () {
     const password = this.value;
     const errorContainer = document.getElementById('passwordError');
-
-
-    // Clear previous error message
     errorContainer.innerText = '';
     errorContainer.classList.add('hidden');
 
     if (!validation.isValidPassword(password)) {
         this.classList.remove('valid');
         this.classList.add('invalid');
-        errorContainer.innerText = 'Password must be between 8 and 12 characters';
+        errorContainer.innerText = 'Password must be at least 8 characters long and contain at least one number and one special character (@$!%*?&).';
         errorContainer.classList.remove('hidden');
     } else {
         isValidPassword = true;
@@ -93,33 +75,46 @@ document.querySelector('input[name="password"]').addEventListener('input', funct
         this.classList.add('valid');
     }
 
+    // Trigger confirm password validation if it has a value
+    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+    if (confirmPasswordInput.value) {
+        const confirmErrorContainer = document.getElementById('confirmPasswordError');
+        confirmErrorContainer.innerText = '';
+        confirmErrorContainer.classList.add('hidden');
+
+        if (!validation.isMatchPassword(password, confirmPasswordInput.value)) {
+            confirmPasswordInput.classList.remove('valid');
+            confirmPasswordInput.classList.add('invalid');
+            confirmErrorContainer.innerText = 'Passwords do not match.';
+            confirmErrorContainer.classList.remove('hidden');
+            isMatchPassword = false;
+        } else {
+            confirmPasswordInput.classList.remove('invalid');
+            confirmPasswordInput.classList.add('valid');
+            isMatchPassword = true;
+        }
+    }
 });
 
-// confirm password validation
 document.querySelector('input[name="confirmPassword"]').addEventListener('input', function () {
     const confirmPassword = this.value;
     const errorContainer = document.getElementById('confirmPasswordError');
     const password = document.getElementById('password').value;
-
-    // Clear previous error message
     errorContainer.innerText = '';
     errorContainer.classList.add('hidden');
 
     if (!validation.isMatchPassword(password, confirmPassword)) {
         this.classList.remove('valid');
         this.classList.add('invalid');
-        errorContainer.innerText = 'Passwords do not match';
+        errorContainer.innerText = 'Passwords do not match.';
         errorContainer.classList.remove('hidden');
     } else {
         isMatchPassword = true;
         this.classList.remove('invalid');
         this.classList.add('valid');
     }
-
 });
-/***********************************Handles OTP Request/Verify/Resend******************************************************** */
 
-//*handle OTP expiry
 async function otpExpired(otpId) {
     try {
         const response = await fetch(`/user/otpExpiry?otpId=${otpId}`, {
@@ -129,38 +124,52 @@ async function otpExpired(otpId) {
 
         const data = await response.json();
         if (!data.success) {
-            alert('Error handling OTP expiry');
-            return;
+            console.error('Error handling OTP expiry:', data.message);
         }
 
-        alert(data.message);
+        // Show resend button for manual retry (auto-resend disabled)
+        document.getElementById('resendOTP').classList.remove('hidden');
 
+        // Notify user that OTP expired
+        Swal.fire({
+            icon: 'info',
+            title: 'OTP Expired',
+            text: 'The verification code has expired. Please click Resend OTP to get a new code.',
+            confirmButtonText: 'OK',
+            toast: true,
+            position: 'top-end'
+        });
     } catch (err) {
         console.error('Error caught while handling OTP expiry.', err);
+        document.getElementById('resendOTP').classList.remove('hidden');
     }
 }
 
-//* setting timer for OTP.
 function otpTimer(duration, otpId) {
     const timerContainer = document.getElementById('timer');
     let seconds = duration;
 
-    const interval = setInterval(() => {
+    // Clear any existing timer interval
+    if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+    }
+
+    otpTimerInterval = setInterval(() => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
 
-        timerContainer.textContent = `${minutes}:${secs < 10 ? '0' : ''}${secs}`
+        timerContainer.textContent = `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         seconds--;
 
         if (seconds < 0) {
-            clearInterval(interval);
+            clearInterval(otpTimerInterval);
+            otpTimerInterval = null;
             document.getElementById('resendOTP').classList.remove('hidden');
             otpExpired(otpId);
         }
     }, 1000);
 }
 
-//* requesting OTP.
 async function requestOTP(email) {
     try {
         const response = await fetch('/user/otpRequest', {
@@ -173,30 +182,39 @@ async function requestOTP(email) {
 
         if (!data.success) {
             await Swal.fire({
-                title: ' Email already taken',
-                text: 'The email you provided is already taken. Please use a different one.',
-                icon: 'warning',
-                confirmButtonText: 'Ok'
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                confirmButtonText: 'OK'
             });
             return false;
         }
 
         await Swal.fire({
-            title: 'OTP send',
-            text: data.message,
             icon: 'success',
-            confirmButtonText: 'Ok'
+            title: 'OTP Sent',
+            text: data.message,
+            confirmButtonText: 'OK'
         });
-        
+
+        document.getElementById('OTPForm').reset();
         document.getElementById('otpModal').classList.remove('hidden');
         document.getElementById('modalOtpId').value = data.otpId;
+        initializeOTPInputs();
         otpTimer(60, data.otpId);
+        return true;
     } catch (err) {
         console.error('Error caught while requesting OTP.', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to send OTP. Please try again.',
+            confirmButtonText: 'OK'
+        });
+        return false;
     }
 }
 
-//*event listener for form submission and opens the modal.
 document.getElementById('signUpForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -205,64 +223,215 @@ document.getElementById('signUpForm').addEventListener('submit', async function 
     const password = document.querySelector('input[name="password"]').value;
     const confirmPassword = document.querySelector('input[name="confirmPassword"]').value;
 
-    if (!isValidEmail || !isValidUsername || !isValidPassword || !isMatchPassword) {
-        alert('Type Valid inputs!');
+    if (!validation.isValidUsername(username)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Username',
+            text: 'Username must contain only letters and be at least 3 characters long.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    if (!validation.isValidEmail(email)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Email',
+            text: 'Please enter a valid email address.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    if (!validation.isValidPassword(password)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Password',
+            text: 'Password must be at least 8 characters long and contain at least one number and one special character (@$!%*?&).',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    if (!validation.isMatchPassword(password, confirmPassword)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Password Mismatch',
+            text: 'Passwords do not match.',
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
-    document.getElementById('OTPForm').reset();
-    const requested = requestOTP(email);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Processing...';
 
-    if (!requested) {
-        // await Swal.fire({
-        //     title: 'Error',
-        //     text: 'failed to request OTP. Please try again.',
-
-        // });
-        return;
+    try {
+        document.getElementById('OTPForm').reset();
+        const requested = await requestOTP(email);
+        if (!requested) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Create Account';
+            return;
+        }
+    } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Create Account';
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+            confirmButtonText: 'OK'
+        });
     }
-
-    // const user = await fetch('/user/signUp', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ username, email, password })
-    // });
-
-    // const userData = await user.json();
-
-    // if (!userData.success) window.location.href = userData.redirectUrl;
-
 });
 
-// listens for input events in OTP form.
-document.addEventListener('DOMContentLoaded', function () {
-
-    const otpInputs = document.querySelectorAll('#OTPForm input[name="otp"]');
-
+function initializeOTPInputs() {
+    const otpInputs = document.querySelectorAll('.otp-input');
     const otpInputElements = Array.from(otpInputs);
+    const verifyBtn = document.getElementById('otpVerifyBtn');
 
-    //function to check all fields are filled.
+    if (!otpInputElements.length) return;
+
+    setTimeout(() => {
+        otpInputElements[0].focus();
+    }, 100);
+
+    verifyBtn.disabled = true;
+    verifyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    verifyBtn.classList.remove('hover:bg-gray-800');
+
     function allFieldsFilled() {
-        return otpInputElements.every(input => input.value !== '');
+        return otpInputElements.every(input => input.value.length === 1);
     }
 
-    // function to disable button.
     function toggleBtn() {
-        const button = document.getElementById('otpVerifyBtn');
-        button.disabled = !allFieldsFilled();
-        button.classList.remove('hover:bg-[#556B2F]');
+        if (allFieldsFilled()) {
+            verifyBtn.disabled = false;
+            verifyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            verifyBtn.classList.add('hover:bg-gray-800');
+        } else {
+            verifyBtn.disabled = true;
+            verifyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            verifyBtn.classList.remove('hover:bg-gray-800');
+        }
     }
 
-    //initial state.
-    toggleBtn();
+    function focusNext(index) {
+        if (index < otpInputElements.length - 1) {
+            otpInputElements[index + 1].focus();
+            otpInputElements[index + 1].select();
+        }
+    }
 
-    //listens for input changes.
-    otpInputElements.forEach(input => {
-        input.addEventListener('input', toggleBtn);
+    function focusPrev(index) {
+        if (index > 0) {
+            otpInputElements[index - 1].focus();
+            otpInputElements[index - 1].select();
+        }
+    }
+
+    otpInputElements.forEach((input, index) => {
+        input.addEventListener('beforeinput', (e) => {
+            if (e.inputType === 'insertText' && !/^\d$/.test(e.data)) {
+                e.preventDefault();
+            }
+        });
+
+        input.addEventListener('input', () => {
+            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
+
+            if (input.value) {
+                input.classList.add('filled');
+                input.classList.remove('border-gray-300');
+                input.classList.add('border-rose-400', 'bg-rose-50');
+            } else {
+                input.classList.remove('filled', 'border-rose-400', 'bg-rose-50');
+                input.classList.add('border-gray-300');
+            }
+
+            toggleBtn();
+
+            if (input.value && index < otpInputElements.length - 1) {
+                focusNext(index);
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            const isBackspace = e.key === 'Backspace';
+            const isDelete = e.key === 'Delete';
+            const isArrowLeft = e.key === 'ArrowLeft';
+            const isArrowRight = e.key === 'ArrowRight';
+            const isHome = e.key === 'Home';
+            const isEnd = e.key === 'End';
+
+            if (isBackspace || isDelete) {
+                if (!input.value && index > 0) {
+                    e.preventDefault();
+                    focusPrev(index);
+                    otpInputElements[index - 1].value = '';
+                    otpInputElements[index - 1].classList.remove('filled', 'border-rose-400', 'bg-rose-50');
+                    otpInputElements[index - 1].classList.add('border-gray-300');
+                    toggleBtn();
+                } else if (input.value) {
+                    input.value = '';
+                    input.classList.remove('filled', 'border-rose-400', 'bg-rose-50');
+                    input.classList.add('border-gray-300');
+                    toggleBtn();
+                }
+            }
+
+            if (isArrowLeft) {
+                e.preventDefault();
+                focusPrev(index);
+            }
+
+            if (isArrowRight) {
+                e.preventDefault();
+                focusNext(index);
+            }
+
+            if (isHome) {
+                e.preventDefault();
+                otpInputElements[0].focus();
+                otpInputElements[0].select();
+            }
+
+            if (isEnd) {
+                e.preventDefault();
+                otpInputElements[otpInputElements.length - 1].focus();
+                otpInputElements[otpInputElements.length - 1].select();
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
+
+            if (pasteData.length === 4) {
+                pasteData.split('').forEach((digit, i) => {
+                    if (i < otpInputElements.length) {
+                        otpInputElements[i].value = digit;
+                        otpInputElements[i].classList.add('filled');
+                        otpInputElements[i].classList.remove('border-gray-300');
+                        otpInputElements[i].classList.add('border-rose-400', 'bg-rose-50');
+                    }
+                });
+                otpInputElements[3].focus();
+                toggleBtn();
+            }
+        });
+
+        input.addEventListener('focus', () => {
+            input.classList.add('ring-2', 'ring-rose-400/30');
+        });
+
+        input.addEventListener('blur', () => {
+            input.classList.remove('ring-2', 'ring-rose-400/30');
+        });
     });
-});
 
-//* Called from OTPFrom submit event listener
+    toggleBtn();
+}
+
 async function sendUserDataToServer() {
     const username = document.querySelector('input[name="username"]').value;
     const email = document.querySelector('input[name="email"]').value;
@@ -272,32 +441,49 @@ async function sendUserDataToServer() {
         const response = await fetch('/user/signUp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, email, password, confirmPassword: password })
         });
 
         const userData = await response.json();
 
         if (!userData.success) {
-            window.location.href = userData.redirectUrl;
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: userData.message || 'Registration failed. Please try again.',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
-        window.location.href = userData.redirectUrl;
-
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Account created successfully!',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            window.location.href = userData.redirectUrl || '/';
+        });
     } catch (err) {
         console.error('Error caught while sendUserDataToServer.', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+            confirmButtonText: 'OK'
+        });
     }
-
 }
 
-//*verify and validate otp. OTPFrom  submission.
 document.getElementById('OTPForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    const otpInputs = document.querySelectorAll('#OTPForm input[name="otp"]');
+    const otpInputs = document.querySelectorAll('.otp-input');
     const otpId = document.getElementById('modalOtpId').value;
 
     const otpValue = parseInt(Array.from(otpInputs).map(input => input.value).join(''));
+
+    const submitBtn = document.querySelector('#signUpForm button[type="submit"]');
 
     try {
         const response = await fetch('/user/otpVerify', {
@@ -309,35 +495,60 @@ document.getElementById('OTPForm').addEventListener('submit', async function (ev
         const data = await response.json();
 
         if (!data.success) {
-            alert(data.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                confirmButtonText: 'OK'
+            });
+            // Reset main button so user can retry
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Create Account';
             return;
         }
 
         if (!data.otp.isVerified) {
-            alert('Sorry, Please try again. Error processing OTP');
-            window.location.reload();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Sorry, please try again. Error processing OTP.',
+                confirmButtonText: 'OK'
+            });
+            // Reset main button so user can retry
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Create Account';
+            return;
         }
 
-        sendUserDataToServer()
-        // window.location.href = '/';
-
+        sendUserDataToServer();
     } catch (err) {
         console.error('Error caught while verifying OTP.', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+            confirmButtonText: 'OK'
+        });
+        // Reset main button on error
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Create Account';
     }
 });
 
-//* resend otp
 document.getElementById('resendOTP').addEventListener('click', async function () {
-
     const email = document.getElementById('email').value;
-    requestOTP(email);
-    document.getElementById('OTPForm').reset();
-    document.getElementById('resendOTP').classList.add('hidden');
-
+    const requested = await requestOTP(email);
+    if (requested) {
+        document.getElementById('OTPForm').reset();
+        document.getElementById('resendOTP').classList.add('hidden');
+    }
 });
 
-//* closes the modal
-function closeModal(modalId) {
+function closeModal() {
+    // Clear the timer when modal is closed to prevent background auto-resend
+    if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+        otpTimerInterval = null;
+    }
     document.getElementById('otpModal').classList.add('hidden');
-    window.location.reload();
 }
