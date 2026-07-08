@@ -11,7 +11,7 @@ const renderCouponPage = async (req, res) => {
 
         const coupons = await Coupon.find().lean();
 
-        res.render('admin/coupon', { coupons });
+        res.render('admin/coupon', { layout: false, coupons });
 
     } catch (err) {
         response.serverError(res, err);

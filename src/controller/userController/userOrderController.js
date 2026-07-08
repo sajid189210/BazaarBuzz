@@ -117,6 +117,7 @@ const getOrders = async (req, res) => {
         const categories = await Category.find({ isActive: { $ne: false } });
 
         res.render('user/userOrders', {
+            title: 'My Orders',
             totalPages: Math.ceil(totalOrders / limit),
             currentPage: page,
             searchBox: false,

@@ -88,6 +88,8 @@ const renderOrderList = async (req, res) => {
         const totalOrders = await Order.countDocuments(filter);
 
         res.render('admin/adminOrderList', {
+            layout: 'admin/layout',
+            title: 'Orders',
             currentPage: page,
             totalPages: Math.ceil(totalOrders / limit),
             orders,
@@ -112,7 +114,7 @@ const renderOrderView = async (req, res) => {
             return res.redirect('/admin/dashboard');
         }
 
-        res.render('admin/adminOrderView', { order });
+        res.render('admin/adminOrderView', { layout: 'admin/layout', title: 'Order Details', order });
 
     } catch (err) {
         response.serverError(res, err);

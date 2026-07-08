@@ -531,7 +531,7 @@ function checkPincode() {
 function showTab(tabName) {
     // Update tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        const isActive = btn.onclick.toString().includes(tabName);
+        const isActive = btn.getAttribute('aria-controls') === `tab-${tabName}`;
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-selected', isActive);
     });

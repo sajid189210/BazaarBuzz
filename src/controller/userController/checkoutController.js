@@ -107,6 +107,7 @@ const getCheckout = async (req, res) => {
         }
 
         res.render('user/userCheckout', {
+            title: 'Checkout',
             totalDiscount: round(totalDiscount),
             subTotal: round(subTotal),
             searchBox: false,
@@ -134,6 +135,7 @@ const getOrderSummary = async (req, res) => {
 
         const categories = await Category.find({ isActive: { $ne: false } });
         res.render('user/userOrderSummary', {
+            title: 'Order Summary',
             order,
             user: req.session.user || null,
             searchBox: false,

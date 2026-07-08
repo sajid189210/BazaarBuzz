@@ -103,11 +103,12 @@ const adminCategory = async (req, res) => {
         const categories = await categoryModel.find({});
 
         if (!categories) return res.render('admin/adminCategory', {
+            layout: false,
             message: req.flash(),
             categories: []
         });
 
-        res.render('admin/adminCategory', { categories });
+        res.render('admin/adminCategory', { layout: false, categories });
     } catch (err) {
         response.serverError(res, err);
     }

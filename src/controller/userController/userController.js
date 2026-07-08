@@ -101,11 +101,13 @@ const userSignUp = (req, res) => {
         req.session.userAuthErrorMessages = '';
 
         res.render('user/userSignUpPage', {
+            title: 'Create Account',
             authErrors
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 }
 
 //-----------------------------------------------------------Sign In Page--------------------------------------------------------
@@ -200,7 +202,8 @@ const updatePassword = async (req, res) => {
         response.success(res, {}, "Password Updated Successfully");
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 
@@ -214,9 +217,10 @@ const userSignIn = (req, res) => {
 
         req.session.signInAuthErrorMessages = null;
 
-        res.render('user/userSignInPage', { authErrors });
+        res.render('user/userSignInPage', { title: 'Sign In', authErrors });
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 //-----------------------------User Homepage-------------------------------
@@ -273,6 +277,7 @@ const userHomepage = async (req, res) => {
         const heroMode = req.query.hero || 'image';
 
         return res.render('user/userHomepage', {
+            title: 'Home',
             user: req.session.user || null,
             categories,
             searchBox: true,
@@ -281,7 +286,8 @@ const userHomepage = async (req, res) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 //*--------------[Search a single product] ---------------
@@ -297,7 +303,8 @@ const searchSingleProduct = async (req, res) => {
         response.success(res, { products });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 //*--------------[Search multiple products] ---------------
@@ -315,7 +322,8 @@ const searchMultipleProducts = async (req, res) => {
         response.success(res, { products });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 
@@ -330,6 +338,7 @@ const getAddress = async (req, res) => {
         const categories = await Category.find();
 
         res.render('user/userAddress', {
+            title: 'My Addresses',
             user: req.session.user || null,
             categories,
             userDetails,
@@ -337,7 +346,8 @@ const getAddress = async (req, res) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 //*--------------[Saves Address] ---------------
@@ -356,7 +366,8 @@ const saveAddress = async (req, res) => {
         response.success(res, {}, "You have successfully added address.");
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 //*--------------[Removes Address] ---------------
@@ -380,7 +391,8 @@ const removeAddress = async (req, res) => {
         response.success(res, {}, "Address Successfully removed");
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 }
 
 //*--------------[Edit Address] ---------------
@@ -405,7 +417,8 @@ const editAddress = async (req, res) => {
         response.success(res, {}, "Address Successfully Updated.");
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 const renderProfile = async (req, res) => {
@@ -420,6 +433,7 @@ const renderProfile = async (req, res) => {
         const categories = await getCategory();
 
         res.render('user/userProfile', {
+            title: 'My Profile',
             user: req.session.user || null,
             userDetails,
             searchBox: false,
@@ -427,7 +441,8 @@ const renderProfile = async (req, res) => {
         });
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 const updateProfile = async (req, res) => {
@@ -444,7 +459,8 @@ const updateProfile = async (req, res) => {
         response.success(res, {}, "Profile updated successfully.");
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 //*---------------[SignOut]----------------
@@ -455,7 +471,8 @@ const userSignOut = (req, res) => {
         res.redirect('/user/signIn');
 
     } catch (err) {
-        response.serverError(res, err);}
+        response.serverError(res, err);
+    }
 };
 
 module.exports = {

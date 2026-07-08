@@ -11,6 +11,7 @@ const viewProduct = async (req, res) => {
 
         if (!product) {
             return res.render('user/userProductView', {
+                title: 'Product Not Found',
                 product: null,
                 categories: await Category.find(),
                 searchBox: true,
@@ -160,6 +161,7 @@ const viewProduct = async (req, res) => {
         };
 
         res.render('user/userProductView', {
+            title: 'Product Details',
             offerDiscountedPrice: offerDiscountedPrice.toFixed(2),
             offerDiscountValue,
             totalDiscount,
@@ -174,7 +176,7 @@ const viewProduct = async (req, res) => {
             isInWishlist,
             recentlyViewedProducts: recentlyViewedProducts.map(processProductPrice),
             relatedProducts: relatedProducts.map(processProductPrice),
-            designTokens: JSON.stringify(designTokens),
+            designTokens: designTokens,
         });
 
     } catch (err) {

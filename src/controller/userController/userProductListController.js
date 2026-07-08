@@ -82,6 +82,7 @@ const renderProductList = async (req, res) => {
         // Render the page with searched products
         if (collectionId === 'search' && req.session.searchResult) {
             return res.render('user/userProductList', {
+                title: 'Search Results',
                 user: req.session.user || null,
                 categories,
                 products: req.session.searchResult,
@@ -93,6 +94,7 @@ const renderProductList = async (req, res) => {
 
         // Render the page with all products
         return res.render('user/userProductList', {
+            title: 'All Products',
             collectionId,
             categories,
             searchBox: true,

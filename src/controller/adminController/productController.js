@@ -104,6 +104,8 @@ const getProducts = async (req, res) => {
         if (!products) throw new Error("Error caught while fetching product data.");
 
         res.render('admin/productList', {
+            layout: 'admin/layout',
+            title: 'Products',
             products,
             categories,
             totalPages: Math.ceil(count / limit),
@@ -216,7 +218,7 @@ const getCreateProducts = async (req, res) => {
 
         if (!Category) throw new Error("Error caught while fetching category data.");
 
-        res.render('admin/createProduct', { Category });
+        res.render('admin/createProduct', { layout: 'admin/layout', title: 'Create Product', Category });
 
     } catch (err) {
         response.serverError(res, err);
@@ -356,7 +358,7 @@ const getEditProduct = async (req, res) => {
         const product = await Product.findById(productId);
         const categories = await categoryModel.find();
         if (!product) return res.redirect('/admin/productList');
-        res.render('admin/editProduct', { product, categories });
+        res.render('admin/editProduct', { layout: 'admin/layout', title: 'Edit Product', product, categories });
     } catch (err) {
         response.serverError(res, err);
     }

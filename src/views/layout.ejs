@@ -5,22 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title || 'BazaarBuzz — Online Shopping for Fashion' %></title>
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/theme.css">
     <link rel="stylesheet" href="/css/style.css">
     <%- blocks?.head %>
 </head>
 
-<body class="<%= bodyClass || 'bg-white antialiased' %>">
-    <%- include('partials/userHeader', { categories: categories, searchBox: searchBox, user: user }) %>
-    <%- include('partials/userNav', { categories: categories, user: user }) %>
+<body class="<%= bodyClass || 'antialiased' %>" style="background-color: var(--surface); color: var(--text-primary); margin: 0;">
+    <% if (!hideUI) { %>
+    <%- include('partials/userHeader', { categories: categories || [], searchBox: searchBox || false, user: user || null }) %>
+    <%- include('partials/userNav', { categories: categories || [], user: user || null }) %>
+    <% } %>
 
     <main>
         <%- body %>
     </main>
 
+    <% if (!hideUI) { %>
     <%- include('partials/userFooter') %>
+    <% } %>
 
     <script src="/javascript/user/homesearch.js"></script>
     <script src="/javascript/user/buttonSearch.js"></script>
+    <script src="/javascript/user/reveal.js"></script>
     <%- blocks?.scripts %>
 </body>
 </html>

@@ -73,6 +73,7 @@ const getCart = async (req, res) => {
         total += taxAmount;
 
         res.render('user/userCart', {
+            title: 'Shopping Cart',
             categories,
             searchBox: false,
             cart,

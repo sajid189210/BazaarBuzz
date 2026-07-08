@@ -20,7 +20,7 @@ const Banner = require('../../model/bannerModel');
 const getBannerPage = (req, res) => {
     try {
 
-        res.render('admin/homeBanner');
+        res.render('admin/homeBanner', { layout: false });
 
     } catch (err) {
 

@@ -385,6 +385,8 @@ const getDashboard = async (req, res) => {
         const { orders, totalOrders } = await fetchOrders(limit, page);
 
         res.render('admin/dashboard', {
+            layout: 'admin/layout',
+            title: 'Dashboard',
             repeatedCustomer,
             revenueByBrand,
             newCustomer,

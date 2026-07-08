@@ -4,11 +4,11 @@ body:not(.no-header-pad){padding-top:64px}
 #mainHeader .ht{color:#fff;mix-blend-mode:difference;transition:color .3s ease}
 #mainHeader .hs{transition:background-color .3s ease,border-color .3s ease}
 #mainHeader .hs::placeholder{transition:color .3s ease}
-#mainHeader.is-scrolled{background-color:#fff;mix-blend-mode:normal;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
-#mainHeader.is-scrolled .ht{color:rgba(55,65,81,0.8);mix-blend-mode:normal}
-#mainHeader.is-scrolled .ht:hover{color:#111827}
-#mainHeader.is-scrolled .hs{background:#f3f4f6;border-color:#e5e7eb}
-#mainHeader.is-scrolled .hs::placeholder{color:#9ca3af}
+#mainHeader.is-scrolled{background-color:var(--surface);mix-blend-mode:normal;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+#mainHeader.is-scrolled .ht{color:var(--text-secondary);mix-blend-mode:normal}
+#mainHeader.is-scrolled .ht:hover{color:var(--text-primary)}
+#mainHeader.is-scrolled .hs{background:var(--surface-elevated);border-color:var(--border)}
+#mainHeader.is-scrolled .hs::placeholder{color:var(--text-muted)}
 </style>
 <header id="mainHeader" class="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300">
   <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
@@ -16,7 +16,7 @@ body:not(.no-header-pad){padding-top:64px}
 
       <!-- Logo -->
       <a href="/" class="shrink-0 text-xl md:text-2xl font-bold tracking-tight ht">
-        Bazaar<span class="text-rose-400">Buzz</span>
+        Bazaar<span style="color: var(--accent);">Buzz</span>
       </a>
 
       <!-- Desktop Nav -->
@@ -28,10 +28,10 @@ body:not(.no-header-pad){padding-top:64px}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
           <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 absolute left-0 top-full z-[60]">
-            <div class="bg-white rounded-xl shadow-xl border border-gray-100 min-w-[220px] py-2 max-h-[70vh] overflow-y-auto">
+            <div style="background: var(--surface);" class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] py-2 max-h-[70vh] overflow-y-auto">
               <% if(categories && categories.length > 0) { %>
                 <% categories.forEach(category => { %>
-                  <a href="/user/getProductList/<%= category._id %>" class="block px-4 py-2.5 text-sm text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                  <a href="/user/getProductList/<%= category._id %>" class="block px-4 py-2.5 text-sm text-gray-600 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors btn-press">
                     <%= category.title %>
                   </a>
                 <% }) %>
@@ -55,8 +55,8 @@ body:not(.no-header-pad){padding-top:64px}
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input type="search" placeholder="Search..." id="homeSearch" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-rose-400/50" />
-          <div id="resultsContainer" class="hidden absolute left-0 top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden"></div>
+          <input type="search" placeholder="Search..." id="homeSearch" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
+          <div id="resultsContainer" class="hidden absolute left-0 top-full mt-2 w-full border border-[var(--border)] rounded-xl shadow-lg z-20 overflow-hidden" style="background: var(--surface);"></div>
         </div>
       </div>
       <% } %>
@@ -104,7 +104,7 @@ body:not(.no-header-pad){padding-top:64px}
           <% } %>
 
           <div class="absolute right-0 top-full mt-1 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-[60]">
-            <div class="bg-white rounded-xl shadow-xl border border-gray-100 min-w-[220px] overflow-hidden">
+            <div style="background: var(--surface);" class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] overflow-hidden">
               <% if(user) { %>
               <div class="px-4 py-3 border-b border-gray-100">
                 <p class="text-sm font-semibold text-gray-900">Welcome</p>
@@ -118,12 +118,12 @@ body:not(.no-header-pad){padding-top:64px}
                 <a href="/user/address" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Saved Addresses</a>
               </div>
               <div class="border-t border-gray-100 py-1">
-                <a href="/user/signOut" class="block px-4 py-2 text-sm text-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-colors">Sign Out</a>
+                <a href="/user/signOut" class="block px-4 py-2 text-sm text-[var(--accent)] hover:text-[var(--accent-hover)] hover:bg-[var(--accent-light)] transition-colors btn-press">Sign Out</a>
               </div>
               <% } else { %>
               <div class="px-4 py-3">
                 <p class="text-sm text-gray-600 mb-3">To access account and manage orders</p>
-                <a href="/user/signIn" class="block w-full text-center px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold rounded-lg transition-colors">Sign In</a>
+                <a href="/user/signIn" class="block w-full text-center px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold rounded-lg transition-colors btn-press">Sign In</a>
               </div>
               <% } %>
             </div>
@@ -146,7 +146,7 @@ body:not(.no-header-pad){padding-top:64px}
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="search" placeholder="Search products..." id="homeSearchMobile" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-rose-400/50" />
+        <input type="search" placeholder="Search products..." id="homeSearchMobile" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
       </div>
     </div>
     <% } %>
@@ -155,7 +155,7 @@ body:not(.no-header-pad){padding-top:64px}
   <!-- Mobile Drawer -->
   <div id="mobileDrawer" class="fixed inset-0 z-[70] hidden">
     <div id="drawerOverlay" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-    <div class="absolute right-0 top-0 h-full w-72 bg-white shadow-xl">
+    <div style="background: var(--surface);" class="absolute right-0 top-0 h-full w-72 shadow-xl">
       <div class="flex items-center justify-between px-4 h-16 border-b border-gray-100">
         <span class="text-base font-semibold text-gray-900">Menu</span>
         <button id="drawerClose" class="p-2 text-gray-400 hover:text-gray-600 transition-colors" type="button">
@@ -166,7 +166,7 @@ body:not(.no-header-pad){padding-top:64px}
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Categories</p>
         <% if(categories && categories.length > 0) { %>
           <% categories.forEach(category => { %>
-            <a href="/user/getProductList/<%= category._id %>" class="block px-3 py-2 text-sm text-gray-700 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+            <a href="/user/getProductList/<%= category._id %>" class="block px-3 py-2 text-sm text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">
               <%= category.title %>
             </a>
           <% }) %>
@@ -174,8 +174,8 @@ body:not(.no-header-pad){padding-top:64px}
           <p class="text-sm text-gray-400 px-3 py-2">No categories</p>
         <% } %>
         <hr class="border-gray-100">
-        <a href="/user/getProductList/newArraival" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">New Arrivals</a>
-        <a href="/user/getProductList/featured" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">Featured</a>
+        <a href="/user/getProductList/newArraival" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">New Arrivals</a>
+        <a href="/user/getProductList/featured" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">Featured</a>
       </div>
     </div>
   </div>

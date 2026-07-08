@@ -13,8 +13,9 @@
 </head>
 
 <body class="<%= bodyClass || 'bg-gray-50 antialiased' %>">
+    <% if (!hideUI) { %>
     <div class="flex min-h-screen">
-        <%- include('partials/adminSideMenu') %>
+        <%- include('../partials/adminSideMenu') %>
         
         <div class="flex-1 ml-[250px]">
             <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
@@ -23,12 +24,15 @@
                     <%- blocks?.breadcrumb %>
                 </div>
             </header>
+    <% } %>
             
-            <main class="p-6 space-y-8">
+            <main class="<%= hideUI ? '' : 'p-6 space-y-8' %>">
                 <%- body %>
             </main>
+    <% if (!hideUI) { %>
         </div>
     </div>
+    <% } %>
 
     <%- blocks?.scripts %>
 </body>

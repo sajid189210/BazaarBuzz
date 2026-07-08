@@ -8,3 +8,4 @@ eslint-config.mjs
 .agents*
 
 skills-lock.json
+tests

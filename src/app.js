@@ -60,6 +60,15 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout'); // Default layout for all views
 
+//* Initialize shared locals for all templates
+app.use((req, res, next) => {
+    res.locals.blocks = {};
+    res.locals.categories = [];
+    res.locals.searchBox = false;
+    res.locals.user = null;
+    next();
+});
+
 
 //* Static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -86,7 +95,7 @@ app.use((err, req, res, next) => {
 
 
 app.get('*', (req, res) => {
-    res.render('partials/404Page');
+    res.status(404).render('partials/404Page', { layout: false, title: '404 - Page Not Found' });
 });
 
 

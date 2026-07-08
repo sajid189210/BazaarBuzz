@@ -24,6 +24,7 @@ const renderWishlist = async (req, res) => {
             const newWishlist = new Wishlist({ user: userId });
             await newWishlist.save();
             return res.render('user/userWishlist', {
+                title: 'My Wishlist',
                 searchBox: false,
                 wishlist: newWishlist,
                 user: req.session.user || null,
@@ -32,6 +33,7 @@ const renderWishlist = async (req, res) => {
         }
 
         res.render('user/userWishlist', {
+            title: 'My Wishlist',
             searchBox: false,
             wishlist,
             user: req.session.user || null,

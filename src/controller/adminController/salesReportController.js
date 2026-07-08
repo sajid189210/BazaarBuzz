@@ -53,6 +53,7 @@ const renderReport = async (req, res) => {
         const totalPages = Math.ceil(totalOrders / limit);
 
         res.render('admin/salesReport', {
+            layout: false,
             orders,
             totalPages,
             currentPage: page,

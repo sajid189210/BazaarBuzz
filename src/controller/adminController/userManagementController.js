@@ -68,6 +68,7 @@ const userManagementPage = async (req, res) => {
         }
 
         res.render('admin/userManagementPage', {
+            layout: false,
             users,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page,
