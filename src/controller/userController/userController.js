@@ -243,7 +243,6 @@ const getProduct = async () => {
     }
 };
 
-
 //*-------------[Rendering User Homepage]--------------------------
 const userHomepage = async (req, res) => {
     try {
@@ -475,6 +474,26 @@ const userSignOut = (req, res) => {
     }
 };
 
+//*---------------[Newsletter Subscription]----------------
+const subscribeNewsletter = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            return response.error(res, 'Please enter a valid email address.', 400);
+        }
+
+        // Check if email already subscribed (could use a Newsletter model or User model)
+        // For now, just return success - implement actual storage as needed
+        console.log('Newsletter subscription:', email);
+
+        return response.success(res, { message: 'Successfully subscribed to newsletter!' });
+
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
 module.exports = {
     searchMultipleProducts,
     userSignInValidation,
@@ -491,4 +510,5 @@ module.exports = {
     userSignIn,
     userSignUp,
     getAddress,
+    subscribeNewsletter,
 }

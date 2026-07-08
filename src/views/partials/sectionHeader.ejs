@@ -1,0 +1,30 @@
+<header class="section-header mb-8 md:mb-12 reveal">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 reveal reveal-delay-1">
+        <%= title %>
+      </h2>
+      <% if (subtitle) { %>
+        <p class="mt-2 text-sm text-gray-500 reveal reveal-delay-2"><%= subtitle %></p>
+      <% } %>
+    </div>
+    <% if (typeof cta !== 'undefined' && cta) { %>
+      <a href="<%= cta.href %>" class="mt-4 sm:mt-0 inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors btn-press">
+        <%= cta.label %>
+        <svg class="w-4 h-4" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </a>
+    <% } %>
+  </div>
+  <% if (typeof tabs !== 'undefined' && tabs && tabs.length > 1) { %>
+    <div class="mt-6 flex gap-2 border-b border-gray-200" role="tablist">
+      <% tabs.forEach((tab, i) => { %>
+        <button role="tab" aria-selected="<%= i === 0 %>" data-tab="<%= tab.id %>" class="tab-btn px-4 py-2 text-sm font-medium <%= i === 0 ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-gray-500 hover:text-gray-900 border-b-2 border-transparent' %> transition-colors">
+          <%= tab.label %>
+        </button>
+      <% }) %>
+    </div>
+  <% } %>
+</header>

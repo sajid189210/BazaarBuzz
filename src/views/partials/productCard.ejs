@@ -1,0 +1,52 @@
+ <%
+  const badge = product.discount ? 'sale' : '';
+  const showDiscount = product.discount && product.discount > 0;
+%>
+<div class="group product-card border border-[var(--card-border)] bg-white rounded-xl overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[var(--card-border-hover)] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2">
+  <a href="/user/viewProduct?productId=<%= product._id %>" class="block btn-press">
+    <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]">
+      <img
+        src="<%= product.images?.[0] || '/uploads/placeholder.jpg' %>"
+        alt="<%= product.productName %>"
+        class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+        loading="lazy"
+      />
+
+      <% if (badge) { %>
+        <div class="absolute top-3 left-3 z-10">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide
+            <% if (badge === 'sale') { %> bg-[var(--badge-sale)] text-[var(--badge-sale-text)]
+            <% } else if (badge === 'new') { %> bg-[var(--badge-new)] text-[var(--badge-new-text)]
+            <% } else { %> bg-[var(--accent)] text-white <% } %>">
+            <% if (badge === 'sale') { %>
+              -<%= product.discount %>% off
+            <% } else if (badge === 'new') { %>
+              New
+            <% } %>
+          </span>
+        </div>
+      <% } %>
+
+      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+    </div>
+
+    <div class="mt-3 space-y-1 px-1">
+      <p class="text-[11px] text-[var(--text-brand)] uppercase tracking-widest font-medium">
+        <%= product.brand || 'BazaarBuzz' %>
+      </p>
+
+      <h3 class="text-sm font-medium text-[var(--text-primary)] line-clamp-2 min-h-[2.5rem]">
+        <%= product.productName %>
+      </h3>
+
+      <div class="flex items-baseline gap-2">
+        <% if (showDiscount) { %>
+          <span class="text-sm font-semibold text-[var(--text-primary)]">₹<%= discPrice.toLocaleString() %></span>
+          <span class="text-xs text-[var(--text-muted)] line-through">₹<%= product.productPrice.toLocaleString() %></span>
+        <% } else { %>
+          <span class="text-sm font-semibold text-[var(--text-primary)]">₹<%= product.productPrice.toLocaleString() %></span>
+        <% } %>
+      </div>
+    </div>
+  </a>
+</div>

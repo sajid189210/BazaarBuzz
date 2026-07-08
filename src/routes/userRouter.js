@@ -82,4 +82,7 @@ router.get('/signOut', userController.userSignOut);
 router.get('/search', userController.searchSingleProduct);
 router.get('/search/list', userController.searchMultipleProducts);
 
+//*------------------[Newsletter]----------------
+router.post('/newsletter/subscribe', userController.subscribeNewsletter);
+
 module.exports = router;        
