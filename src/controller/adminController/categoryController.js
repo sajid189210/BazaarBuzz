@@ -1,201 +1,135 @@
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 
-
-//?--------to capitalize the first letter of a word-------------
-const capitalizeFirstLetter = (word) => {
-    try {
-
-        return word = word.split('').map((char, index) =>
-            index === 0 ? char.toUpperCase() : char.toLowerCase()).join('');
-
-    } catch (err) {
-        throw new Error(`Failed to capitalize the first letter in categoryController.${err}`);
-    }
+const createCategoryInstance = (title, brand) => {
+    return new categoryModel({ title, brands: [brand] });
 };
 
-//*-------------create Category Instance----------
-const createCategoryInstance = (title, brand) => {
-    try {
-        return new categoryModel({
-            title,
-            brands: [brand]
-        });
-    } catch (err) {
-        throw new Error(`Failed to create new instance of the category.${err}`);
+const handleDuplicateError = (err, res) => {
+    if (err.code === 11000 || err.code === 11001) {
+        const field = Object.keys(err.keyPattern || {})[0] || 'field';
+        return response.error(res, `A category with this ${field} already exists.`, 409);
     }
-}
+    return false;
+};
 
-
-//*-----------------save to database------------
-const saveToDatabase = async (newCategory) => {
-    try {
-        return await newCategory.save();
-    } catch (err) {
-        throw new Error(`Failed to save category to the database ${err}`);
-    }
-}
-
-
-//*--------------------Create category/Update category----------------------
 const createCategory = async (req, res) => {
-    const { title, brand } = req.body;
+    const { title, brandName } = req.body;
     try {
-
-        if (!title || !brand) response.error(res, "title and brand were not found", 400);
+        if (!title || !brandName) return response.error(res, "Title and brand are required.", 400);
 
         const modTitle = title.trim().toLowerCase();
-        const modBrand = brand.trim().toLowerCase();
+        const modBrand = brandName.trim().toLowerCase();
 
-        if (!modTitle || !modBrand) return response.error(res, "Please fill out all the fields *", 400)
+        if (!modTitle || !modBrand) return response.error(res, "Please fill out all the fields.", 400);
 
-        const capitalizedTitle = capitalizeFirstLetter(modTitle);
-
-        const category = await categoryModel.findOne({ title: capitalizedTitle });
+        let category = await categoryModel.findOne({ title: modTitle });
 
         if (category) {
-
-            //If the category exists, check if the brand is in the category's brand list.
-            if (category.brands.includes(brand)) {
-
+            const existingBrand = category.brands.find(b => b.toLowerCase() === modBrand);
+            if (existingBrand) {
                 return response.error(res, "Brand already exists in this category!", 400);
-
-            } else {
-
-                //Add the new brand to the existing category.
-                category.brands.push(brand);
-                await category.save();
-
-                return response.success(res, {}, "Item successfully added!");
             }
-
+            category.brands.push(modBrand);
+            await category.save();
+            return response.success(res, {}, "Brand added to category successfully!");
         } else {
-
-            //If the category doesn't exist, create a new one.
-            const newCategory = createCategoryInstance(capitalizedTitle, brand);
-            await saveToDatabase(newCategory)
+            const newCategory = createCategoryInstance(modTitle, modBrand);
+            await newCategory.save();
             return response.success(res, {}, "Category created successfully!", 201);
         }
     } catch (err) {
+        if (handleDuplicateError(err, res)) return;
         response.serverError(res, err);
     }
+};
 
-}
-
-
-//*------------------edit category----------------------------
 const updateCategory = async (req, res) => {
     try {
+        const { title, brandName, categoryId } = req.body;
 
-        const { title, brandToBeDeleted, categoryId } = req.body
+        if (!title || !categoryId) return response.error(res, "Title and categoryId are required.", 400);
 
-        if (!(title && brandToBeDeleted && categoryId)) return response.error(res, "title, brandToBeDeleted, or categoryId not found.", 400);
+        const modTitle = title.trim().toLowerCase();
 
-        if (!title || title.trim() === '') return response.error(res, "Title cannot be empty!", 400);
+        const existing = await categoryModel.findOne({ title: modTitle, _id: { $ne: categoryId } });
+        if (existing) return response.error(res, "Another category with this title already exists.", 409);
 
-        const modTitle = capitalizeFirstLetter(title);
+        const brands = brandName
+            ? brandName.split(',').map(b => b.trim().toLowerCase()).filter(b => b.length > 0)
+            : [];
 
-        const updateOperation = {
-            $set: { title: modTitle },
-        }
+        const updateData = { title: modTitle };
+        if (brands.length > 0) updateData.brands = brands;
 
-        //only add $pullAll if currentBrand.length>0.
-        if (brandToBeDeleted.length > 0) {
-            updateOperation.$pullAll = { brands: brandToBeDeleted };
-        }
-
-        const result = await categoryModel.findByIdAndUpdate(categoryId,
-            updateOperation,
-            { new: true }
+        const result = await categoryModel.findByIdAndUpdate(
+            categoryId,
+            { $set: updateData },
+            { new: true, runValidators: true }
         );
 
-        if (!result || result.modifiedCount === 0) return response.error(res, "Failed to update the category!", 404);
+        if (!result) return response.error(res, "Category not found.", 404);
 
-        response.success(res, {}, "Successfully updated the category!");
-
+        response.success(res, {}, "Category updated successfully!");
     } catch (err) {
+        if (handleDuplicateError(err, res)) return;
         response.serverError(res, err);
     }
-}
-
+};
 
 const deleteCategory = async (req, res) => {
     try {
         const id = req.params.id;
 
         const category = await categoryModel.findById(id);
+        if (!category) return response.error(res, "Category not found!", 404);
 
-        if (!category) {
-            return response.error(res, "Category not found!", 404);
-        }
-
-        const result = await categoryModel.deleteOne({ _id: id }, { new: true });
+        const result = await categoryModel.deleteOne({ _id: id });
 
         if (result.deletedCount === 0) {
             return response.error(res, "Failed to delete category!", 400);
         }
 
-        response.success(res, {}, "$1");
-
-    } catch (err) {
-        response.serverError(res, err);
-    }
-}
-
-
-
-//*-----------------admin Category page render-------------------
-//render the dashboard.
-const adminCategory = async (req, res) => {
-    try {
-
-        if (!req.session.admin) return res.redirect('/admin/signIn');
-
-        const categories = await categoryModel.find({});
-
-        if (!categories) return res.render('admin/adminCategory', {
-            message: req.flash(),
-            categories: []
-        });
-
-        res.render('admin/adminCategory', { categories });
-
+        response.success(res, {}, "Category deleted successfully!");
     } catch (err) {
         response.serverError(res, err);
     }
 };
 
-
-//*-----------------change category status----------
-const changeCategoryStatus = async (req, res) => {
+const adminCategory = async (req, res) => {
     try {
+        if (!req.session.admin) return res.redirect('/admin/signIn');
 
-        const id = req.params.id;
+        const categories = await categoryModel.find({});
 
-        if (!id) return response.error(res, "Category ID not found.", 400);
+        if (!categories) return res.render('admin/adminCategory', {
+            layout: false,
+            message: req.flash(),
+            categories: []
+        });
 
-        const { selectedOption } = req.body;
-
-        if (!selectedOption) response.error(res, "selectedOption not found.", 400);
-
-        const value = selectedOption === 'active' ? true : false;
-
-        const category = await categoryModel.findOneAndUpdate(
-            { _id: id },
-            { $set: { isActive: value } },
-            { new: true }
-        );
-
-        if (!category) return response.error(res, "Category not found.", 404)
-
-        response.success(res, { isActive: category.isActive });
-
+        res.render('admin/adminCategory', { layout: false, categories });
     } catch (err) {
         response.serverError(res, err);
     }
-}
+};
 
+const changeCategoryStatus = async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!id) return response.error(res, "Category ID not found.", 400);
 
+        const category = await categoryModel.findById(id);
+        if (!category) return response.error(res, "Category not found.", 404);
+
+        category.isActive = !category.isActive;
+        await category.save();
+
+        response.success(res, { isActive: category.isActive });
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
 
 module.exports = {
     createCategory,

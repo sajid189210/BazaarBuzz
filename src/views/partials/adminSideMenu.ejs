@@ -1,178 +1,66 @@
-<aside class=" w-[250px] overflow-hidden h-screen fixed top-0 left-0 py-6 px-4 bg-white shadow-md ">
-    <div class="">
-        <h3 class="text-center text-2xl font-bold">BazaarBuzz</h3>
-    </div>
+<aside class="w-[250px] h-screen fixed top-0 left-0 py-6 px-4 bg-white border-r border-gray-200 overflow-y-auto z-50">
+    <a href="/admin/dashboard" class="text-2xl font-bold text-gray-900 block text-center">Bazaar<span class="text-rose-500">Buzz</span></a>
+    <p class="text-[10px] text-gray-400 uppercase tracking-widest text-center mt-1">Admin Panel</p>
 
-    <div class="over py-6 h-full mt-4">
+    <nav class="mt-8">
         <ul class="space-y-1">
             <li>
-                <a href="/admin/dashboard"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-[18px] h-[18px] mr-4"
-                        viewBox="0 0 512 512">
-                        <path
-                            d="M197.332 170.668h-160C16.746 170.668 0 153.922 0 133.332v-96C0 16.746 16.746 0 37.332 0h160c20.59 0 37.336 16.746 37.336 37.332v96c0 20.59-16.746 37.336-37.336 37.336zM37.332 32A5.336 5.336 0 0 0 32 37.332v96a5.337 5.337 0 0 0 5.332 5.336h160a5.338 5.338 0 0 0 5.336-5.336v-96A5.337 5.337 0 0 0 197.332 32zm160 480h-160C16.746 512 0 495.254 0 474.668v-224c0-20.59 16.746-37.336 37.332-37.336h160c20.59 0 37.336 16.746 37.336 37.336v224c0 20.586-16.746 37.332-37.336 37.332zm-160-266.668A5.337 5.337 0 0 0 32 250.668v224A5.336 5.336 0 0 0 37.332 480h160a5.337 5.337 0 0 0 5.336-5.332v-224a5.338 5.338 0 0 0-5.336-5.336zM474.668 512h-160c-20.59 0-37.336-16.746-37.336-37.332v-96c0-20.59 16.746-37.336 37.336-37.336h160c20.586 0 37.332 16.746 37.332 37.336v96C512 495.254 495.254 512 474.668 512zm-160-138.668a5.338 5.338 0 0 0-5.336 5.336v96a5.337 5.337 0 0 0 5.336 5.332h160a5.336 5.336 0 0 0 5.332-5.332v-96a5.337 5.337 0 0 0-5.332-5.336zm160-74.664h-160c-20.59 0-37.336-16.746-37.336-37.336v-224C277.332 16.746 294.078 0 314.668 0h160C495.254 0 512 16.746 512 37.332v224c0 20.59-16.746 37.336-37.332 37.336zM314.668 32a5.337 5.337 0 0 0-5.336 5.332v224a5.338 5.338 0 0 0 5.336 5.336h160a5.337 5.337 0 0 0 5.332-5.336v-224A5.336 5.336 0 0 0 474.668 32zm0 0"
-                            data-original="#000000" />
-                    </svg>
+                <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/userList"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-[18px] h-[18px] mr-4"
-                        viewBox="0 0 512 512">
-                        <path
-                            d="M437.02 74.98C388.668 26.63 324.379 0 256 0S123.332 26.629 74.98 74.98C26.63 123.332 0 187.621 0 256s26.629 132.668 74.98 181.02C123.332 485.37 187.621 512 256 512s132.668-26.629 181.02-74.98C485.37 388.668 512 324.379 512 256s-26.629-132.668-74.98-181.02zM111.105 429.297c8.454-72.735 70.989-128.89 144.895-128.89 38.96 0 75.598 15.179 103.156 42.734 23.281 23.285 37.965 53.687 41.742 86.152C361.641 462.172 311.094 482 256 482s-105.637-19.824-144.895-52.703zM256 269.507c-42.871 0-77.754-34.882-77.754-77.753C178.246 148.879 213.13 114 256 114s77.754 34.879 77.754 77.754c0 42.871-34.883 77.754-77.754 77.754zm170.719 134.427a175.9 175.9 0 0 0-46.352-82.004c-18.437-18.438-40.25-32.27-64.039-40.938 28.598-19.394 47.426-52.16 47.426-89.238C363.754 132.34 315.414 84 256 84s-107.754 48.34-107.754 107.754c0 37.098 18.844 69.875 47.465 89.266-21.887 7.976-42.14 20.308-59.566 36.542-25.235 23.5-42.758 53.465-50.883 86.348C50.852 364.242 30 312.512 30 256 30 131.383 131.383 30 256 30s226 101.383 226 226c0 56.523-20.86 108.266-55.281 147.934zm0 0"
-                            data-original="#000000" />
-                    </svg>
+                <a href="/admin/userList" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Customers</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/productList"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-[18px] h-[18px] mr-4"
-                        viewBox="0 0 511.414 511.414">
-                        <path
-                            d="M497.695 108.838a16.002 16.002 0 0 0-9.92-14.8L261.787 1.2a16.003 16.003 0 0 0-12.16 0L23.639 94.038a16 16 0 0 0-9.92 14.8v293.738a16 16 0 0 0 9.92 14.8l225.988 92.838a15.947 15.947 0 0 0 12.14-.001c.193-.064-8.363 3.445 226.008-92.837a16 16 0 0 0 9.92-14.8zm-241.988 76.886-83.268-34.207L352.39 73.016l88.837 36.495zm-209.988-51.67 71.841 29.513v83.264c0 8.836 7.164 16 16 16s16-7.164 16-16v-70.118l90.147 37.033v257.797L45.719 391.851zM255.707 33.297l55.466 22.786-179.951 78.501-61.035-25.074zm16 180.449 193.988-79.692v257.797l-193.988 79.692z"
-                            data-original="#000000" />
-                    </svg>
+                <a href="/admin/productList" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                     <span>Products</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/orders"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-[18px] h-[18px] mr-4"
-                        viewBox="0 0 510 510">
-                        <g fill-opacity=".9">
-                            <path
-                                d="M255 0C114.75 0 0 114.75 0 255s114.75 255 255 255 255-114.75 255-255S395.25 0 255 0zm0 459c-112.2 0-204-91.8-204-204S142.8 51 255 51s204 91.8 204 204-91.8 204-204 204z"
-                                data-original="#000000" />
-                            <path d="M267.75 127.5H229.5v153l132.6 81.6 20.4-33.15-114.75-68.85z"
-                                data-original="#000000" />
-                        </g>
-                    </svg>
+                <a href="/admin/orders" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     <span>Orders</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/category"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4 mr-4"
-                        viewBox="0 0 512 512">
-                        <path
-                            d="M122.39 165.78h244.87c10.49 0 19-8.51 19-19s-8.51-19-19-19H122.39c-10.49 0-19 8.51-19 19s8.51 19 19 19zm164.33 99.44c0-10.49-8.51-19-19-19H122.39c-10.49 0-19 8.51-19 19s8.51 19 19 19h145.33c10.49 0 19-8.51 19-19z"
-                            data-original="#000000" />
-                        <path
-                            d="M486.63 323.71c2.04-22.33 3.41-48.35 3.44-78.68-.06-57.07-4.85-98.86-9.96-129.57-8.94-50.6-54.9-96.56-105.5-105.5C343.9 4.85 302.11.06 245.03 0c-57.07.06-98.87 4.85-129.58 9.96C64.86 18.9 18.9 64.86 9.96 115.46 4.85 146.17.07 187.96 0 245.03c.07 57.07 4.85 98.87 9.96 129.58 8.94 50.6 54.9 96.56 105.5 105.5 30.71 5.11 72.5 9.89 129.58 9.96 30.32-.03 56.34-1.4 78.66-3.44 19.84 15.87 45 25.37 72.38 25.37 64.02 0 115.93-51.9 115.93-115.92 0-27.38-9.5-52.54-25.37-72.37zM245.04 452.07c-45.02-.05-85.3-3.13-123.13-9.41-16.81-3.01-33.84-12.44-47.95-26.55s-23.53-31.13-26.55-47.95c-6.28-37.79-9.35-78.07-9.41-123.13.05-45.04 3.13-85.32 9.41-123.13 3.01-16.81 12.44-33.83 26.55-47.94s31.13-23.53 47.95-26.55C159.72 41.13 200 38.06 245.04 38c45.02.05 85.3 3.13 123.13 9.41 16.81 3.01 33.83 12.44 47.95 26.55 14.11 14.11 23.53 31.13 26.55 47.95 6.28 37.83 9.35 78.1 9.41 123.13-.02 16.9-.48 33.11-1.36 48.79-16.28-8.72-34.88-13.66-54.64-13.66-64.02 0-115.93 51.9-115.93 115.92 0 19.76 4.95 38.35 13.66 54.63-15.68.88-31.89 1.34-48.78 1.35zM396.08 474c-42.97 0-77.93-34.95-77.93-77.92s34.96-77.92 77.93-77.92 77.93 34.95 77.93 77.92S439.05 474 396.08 474z"
-                            data-original="#000000" />
-                        <path
-                            d="M406.28 418.24c-2.42-.4-5.71-.78-10.2-.78s-7.78.38-10.2.78c-3.98.7-7.6 4.32-8.31 8.31-.4 2.42-.78 5.71-.78 10.2s.38 7.78.78 10.2c.7 3.98 4.32 7.6 8.31 8.31 2.42.4 5.71.78 10.2.78s7.78-.38 10.2-.78c3.98-.7 7.6-4.32 8.31-8.31.4-2.42.78-5.71.78-10.2s-.38-7.78-.78-10.2c-.7-3.98-4.32-7.6-8.31-8.31zm-10.21-12.61c10.49 0 19-8.51 19-19v-31.7c0-10.49-8.51-19-19-19s-19 8.51-19 19v31.7c0 10.49 8.51 19 19 19z"
-                            data-original="#000000" />
-                    </svg>
-
+                <a href="/admin/category" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
                     <span>Categories</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/offer"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px] mr-4" fill="currentColor" x="0px"
-                        y="0px" width="50" height="50" viewBox="0 0 48 48">
-                        <path
-                            d="M 4.4765625 1.9785156 A 1.50015 1.50015 0 0 0 3 3.5 L 3 7.2539062 A 1.50015 1.50015 0 0 0 3 7.7402344 L 3 11.5 A 1.50015 1.50015 0 1 0 6 11.5 L 6 9 L 13 9 L 13 9.5 A 1.50015 1.50015 0 0 0 14.257812 11 A 1.50015 1.50015 0 0 0 13.074219 12.019531 L 11.5 12.019531 C 9.5750905 12.019531 8 13.626101 8 15.544922 L 8 35.017578 C 8 36.660649 8.8840062 38.184469 10.318359 38.986328 A 1.50015 1.50015 0 0 0 10.320312 38.988281 L 21.818359 45.412109 C 23.171207 46.168024 24.828793 46.168024 26.181641 45.412109 L 37.679688 38.988281 A 1.50015 1.50015 0 0 0 37.681641 38.986328 C 39.1159 38.184469 40 36.661163 40 35.017578 L 40 15.544922 C 40 13.626385 38.425814 12.019531 36.5 12.019531 L 34.925781 12.019531 A 1.50015 1.50015 0 0 0 33.742188 11 A 1.50015 1.50015 0 0 0 35 9.5 L 35 9 L 38.339844 9 A 3.5 3.5 0 0 0 41.5 11 A 3.5 3.5 0 1 0 41.5 4 A 3.5 3.5 0 0 0 38.341797 6 L 35 6 L 35 5.5 A 1.50015 1.50015 0 1 0 32 5.5 L 32 6 L 16 6 L 16 5.5 A 1.50015 1.50015 0 0 0 14.476562 3.9785156 A 1.50015 1.50015 0 0 0 13 5.5 L 13 6 L 6 6 L 6 3.5 A 1.50015 1.50015 0 0 0 4.4765625 1.9785156 z M 16 9 L 32 9 L 32 9.5 A 1.50015 1.50015 0 0 0 33.257812 11 A 1.50015 1.50015 0 0 0 32.074219 12.019531 L 15.925781 12.019531 A 1.50015 1.50015 0 0 0 14.742188 11 A 1.50015 1.50015 0 0 0 16 9.5 L 16 9 z M 11.5 15.019531 L 13 15.019531 L 13 15.5 A 1.50015 1.50015 0 1 0 16 15.5 L 16 15.019531 L 32 15.019531 L 32 15.5 A 1.50015 1.50015 0 1 0 35 15.5 L 35 15.019531 L 36.5 15.019531 C 36.784186 15.019531 37 15.227459 37 15.544922 L 37 35.017578 C 37 35.587993 36.696443 36.101 36.216797 36.369141 L 24.716797 42.792969 C 24.265644 43.045054 23.734356 43.045054 23.283203 42.792969 L 11.783203 36.369141 C 11.303557 36.101 11 35.586508 11 35.017578 L 11 15.544922 C 11 15.225743 11.21491 15.019531 11.5 15.019531 z M 15.5 22 A 1.50015 1.50015 0 1 0 15.5 25 L 32.5 25 A 1.50015 1.50015 0 1 0 32.5 22 L 15.5 22 z M 15.5 29 A 1.50015 1.50015 0 1 0 15.5 32 L 32.5 32 A 1.50015 1.50015 0 1 0 32.5 29 L 15.5 29 z">
-                        </path>
-                    </svg>
+                <a href="/admin/offer" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
                     <span>Offers</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/coupon"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                        class="w-[18px] h-[18px] mr-4">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                            <g>
-                                <path fill="none" d="M0 0h24v24H0z"></path>
-                                <path
-                                    d="M10 21H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h7a2 2 0 1 0 4 0h7a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-7a2 2 0 1 0-4 0zm-1.465-2A3.998 3.998 0 0 1 12 17c1.48 0 2.773.804 3.465 2H20V5h-4.535A3.998 3.998 0 0 1 12 7a3.998 3.998 0 0 1-3.465-2H4v14h4.535zM6 8h2v8H6V8zm10 0h2v8h-2V8z">
-                                </path>
-                            </g>
-                        </g>
-                    </svg>
+                <a href="/admin/coupon" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
                     <span>Coupons</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/salesreport"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px] mr-4" fill="currentColor"
-                        width="50" height="50" viewBox="0 0 48 48">
-                        <!-- Document Outline -->
-                        <rect x="6" y="3" width="36" height="42" rx="4" stroke="currentColor" fill="none"
-                            stroke-width="2" />
-
-                        <!-- Bar chart bars -->
-                        <rect x="10" y="18" width="6" height="12" fill="currentColor" />
-                        <rect x="18" y="14" width="6" height="16" fill="currentColor" />
-                        <rect x="26" y="10" width="6" height="20" fill="currentColor" />
-                        <rect x="34" y="16" width="6" height="14" fill="currentColor" />
-                    </svg>
-
-
+                <a href="/admin/salesreport" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                     <span>Sales Report</span>
                 </a>
             </li>
-            <!-- <li>
-                <a href="javascript:void(0)"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-[18px] h-[18px] mr-4"
-                        viewBox="0 0 512 512">
-                        <path
-                            d="M437.02 74.98C388.668 26.63 324.379 0 256 0S123.332 26.629 74.98 74.98C26.63 123.332 0 187.621 0 256s26.629 132.668 74.98 181.02C123.332 485.37 187.621 512 256 512s132.668-26.629 181.02-74.98C485.37 388.668 512 324.379 512 256s-26.629-132.668-74.98-181.02zM111.105 429.297c8.454-72.735 70.989-128.89 144.895-128.89 38.96 0 75.598 15.179 103.156 42.734 23.281 23.285 37.965 53.687 41.742 86.152C361.641 462.172 311.094 482 256 482s-105.637-19.824-144.895-52.703zM256 269.507c-42.871 0-77.754-34.882-77.754-77.753C178.246 148.879 213.13 114 256 114s77.754 34.879 77.754 77.754c0 42.871-34.883 77.754-77.754 77.754zm170.719 134.427a175.9 175.9 0 0 0-46.352-82.004c-18.437-18.438-40.25-32.27-64.039-40.938 28.598-19.394 47.426-52.16 47.426-89.238C363.754 132.34 315.414 84 256 84s-107.754 48.34-107.754 107.754c0 37.098 18.844 69.875 47.465 89.266-21.887 7.976-42.14 20.308-59.566 36.542-25.235 23.5-42.758 53.465-50.883 86.348C50.852 364.242 30 312.512 30 256 30 131.383 131.383 30 256 30s226 101.383 226 226c0 56.523-20.86 108.266-55.281 147.934zm0 0"
-                            data-original="#000000" />
-                    </svg>
-                    <span>Profile</span>
-                </a>
-            </li> -->
-            <!-- <li>
-                <a href="/admin/ledger"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px] mr-4" fill="currentColor"
-                        width="50" height="50" viewBox="0 0 48 48">
-                        <!-- Document Outline -->
-                        <!-- <rect x="6" y="4" width="36" height="40" rx="4" stroke="currentColor" fill="none"
-                            stroke-width="2" /> -->
-
-                        <!-- Ledger Lines -->
-                        <!-- <line x1="10" y1="10" x2="38" y2="10" stroke="currentColor" stroke-width="2" />
-                        <line x1="10" y1="15" x2="38" y2="15" stroke="currentColor" stroke-width="2" />
-                        <line x1="10" y1="20" x2="38" y2="20" stroke="currentColor" stroke-width="2" />
-                        <line x1="10" y1="25" x2="38" y2="25" stroke="currentColor" stroke-width="2" />
-                        <line x1="10" y1="30" x2="38" y2="30" stroke="currentColor" stroke-width="2" />
-                        <line x1="10" y1="35" x2="38" y2="35" stroke="currentColor" stroke-width="2" />
-                    </svg> -->
-
-                    <!-- <span>Ledger</span> -->
-                <!-- </a> -->
-            <!-- </li>  -->
             <li>
-                <a href="/admin/signOut"
-                    class="text-[#464255] hover:text-[#00B074] text-[15px] flex items-center hover:bg-[#00b07511] rounded px-4 py-3 transition-all font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-[18px] h-[18px] mr-4"
-                        viewBox="0 0 6.35 6.35">
-                        <path
-                            d="M3.172.53a.265.266 0 0 0-.262.268v2.127a.265.266 0 0 0 .53 0V.798A.265.266 0 0 0 3.172.53zm1.544.532a.265.266 0 0 0-.026 0 .265.266 0 0 0-.147.47c.459.391.749.973.749 1.626 0 1.18-.944 2.131-2.116 2.131A2.12 2.12 0 0 1 1.06 3.16c0-.65.286-1.228.74-1.62a.265.266 0 1 0-.344-.404A2.667 2.667 0 0 0 .53 3.158a2.66 2.66 0 0 0 2.647 2.663 2.657 2.657 0 0 0 2.645-2.663c0-.812-.363-1.542-.936-2.03a.265.266 0 0 0-.17-.066z"
-                            data-original="#000000" />
-                    </svg>
+                <hr class="my-3 border-gray-100">
+            </li>
+            <li>
+                <a href="/admin/signOut" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     <span>Logout</span>
                 </a>
             </li>
         </ul>
-    </div>
+    </nav>
 </aside>

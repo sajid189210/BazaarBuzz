@@ -1,14 +1,16 @@
-const app = require( './app' );
-const mongoose = require( 'mongoose' );
+const app = require('./app');
+const mongoose = require('mongoose');
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 //connecting with db.
-mongoose.connect( process.env.MONGOOSE_URI )
-.then( () => console.log( "Connected to mongodb" ) )
-.catch ( err => console.error( `Error caught while connecting to mongodb ${ err }` ) );
+mongoose.connect(process.env.MONGOOSE_URI)
+    .then(() => console.log("Connected to mongodb"))
+    .catch(err => console.error(`Error caught while connecting to mongodb ${err}`));
 
 //creating the server.
 const port = process.env.PORT || 3080;
-app.listen( port, ( err ) => {
-    if ( err ) console.error( `Error caught while running the server ${ err }` );
-    else console.log( `Server is running successfully on port ${ port }` );
-} );    
+app.listen(port, (err) => {
+    if (err) console.error(`Error caught while running the server ${err}`);
+    else console.log(`Server is running successfully on port ${port}`);
+});    

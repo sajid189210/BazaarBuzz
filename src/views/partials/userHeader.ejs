@@ -1,163 +1,230 @@
+<style>
+body:not(.no-header-pad){padding-top:64px}
+#mainHeader{transition:background-color .3s ease,box-shadow .3s ease}
+#mainHeader .ht{color:#fff;mix-blend-mode:difference;transition:color .3s ease}
+#mainHeader .hs{transition:background-color .3s ease,border-color .3s ease}
+#mainHeader .hs::placeholder{transition:color .3s ease}
+#mainHeader.is-scrolled{background-color:var(--surface);mix-blend-mode:normal;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+#mainHeader.is-scrolled .ht{color:var(--text-secondary);mix-blend-mode:normal}
+#mainHeader.is-scrolled .ht:hover{color:var(--text-primary)}
+#mainHeader.is-scrolled .hs{background:var(--surface-elevated);border-color:var(--border)}
+#mainHeader.is-scrolled .hs::placeholder{color:var(--text-muted)}
+</style>
+<header id="mainHeader" class="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300">
+  <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center gap-2 md:gap-4">
 
-<header id="mainHeader" class="fixed w-full z-50 font-[poppins] flex flex-col gap-3 px-2 transition-all duration-300 bg-transparent text-white">
-    <section class="flex md:min-h-[75px] flex-wrap items-center px-4 pt-3 500">
+      <!-- Logo -->
+      <a href="/" class="shrink-0 text-xl md:text-2xl font-bold tracking-tight ht">
+        Bazaar<span style="color: var(--accent);">Buzz</span>
+      </a>
 
-        <div class="w-full flex justify-between">
-            <div class="flex justify-between gap-2">
-                <a href="/" class="text-2xl lg:text-3xl block">
-                    <strong>BazaarBuzz</strong></a>
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-1 ml-2">
+        <div class="group relative">
+          <span class="flex items-center gap-1 px-3 py-1.5 text-sm font-medium ht cursor-pointer rounded-lg hover:bg-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            Categories
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+          <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 absolute left-0 top-full z-[60]">
+            <div style="background: var(--surface);" class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] py-2 max-h-[70vh] overflow-y-auto">
+              <% if(categories && categories.length > 0) { %>
+                <% categories.forEach(category => { %>
+                  <a href="/user/getProductList/<%= category._id %>" class="block px-4 py-2.5 text-sm text-gray-600 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors btn-press">
+                    <%= category.title %>
+                  </a>
+                <% }) %>
+              <% } else { %>
+                <p class="px-4 py-2 text-sm text-gray-400">No categories</p>
+              <% } %>
             </div>
+          </div>
+        </div>
+        <a href="/user/getProductList/newArraival" class="px-3 py-1.5 text-sm font-medium ht rounded-lg hover:bg-white/10">New Arrivals</a>
+        <a href="/user/getProductList/featured" class="px-3 py-1.5 text-sm font-medium ht rounded-lg hover:bg-white/10">Featured</a>
+      </div>
 
-            <!-- Side Menu -->
+      <!-- Spacer -->
+      <div class="flex-1"></div>
 
-            <div class="lg:ml-auto flex items-center space-x-8">
-                <ul class="space-x-2 lg:space-x-4 flex">
-                    <li
-                        class="group relative px-1 lg:after:absolute lg:after:-bottom-2 lg:after:left-0 lg:after:block lg:after:w-0 lg:after:bg-pink-500 lg:after:transition-all after:duration-300 lg:hover:after:h-[3px] lg:hover:after:w-full">
-                        <%if(user){%>
-                            <div id="profile" class="flex cursor-pointer flex-col items-center justify-center ">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
-                                    viewBox="0 0 512 512">
-                                    <path
-                                        d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z" />
-                                </svg>
-                                <span class="hidden lg:block mt-1 text-xs font-semibold">Profile</span>
-                            </div>
-                            <%} else {%>
-                                <div id="profile" class="flex cursor-pointer flex-col items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
-                                        viewBox="0 0 512 512">
-                                        <path
-                                            d="M337.711 241.3a16 16 0 0 0-11.461 3.988c-18.739 16.561-43.688 25.682-70.25 25.682s-51.511-9.121-70.25-25.683a16.007 16.007 0 0 0-11.461-3.988c-78.926 4.274-140.752 63.672-140.752 135.224v107.152C33.537 499.293 46.9 512 63.332 512h385.336c16.429 0 29.8-12.707 29.8-28.325V376.523c-.005-71.552-61.831-130.95-140.757-135.223zM446.463 480H65.537V376.523c0-52.739 45.359-96.888 104.351-102.8C193.75 292.63 224.055 302.97 256 302.97s62.25-10.34 86.112-29.245c58.992 5.91 104.351 50.059 104.351 102.8zM256 234.375a117.188 117.188 0 1 0-117.188-117.187A117.32 117.32 0 0 0 256 234.375zM256 32a85.188 85.188 0 1 1-85.188 85.188A85.284 85.284 0 0 1 256 32z" />
-                                    </svg>
-                                    <span class="hidden lg:block mt-1 text-xs font-semibold">Sign In</span>
-                                </div>
-                                <%}%>
-                                    <!-- Profile Hover Section -->
-                                    <ul
-                                        class="absolute left-[-132px] top-9 md:right-0 md:top-14z-20 invisible group-hover:visible transition-all ease-in-out bg-white px-6 py-6 shadow-lg max-sm:min-w-[250px] sm:min-w-[320px]">
-                                        <%if(user) {%>
-                                            <h1 class="font-semibold text-2xl">Welcome! <br> <span>
-                                                    <%= user.userName%>
-                                                </span>
-                                            </h1>
-                                            <a href="/user/signOut"
-                                                class="mt-4 border block text-center border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">SIGN
-                                                OUT</a>
-                                            <hr class="my-4 border-b-0" />
-                                            <ul class="space-y-1.5">
-                                                <li><a href="/user/orders"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">Orders</a>
-                                                </li>
-                                                <li><a href="/user/profile"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">My
-                                                        Profile</a>
-                                                </li>
-                                                <li><a href="javascript:void(0)"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">Contact
-                                                        Us</a>
-                                                </li>
-                                            </ul>
-                                            <hr class="my-4 border-b-0" />
-                                            <ul class="space-y-1.5">
-                                                <li><a href="/user/coupons"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">Coupons</a>
-                                                </li>
-                                                <li><a href="/user/wallet"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">Wallet</a>
-                                                </li>
-                                                <li><a href="javascript:void(0)"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">About
-                                                        Us</a>
-                                                </li>
-                                                <li><a href="/user/address"
-                                                        class="text-sm text-gray-500 hover:text-pink-500">Saved
-                                                        Addresses</a></li>
-                                            </ul>
-                                            <%} else {%>
-                                                <p class="text-sm font-semibold">To access account and manage orders
-                                                </p>
-                                                <a href="/user/signIn"
-                                                    class="mt-4 block text-center border border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-pink-500 hover:border-pink-500">SIGN
-                                                    IN</a>
-                                                <%}%>
+      <!-- Desktop Search -->
+      <% if(searchBox) { %>
+      <div class="hidden md:block flex-1 max-w-xs">
+        <div class="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="search" placeholder="Search..." id="homeSearch" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
+          <div id="resultsContainer" class="hidden absolute left-0 top-full mt-2 w-full border border-[var(--border)] rounded-xl shadow-lg z-20 overflow-hidden" style="background: var(--surface);"></div>
+        </div>
+      </div>
+      <% } %>
 
-                                    </ul>
-                    </li>
-                    <li
-                        class="relative px-1 lg:after:absolute lg:after:-bottom-2 lg:after:left-0 lg:after:block lg:after:w-0 lg:after:bg-pink-500 lg:after:transition-all lg:after:duration-300 lg:hover:after:h-[3px] lg:hover:after:w-full">
-                        <a href="/user/wishlist">
-                            <div class="flex cursor-pointer flex-col items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 64 64">
-                                    <path
-                                        d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z" />
-                                </svg>
-                                <span class="hidden lg:block mt-1 text-xs font-semibold">My Wishlist</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li
-                        class="relative px-1 lg:after:absolute lg:after:-bottom-2 lg:after:left-0 lg:after:block lg:after:w-0 lg:after:bg-pink-500 lg:after:transition-all lg:after:duration-300 lg:hover:after:h-[3px] lg:hover:after:w-full">
-                        <a href="/user/cart">
-                            <div class="flex cursor-pointer flex-col items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
-                                    viewBox="0 0 489 489">
-                                    <path
-                                        d="m440.1 422.7-28-315.3c-.6-7-6.5-12.3-13.4-12.3h-57.6C340.3 42.5 297.3 0 244.5 0s-95.8 42.5-96.6 95.1H90.3c-7 0-12.8 5.3-13.4 12.3l-28 315.3c0 .4-.1.8-.1 1.2 0 35.9 32.9 65.1 73.4 65.1h244.6c40.5 0 73.4-29.2 73.4-65.1 0-.4 0-.8-.1-1.2zM244.5 27c37.9 0 68.8 30.4 69.6 68.1H174.9c.8-37.7 31.7-68.1 69.6-68.1zm122.3 435H122.2c-25.4 0-46-16.8-46.4-37.5l26.8-302.3h45.2v41c0 7.5 6 13.5 13.5 13.5s13.5-6 13.5-13.5v-41h139.3v41c0 7.5 6 13.5 13.5 13.5s13.5-6 13.5-13.5v-41h45.2l26.9 302.3c-.4 20.7-21.1 37.5-46.4 37.5z" />
-                                </svg>
-                                <span class="hidden lg:block mt-1 text-xs font-semibold">My Cart</span>
-                            </div>
-                        </a>
-                    </li>
-                </ul>
+      <!-- Right Icons -->
+      <div class="flex items-center gap-1">
+        <!-- Mobile search toggle -->
+        <button id="mobileSearchToggle" class="md:hidden p-2 ht" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
 
+        <!-- Wishlist -->
+        <a href="/user/wishlist" class="relative p-2 ht">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </a>
+
+        <!-- Cart -->
+        <a href="/user/cart" class="relative p-2 ht">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+        </a>
+
+        <!-- Profile -->
+        <div class="group relative">
+          <% if(user) { %>
+          <div class="flex cursor-pointer items-center gap-1 p-2 ht">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="hidden lg:block text-sm font-medium"><%= user.userName %></span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden lg:block w-3 h-3"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <% } else { %>
+          <a href="/user/signIn" class="flex cursor-pointer items-center gap-1.5 p-2 ht">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="hidden lg:block text-sm font-medium">Sign In</span>
+          </a>
+          <% } %>
+
+          <div class="absolute right-0 top-full mt-1 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-[60]">
+            <div style="background: var(--surface);" class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] overflow-hidden">
+              <% if(user) { %>
+              <div class="px-4 py-3 border-b border-gray-100">
+                <p class="text-sm font-semibold text-gray-900">Welcome</p>
+                <p class="text-xs text-gray-500"><%= user.userName %></p>
+              </div>
+              <div class="py-1">
+                <a href="/user/orders" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Orders</a>
+                <a href="/user/profile" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">My Profile</a>
+                <a href="/user/coupons" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Coupons</a>
+                <a href="/user/wallet" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Wallet</a>
+                <a href="/user/address" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Saved Addresses</a>
+              </div>
+              <div class="border-t border-gray-100 py-1">
+                <a href="/user/signOut" class="block px-4 py-2 text-sm text-[var(--accent)] hover:text-[var(--accent-hover)] hover:bg-[var(--accent-light)] transition-colors btn-press">Sign Out</a>
+              </div>
+              <% } else { %>
+              <div class="px-4 py-3">
+                <p class="text-sm text-gray-600 mb-3">To access account and manage orders</p>
+                <a href="/user/signIn" class="block w-full text-center px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold rounded-lg transition-colors btn-press">Sign In</a>
+              </div>
+              <% } %>
             </div>
+          </div>
         </div>
 
-    </section>
-    <!-- Search Component -->
-    <%if(searchBox){%>
-        <div id="searchBar"
-            class="md:absolute md:top-[35%] lg:top[28%] md:left-[25%] flex justify-start h-8 lg:h-10 w-full md:w-1/2 lg:w-2/4 rounded-full border-2 border-gray-300 bg-white pl-6 md:mr-1 lg:mx-auto focus-within:border-[#e91e63] focus-within:shadow-[0_0_12px_rgba(233,30,99,0.3)] transition-all duration-300">
+        <!-- Mobile Hamburger -->
+        <button id="mobileMenuToggle" class="md:hidden p-2 ht" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
 
-            <div class="relative flex w-full items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400 shrink-0">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <div class="flex w-full ml-2">
-                    <input type="search" placeholder="Search products..." id="homeSearch"
-                        class="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400" />
-                </div>
-                <div id="resultsContainer"
-                    class="hidden left-0 bg-white border border-slate-300 absolute top-10 z-20 flex w-full flex-col rounded-lg text-left shadow-lg">
-                </div>
-            </div>
-            <button id="search_btn" type="button"
-                class="bg-[#e91e63] hover:bg-[#d81b60] w-10 flex justify-center items-center rounded-r-full shrink-0 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                    <polyline points="12 5 19 12 12 19"/>
-                </svg>
-            </button>
-        </div>
-        <%}%>
+    <!-- Mobile Search Bar -->
+    <% if(searchBox) { %>
+    <div id="mobileSearchBar" class="md:hidden hidden pb-3">
+      <div class="relative w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="search" placeholder="Search products..." id="homeSearchMobile" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
+      </div>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileDrawer" class="fixed inset-0 z-[70] hidden">
+    <div id="drawerOverlay" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div style="background: var(--surface);" class="absolute right-0 top-0 h-full w-72 shadow-xl">
+      <div class="flex items-center justify-between px-4 h-16 border-b border-gray-100">
+        <span class="text-base font-semibold text-gray-900">Menu</span>
+        <button id="drawerClose" class="p-2 text-gray-400 hover:text-gray-600 transition-colors" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="p-4 space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Categories</p>
+        <% if(categories && categories.length > 0) { %>
+          <% categories.forEach(category => { %>
+            <a href="/user/getProductList/<%= category._id %>" class="block px-3 py-2 text-sm text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">
+              <%= category.title %>
+            </a>
+          <% }) %>
+        <% } else { %>
+          <p class="text-sm text-gray-400 px-3 py-2">No categories</p>
+        <% } %>
+        <hr class="border-gray-100">
+        <a href="/user/getProductList/newArraival" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">New Arrivals</a>
+        <a href="/user/getProductList/featured" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">Featured</a>
+      </div>
+    </div>
+  </div>
 </header>
 
 <script>
 (function() {
-  document.documentElement.classList.add('dark');
   var header = document.getElementById('mainHeader');
-  function updateHeader() {
-    if (window.scrollY > 80) {
-      header.classList.add('bg-white', 'text-gray-800');
-      header.classList.remove('bg-transparent', 'text-white');
-    } else {
-      header.classList.remove('bg-white', 'text-gray-800');
-      header.classList.add('bg-transparent', 'text-white');
+  var isHomepage = document.body.classList.contains('no-header-pad');
+
+  if (isHomepage) {
+    var threshold = window.innerHeight * 0.55;
+    function updateHeader() {
+      if (window.scrollY > threshold) {
+        header.classList.add('is-scrolled');
+      } else {
+        header.classList.remove('is-scrolled');
+      }
+    }
+    window.addEventListener('scroll', updateHeader, { passive: true });
+    updateHeader();
+  } else {
+    header.classList.add('is-scrolled');
+  }
+
+  var toggle = document.getElementById('mobileSearchToggle');
+  var bar = document.getElementById('mobileSearchBar');
+  if (toggle && bar) {
+    toggle.addEventListener('click', function() {
+      bar.classList.toggle('hidden');
+    });
+  }
+
+  var menuToggle = document.getElementById('mobileMenuToggle');
+  var drawer = document.getElementById('mobileDrawer');
+  var drawerOverlay = document.getElementById('drawerOverlay');
+  var drawerClose = document.getElementById('drawerClose');
+  if (menuToggle && drawer) {
+    menuToggle.addEventListener('click', function() {
+      drawer.classList.toggle('hidden');
+    });
+    drawerOverlay.addEventListener('click', function() {
+      drawer.classList.add('hidden');
+    });
+    if (drawerClose) {
+      drawerClose.addEventListener('click', function() {
+        drawer.classList.add('hidden');
+      });
     }
   }
-  window.addEventListener('scroll', updateHeader);
-  updateHeader();
 })();
 </script>

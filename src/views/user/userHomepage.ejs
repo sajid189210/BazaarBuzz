@@ -1,198 +1,136 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Shopping Site for Fashion.</title>
-    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">    
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/dark-theme.css">
-</head>
-
-<style>
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-        /* Chrome, Safari and Opera */
-    }
-
-    .hide-scrollbar {
-        -ms-overflow-style: none;
-        /* Internet Explorer and Edge */
-        scrollbar-width: none;
-        /* Firefox */
-    }
-</style>
-
-<body>
-    <div class="relative">
-
-        <!-- Header -->
-        <%- include('../partials/userHeader') %>
-
-            <div class="w-full">
-                <main class="bg-white">
-                    <div class="font-[poppins]">
-                        <%- include('../partials/homeCarousel') %>
-
-                        <!-- Categories -->
-
-                        <!-- <div class="relative p-4">
-                            <h1 class="text-lg font-bold text-center m-2 text-[#4b0705]">Explore Categories</h1>
-                            <div class="flex gap-8 mx-auto w-fit max-h-72">
-                                <a href="" class="">
-                                    <div
-                                        class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
-                                        <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
-                                            src="/uploads/still-life-spring-wardrobe-switch.jpg" alt="fashion" /> -->
-                        <!-- Adjust size here -->
-                        <!-- <div
-                                            class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
-                                            <h1 class="text-sm lg:text-lg font-medium ">Fashion</h1>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="" class="">
-                                    <div
-                                        class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
-                                        <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
-                                            src="/uploads/small-purse-studio-still-life.jpg" alt="Bags" /> -->
-                        <!-- Adjust size here -->
-                        <!-- <div
-                                            class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
-                                            <h1 class="text-sm lg:text-lg font-medium ">Bags</h1>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="" class="">
-                                    <div
-                                        class="rounded-lg relative shadow-lg w-fit transition duration-500 ease-in-out hover:shadow-2xl hover:scale-105 overflow-hidden">
-                                        <img class="rounded-lg w-40 h-auto transition-transform duration-500 ease-in-out hover:scale-110"
-                                            src="/uploads/pair-brown-leather-boots.jpg" alt="Shoes" /> -->
-                        <!-- Adjust size here -->
-                        <!-- <div
-                                            class="flex items-center justify-center absolute inset-0 bg-transparent transition duration-300 ease-in-out text-white hover:text-[#556B2F] hover:bg-[#EAF0DC] hover:bg-opacity-70">
-                                            <h1 class="text-sm lg:text-lg font-medium ">Shoes</h1>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div> -->
-
-                        <!-- Featured Section -->
-                        <div class="w-full mb-10 px-4 lg:px-8">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-2xl lg:text-4xl font-bold text-gray-900">Featured</h2>
-                                <a href="/user/getProductList/featured"
-                                    class="text-sm lg:text-base font-medium text-pink-500 hover:text-pink-600 transition-colors">See all featured &rarr;</a>
-                            </div>
-                            <div class="flex gap-5 w-full overflow-auto hide-scrollbar pb-2">
-                                <%if(products && products.length) {%>
-                                    <%products.forEach((product, index)=> {%>
-                                        <%if(product.featured) {
-                                            var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
-                                        %>
-                                        <div class="flex-shrink-0 w-[180px] lg:w-56">
-                                            <a href="/user/viewProduct?productId=<%=product._id%>"
-                                                class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-                                                <div class="relative overflow-hidden aspect-[3/4] bg-gray-50">
-                                                    <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
-                                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                    <% if(product.discount) { %>
-                                                    <div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] lg:text-xs font-bold px-2 py-1 rounded-md">
-                                                        -<%= product.discount %>% off
-                                                    </div>
-                                                    <% } %>
-                                                    <div class="absolute top-2 right-2 w-7 h-7 lg:w-8 lg:h-8 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 lg:w-4 lg:h-4 text-gray-600 hover:text-red-500">
-                                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div class="p-3 lg:p-4">
-                                                    <p class="text-[10px] lg:text-xs text-gray-400 uppercase tracking-wider font-medium"><%= product.brand || 'Premium' %></p>
-                                                    <h3 class="text-sm lg:text-base font-semibold text-gray-800 mt-1 truncate"><%= product.productName %></h3>
-                                                    <div class="flex items-center gap-2 mt-2">
-                                                        <% if(product.discount) { %>
-                                                        <span class="text-base lg:text-lg font-bold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
-                                                        <span class="text-xs lg:text-sm text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
-                                                        <% } else { %>
-                                                        <span class="text-base lg:text-lg font-bold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
-                                                        <% } %>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <%}%>
-                                    <%})%>
-                                <%} %>
-                            </div>
-                        </div>
-
-                        <!-- New Arrivals Section -->
-                        <div class="w-full mb-10 px-4 lg:px-8">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-2xl lg:text-4xl font-bold text-gray-900">New Arrivals</h2>
-                                <a href="/user/getProductList/newArraival"
-                                    class="text-sm lg:text-base font-medium text-pink-500 hover:text-pink-600 transition-colors">See all arrivals &rarr;</a>
-                            </div>
-                            <div class="flex gap-5 w-full overflow-auto hide-scrollbar pb-2">
-                                <%if(products && products.length) {%>
-                                    <%products.forEach((product, index)=> {
-                                        var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
-                                    %>
-                                    <div class="flex-shrink-0 w-[180px] lg:w-56">
-                                        <a href="/user/viewProduct?productId=<%=product._id%>"
-                                            class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-                                            <div class="relative overflow-hidden aspect-[3/4] bg-gray-50">
-                                                <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
-                                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                <% if(product.discount) { %>
-                                                <div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] lg:text-xs font-bold px-2 py-1 rounded-md">
-                                                    -<%= product.discount %>% off
-                                                </div>
+﻿<% bodyClass='no-header-pad bg-white text-gray-900 antialiased' -%><%- include('../partials/homeCarousel')%>
+        <!-- Featured Section -->
+        <section class="py-12 md:py-16 reveal">
+            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+                <div class="flex items-end justify-between mb-8">
+                    <div>
+                        <h2
+                            class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 reveal reveal-delay-1">
+                            Featured</h2>
+                        <p class="mt-2 text-sm text-gray-500 reveal reveal-delay-2">Curated picks just for you</p>
+                    </div> <a href="/user/getProductList/featured"
+                        class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">
+                        View all <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="w-4 h-4">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg> </a>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <% if(products && products.length) { %>
+                        <% products.forEach((product)=> { %> <% if(product.featured) { var discPrice=product.discount ?
+                                Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
+                                product.productPrice; %>
+                                <div class="group"> <a href="/user/viewProduct?productId=<%=product._id%>"
+                                        class="block btn-press">
+                                        <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]"> <img
+                                                src="<%=product.images[0]%>" alt="<%=product.productName%>"
+                                                class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                                            <% if(product.discount) { %>
+                                                <div
+                                                    class="absolute top-3 left-3 bg-[var(--accent)] text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
+                                                    -<%= product.discount %>% off </div>
                                                 <% } %>
-                                                <div class="absolute top-2 right-2 w-7 h-7 lg:w-8 lg:h-8 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 lg:w-4 lg:h-4 text-gray-600 hover:text-red-500">
-                                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                                    </svg>
-                                                </div>
+                                                    <div
+                                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300">
+                                                    </div>
+                                        </div>
+                                        <div class="mt-3 space-y-1">
+                                            <p class="text-[11px] text-gray-400 uppercase tracking-widest">
+                                                <%= product.brand || 'BazaarBuzz' %>
+                                            </p>
+                                            <h3 class="text-sm font-medium text-gray-800 truncate">
+                                                <%= product.productName %>
+                                            </h3>
+                                            <div class="flex items-center gap-2">
+                                                <% if(product.discount) { %> <span
+                                                        class="text-sm font-semibold text-gray-900">₹<%=
+                                                            discPrice.toLocaleString() %></span> <span
+                                                        class="text-xs text-gray-400 line-through">₹<%=
+                                                            product.productPrice.toLocaleString() %></span>
+                                                    <% } else { %> <span class="text-sm font-semibold text-gray-900">₹
+                                                            <%= product.productPrice.toLocaleString() %>
+                                                        </span>
+                                                        <% } %>
                                             </div>
-                                            <div class="p-3 lg:p-4">
-                                                <p class="text-[10px] lg:text-xs text-gray-400 uppercase tracking-wider font-medium"><%= product.brand || 'New' %></p>
-                                                <h3 class="text-sm lg:text-base font-semibold text-gray-800 mt-1 truncate"><%= product.productName %></h3>
-                                                <div class="flex items-center gap-2 mt-2">
-                                                    <% if(product.discount) { %>
-                                                    <span class="text-base lg:text-lg font-bold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
-                                                    <span class="text-xs lg:text-sm text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
-                                                    <% } else { %>
-                                                    <span class="text-base lg:text-lg font-bold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
-                                                    <% } %>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <%})%>
-                                <%} %>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </main>
-                <%- include('../partials/userFooter')%>
+                                        </div>
+                                    </a> </div>
+                                <% } %>
+                                    <% }) %>
+                                        <% } %>
+                </div>
+                <div class="mt-6 text-center sm:hidden"> <a href="/user/getProductList/featured"
+                        class="inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors">
+                        View all featured <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="w-4 h-4">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg> </a> </div>
             </div>
-
-    </div>
-
-
-
-    <script src="/javascript/user/homesearch.js"></script>
-    <script src="/javascript/user/buttonSearch.js"></script>
-</body>
-
-</html>
+        </section><!-- New Arrivals Section -->
+        <section class="py-12 md:py-16 bg-gray-50 reveal">
+            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+                <div class="flex items-end justify-between mb-8">
+                    <div>
+                        <h2
+                            class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 reveal reveal-delay-1">
+                            New Arrivals</h2>
+                        <p class="mt-2 text-sm text-gray-500 reveal reveal-delay-2">The freshest drops this week</p>
+                    </div> <a href="/user/getProductList/newArraival"
+                        class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors">
+                        View all <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="w-4 h-4">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg> </a>
+                </div>
+                <div class="flex gap-4 md:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin"
+                    style="scrollbar-width: thin; -webkit-overflow-scrolling: touch;">
+                    <% if(products && products.length) { %>
+                        <% products.forEach((product)=> { var discPrice = product.discount ?
+                            Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
+                            product.productPrice; %> <div class="group flex-shrink-0 w-[180px] sm:w-[200px] snap-start">
+                                <a href="/user/viewProduct?productId=<%=product._id%>" class="block btn-press">
+                                    <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]"> <img
+                                            src="<%=product.images[0]%>" alt="<%=product.productName%>"
+                                            class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                                        <% if(product.discount) { %>
+                                            <div
+                                                class="absolute top-3 left-3 bg-[var(--accent)] text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
+                                                -<%= product.discount %>% off </div>
+                                            <% } %>
+                                                <div
+                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300">
+                                                </div>
+                                    </div>
+                                    <div class="mt-3 space-y-1">
+                                        <p class="text-[11px] text-gray-400 uppercase tracking-widest">
+                                            <%= product.brand || 'BazaarBuzz' %>
+                                        </p>
+                                        <h3 class="text-sm font-medium text-gray-800 truncate">
+                                            <%= product.productName %>
+                                        </h3>
+                                        <div class="flex items-center gap-2">
+                                            <% if(product.discount) { %> <span
+                                                    class="text-sm font-semibold text-gray-900">₹<%=
+                                                        discPrice.toLocaleString() %></span> <span
+                                                    class="text-xs text-gray-400 line-through">₹<%=
+                                                        product.productPrice.toLocaleString() %></span>
+                                                <% } else { %> <span class="text-sm font-semibold text-gray-900">₹<%=
+                                                            product.productPrice.toLocaleString() %></span>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <% }) %>
+                                <% } %>
+                </div>
+            </div>
+        </section>
+        <% blocks.scripts=`<script src="/javascript/user/homesearch.js">
+            </script>
+            <script src="/javascript/user/buttonSearch.js"></script>` %>

@@ -5,3 +5,7 @@ Extras
 .vscode
 .env
 eslint-config.mjs
+.agents*
+
+skills-lock.json
+tests

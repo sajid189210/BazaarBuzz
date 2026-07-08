@@ -12,7 +12,7 @@ const renderOffer = async (req, res) => {
             Offer.find().sort({ createdAt: -1 })
         ]);
 
-        res.render('admin/offer', { category, offers })
+        res.render('admin/offer', { layout: false, category, offers })
 
     } catch (err) {
         response.serverError(res, err);

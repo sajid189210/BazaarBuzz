@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
+    "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "build": "tailwind -i ./tailwind.css -o ./public/css/style.css",
+    "watch:css": "tailwind -i ./tailwind.css -o ./public/css/style.css --watch",
     "lint": "eslint",
     "create-admin": "node seed/createAdmin.js"
   },
@@ -20,6 +22,8 @@
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-rate-limit": "^8.5.2",
     "express-session": "^1.18.0",
     "express-validator": "^7.2.0",
     "helmet": "^8.0.0",
@@ -41,6 +45,9 @@
     "globals": "^15.11.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.4",
+    "prettier": "^3.9.4",
+    "prettier-plugin-ejs": "^1.0.3",
+    "supertest": "^7.2.2",
     "tailwindcss": "^3.4.10",
     "tw-elements": "^2.0.0"
   }

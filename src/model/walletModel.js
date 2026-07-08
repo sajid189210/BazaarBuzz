@@ -16,20 +16,30 @@ const walletSchema = new mongoose.Schema({
     },
     transactions: [
         {
-            orderId: { type: String },
+            orderId: {
+                type: String,
+            },
+
             amount: {
                 type: Number,
                 required: true,
             },
+
             date: {
                 type: Date,
                 default: Date.now,
             },
+
             type: {
                 type: String,
-                enum: ['credit', 'debit'],
+                enum: ["credit", "debit"],
+                required: true,
             },
-            refunded: { type: Boolean, default: false }
+
+            refunded: {
+                type: Boolean,
+                default: false,
+            },
         },
     ],
 }, { timestamps: true });

@@ -2,6 +2,7 @@ const response = require('../../Services/responseMapper');
 const Wishlist = require('../../model/wishlistModel');
 const User = require('../../model/userModel');
 const Product = require('../../model/productModel');
+const Category = require('../../model/categoryModel');
 
 
 const renderWishlist = async (req, res) => {
@@ -11,9 +12,10 @@ const renderWishlist = async (req, res) => {
 
         const userId = req.session.user.userId;
 
-        const [user, wishlist] = await Promise.all([
+        const [user, wishlist, categories] = await Promise.all([
             User.findById(userId),
-            Wishlist.findOne({ user: userId }).populate('items.product')
+            Wishlist.findOne({ user: userId }).populate('items.product'),
+            Category.find({ isActive: { $ne: false } }),
         ]);
 
         if (!user) throw new Error('Could not find the user or the wishlist.');
@@ -22,16 +24,20 @@ const renderWishlist = async (req, res) => {
             const newWishlist = new Wishlist({ user: userId });
             await newWishlist.save();
             return res.render('user/userWishlist', {
+                title: 'My Wishlist',
                 searchBox: false,
                 wishlist: newWishlist,
                 user: req.session.user || null,
+                categories,
             });
         }
 
         res.render('user/userWishlist', {
+            title: 'My Wishlist',
             searchBox: false,
             wishlist,
             user: req.session.user || null,
+            categories,
         });
 
     } catch (err) {

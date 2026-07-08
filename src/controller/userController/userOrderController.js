@@ -12,24 +12,31 @@ require('dotenv').config();
 const razorPayInstance = require('../../Services/razorPay');
 const { RAZORPAY_KEY_ID } = process.env;
 
+const handleStock = async (item, increment) => {
+    const quantity = increment ? item.quantity : -item.quantity;
 
-
-
-//? Function to handle stocks quantity.
-const handleStock = async (order, paymentMethod) => {
-    const orderedProductDetails = order.orderedProducts.filter(item => item.product);
-
-    orderedProductDetails.forEach(async (orderedProduct) => {
-        const updatedProduct = await Product.updateOne(
-            { _id: orderedProduct.product.toString(), 'variants.size': orderedProduct.selectedSize },
-            { $inc: { 'variants.$.stock': (1 * orderedProduct.quantity) } },
-            { new: true }
-        );
-
-        if (updatedProduct.modifiedCount == 0) {
-            throw new Error(`Error caught while handling stock after product purchase on ${paymentMethod}.`);
+    const product = await Product.findOneAndUpdate(
+        {
+            _id: item.productId,
+            variants: {
+                $elemMatch: {
+                    size: item.selectedSize,
+                    color: item.selectedColor,
+                },
+            },
+        },
+        {
+            $inc: {
+                "variants.$.stock": quantity,
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
         }
-    });
+    );
+
+    return !!product;
 };
 
 //? Validate date
@@ -41,155 +48,210 @@ const validateDate = (date) => {
     return { startOfDay, endOfDay }
 }
 
+const updateOrderStatus = (order) => {
+    const statuses = order.items.map(item => item.status);
+
+    const all = (status) => statuses.every(s => s === status);
+    const some = (status) => statuses.some(s => s === status);
+
+    if (all("cancelled")) {
+        return "cancelled";
+    }
+
+    if (all("returned")) {
+        return "returned";
+    }
+
+    if (some("returned")) {
+        return "partially_returned";
+    }
+
+    if (all("delivered")) {
+        return "delivered";
+    }
+
+    if (some("delivered")) {
+        return "partially_delivered";
+    }
+
+    if (some("shipped")) {
+        return "shipped";
+    }
+
+    return "processing";
+};
+
+// ----------------------------------------
+
 const getOrders = async (req, res) => {
     if (!req.session.user) return res.redirect('/user/signIn');
+
     const userId = req.session.user.userId;
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const search = req.query.search || '';
-        const totalOrders = await Order.countDocuments();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
 
-        let filter = { user: userId }
+    let filter = { user: userId }
 
-        if (search) {
-            const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-            console.log(search)
-            if (regex.test(search)) {
-                const { startOfDay, endOfDay } = validateDate(search);
+    if (search) {
+        const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
 
-                console.log(startOfDay, endOfDay)
+        if (regex.test(search)) {
+            const { startOfDay, endOfDay } = validateDate(search);
 
-                filter.createdAt = {
-                    $gte: startOfDay,
-                    $lte: endOfDay
-                }
+            filter.createdAt = {
+                $gte: startOfDay,
+                $lte: endOfDay
             }
         }
+    }
+
+    try {
+        const totalOrders = await Order.countDocuments(filter);
 
         const orders = await Order.find(filter)
-            .populate('orderedProducts.product')
             .sort({ createdAt: -1 })
             .limit(limit)
-            .skip((page - 1) * limit)
+            .skip((page - 1) * limit);
+
+        const categories = await Category.find({ isActive: { $ne: false } });
 
         res.render('user/userOrders', {
+            title: 'My Orders',
             totalPages: Math.ceil(totalOrders / limit),
             currentPage: page,
             searchBox: false,
             orders,
             limit,
             user: req.session.user || null,
+            categories,
         })
 
     } catch (err) {
-        response.serverError(res, err);}
+        return response.serverError(res, err);
+    }
 }
 
-const returnProduct = async (req, res) => {
+const requestProductReturn = async (req, res) => {
+    if (!req.session.user) return res.redirect('/user/signIn');
+
     const { productId, orderItemId, reason } = req.body;
+
     try {
         const order = await Order.findOneAndUpdate(
-            { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
+            { 'items._id': orderItemId, 'items.productId': productId },
             {
                 $set:
                 {
-                    'orderedProducts.$.returnStatus': 'requested',
-                    'orderedProducts.$.returnReason': reason,
+                    'items.$.return.status': 'requested',
+                    'items.$.return.reason': reason,
+                    status: 'processing'
                 }
             },
-            { new: true }
+            { new: true, runValidators: true }
         );
 
-        if (!order) return response.error(res, "Error handling return...", 400);
+        if (!order) return response.error(res, "Failed to request return request.", 400);
 
         response.success(res, {}, "Order successfully requested for return. Order will be returned when approved.")
 
     } catch (err) {
-        response.serverError(res, err);}
+        return response.serverError(res, err);
+    }
 };
 
 const cancelProduct = async (req, res) => {
-    const { productId, orderItemId, orderId } = req.body;
+    if (!req.session.user) return res.redirect("/user/signIn");
 
-    // Redirect if the user is not authenticated
-    if (!req.session.user) return res.redirect('/user/signIn');
-
+    const { orderItemId, orderId } = req.body;
     const userId = req.session.user.userId;
 
     try {
-        // Find user, order, and wallet in parallel to reduce time complexity
-        const [user, order, wallet] = await Promise.all([
-            User.findOne({ _id: userId }),
-            Order.findOne({ _id: orderId }).populate('coupon'),
-            Wallet.findOne({ user: userId })
+        const [user, order] = await Promise.all([
+            User.findById(userId),
+            Order.findById(orderId),
         ]);
 
-        // Validate existence of user, order, and wallet
-        if (!user || !order || !wallet) {
-            return response.error(res, !user ? "User not found." : !order ? "Order not found." : "Wallet not found.", 404);
+        if (!user || !order) {
+            return response.error(res, !user ? "User not found." : "Order not found.", 404);
         }
 
-        const { paymentMethod, orderedProducts } = order;
+        const item = order.items.id(orderItemId);
 
-        // preparing the update details based on payment method
-        const updateDetails = {
-            'orderedProducts.$.orderStatus': 'cancelled',
-            'orderedProducts.$.paymentStatus': paymentMethod === 'razorpay' || paymentMethod === 'wallet' ? 'refunded' : 'failed',
-        };
-
-        //* Update the order status for the specific product being cancelled
-        const updatedOrder = await Order.findOneAndUpdate(
-            { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
-            { $set: updateDetails },
-            { new: true }
-        );
-
-        // Check if all products are cancelled and update overall order status
-        if (updatedOrder.orderedProducts.every(product => product.orderStatus === 'cancelled')) {
-            await Order.findByIdAndUpdate(orderId, { $set: { allOrdersStatus: 'cancelled', paymentStatus: paymentMethod === 'cod' ? 'failed' : 'refunded' } });
+        if (!item) {
+            return response.error(res, "Product not found in this order.", 404);
         }
 
-        // increases stock.
-        await handleStock(order, paymentMethod);
+        if (item.status === "cancelled") {
+            return response.error(res, "This product has already been cancelled.", 400);
+        }
 
-        //* Handle online payment refunds and save the wallet history.
-        if (paymentMethod === 'razorpay' || paymentMethod === 'wallet') {
-            let totalAmount = orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
-            if (order.coupon) totalAmount -= order.coupon.couponValue;
+        // Restore stock only for this item
+        const stockUpdated = await handleStock(item, true);
 
-            // fetching the cancelled product.
-            const orderedItem = order.orderedProducts.find(item => item._id.toString() === orderItemId);
+        if (!stockUpdated) {
+            return response.error(res, "Failed to process cancellation.", 500);
+        }
 
-            const transactionDetails = {
-                orderId: order._id,
-                amount: orderedItem.totalPay,
-                date: new Date(),
-                type: 'credit'
-            };
+        item.status = "cancelled";
 
-            // Add the transaction to the wallet and save it.
-            wallet.transactions.push(transactionDetails);
-            await wallet.save();
+        // Update order status
+        order.status = updateOrderStatus(order);
 
-            const updateWalletBalance = await Wallet.findOneAndUpdate(
-                { user: userId },
-                { $inc: { balance: totalAmount } },
-                { new: true }
-            );
+        const shouldRefund =
+            order.payment.status === "paid" &&
+            ["wallet", "razorpay"].includes(order.payment.method);
 
-            if (!updateWalletBalance) {
-                return response.error(res, "Refund has failed.", 400);
+        if (shouldRefund) {
+            let wallet = await Wallet.findOne({ user: userId });
+
+            if (!wallet) {
+                wallet = new Wallet({
+                    user: userId,
+                    balance: 0,
+                    transactions: [],
+                });
             }
 
-            return response.success(res, {}, "You have cancelled the product. Money has been refunded into your wallet.");
+            const itemTotal = item.finalPrice * item.quantity;
+            const ratio = itemTotal / order.subtotal;
+
+            const couponShare = (order.coupon?.discount ?? 0) * ratio;
+            const taxShare = (order.tax ?? 0) * ratio;
+
+            const refund = Number(
+                (itemTotal + taxShare - couponShare).toFixed(2)
+            );
+
+            wallet.transactions.push({
+                orderId: order._id,
+                amount: refund,
+                type: "credit",
+                refunded: true,
+            });
+
+            wallet.balance += refund;
+
+            // Mark payment refunded only when the whole order is cancelled
+            if (order.status === "cancelled") {
+                order.payment.status = "refunded";
+            }
+
+            await Promise.all([
+                wallet.save(),
+                order.save(),
+            ]);
+
+            return response.success(res, {}, "You have cancelled the product. The refund has been credited to your wallet.");
         }
 
-        //* Return if payment method is COD
+        await order.save();
+
         return response.success(res, {}, "You have cancelled the product.");
 
     } catch (err) {
-        response.serverError(res, err);}
+        return response.serverError(res, err);
+    }
 };
 
 const retryPayment = async (req, res) => {
@@ -206,7 +268,7 @@ const retryPayment = async (req, res) => {
             return response.error(res, "Order or user was not found", 400);
         }
 
-        const totalPay = repayingOrder.orderedProducts.reduce((acc, item) => acc + item.totalPay, 0);
+        const totalPay = repayingOrder.total;
 
         const options = {
             amount: Math.round(totalPay * 100),
@@ -215,33 +277,27 @@ const retryPayment = async (req, res) => {
             payment_capture: 1
         };
 
-        razorPayInstance.orders.create(options, async (err, order) => {
-            if (err) {
-                console.log(err);
-                return response.error(res, `Something went wrong! ${err}`, 400);
-            }
+        const order = await razorPayInstance.orders.create(options);
 
-            return response.success(res, {
-                success: true,
-                razorPayOrderId: order.id,
-                currency: order.currency,
-                RAZORPAY_KEY_ID,
-                address: repayingOrder.shippingAddress,
-                orderId: repayingOrder._id,
-                user,
-            });
+        return response.success(res, {
+            success: true,
+            razorPayOrderId: order.id,
+            currency: order.currency,
+            RAZORPAY_KEY_ID,
+            address: repayingOrder.shippingAddress,
+            orderId: repayingOrder._id,
+            user,
         });
 
     } catch (err) {
-        response.serverError(res, err);
+        return response.serverError(res, err);
     }
 };
-
 
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.query;
-        const order = await Order.findById(orderId).populate('orderedProducts.product');
+        const order = await Order.findById(orderId);
 
         const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
@@ -290,64 +346,50 @@ const downloadInvoice = async (req, res) => {
             .text('Name', startX + columnSpacing, tableTop)
             .text('Quantity', startX + columnSpacing * 2, tableTop)
             .text('Price', startX + columnSpacing * 3, tableTop)
-            .text('Tax', startX + columnSpacing * 4, tableTop) // Corrected column position for Tax
             .text('Amount', startX + columnSpacing * 5, tableTop)
             .moveDown(3);
 
-        let subTotal = 0; // Initialize subtotal
-        let totalTax = 0; // Initialize total tax
-
         // Ordered Products
-        order.orderedProducts.forEach((item, index) => {
+        order.items.forEach((item, index) => {
             const y = doc.y;
-            const tax = Math.round(item.totalPay * 0.05);
-            subTotal += item.discountedPrice;
-            totalTax += tax;
 
             doc
                 .font('Helvetica')
                 .fontSize(10)
                 .text(index + 1, startX, y)
-                .text(item.product.productName, startX + columnSpacing, y, { width: columnSpacing - 10, align: 'left' })
+                .text(item.name, startX + columnSpacing, y, { width: columnSpacing - 10, align: 'left' })
                 .text(item.quantity, startX + columnSpacing * 2, y)
-                .text(`${item.discountedPrice.toFixed(2)}`, startX + columnSpacing * 3, y)
-                .text(`${tax.toFixed(2)}`, startX + columnSpacing * 4, y)
-                .text(`${item.totalPay.toFixed(2)}`, startX + columnSpacing * 5, y);
+                .text(`${item.unitPrice.toFixed(2)}`, startX + columnSpacing * 3, y)
+                .text(`${item.finalPrice.toFixed(2)}`, startX + columnSpacing * 5, y);
 
             doc.moveDown(8);
         });
-
-
-        // Total Amount Section
-        const totalAmount = order.orderedProducts.reduce((acc, item) => acc + item.totalPay, 0);
 
         const totalSectionTop = doc.y;
 
         doc
             .font('Helvetica')
             .fontSize(12)
-            .text(`Sub Total: ${subTotal.toFixed(2)}`, startX, doc.y, { align: 'right' })
+            .text(`Sub Total: ${order.subtotal.toFixed(2)}`, startX, doc.y, { align: 'right' })
             .moveDown();
 
         doc
             .font('Helvetica')
             .fontSize(12)
-            .text(`Total Tax (5%): ${totalTax.toFixed(2)}`, startX + columnSpacing, totalSectionTop + 15, { align: 'right' })
+            .text(`Total Tax (5%): ${order.tax.toFixed(2)}`, startX + columnSpacing, totalSectionTop + 15, { align: 'right' })
             .moveDown(3);
 
 
         doc
             .font('Helvetica-Bold')
             .fontSize(12)
-            .text(`Total Amount: ${(totalAmount).toFixed(2)}`, startX + columnSpacing * 2, totalSectionTop + 30, { align: 'right' })
+            .text(`Total Amount: ${(order.total).toFixed(2)}`, startX + columnSpacing * 2, totalSectionTop + 30, { align: 'right' })
             .moveDown();
 
         doc.end();
 
     } catch (err) {
-        if (!res.headersSent) {
-            response.serverError(res, err);
-        }
+        return response.serverError(res, err);
     }
 };
 
@@ -355,7 +397,7 @@ const downloadInvoice = async (req, res) => {
 
 module.exports = {
     downloadInvoice,
-    returnProduct,
+    requestProductReturn,
     cancelProduct,
     retryPayment,
     getOrders,

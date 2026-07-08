@@ -13,7 +13,14 @@ const getCategory = async (req, res) => {
         const category = await categoryModel.findById(categoryId);
         if (!category) return response.error(res, "Category not found", 400);
 
-        return response.success(res, { category }, 'Category found');
+        // Return category with brands array for dynamic brand dropdown
+        return response.success(res, { 
+            category: {
+                _id: category._id,
+                title: category.title,
+                brands: category.brands || []
+            }
+        }, 'Category found');
 
     } catch (err) {
         response.serverError(res, err);
@@ -28,24 +35,174 @@ const getProducts = async (req, res) => {
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
+        const search = req.query.search || '';
+        const category = req.query.category || '';
+        const status = req.query.status || '';
+        const stock = req.query.stock || '';
 
         const skip = (page - 1) * limit;
 
-        const products = await Product.find({ isDeleted: false }).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('categoryId');
+        // Build filter query
+        const filter = { isDeleted: false };
+        
+        if (search) {
+            filter.$or = [
+                { productName: { $regex: search, $options: 'i' } },
+                { brand: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (category) {
+            filter.category = category;
+        }
+        
+        if (status !== '') {
+            filter.isActive = status === 'true';
+        }
+        
+        // Build the base query
+        let query = Product.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+        
+        // Apply stock filter using aggregation for variant stock checking
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            query = Product.aggregate([
+                { $match: filter },
+                { $addFields: { 
+                    totalStock: { $sum: "$variants.stock" },
+                    hasStock: { $gt: [{ $sum: "$variants.stock" }, 0] }
+                }},
+                { $match: { 
+                    totalStock: stockFilter 
+                }},
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit }
+            ]);
+        }
+
+        const products = await query;
         const categories = await categoryModel.find();
-        const count = await Product.countDocuments({ isDeleted: false });
+        
+        // Get total count with stock filter applied
+        let count;
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            const countResult = await Product.aggregate([
+                { $match: filter },
+                { $addFields: { totalStock: { $sum: "$variants.stock" } } },
+                { $match: { totalStock: stockFilter } },
+                { $count: "total" }
+            ]);
+            count = countResult.length > 0 ? countResult[0].total : 0;
+        } else {
+            count = await Product.countDocuments(filter);
+        }
 
 
         if (!products) throw new Error("Error caught while fetching product data.");
 
         res.render('admin/productList', {
+            layout: 'admin/layout',
+            title: 'Products',
             products,
             categories,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             limit,
-            page
+            page,
+            searchQuery: search,
+            categoryFilter: category,
+            statusFilter: status,
+            stockFilter: stock,
+            totalCount: count
         });
+
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+// JSON endpoint for AJAX requests
+const getProductsJson = async (req, res) => {
+    try {
+
+        if (!req.session.admin) return response.error(res, 'Unauthorized', 401);
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 8;
+        const search = req.query.search || '';
+        const category = req.query.category || '';
+        const status = req.query.status || '';
+        const stock = req.query.stock || '';
+
+        const skip = (page - 1) * limit;
+
+        // Build filter query
+        const filter = { isDeleted: false };
+        
+        if (search) {
+            filter.$or = [
+                { productName: { $regex: search, $options: 'i' } },
+                { brand: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (category) {
+            filter.category = category;
+        }
+        
+        if (status !== '') {
+            filter.isActive = status === 'true';
+        }
+        
+        // Build the base query
+        let query = Product.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+        
+        // Apply stock filter using aggregation for variant stock checking
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            query = Product.aggregate([
+                { $match: filter },
+                { $addFields: { 
+                    totalStock: { $sum: "$variants.stock" },
+                    hasStock: { $gt: [{ $sum: "$variants.stock" }, 0] }
+                }},
+                { $match: { 
+                    totalStock: stockFilter 
+                }},
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit }
+            ]);
+        }
+
+        const products = await query;
+        
+        // Get total count with stock filter applied
+        let count;
+        if (stock === 'instock' || stock === 'outofstock') {
+            const stockFilter = stock === 'instock' ? { $gt: 0 } : { $lte: 0 };
+            const countResult = await Product.aggregate([
+                { $match: filter },
+                { $addFields: { totalStock: { $sum: "$variants.stock" } } },
+                { $match: { totalStock: stockFilter } },
+                { $count: "total" }
+            ]);
+            count = countResult.length > 0 ? countResult[0].total : 0;
+        } else {
+            count = await Product.countDocuments(filter);
+        }
+
+        response.success(res, {
+            products,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit),
+            totalCount: count,
+            limit
+        }, 'Products fetched successfully');
 
     } catch (err) {
         response.serverError(res, err);
@@ -61,7 +218,7 @@ const getCreateProducts = async (req, res) => {
 
         if (!Category) throw new Error("Error caught while fetching category data.");
 
-        res.render('admin/createProduct', { Category });
+        res.render('admin/createProduct', { layout: 'admin/layout', title: 'Create Product', Category });
 
     } catch (err) {
         response.serverError(res, err);
@@ -70,21 +227,46 @@ const getCreateProducts = async (req, res) => {
 
 //*----------------Create Product Page : POST------------------------------------------------------------------------------------
 const createProducts = async (req, res) => {
-    const { productDetails } = req.body;
     try {
-
-        if (!productDetails) return response.error(res, 'Product details not found.', 400);
-
-        const newProduct = new Product(productDetails);
-
-        try {
-            await newProduct.save();
-        } catch (err) {
-            console.error(err)
-            throw new Error("Error caught while save product data to the db.", err);
+        const { productName, brand, category, productPrice, discount, productDescription } = req.body;
+        
+        // Handle new variant structure: variants[size][stock], variants[size][colors]
+        const variants = req.body.variants || [];
+        
+        if (!variants || variants.length === 0) {
+            return res.redirect('/admin/productList/create');
         }
 
-        response.success(res, {}, "Product successfully created.", 201);
+        let categoryName;
+        if (category) {
+            const catDoc = await categoryModel.findById(category);
+            if (catDoc) categoryName = catDoc.title;
+        }
+
+        // Process variants - each variant has size, stock, and colors array
+        const processedVariants = variants.map(v => ({
+            size: v.size,
+            stock: Number(v.stock) || 0,
+            colors: v.colors ? (Array.isArray(v.colors) ? v.colors : [v.colors]) : []
+        }));
+
+        const productData = {
+            productName,
+            brand,
+            category: categoryName || undefined,
+            productPrice: Number(productPrice),
+            discount: Number(discount) || 0,
+            description: productDescription,
+            variants: processedVariants,
+            images: req.body.images || []
+        };
+
+        Object.keys(productData).forEach(k => productData[k] === undefined && delete productData[k]);
+
+        const newProduct = new Product(productData);
+        await newProduct.save();
+
+        res.redirect('/admin/productList');
 
     } catch (err) {
         response.serverError(res, err);
@@ -107,7 +289,7 @@ const productUpdate = async (req, res) => {
 
         if (!updatedProduct) return response.error(res, "Product not found", 404);
 
-        response.success(res, {}, "$1");
+        response.success(res, {}, "Product updated successfully");
 
     } catch (err) {
         response.serverError(res, err);
@@ -115,7 +297,7 @@ const productUpdate = async (req, res) => {
 };
 
 const isActive = async (req, res) => {
-    const { isActive, productId } = req.body;
+    const { productId } = req.body;
     try {
 
         const product = await Product.findById(productId);
@@ -123,11 +305,12 @@ const isActive = async (req, res) => {
         if (!product) return response.error(res, "Product not found", 400);
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
-            { $set: { isActive: req.body.isActive } },
+            { $set: { isActive: !product.isActive } },
             { new: true }
         );
 
-        response.success(res, { updatedProduct });
+        const status = updatedProduct.isActive ? 'active' : 'inactive';
+        response.success(res, { updatedProduct }, `Product is now ${status}`);
 
     } catch (err) {
         response.serverError(res, err);
@@ -168,8 +351,74 @@ const extractFilePath = async (req, res) => {
     }
 }
 
+const getEditProduct = async (req, res) => {
+    try {
+        if (!req.session.admin) return res.redirect('/admin/signIn');
+        const productId = req.params.id;
+        const product = await Product.findById(productId);
+        const categories = await categoryModel.find();
+        if (!product) return res.redirect('/admin/productList');
+        res.render('admin/editProduct', { layout: 'admin/layout', title: 'Edit Product', product, categories });
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+const postEditProduct = async (req, res) => {
+    try {
+        if (!req.session.admin) return res.redirect('/admin/signIn');
+        const productId = req.params.id;
+        const { productName, brand, category, productPrice, discount, productDescription } = req.body;
+        
+        // Handle new variant structure: variants[size][stock], variants[size][colors]
+        const variants = req.body.variants || [];
+        const images = req.body.images ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) : [];
+
+        if (!variants || variants.length === 0) {
+            return res.redirect('/admin/productList');
+        }
+
+        let categoryName;
+        if (category) {
+            const catDoc = await categoryModel.findById(category);
+            if (catDoc) categoryName = catDoc.title;
+        }
+
+        // Process variants - each variant has size, stock, and colors array
+        const processedVariants = variants.map(v => ({
+            size: v.size,
+            stock: Number(v.stock) || 0,
+            colors: v.colors ? (Array.isArray(v.colors) ? v.colors : [v.colors]) : []
+        }));
+
+        const updateData = {
+            productName,
+            brand,
+            category: categoryName || undefined,
+            productPrice: Number(productPrice),
+            discount: Number(discount) || 0,
+            description: productDescription,
+            images: images.length > 0 ? images : undefined,
+            variants: processedVariants
+        };
+
+        // Remove undefined keys
+        Object.keys(updateData).forEach(k => updateData[k] === undefined && delete updateData[k]);
+
+        const updated = await Product.findByIdAndUpdate(productId,
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!updated) return response.error(res, "Product not found", 404);
+        res.redirect('/admin/productList');
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
 const removeProduct = async (req, res) => {
-    const { productId } = req.query;
+    const productId = req.params.id;
     try {
 
         if (!productId) return response.error(res, "Product ID not found.", 400);
@@ -199,7 +448,10 @@ module.exports = {
     searchProduct,
     extractFilePath,
     getProducts,
+    getProductsJson,
     isActive,
     getCategory,
-    removeProduct
+    removeProduct,
+    getEditProduct,
+    postEditProduct
 }

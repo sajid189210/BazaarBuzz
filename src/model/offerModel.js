@@ -8,11 +8,24 @@ const offerModel = new mongoose.Schema({
     offerName: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true,
+        minlength: [3, 'Offer name must be at least 3 characters.'],
+        maxlength: [20, 'Offer name cannot exceed 20 characters.'],
+
     },
     discount: {
         type: Number,
-        required: true
+        required: true,
+        validate: {
+            validator: function (value) {
+                const discount = this.get?.('discount') ?? this.discount;
+                return productPrice > 0 && productPrice <= 100;
+            },
+            message: function () {
+                return "Discount value must be between 1 and 100"
+            }
+        }
     },
     isActive: {
         type: Boolean,

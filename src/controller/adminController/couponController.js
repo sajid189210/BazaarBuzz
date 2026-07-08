@@ -9,9 +9,9 @@ const renderCouponPage = async (req, res) => {
 
         if (!req.session.admin) return res.redirect('/admin/signIn');
 
-        const coupons = await Coupon.find();
+        const coupons = await Coupon.find().lean();
 
-        res.render('admin/coupon', { coupons });
+        res.render('admin/coupon', { layout: false, coupons });
 
     } catch (err) {
         response.serverError(res, err);
@@ -26,34 +26,40 @@ const createCoupons = async (req, res) => {
 
     // Check for required fields
     if (!couponCode || !couponType || !couponValue || !minAmount || !expiry || !count) {
-        return response.error(res, "Required fields are empty!", 400);
+        return response.error(res, "All fields are required", 400);
+    }
+
+    if (!['price', 'percentage'].includes(couponType)) {
+        return response.error(res, "Invalid coupon type", 400);
+    }
+
+    const couponExists = await Coupon.exists({ couponCode: couponCode.toUpperCase() });
+    if (couponExists) {
+        return response.error(res, "Coupon already exists", 400);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiryDate = new Date(expiry);
+
+    expiryDate.setHours(0, 0, 0, 0);
+
+    if (expiryDate < today) {
+        return response.error(res, "Expiry date must be today or a future date", 400);
     }
 
     try {
-        const existingCoupon = await Coupon.findOne({ couponCode });
-
-        // If coupon exists
-        if (existingCoupon) {
-            // If the coupon type is different, create a new coupon
-            if (existingCoupon.couponType !== couponType) {
-                const newCoupon = new Coupon({ couponCode, couponType, couponValue, minAmount, expiry, count });
-                await newCoupon.save();
-                return response.success(res, {}, "Coupon created successfully.", 201);
-            }
-            return response.error(res, "Coupon already exists.", 400);
-        }
-
-        // Create new coupon
-        const newCoupon = new Coupon({ couponCode, couponType, couponValue, minAmount, expiry, count });
+        const newCoupon = new Coupon({
+            couponCode,
+            couponType,
+            couponValue,
+            minAmount,
+            expiry: expiryDate,
+            count,
+        });
         await newCoupon.save();
-        return response.success(res, {}, "Coupon has been successfully created.", 201);
-
+        return response.success(res, {}, "Coupon created successfully.", 201);
     } catch (err) {
-        if (err.code === 11000) { // MongoDB duplicate key error code
-            console.error(`MongoDB duplicate key error: ${err}`);
-            return response.error(res, "Coupon code must be unique.", 409);
-        }
-
         response.serverError(res, err);
     }
 };
@@ -62,22 +68,27 @@ const updateCoupons = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
 
     try {
-        const { couponCode, couponType, couponValue, minAmount, expiry, count } = req.body;
+        const { couponCode, couponType, couponValue, minAmount, expiry, count, couponId } = req.body;
 
         // Check for required fields
         if (!couponCode || !couponType || !couponValue || !minAmount || !expiry || !count) {
-            return response.error(res, "Required fields are empty!", 400);
+            return response.error(res, "All fields are required!", 400);
         }
 
-        const updatedCoupon = await Coupon.findOneAndUpdate(
-            { couponCode },
-            { $set: { couponType, couponValue, minAmount, expiry, count } },
-            { new: true }
-        )
+        const coupon = await Coupon.findById(couponId);
 
-        if (!updatedCoupon) {
-            return response.error(res, "Coupon Code was not found.", 400);
+        if (!coupon) {
+            return response.error(res, 'Coupon not found.', 404);
         }
+
+        coupon.couponCode = couponCode;
+        coupon.couponType = couponType;
+        coupon.couponValue = couponValue;
+        coupon.minAmount = minAmount;
+        coupon.expiry = expiry;
+        coupon.count = count;
+
+        await coupon.save();
 
         return response.success(res, {}, "You have successfully updated the coupon.");
 

@@ -1,6 +1,7 @@
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
+const Offer = require('../../model/offerModel');
 
 // ? getting category from the database.
 const getCategory = async () => {
@@ -14,10 +15,7 @@ const getCategory = async () => {
 // ? getting product from the database.
 const getProduct = async () => {
     try {
-        return await Product.find({ isActive: true, isDeleted: false }).populate({
-            path: 'categoryId',
-            model: 'Category',
-        });
+        return await Product.find({ isActive: true, isDeleted: false });
     } catch (err) {
         throw new Error("Error caught while getting products from db.", err);
     }
@@ -32,7 +30,7 @@ const filterProducts = async (filterData, products) => {
 
         // filter based on category.
         if (filterData.category) {
-            filterResult = products.filter(product => product.categoryId && product.categoryId.title === filterData.category);
+            filterResult = products.filter(product => product.category === filterData.category);
         }
 
         // filter based on price if specified.
@@ -57,6 +55,14 @@ const filterProducts = async (filterData, products) => {
         throw new Error("Error caught on filterProducts", err);
     }
 }
+// ? getting offers from the database.
+const getOffers = async () => {
+    try {
+        return await Offer.find({ isActive: true });
+    } catch (err) {
+        throw new Error("Error caught while getting offers from db.", err);
+    }
+};
 
 //* this render the product list page
 const renderProductList = async (req, res) => {
@@ -66,16 +72,21 @@ const renderProductList = async (req, res) => {
         if (!collectionId) throw new Error("Id not found");
 
 
-        // Populate categories and products
-        const categories = await getCategory();
-        const products = await getProduct();
+        // Populate categories, products and offers
+        const [categories, products, offers] = await Promise.all([
+            getCategory(),
+            getProduct(),
+            getOffers(),
+        ]);
 
         // Render the page with searched products
         if (collectionId === 'search' && req.session.searchResult) {
             return res.render('user/userProductList', {
+                title: 'Search Results',
                 user: req.session.user || null,
                 categories,
                 products: req.session.searchResult,
+                offers,
                 collectionId,
                 searchBox: true
             });
@@ -83,10 +94,12 @@ const renderProductList = async (req, res) => {
 
         // Render the page with all products
         return res.render('user/userProductList', {
+            title: 'All Products',
             collectionId,
             categories,
             searchBox: true,
             products,
+            offers,
             user: req.session.user || null,
         });
 

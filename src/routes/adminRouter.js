@@ -37,6 +37,7 @@ router.put('/userList/unblocked/:id', userManagement.unBlockUser);
 
 //*------------------[Product Management]--------------------
 router.get('/productList', productManagement.getProducts);
+router.get('/products', productManagement.getProductsJson);
 router.get('/fetchCategory/:id', productManagement.getCategory);
 router.get('/productList/create', productManagement.getCreateProducts);
 router.get('/searchProduct', productManagement.searchProduct);
@@ -45,6 +46,9 @@ router.post('/productList/create', productManagement.createProducts);
 router.post('/uploadImage', upload.single('croppedImage'), productManagement.extractFilePath);
 router.put('/status', productManagement.isActive);
 router.put('/productList/update', productManagement.productUpdate);
+router.get('/editProduct/:id', productManagement.getEditProduct);
+router.post('/editProduct/:id', productManagement.postEditProduct);
+router.delete('/product/:id', productManagement.removeProduct);
 
 //*------------------[Order Management]--------------------
 router.get('/orders', orderController.renderOrderList);

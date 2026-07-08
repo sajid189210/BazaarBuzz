@@ -2,8 +2,71 @@ const response = require('../../Services/responseMapper');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
+const handleStock = async (order, increment) => {
+    const result = await Promise.all(
+        order.items.map((item) => {
+            const quantity = increment ? item.quantity : -item.quantity;
+
+            return Product.findOneAndUpdate(
+                {
+                    _id: item.productId,
+                    variants: {
+                        $elemMatch: {
+                            size: item.selectedSize,
+                            color: item.selectedColor,
+                        },
+                    },
+                },
+                {
+                    $inc: {
+                        "variants.$.stock": quantity,
+                    },
+                },
+                { new: true, runValidators: true }
+            )
+        })
+    );
+    return result.every(product => product !== null);
+};
+
+const updateOrderStatus = (order) => {
+    const statuses = order.items.map(item => item.status);
+
+    const all = (status) => statuses.every(s => s === status);
+    const some = (status) => statuses.some(s => s === status);
+
+    if (all("cancelled")) {
+        return "cancelled";
+    }
+
+    if (all("returned")) {
+        return "returned";
+    }
+
+    if (some("returned")) {
+        return "partially_returned";
+    }
+
+    if (all("delivered")) {
+        return "delivered";
+    }
+
+    if (some("delivered")) {
+        return "partially_delivered";
+    }
+
+    if (some("shipped")) {
+        return "shipped";
+    }
+
+    return "processing";
+};
+
+// -----------------------------------------------------------
+
 const renderOrderList = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
+
     try {
 
         const page = parseInt(req.query.page) || 1;
@@ -13,25 +76,20 @@ const renderOrderList = async (req, res) => {
         let filter = {};
 
         if (search) {
-            // Ensure the search term is a valid ObjectId format
-            if (/^[0-9a-fA-F]{24}$/.test(search)) {
-                filter._id = search;  // Search by _id
-            } else {
-                // Optionally, handle invalid ObjectId search input
-                return response.error(res, "Invalid ObjectId format", 400);
-            }
+            filter._id = search;
         }
 
         const orders = await Order.find(filter)
             .populate('user')
-            .populate('orderedProducts.product')
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit);
 
-        const totalOrders = await Order.countDocuments();
+        const totalOrders = await Order.countDocuments(filter);
 
         res.render('admin/adminOrderList', {
+            layout: 'admin/layout',
+            title: 'Orders',
             currentPage: page,
             totalPages: Math.ceil(totalOrders / limit),
             orders,
@@ -44,13 +102,19 @@ const renderOrderList = async (req, res) => {
 };
 
 const renderOrderView = async (req, res) => {
+    if (!req.session.admin) return res.redirect('/admin/signIn');
+
     const { orderId } = req.query;
 
-    if (!req.session.admin) return res.redirect('/admin/signIn');
     try {
-        const order = await Order.findById(orderId).populate('orderedProducts.product').populate('coupon');
+        const order = await Order.findById(orderId);
 
-        res.render('admin/adminOrderView', { order });
+        if (!order) {
+            req.flash("error", "Failed to load orders.", 400);
+            return res.redirect('/admin/dashboard');
+        }
+
+        res.render('admin/adminOrderView', { layout: 'admin/layout', title: 'Order Details', order });
 
     } catch (err) {
         response.serverError(res, err);
@@ -58,99 +122,206 @@ const renderOrderView = async (req, res) => {
 }
 
 const changeStatus = async (req, res) => {
-    const { orderStatus, orderItemId, productId, paymentStatus } = req.body;
+    if (!req.session.admin) return res.redirect("/admin/signIn");
+
+    const { orderStatus, orderId, orderItemId } = req.body;
+
+    if (!orderStatus || !orderId || !orderItemId) {
+        return response.error(res, "Failed to update status.", 400);
+    }
 
     try {
-        // Validate input
-        if (!orderStatus || !orderItemId || !productId) {
-            return response.error(res, "Missing required fields: orderStatus, orderItemId, or productId", 400);
-        }
+        const order = await Order.findById(orderId);
 
-        // Prepare update object
-        const updateData = { 'orderedProducts.$.orderStatus': orderStatus };
-        if (orderStatus === 'delivered') {
-            updateData['orderedProducts.$.paymentStatus'] = 'paid';
-        } else if (orderStatus === 'cancelled') {
-            updateData['orderedProducts.$.paymentStatus'] = 'refunded';
-        }
-
-        // Find and update the order
-        const order = await Order.findOneAndUpdate(
-            { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
-            { $set: updateData },
-            { new: true }
-        );
-
-        // Handles case where the order was not found
         if (!order) {
-            return response.error(res, "Order item not found", 404);
+            return response.error(res, "Order not found.", 404);
         }
 
-        const allProductsDeliveredAndPaid = order.orderedProducts.every(product => {
-            return (product.orderStatus === 'delivered' && product.paymentStatus === 'paid');
-        });
+        const item = order.items.id(orderItemId);
 
-        const allProductsCancelledAndReturned = order.orderedProducts.every(product => {
-            return (product.orderStatus === 'cancelled' && product.paymentStatus === 'refunded');
-        });
-
-
-        // If all products are delivered, update allOrdersStatus
-        if (allProductsDeliveredAndPaid) {
-            await Order.findOneAndUpdate(
-                { _id: order._id },
-                { $set: { allOrdersStatus: 'delivered', paymentStatus: 'paid' } },
-                { new: true }
-            );
+        if (!item) {
+            return response.error(res, "Order item not found.", 404);
         }
 
-        // If all products are cancelled, update allOrdersStatus
-        if (allProductsCancelledAndReturned) {
-            await Order.findOneAndUpdate(
-                { _id: order._id },
-                { $set: { allOrdersStatus: 'cancelled', paymentStatus: 'refunded' } },
-                { new: true }
-            );
+        if (item.status === orderStatus) {
+            return response.error(res, "Order item is already in this status.", 400);
         }
 
-        // Responds with success
-        res.json({ success: true });
+        item.status = orderStatus;
+
+        if (orderStatus === "cancelled") {
+            const stockUpdated = await handleStock(order, true);
+
+            if (!stockUpdated) {
+                return response.error(res, "Failed to restore product stock.", 500);
+            }
+
+            if (order.payment.status === "paid" && ["razorpay", "wallet"].includes(order.payment.method)) {
+                let wallet = await Wallet.findOne({ user: order.user });
+
+                if (!wallet) {
+                    wallet = new Wallet({
+                        userId: order.user,
+                        balance: 0,
+                        transactions: [],
+                    });
+                }
+
+                const itemTotal = item.finalPrice * item.quantity;
+                const ratio = itemTotal / order.subtotal;
+
+                const couponShare = (order.coupon?.discount ?? 0) * ratio;
+
+                const taxShare = (order.tax ?? 0) * ratio;
+
+                const refund = itemTotal + taxShare - couponShare;
+
+                wallet.transactions.push({
+                    orderId: order._id,
+                    amount: refund,
+                    type: "credit",
+                    refunded: true,
+                });
+
+                wallet.balance += refund;
+
+                try {
+                    order.status = updateOrderStatus(order);
+
+                    await Promise.all([
+                        wallet.save(),
+                        order.save(),
+                    ]);
+
+                } catch (err) {
+                    await handleStock(order, false);
+                    throw err;
+                }
+            } else {
+                order.status = updateOrderStatus(order);
+                await order.save();
+            }
+
+            return response.success(res, { success: true }, "Status changed successfully.");
+        }
+
+        order.status = updateOrderStatus(order);
+
+        await order.save();
+
+        return response.success(res, { success: true }, "Status changed successfully.");
 
     } catch (err) {
-        response.serverError(res, err);
+        return response.serverError(res, err);
     }
 };
-
 
 const returnStatus = async (req, res) => {
-    const { orderItemId, productId, process } = req.body;
+    if (!req.session.admin) return res.redirect("/admin/signIn");
 
-    let updateData = { 'orderedProducts.$.returnStatus': 'approved' };
+    const { orderItemId, orderId, status, reason } = req.body;
+
+    if (!orderItemId || !orderId) {
+        return response.error(res, "Failed to load product data.", 400);
+    }
+
+    if (!["approved", "rejected"].includes(status)) {
+        return response.error(res, "Invalid return status.", 400);
+    }
+
+    if (status === "rejected" && !reason?.trim()) {
+        return response.error(res, "Please provide a reason for rejecting the return.", 400);
+    }
 
     try {
+        const order = await Order.findById(orderId);
 
-        if (!orderItemId || !productId) throw new Error("orderItemId or productId not found");
-
-        // Prepare update object
-        if (!process) {
-            updateData = { 'orderedProducts.$.returnStatus': 'rejected' };
+        if (!order) {
+            return response.error(res, "Order not found.", 404);
         }
 
-        const orderRequest = await Order.findOneAndUpdate(
-            { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
-            { $set: updateData },
-            { new: true }
-        );
+        const item = order.items.id(orderItemId);
 
-        if (!orderRequest) return response.error(res, "Error while rejecting the return", 400);
+        if (!item) {
+            return response.error(res, "Order item not found.", 404);
+        }
 
-        res.json({ success: true });
+        if (!item.return || item.return.status !== "requested") {
+            return response.error(res, "No pending return request found.", 400);
+        }
+
+        if (status === "approved") {
+            let wallet = await Wallet.findOne({ user: order.user });
+
+            if (!wallet) {
+                wallet = new Wallet({
+                    user: order.user,
+                    balance: 0,
+                    transactions: [],
+                });
+            }
+
+            const itemTotal = item.finalPrice * item.quantity;
+            const ratio = itemTotal / order.subtotal;
+
+            const couponShare = (order.coupon?.discount ?? 0) * ratio;
+
+            const taxShare =
+                (order.tax ?? 0) * ratio;
+
+            const refundedAmount =
+                itemTotal + taxShare - couponShare;
+
+            item.status = "returned";
+
+            item.return.status = "approved";
+            item.return.refundedAmount = refundedAmount;
+
+            wallet.transactions.push({
+                orderId: order._id,
+                amount: refundedAmount,
+                type: "credit",
+                refunded: true,
+            });
+
+            wallet.balance += refundedAmount;
+
+            const stockUpdated = await handleStock(order, true);
+
+            if (!stockUpdated) {
+                return response.error(
+                    res,
+                    "Failed to restore product stock.",
+                    500
+                );
+            }
+
+            order.status = updateOrderStatus(order);
+
+            if (order.status === "returned") {
+                order.payment.status = "refunded";
+            }
+
+            await Promise.all([
+                wallet.save(),
+                order.save(),
+            ]);
+
+            return response.success(res, {}, "Return request approved successfully.");
+        }
+
+        // Rejected
+        item.return.status = "rejected";
+        item.return.reason = reason;
+
+        await order.save();
+
+        return response.success(res, {}, "Return request rejected successfully.");
 
     } catch (err) {
-        response.serverError(res, err);
+        return response.serverError(res, err);
     }
 };
-
 
 const refund = async (req, res) => {
     const { productId, orderItemId } = req.body;

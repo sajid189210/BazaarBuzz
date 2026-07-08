@@ -47,7 +47,7 @@ const adminSignIn = async (req, res) => {
             return res.redirect('/admin/dashboard');
         }
 
-        res.render('admin/adminSignIn', { message: req.flash() });
+        res.render('admin/adminSignIn', { layout: 'admin/layout', title: 'Admin Sign In', message: req.flash() });
 
     } catch (err) {
         response.serverError(res, err);

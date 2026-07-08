@@ -9,23 +9,21 @@ const getMonthlySalesRevenue = async () => {
             // Match only completed orders that are "delivered" and have a "paid" status
             {
                 $match: {
-                    allOrdersStatus: "delivered",
-                    paymentStatus: "paid",
+                    status: "delivered",
+                    "payment.status": "paid",
                 }
             },
-            // Unwind the orderedProducts array to treat each product separately
-            { $unwind: "$orderedProducts" },
-            // Add a new field `month` that extracts the month from the `createdAt` field
+            { $unwind: "$items" },
             {
                 $addFields: {
-                    month: { $month: "$createdAt" }
+                    month: { $month: "$createdAt" },
+                    revenue: { $multiply: ["$items.finalPrice", "$items.quantity"] }
                 }
             },
-            // Group by month and sum the totalPay field of each orderedProduct
             {
                 $group: {
                     _id: "$month",
-                    totalRevenue: { $sum: "$orderedProducts.totalPay" }
+                    totalRevenue: { $sum: "$revenue" }
                 }
             },
             // Sort the result by month (ascending order)
@@ -54,25 +52,22 @@ const getMonthlySalesRevenue = async () => {
 const generateRevenueByBrand = async () => {
     try {
         const revenueByBrand = await Order.aggregate([
-            // Unwind orderedProducts to work with each product individually.
-            { $unwind: '$orderedProducts' },
-            // Lookup the Product collection to join with the orderedProducts.
+            { $unwind: '$items' },
             {
                 $lookup: {
                     from: 'products',
-                    localField: 'orderedProducts.product',
+                    localField: 'items.productId',
                     foreignField: '_id',
                     as: 'productDetails'
                 }
             },
             { $unwind: '$productDetails' },
-            // Add a new field 'revenue' that calculates total revenue for this product
             {
                 $addFields: {
                     revenue: {
                         $multiply: [
-                            '$orderedProducts.discountedPrice',
-                            '$orderedProducts.quantity'
+                            '$items.finalPrice',
+                            '$items.quantity'
                         ]
                     }
                 }
@@ -103,16 +98,19 @@ const calculateAOV = async () => {
                 $project: {
                     year: { $year: '$createdAt' },
                     month: { $month: '$createdAt' },
-                    orderedProducts: 1
+                    items: 1
                 }
             },
-            // Stage 2: Unwind the orderedProducts array to work with each product individually
-            { $unwind: '$orderedProducts' },
-            // Stage 3: Group by year and month to sum totalPay and count orders
+            { $unwind: '$items' },
+            {
+                $addFields: {
+                    revenue: { $multiply: ['$items.finalPrice', '$items.quantity'] }
+                }
+            },
             {
                 $group: {
                     _id: { year: '$year', month: '$month' },
-                    totalRevenue: { $sum: '$orderedProducts.totalPay' },
+                    totalRevenue: { $sum: '$revenue' },
                     totalOrders: { $sum: 1 }
                 }
             },
@@ -236,11 +234,16 @@ const repeatCustomerRate = async () => {
 const customerLifetimeValue = async () => {
     try {
         const clv = await Order.aggregate([
-            { $unwind: '$orderedProducts' },
+            { $unwind: '$items' },
+            {
+                $addFields: {
+                    revenue: { $multiply: ['$items.finalPrice', '$items.quantity'] }
+                }
+            },
             {
                 $group: {
                     _id: "$user",
-                    totalSpent: { $sum: "$orderedProducts.totalPay" }
+                    totalSpent: { $sum: "$revenue" }
                 }
             },
             {
@@ -267,12 +270,12 @@ const topSellingProducts = async () => {
     try {
         const topProducts = await Order.aggregate([
             {
-                $unwind: '$orderedProducts'
+                $unwind: '$items'
             },
             {
                 $group: {
-                    _id: '$orderedProducts.product',
-                    totalQuantitySold: { $sum: '$orderedProducts.quantity' }
+                    _id: '$items.productId',
+                    totalQuantitySold: { $sum: '$items.quantity' }
                 }
             },
             {
@@ -342,24 +345,10 @@ const getStockStatus = async () => {
 const fetchOrders = async (limit, page) => {
 
     const filter = {
-        // $or: [
-        //     {
-        //         $nor: [
-        //             {
-        //                 $and: [
-        //                     { allOrdersStatus: { $in: ['delivered', 'returned'] } },
-        //                     { paymentStatus: 'paid' }
-        //                 ]
-        //             }
-        //         ]
-        //     },
-        //     { 'orderedProducts.returnStatus': 'requested' }
-        // ]
-
         $or: [
-            { paymentStatus: 'pending' },
-            { allOrdersStatus: 'processing' },
-            { 'orderedProducts.returnStatus': 'requested' }
+            { 'payment.status': 'pending' },
+            { status: 'processing' },
+            { 'items.return.status': 'requested' }
         ]
     };
 
@@ -396,6 +385,8 @@ const getDashboard = async (req, res) => {
         const { orders, totalOrders } = await fetchOrders(limit, page);
 
         res.render('admin/dashboard', {
+            layout: 'admin/layout',
+            title: 'Dashboard',
             repeatedCustomer,
             revenueByBrand,
             newCustomer,

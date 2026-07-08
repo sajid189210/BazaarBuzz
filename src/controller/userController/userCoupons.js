@@ -1,6 +1,7 @@
 const response = require('../../Services/responseMapper');
 const Coupon = require('../../model/couponModel');
 const User = require('../../model/userModel');
+const Category = require('../../model/categoryModel');
 
 
 const renderCoupons = async (req, res) => {
@@ -8,9 +9,10 @@ const renderCoupons = async (req, res) => {
     const userId = req.session.user.userId;
 
     try {
-        const [coupons, userDetails] = await Promise.all([
+        const [coupons, userDetails, categories] = await Promise.all([
             Coupon.find(),
-            User.findById(userId)
+            User.findById(userId),
+            Category.find({ isActive: { $ne: false } }),
         ]);
 
         if (!coupons || !userDetails) {
@@ -18,10 +20,12 @@ const renderCoupons = async (req, res) => {
         }
 
         res.render('user/userCoupons', {
+            title: 'My Coupons',
             user: req.session.user || null,
             userDetails,
             searchBox: false,
-            coupons
+            coupons,
+            categories,
         });
 
     } catch (err) {
