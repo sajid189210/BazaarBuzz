@@ -99,6 +99,8 @@ const userSignUp = (req, res) => {
         const authErrors = req.session.userAuthErrorMessages || '';
 
         req.session.userAuthErrorMessages = '';
+        
+        res.locals.hideUI = true;
 
         res.render('user/userSignUpPage', {
             title: 'Create Account',
@@ -216,6 +218,8 @@ const userSignIn = (req, res) => {
         const authErrors = req.session.signInAuthErrorMessages || '';
 
         req.session.signInAuthErrorMessages = null;
+
+        res.locals.hideUI = true;
 
         res.render('user/userSignInPage', { title: 'Sign In', authErrors });
     } catch (err) {

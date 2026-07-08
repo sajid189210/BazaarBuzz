@@ -47,6 +47,8 @@ const adminSignIn = async (req, res) => {
             return res.redirect('/admin/dashboard');
         }
 
+        res.locals.hideUI = true;
+
         res.render('admin/adminSignIn', { layout: 'admin/layout', title: 'Admin Sign In', message: req.flash() });
 
     } catch (err) {

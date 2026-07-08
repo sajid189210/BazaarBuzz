@@ -66,7 +66,7 @@ app.use((req, res, next) => {
     res.locals.categories = [];
     res.locals.searchBox = false;
     res.locals.user = null;
-    res.locals.hideUI = true;
+    res.locals.hideUI = false;
     next();
 });
 
