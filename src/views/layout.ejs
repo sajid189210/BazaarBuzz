@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'BazaarBuzz — Online Shopping for Fashion' %></title>
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/style.css">
+    <%- blocks?.head %>
+</head>
+
+<body class="<%= bodyClass || 'bg-white antialiased' %>">
+    <%- include('partials/userHeader', { categories: categories, searchBox: searchBox, user: user }) %>
+    <%- include('partials/userNav', { categories: categories, user: user }) %>
+
+    <main>
+        <%- body %>
+    </main>
+
+    <%- include('partials/userFooter') %>
+
+    <script src="/javascript/user/homesearch.js"></script>
+    <script src="/javascript/user/buttonSearch.js"></script>
+    <%- blocks?.scripts %>
+</body>
+</html>

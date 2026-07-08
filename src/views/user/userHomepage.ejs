@@ -1,142 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BazaarBuzz — Online Shopping for Fashion</title>
-    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
-    <link rel="stylesheet" href="/css/style.css">
-</head>
+<% layout('layout') -%>
+<% bodyClass = 'no-header-pad bg-white text-gray-900 antialiased' -%>
 
-<body class="no-header-pad bg-white text-gray-900 antialiased">
-    <%- include('../partials/userHeader') %>
-    <%- include('../partials/userNav') %>
+<%- include('partials/homeCarousel') %>
 
-    <main>
-        <%- include('../partials/homeCarousel') %>
+<!-- Featured Section -->
+<section class="py-12 md:py-16">
+    <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">Featured</h2>
+                <p class="mt-2 text-sm text-gray-500">Curated picks just for you</p>
+            </div>
+            <a href="/user/getProductList/featured" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
+                View all
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
 
-        <!-- Featured Section -->
-        <section class="py-12 md:py-16">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-8">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">Featured</h2>
-                        <p class="mt-2 text-sm text-gray-500">Curated picks just for you</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            <% if(products && products.length) { %>
+                <% products.forEach((product) => { %>
+                    <% if(product.featured) {
+                        var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
+                    %>
+                    <div class="group">
+                        <a href="/user/viewProduct?productId=<%=product._id%>" class="block">
+                            <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]">
+                                <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
+                                    class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                                <% if(product.discount) { %>
+                                <div class="absolute top-3 left-3 bg-rose-500 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
+                                    -<%= product.discount %>% off
+                                </div>
+                                <% } %>
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+                            </div>
+                            <div class="mt-3 space-y-1">
+                                <p class="text-[11px] text-gray-400 uppercase tracking-widest"><%= product.brand || 'BazaarBuzz' %></p>
+                                <h3 class="text-sm font-medium text-gray-800 truncate"><%= product.productName %></h3>
+                                <div class="flex items-center gap-2">
+                                    <% if(product.discount) { %>
+                                    <span class="text-sm font-semibold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
+                                    <span class="text-xs text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
+                                    <% } else { %>
+                                    <span class="text-sm font-semibold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </a>
                     </div>
-                    <a href="/user/getProductList/featured" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
-                        View all
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </a>
-                </div>
+                    <% } %>
+                <% }) %>
+            <% } %>
+        </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                    <% if(products && products.length) { %>
-                        <% products.forEach((product) => { %>
-                            <% if(product.featured) {
-                                var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
-                            %>
-                            <div class="group">
-                                <a href="/user/viewProduct?productId=<%=product._id%>" class="block">
-                                    <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]">
-                                        <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
-                                            class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
-                                        <% if(product.discount) { %>
-                                        <div class="absolute top-3 left-3 bg-rose-500 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
-                                            -<%= product.discount %>% off
-                                        </div>
-                                        <% } %>
-                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
-                                    </div>
-                                    <div class="mt-3 space-y-1">
-                                        <p class="text-[11px] text-gray-400 uppercase tracking-widest"><%= product.brand || 'BazaarBuzz' %></p>
-                                        <h3 class="text-sm font-medium text-gray-800 truncate"><%= product.productName %></h3>
-                                        <div class="flex items-center gap-2">
-                                            <% if(product.discount) { %>
-                                            <span class="text-sm font-semibold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
-                                            <span class="text-xs text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
-                                            <% } else { %>
-                                            <span class="text-sm font-semibold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                </a>
+        <div class="mt-6 text-center sm:hidden">
+            <a href="/user/getProductList/featured" class="inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
+                View all featured
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals Section -->
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h2>
+                <p class="mt-2 text-sm text-gray-500">The freshest drops this week</p>
+            </div>
+            <a href="/user/getProductList/newArraival" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
+                View all
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            <% if(products && products.length) { %>
+                <% products.forEach((product) => {
+                    var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
+                %>
+                <div class="group">
+                    <a href="/user/viewProduct?productId=<%=product._id%>" class="block">
+                        <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]">
+                            <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
+                                class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                            <% if(product.discount) { %>
+                            <div class="absolute top-3 left-3 bg-rose-500 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
+                                -<%= product.discount %>% off
                             </div>
                             <% } %>
-                        <% }) %>
-                    <% } %>
-                </div>
-
-                <div class="mt-6 text-center sm:hidden">
-                    <a href="/user/getProductList/featured" class="inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
-                        View all featured
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- New Arrivals Section -->
-        <section class="py-12 md:py-16 bg-gray-50">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-8">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h2>
-                        <p class="mt-2 text-sm text-gray-500">The freshest drops this week</p>
-                    </div>
-                    <a href="/user/getProductList/newArraival" class="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
-                        View all
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </a>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                    <% if(products && products.length) { %>
-                        <% products.forEach((product) => {
-                            var discPrice = product.discount ? Math.round(product.productPrice - (product.productPrice * product.discount / 100)) : product.productPrice;
-                        %>
-                        <div class="group">
-                            <a href="/user/viewProduct?productId=<%=product._id%>" class="block">
-                                <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]">
-                                    <img src="<%=product.images[0]%>" alt="<%=product.productName%>"
-                                        class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
-                                    <% if(product.discount) { %>
-                                    <div class="absolute top-3 left-3 bg-rose-500 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
-                                        -<%= product.discount %>% off
-                                    </div>
-                                    <% } %>
-                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
-                                </div>
-                                <div class="mt-3 space-y-1">
-                                    <p class="text-[11px] text-gray-400 uppercase tracking-widest"><%= product.brand || 'BazaarBuzz' %></p>
-                                    <h3 class="text-sm font-medium text-gray-800 truncate"><%= product.productName %></h3>
-                                    <div class="flex items-center gap-2">
-                                        <% if(product.discount) { %>
-                                        <span class="text-sm font-semibold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
-                                        <span class="text-xs text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
-                                        <% } else { %>
-                                        <span class="text-sm font-semibold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            </a>
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
                         </div>
-                        <% }) %>
-                    <% } %>
-                </div>
-
-                <div class="mt-6 text-center sm:hidden">
-                    <a href="/user/getProductList/newArraival" class="inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
-                        View all arrivals
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        <div class="mt-3 space-y-1">
+                            <p class="text-[11px] text-gray-400 uppercase tracking-widest"><%= product.brand || 'BazaarBuzz' %></p>
+                            <h3 class="text-sm font-medium text-gray-800 truncate"><%= product.productName %></h3>
+                            <div class="flex items-center gap-2">
+                                <% if(product.discount) { %>
+                                <span class="text-sm font-semibold text-gray-900">₹<%= discPrice.toLocaleString() %></span>
+                                <span class="text-xs text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
+                                <% } else { %>
+                                <span class="text-sm font-semibold text-gray-900">₹<%= product.productPrice.toLocaleString() %></span>
+                                <% } %>
+                            </div>
+                        </div>
                     </a>
                 </div>
-            </div>
-        </section>
-    </main>
+                <% }) %>
+            <% } %>
+        </div>
 
-    <%- include('../partials/userFooter') %>
+        <div class="mt-6 text-center sm:hidden">
+            <a href="/user/getProductList/newArraival" class="inline-flex items-center gap-1 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors">
+                View all arrivals
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
 
-    <script src="/javascript/user/homesearch.js"></script>
-    <script src="/javascript/user/buttonSearch.js"></script>
-</body>
-</html>
+<% blocks.scripts = `<script src="/javascript/user/homesearch.js"></script><script src="/javascript/user/buttonSearch.js"></script>` %>

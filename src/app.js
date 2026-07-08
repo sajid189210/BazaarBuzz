@@ -12,6 +12,8 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const expressLayouts = require('express-ejs-layouts');
+
 
 //* Middleware Setup
 app.use(nocache());
@@ -53,6 +55,10 @@ app.use(passport.session());
 //* View setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+//* Express EJS Layouts
+app.use(expressLayouts);
+app.set('layout', 'layout'); // Default layout for all views
 
 
 //* Static files
