@@ -1,4 +1,52 @@
 ﻿<% bodyClass='no-header-pad bg-white text-gray-900 antialiased' -%><%- include('../partials/homeCarousel')%>
+        <!-- Categories Section -->
+        <section class="py-12 md:py-16 reveal">
+            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h2
+                        class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 reveal reveal-delay-1">
+                        Shop by Category</h2>
+                    <p class="mt-2 text-sm text-gray-500 reveal reveal-delay-2">Explore our curated collections</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <% if(categories && categories.length) { %>
+                        <% categories.forEach((category)=> { %>
+                            <a href="/user/filterProductList/all?categoryFilter=<%= category.title %>" class="group block btn-press">
+                                <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-square">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-200 group-hover:text-[var(--accent)] transition-colors duration-300">
+                                            <%= category.title.charAt(0).toUpperCase() %>
+                                        </span>
+                                    </div>
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                                        <h3 class="text-sm md:text-base font-semibold text-white truncate">
+                                            <%= category.title.charAt(0).toUpperCase() + category.title.slice(1) %>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                        <%= category.brands?.length || 0 %> brands
+                                    </span>
+                                    <span class="text-xs font-medium text-[var(--accent)] group-hover:underline flex items-center gap-1">
+                                        Shop now
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                                            <line x1="5" y1="12" x2="19" y2="12" />
+                                            <polyline points="12 5 19 12 12 19" />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </a>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="col-span-full text-center py-12">
+                            <p class="text-gray-500">No categories available</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </section>
         <!-- Featured Section -->
         <section class="py-12 md:py-16 reveal">
             <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
@@ -22,7 +70,7 @@
                         <% products.forEach((product)=> { %> <% if(product.featured) { var discPrice=product.discount ?
                                 Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
                                 product.productPrice; %>
-                                <div class="group"> <a href="/user/viewProduct?productId=<%=product._id%>"
+                                <div class="group"> <a href="/user/viewProductId=<%=product._id%>"
                                         class="block btn-press">
                                         <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-[3/4]"> <img
                                                 src="<%=product.images[0]%>" alt="<%=product.productName%>"
