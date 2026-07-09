@@ -67,6 +67,7 @@ app.use((req, res, next) => {
     res.locals.searchBox = false;
     res.locals.user = null;
     res.locals.hideUI = false;
+    res.locals.bodyClass = 'antialiased';
     next();
 });
 

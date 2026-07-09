@@ -12,7 +12,7 @@ async function removeItem(itemId) {
             const response = await fetch(`/user/cart/removeItem`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ itemId })
+                body: JSON.stringify({ itemId }) 
             });
             const data = await response.json();
             if (!data.success) {

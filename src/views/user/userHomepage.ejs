@@ -1,128 +1,134 @@
 ﻿<!-- <%- bodyClass='no-header-pad bg-white text-gray-900 antialiased' -%> -->
-<%- include('../partials/homeCarousel')%>
+<%- blocks.head=`<script src="/javascript/user/reveal.js"></script>` %>
+    <%- include('../partials/homeCarousel')%>
 
         <!-- FEATURED PRODUCTS (Primary Conversion Driver) -->
         <section class="py-12 md:py-16 reveal">
             <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-                <%- include('../partials/sectionHeader', {
-                    title: 'Featured Products',
-                    subtitle: 'Our curated picks for you',
-                    cta: { href: '/user/getProductList/featured', label: 'View all' }
-                }) %>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                    <% if(products && products.length) { %>
-                        <% products.forEach((product)=> { 
-                            if(product.featured) { 
+                <%- include('../partials/sectionHeader', { title: 'Featured Products' ,
+                    subtitle: 'Our curated picks for you' , cta: { href: '/user/getProductList/featured' ,
+                    label: 'View all' } }) %>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                        <% if(products && products.length) { %>
+                            <% products.forEach((product)=> {
+                                if(product.featured) {
                                 var discPrice = product.discount ?
-                                    Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
-                                    product.productPrice; 
-                        %>
-                            <%- include('../partials/productCard', { product, discPrice }) %>
-                        <% } %>
-                        <% }) %>
-                    <% } else { %>
-                        <div class="col-span-full text-center py-12">
-                            <p class="text-gray-500">No featured products available</p>
-                        </div>
-                    <% } %>
-                </div>
-                
-                <!-- Mobile View All -->
-                <div class="mt-6 text-center sm:hidden">
-                    <a href="/user/getProductList/featured" class="inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors btn-press">
-                        View all featured
-                        <svg class="w-4 h-4" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                            <polyline points="12 5 19 12 12 19" />
-                        </svg>
-                    </a>
-                </div>
+                                Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
+                                product.productPrice;
+                                %>
+                                <%- include('../partials/productCard', { product, discPrice }) %>
+                                    <% } %>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="col-span-full text-center py-12">
+                                                    <p class="text-gray-500">No featured products available</p>
+                                                </div>
+                                                <% } %>
+                    </div>
+
+                    <!-- Mobile View All -->
+                    <div class="mt-6 text-center sm:hidden">
+                        <a href="/user/getProductList/featured"
+                            class="inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors btn-press">
+                            View all featured
+                            <svg class="w-4 h-4" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                        </a>
+                    </div>
             </div>
         </section>
 
         <!-- NEW ARRIVALS (Freshness Signal - Now Grid) -->
         <section class="py-12 md:py-16 bg-gray-50 reveal">
             <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-                <%- include('../partials/sectionHeader', {
-                    title: 'New Arrivals',
-                    subtitle: 'The freshest drops this week',
-                    cta: { href: '/user/getProductList/newArrival', label: 'View all' }
-                }) %>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                    <% if(products && products.length) { %>
-                        <% products.forEach((product)=> { 
-                            var discPrice = product.discount ?
+                <%- include('../partials/sectionHeader', { title: 'New Arrivals' ,
+                    subtitle: 'The freshest drops this week' , cta: { href: '/user/getProductList/newArrival' ,
+                    label: 'View all' } }) %>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                        <% if(products && products.length) { %>
+                            <% products.forEach((product)=> {
+                                var discPrice = product.discount ?
                                 Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
-                                product.productPrice; 
-                        %>
-                            <%- include('../partials/productCard', { product, discPrice }) %>
-                        <% }) %>
-                    <% } else { %>
-                        <div class="col-span-full text-center py-12">
-                            <p class="text-gray-500">No new arrivals yet</p>
-                        </div>
-                    <% } %>
-                </div>
+                                product.productPrice;
+                                %>
+                                <%- include('../partials/productCard', { product, discPrice }) %>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="col-span-full text-center py-12">
+                                                <p class="text-gray-500">No new arrivals yet</p>
+                                            </div>
+                                            <% } %>
+                    </div>
             </div>
         </section>
 
         <!-- SHOP BY CATEGORY (Navigation Aid) -->
         <section class="py-12 md:py-16 reveal">
             <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-                <%- include('../partials/sectionHeader', {
-                    title: 'Shop by Category',
-                    subtitle: 'Explore our curated collections'
-                }) %>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                    <% if(categories && categories.length) { %>
-                        <% categories.forEach((category)=> { %>
-                            <a href="/user/filterProductList/all?categoryFilter=<%= category.title %>" class="group block btn-press">
-                                <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-square">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-200 group-hover:text-[var(--accent)] transition-colors duration-300">
-                                            <%= category.title.charAt(0).toUpperCase() %>
+                <%- include('../partials/sectionHeader', { title: 'Shop by Category' ,
+                    subtitle: 'Explore our curated collections' }) %>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                        <% if(categories && categories.length) { %>
+                            <% categories.forEach((category)=> { %>
+                                <a href="/user/filterProductList/all?categoryFilter=<%= category.title %>"
+                                    class="group block btn-press">
+                                    <div class="relative overflow-hidden rounded-xl bg-gray-50 aspect-square">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span
+                                                class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-200 group-hover:text-[var(--accent)] transition-colors duration-300">
+                                                <%= category.title.charAt(0).toUpperCase() %>
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300">
+                                        </div>
+                                        <div
+                                            class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                                            <h3 class="text-sm md:text-base font-semibold text-white truncate">
+                                                <%= category.title.charAt(0).toUpperCase() + category.title.slice(1) %>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                            <%= category.brands?.length || 0 %> brands
+                                        </span>
+                                        <span
+                                            class="text-xs font-medium text-[var(--accent)] group-hover:underline flex items-center gap-1">
+                                            Shop now
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                                stroke-linejoin="round" class="w-3.5 h-3.5">
+                                                <line x1="5" y1="12" x2="19" y2="12" />
+                                                <polyline points="12 5 19 12 12 19" />
+                                            </svg>
                                         </span>
                                     </div>
-                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
-                                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
-                                        <h3 class="text-sm md:text-base font-semibold text-white truncate">
-                                            <%= category.title.charAt(0).toUpperCase() + category.title.slice(1) %>
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="mt-3 flex items-center justify-between">
-                                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                        <%= category.brands?.length || 0 %> brands
-                                    </span>
-                                    <span class="text-xs font-medium text-[var(--accent)] group-hover:underline flex items-center gap-1">
-                                        Shop now
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
-                                            <line x1="5" y1="12" x2="19" y2="12" />
-                                            <polyline points="12 5 19 12 12 19" />
-                                        </svg>
-                                    </span>
-                                </div>
-                            </a>
-                        <% }) %>
-                    <% } else { %>
-                        <div class="col-span-full text-center py-12">
-                            <p class="text-gray-500">No categories available</p>
-                        </div>
-                    <% } %>
-                </div>
+                                </a>
+                                <% }) %>
+                                    <% } else { %>
+                                        <div class="col-span-full text-center py-12">
+                                            <p class="text-gray-500">No categories available</p>
+                                        </div>
+                                        <% } %>
+                    </div>
             </div>
         </section>
 
         <!-- SEASONAL SALE BANNER (Promotional) -->
         <section class="py-12 md:py-16 bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] reveal">
             <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-                <div class="relative rounded-2xl overflow-hidden bg-black/10 backdrop-blur-sm p-8 md:p-12 lg:p-16 text-center">
+                <div
+                    class="relative rounded-2xl overflow-hidden bg-black/10 backdrop-blur-sm p-8 md:p-12 lg:p-16 text-center">
                     <div class="absolute inset-0 bg-[url('/uploads/banner2.gif')] bg-cover bg-center opacity-10"></div>
                     <div class="relative z-10 max-w-2xl mx-auto">
-                        <p class="text-xs font-semibold uppercase tracking-widest text-white/80 mb-3">Limited Time Offer</p>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-white/80 mb-3">Limited Time Offer
+                        </p>
                         <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
                             Season Sale - Up to <span class="text-yellow-300">50% Off</span>
                         </h2>
@@ -151,21 +157,20 @@
                     <!-- Brands Showcase -->
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Trusted Brands</h3>
-                        <div class="flex flex-wrap items-center gap-4 md:gap-8 opacity-60 hover:opacity-100 transition-opacity">
+                        <div
+                            class="flex flex-wrap items-center gap-4 md:gap-8 opacity-60 hover:opacity-100 transition-opacity">
                             <% if(categories && categories.length) { %>
-                                <% 
-                                    const allBrands = [];
-                                    categories.forEach(cat => {
-                                        if(cat.brands) cat.brands.forEach(b => allBrands.push(b));
+                                <% const allBrands=[]; categories.forEach(cat=> {
+                                    if(cat.brands) cat.brands.forEach(b => allBrands.push(b));
                                     });
                                     const uniqueBrands = [...new Set(allBrands)];
-                                %>
-                                <% uniqueBrands.slice(0, 8).forEach((brand)=> { %>
-                                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                                        <%= brand.charAt(0).toUpperCase() + brand.slice(1) %>
-                                    </span>
-                                <% }) %>
-                            <% } %>
+                                    %>
+                                    <% uniqueBrands.slice(0, 8).forEach((brand)=> { %>
+                                        <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                                            <%= brand.charAt(0).toUpperCase() + brand.slice(1) %>
+                                        </span>
+                                        <% }) %>
+                                            <% } %>
                         </div>
                     </div>
                     <!-- Customer Reviews Summary -->
@@ -173,22 +178,48 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">What Our Customers Say</h3>
                         <div class="flex items-center gap-3 mb-4">
                             <div class="flex text-yellow-400">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.11118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
+                                </svg>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
+                                </svg>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
+                                </svg>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.11118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
+                                </svg>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
+                                </svg>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
+                                </svg>
                             </div>
                             <span class="text-sm text-gray-600">4.8 (1,200+ reviews)</span>
                         </div>
-                        <p class="text-sm text-gray-600 italic max-w-xs">"Fast delivery, great quality, and the styles are exactly what I was looking for!"</p>
+                        <p class="text-sm text-gray-600 italic max-w-xs">"Fast delivery, great quality, and the styles
+                            are exactly what I was looking for!"</p>
                     </div>
                     <!-- Newsletter Signup -->
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Join the BazaarBuzz Club</h3>
                         <p class="text-sm text-gray-600 mb-4">Get 10% off your first order + early access to sales</p>
-                        <form id="newsletter-form" class="flex gap-2 max-w-xs" action="/user/newsletter/subscribe" method="POST">
+                        <form id="newsletter-form" class="flex gap-2 max-w-xs" action="/user/newsletter/subscribe"
+                            method="POST">
                             <input type="email" name="email" placeholder="Enter your email"
                                 class="flex-1 px-4 py-2.5 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
                                 required aria-label="Email address">
@@ -203,5 +234,6 @@
             </div>
         </section>
 
-        <% blocks.scripts=`<script src="/javascript/user/homesearch.js"></script>
+        <% blocks.scripts=`<script src="/javascript/user/homesearch.js">
+            </script>
             <script src="/javascript/user/buttonSearch.js"></script>` %>

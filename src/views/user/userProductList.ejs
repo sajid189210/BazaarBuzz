@@ -1,6 +1,6 @@
 ﻿<% blocks.head=` <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><div
-        class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-12"> <!-- Breadcrumbs -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %>
+    <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-12"> <!-- Breadcrumbs -->
         <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-6"> <a href="/"
                 class="hover:text-[var(--accent)] transition-colors btn-press">Home</a> <svg
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -92,7 +92,8 @@
                                         <% if(hasOffer && product.discount) { %>
                                             <div class="absolute top-3 left-3 flex gap-1"> <span
                                                     class="bg-[var(--accent)] text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">-
-                                                    <%= product.discount %>% off</span> <span
+                                                    <%= product.discount %>% off
+                                                </span> <span
                                                     class="bg-green-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
                                                     <%= matchedOffer.offerName %> -<%= matchedOffer.discount %>%
                                                 </span> </div>
@@ -132,7 +133,8 @@
                                                     matchedOffer.offerName %> applied</p>
                                             <% } %>
                                     </div>
-                                </a> </div>
+                                </a>
+                            </div>
                             <% }) %>
                                 <% } else { %>
                                     <div class="col-span-full flex flex-col items-center justify-center py-20"> <svg
