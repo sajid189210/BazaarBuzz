@@ -443,9 +443,6 @@ function selectSize(btn, size, stock) {
     populateColors(size);
     
     updateStockDisplay(stock);
-    
-    selectedColor = null;
-    document.getElementById('selectedColor').value = '';
 }
 
 function populateColors(size) {
@@ -457,6 +454,8 @@ function populateColors(size) {
     const variant = variants.find(v => v.size === size);
     if (!variant || !variant.colors || variant.colors.length === 0) {
         colorSection.style.display = 'none';
+        selectedColor = null;
+        document.getElementById('selectedColor').value = '';
         return;
     }
     
@@ -503,6 +502,9 @@ function populateColors(size) {
     const firstAvailable = colorSwatches.querySelector('.color-swatch:not(.out-of-stock)');
     if (firstAvailable) {
         selectColor(firstAvailable, firstAvailable.dataset.color, parseInt(firstAvailable.dataset.stock));
+    } else {
+        selectedColor = null;
+        document.getElementById('selectedColor').value = '';
     }
 }
 
@@ -532,20 +534,30 @@ function selectColor(btn, color, stock) {
 function updateStockDisplay(stock) {
     const badge = document.getElementById('stockBadge');
     const text = document.getElementById('stockText');
+    const barFill = document.getElementById('stockBarFill');
+    const barWrap = document.getElementById('stockBarWrap');
     
     if (stock <= 0) {
         badge.className = 'stock-badge out-of-stock';
         badge.textContent = 'Out of Stock';
         text.textContent = 'This variant is currently unavailable';
+        barFill.style.width = '0%';
+        barWrap.style.display = 'none';
     } else if (stock <= 5) {
         badge.className = 'stock-badge low-stock';
         badge.textContent = 'Low Stock';
         text.textContent = `Only ${stock} left`;
+        barWrap.style.display = '';
+        barFill.style.width = `${Math.round(stock / 5 * 100)}%`;
+        barFill.style.background = 'var(--warning, #f59e0b)';
     } else {
+        const pct = Math.min(stock / 50 * 100, 100);
         badge.className = 'stock-badge in-stock';
-        badge.classList.remove('out-of-stock', 'low-stock');
         badge.textContent = 'In Stock';
         text.textContent = `${stock} available`;
+        barWrap.style.display = '';
+        barFill.style.width = `${Math.round(pct)}%`;
+        barFill.style.background = 'var(--success, #16a34a)';
     }
     
     const addToCartBtn = document.getElementById('addToCartBtn');
@@ -656,36 +668,6 @@ async function toggleWishList(productId) {
     } catch (e) { 
         console.log(e); 
         Toast.fire({ icon: 'error', title: 'Something went wrong' }); 
-    }
-}
-
-// ==================== PINCODE CHECK (MOCK) ====================
-function checkPincode() {
-    const pincode = document.getElementById('pincode').value.trim();
-    const result = document.getElementById('pincodeResult');
-    
-    if (!pincode || pincode.length !== 6 || !/^\d{6}$/.test(pincode)) {
-        result.innerHTML = '<span style="color: var(--error);">Please enter a valid 6-digit pincode</span>';
-        return;
-    }
-    
-    const isServiceable = Math.random() > 0.2;
-    const days = Math.floor(Math.random() * 3) + 3;
-    
-    if (isServiceable) {
-        result.innerHTML = `<span style="color: var(--success); font-weight: 600;">✓ Delivery available</span> - Estimated delivery: ${days}-${days+2} business days`;
-    } else {
-        result.innerHTML = `<span style="color: var(--error);">✗ Delivery not available</span> to this pincode yet. We're expanding!`;
-    }
-    
-    if (!prefersReducedMotion) {
-        result.style.opacity = '0';
-        result.style.transform = 'translateY(-4px)';
-        requestAnimationFrame(() => {
-            result.style.transition = 'all 300ms cubic-bezier(0.16, 1, 0.3, 1)';
-            result.style.opacity = '1';
-            result.style.transform = 'translateY(0)';
-        });
     }
 }
 

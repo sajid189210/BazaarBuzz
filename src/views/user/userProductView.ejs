@@ -120,7 +120,7 @@
               <span style="font-weight: 400; color: var(--text-muted);">(Required)</span></label>
             <div class="size-chips" id="sizeChips" role="radiogroup" aria-label="Select size">
               <% if(sizeData && sizeData.length> 0) { %><% sizeData.forEach((s,
-                                                            idx)=> { %> <button type="button" class="size-chip<%= idx === 0 && !s.isOutOfStock ? 'selected' : '' %><%= s.isLowStock ? 'low-stock' : '' %><%= s.isOutOfStock ? 'out-of-stock' : '' %>" data-size="<%= s.size %>" data-stock="<%= s.stock %>" onclick="selectSize(this, '<%= s.size %>',<%= s.stock %>)" <%= s.isOutOfStock ? 'disabled' : '' %> role="radio" aria-checked="<%= idx===0 && !s.isOutOfStock ? 'true'
+                                                            idx)=> { %> <button type="button" class="size-chip<%= idx === 0 && !s.isOutOfStock ? ' selected' : '' %><%= s.isLowStock ? ' low-stock' : '' %><%= s.isOutOfStock ? ' out-of-stock' : '' %>" data-size="<%= s.size %>" data-stock="<%= s.stock %>" onclick="selectSize(this, '<%= s.size %>',<%= s.stock %>)" <%= s.isOutOfStock ? 'disabled' : '' %> role="radio" aria-checked="<%= idx===0 && !s.isOutOfStock ? 'true'
                                                                     : 'false' %>" tabindex="0"><%= s.size %>
                 <% if(s.isLowStock && !s.isOutOfStock) { %>
                 <span class="stock-badge-inline">Low
@@ -141,26 +141,25 @@
 
             </div>
           </div>
-          <div class="stock-delivery-row">
-            <div style="display: flex; align-items: center; gap: var(--spacing-md); flex: 1; min-width: 0;">
+          <div class="stock-row">
+            <div class="stock-info">
               <span id="stockBadge" class="stock-badge in-stock">In Stock</span>
               <span id="stockText" class="stock-text"></span>
+              <div id="stockBarWrap" class="stock-bar-wrap">
+                <div id="stockBarFill" class="stock-bar-fill"></div>
+              </div>
             </div>
-            <div class="pincode-field"> <label for="pincode">Delivery:</label>
-              <input type="text" id="pincode" class="pincode-input" placeholder="Pincode" maxlength="6" pattern="[0-9]*" inputmode="numeric" aria-label="Enter pincode to check delivery" /> <button type="button" class="pincode-btn" onclick="checkPincode()">Check</button>
+            <div class="stock-qty">
+              <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">Qty</label>
+              <div class="qty-selector"> <button type="button" class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg> </button> <span id="quantityValue" class="qty-value">1</span> <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg> </button> <span id="maxStockHint" class="qty-hint"></span> </div>
             </div>
-            <div id="pincodeResult" class="pincode-result" aria-live="polite"></div>
-          </div>
-          <div style="display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap;">
-            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">Qty</label>
-            <div class="qty-selector"> <button type="button" class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg> </button> <span id="quantityValue" class="qty-value">1</span> <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg> </button> <span id="maxStockHint" class="qty-hint"></span> </div>
           </div>
           <div class="action-row"> <button type="submit" id="addToCartBtn" class="btn-primary" disabled> Add to Cart </button> <button type="button" id="wishlistBtn" onclick="toggleWishList('<%= product._id %>')" class="btn-wishlist<%= isInWishlist ? 'filled' : '' %>" aria-label="<%= isInWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

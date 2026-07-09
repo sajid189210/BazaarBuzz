@@ -351,58 +351,52 @@
   color: var(--text-secondary);
 }
 
-.pincode-field {
-  display: inline-flex;
+.stock-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.stock-info .stock-badge {
+  align-self: flex-start;
+}
+
+.stock-bar-wrap {
+  width: 100%;
+  max-width: 200px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.stock-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1), background 400ms ease;
+}
+
+.stock-qty {
+  display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
-.pincode-field label {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.pincode-input {
-  width: 120px;
-  height: 40px;
-  padding: 0 var(--spacing-sm);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background: var(--surface);
-  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
-}
-
-.pincode-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-light);
-}
-
-.pincode-btn {
-  height: 40px;
-  padding: 0 var(--spacing-md);
-  border-radius: var(--radius-md);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-light);
-  border: 1px solid var(--accent-border);
-  transition: all var(--motion-fast) var(--motion-easing);
-}
-
-.pincode-btn:hover {
-  background: var(--accent);
-  color: white;
-}
-
-.pincode-result {
-  font-size: 0.75rem;
-  margin-top: var(--spacing-xs);
-  width: 100%;
+.stock-delivery-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .trust-strip {
