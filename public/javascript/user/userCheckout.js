@@ -3,12 +3,15 @@ async function applyCoupon() {
     const msg = document.getElementById('couponMessage');
     if (!code) { msg.textContent = 'Please enter a coupon code'; msg.className = 'mt-2 text-xs text-red-500'; return; }
     try {
-        const res = await fetch('/user/applyCoupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+        const res = await fetch('/user/applyCoupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ inputValue: code }) });
         const data = await res.json();
         if (data.success) {
-            document.getElementById('discountRow').classList.remove('hidden');
-            document.getElementById('discountAmount').textContent = '-₹' + data.discount.toLocaleString();
-            document.getElementById('checkoutTotal').textContent = '₹' + (data.newTotal || 0).toLocaleString();
+            document.getElementById('couponDiscountRow').classList.remove('hidden');
+            document.getElementById('couponDiscountAmount').textContent = data.couponDiscount.toLocaleString();
+            var baseTotal = parseFloat(document.getElementById('checkoutTotal').dataset.total);
+            var newTotal = baseTotal - data.couponDiscount;
+            document.getElementById('checkoutTotal').textContent = '₹' + newTotal.toLocaleString();
+            document.getElementById('checkoutTotal').dataset.total = newTotal.toFixed(2);
             msg.textContent = 'Coupon applied!';
             msg.className = 'mt-2 text-xs text-green-600';
         } else {

@@ -1,5 +1,7 @@
 ﻿<% blocks.head=` <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><div
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/javascript/ntc.js"></script>
+    <style>.cart-color{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}.cart-color-dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #d1d5db;flex-shrink:0;background:#e5e7eb}</style>` %><div
         class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">
         <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8"> <a href="/"
                 class="hover:text-[var(--accent)] transition-colors btn-press">Home</a> <svg
@@ -9,7 +11,7 @@
             </svg> <span class="text-gray-800 font-medium">Cart</span> </nav>
         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
         <div class="lg:flex lg:gap-10">
-            <div class="flex-1 min-w-0">
+            <div class="flex-1 min-w-0 max-h-[calc(100vh-280px)] overflow-y-auto">
                 <% if(cart && cart.items && cart.items.length> 0) { %> <div class="space-y-4">
                         <% cart.items.forEach((item, index)=> { const prod = item.product || {}; const offer =
                             item.offer || null; const finalUnitPrice = item.discountedPrice || prod.productPrice; const
@@ -39,11 +41,12 @@
                                                         d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                                 </svg> </button>
                                         </div>
-                                        <% if(prod.size && prod.size.length> 0) { %> <p
-                                                class="text-xs text-gray-400 mt-1">Size: <%= item.selectedSize || 'N/A'
-                                                    %>
+                                            <p class="text-xs text-gray-400 mt-1">
+                                                Size: <%= item.selectedSize || 'N/A' %> &middot;                                                 <span class="cart-color" data-color="<%= item.selectedColor || '' %>">
+                                                    <span class="cart-color-dot"></span>
+                                                    <span class="cart-color-name"><%= item.selectedColor || 'N/A' %></span>
+                                                </span>
                                             </p>
-                                            <% } %>
                                                 <div class="flex items-center gap-2 mt-1">
                                                     <% if(prod.productPrice !==finalUnitPrice) { %> <span
                                                             class="text-sm font-semibold text-[var(--accent)]">₹<%=

@@ -351,10 +351,10 @@ const proceedToPayment = async (req, res) => {
 const applyCoupon = async (req, res) => {
     if (!req.session.user) return res.redirect('/user/signIn');
 
-    const { cartId, inputValue } = req.body;
+    const { inputValue } = req.body;
     const userId = req.session.user.userId;
 
-    if (!cartId || !inputValue) {
+    if (!inputValue) {
         return response.error(res, "Invalid input", 400);
     }
 
@@ -362,7 +362,7 @@ const applyCoupon = async (req, res) => {
         const [coupon, user, cart] = await Promise.all([
             Coupon.findOne({ couponCode: inputValue.toUpperCase(), isActive: true }),
             User.findById(userId),
-            Cart.findById(cartId).populate('coupon').populate('items.offer').populate('items.product')
+            Cart.findOne({ user: userId }).populate('coupon').populate('items.offer').populate('items.product')
         ]);
 
         if (!coupon || !user || !cart) {

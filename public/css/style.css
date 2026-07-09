@@ -972,6 +972,11 @@ html {
   margin-bottom: 2rem;
 }
 
+.my-5 {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
 .mb-0 {
   margin-bottom: 0px;
 }
@@ -1205,6 +1210,14 @@ html {
 
 .max-h-\[90vh\] {
   max-height: 90vh;
+}
+
+.max-h-\[calc\(100vh-280px\)\] {
+  max-height: calc(100vh - 280px);
+}
+
+.max-h-\[calc\(100vh-350px\)\] {
+  max-height: calc(100vh - 350px);
 }
 
 .min-h-\[100dvh\] {
