@@ -1,14 +1,49 @@
 <style>
-body:not(.no-header-pad){padding-top:64px}
-#mainHeader{transition:background-color .3s ease,box-shadow .3s ease}
-#mainHeader .ht{color:#fff;mix-blend-mode:difference;transition:color .3s ease}
-#mainHeader .hs{transition:background-color .3s ease,border-color .3s ease}
-#mainHeader .hs::placeholder{transition:color .3s ease}
-#mainHeader.is-scrolled{background-color:var(--surface);mix-blend-mode:normal;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
-#mainHeader.is-scrolled .ht{color:var(--text-secondary);mix-blend-mode:normal}
-#mainHeader.is-scrolled .ht:hover{color:var(--text-primary)}
-#mainHeader.is-scrolled .hs{background:var(--surface-elevated);border-color:var(--border)}
-#mainHeader.is-scrolled .hs::placeholder{color:var(--text-muted)}
+  body:not(.no-header-pad) {
+    padding-top: 64px
+  }
+
+  #mainHeader {
+    transition: background-color .3s ease, box-shadow .3s ease
+  }
+
+  #mainHeader .ht {
+    color: #fff;
+    mix-blend-mode: difference;
+    transition: color .3s ease
+  }
+
+  #mainHeader .hs {
+    transition: background-color .3s ease, border-color .3s ease
+  }
+
+  #mainHeader .hs::placeholder {
+    transition: color .3s ease
+  }
+
+  #mainHeader.is-scrolled {
+    background-color: var(--surface);
+    mix-blend-mode: normal;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08)
+  }
+
+  #mainHeader.is-scrolled .ht {
+    color: var(--text-secondary);
+    mix-blend-mode: normal
+  }
+
+  #mainHeader.is-scrolled .ht:hover {
+    color: var(--text-primary)
+  }
+
+  #mainHeader.is-scrolled .hs {
+    background: var(--surface-elevated);
+    border-color: var(--border)
+  }
+
+  #mainHeader.is-scrolled .hs::placeholder {
+    color: var(--text-muted)
+  }
 </style>
 <header id="mainHeader" class="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300">
   <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
@@ -22,27 +57,47 @@ body:not(.no-header-pad){padding-top:64px}
       <!-- Desktop Nav -->
       <div class="hidden md:flex items-center gap-1 ml-2">
         <div class="group relative">
-          <span class="flex items-center gap-1 px-3 py-1.5 text-sm font-medium ht cursor-pointer rounded-lg hover:bg-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <span
+            class="flex items-center gap-1 px-3 py-1.5 text-sm font-medium ht cursor-pointer rounded-lg hover:bg-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <line x1="4" y1="21" x2="4" y2="14" />
+              <line x1="4" y1="10" x2="4" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12" y2="3" />
+              <line x1="20" y1="21" x2="20" y2="16" />
+              <line x1="20" y1="12" x2="20" y2="3" />
+              <line x1="1" y1="14" x2="7" y2="14" />
+              <line x1="9" y1="8" x2="15" y2="8" />
+              <line x1="17" y1="16" x2="23" y2="16" />
+            </svg>
             Categories
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </span>
-          <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 absolute left-0 top-full z-[60]">
-            <div style="background: var(--surface);" class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] py-2 max-h-[70vh] overflow-y-auto">
-              <% if(categories && categories.length > 0) { %>
-                <% categories.forEach(category => { %>
-                  <a href="/user/getProductList/<%= category._id %>" class="block px-4 py-2.5 text-sm text-gray-600 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors btn-press">
+          <div
+            class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 absolute left-0 top-full z-[60]">
+            <div style="background: var(--surface);"
+              class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] py-2 max-h-[70vh] overflow-y-auto">
+              <% if(categories && categories.length> 0) { %>
+                <% categories.forEach(category=> { %>
+                  <a href="/user/getProductList/<%= category._id %>"
+                    class="block px-4 py-2.5 text-sm text-gray-600 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors btn-press">
                     <%= category.title %>
                   </a>
-                <% }) %>
-              <% } else { %>
-                <p class="px-4 py-2 text-sm text-gray-400">No categories</p>
-              <% } %>
+                  <% }) %>
+                    <% } else { %>
+                      <p class="px-4 py-2 text-sm text-gray-400">No categories</p>
+                      <% } %>
             </div>
           </div>
         </div>
-        <a href="/user/getProductList/newArraival" class="px-3 py-1.5 text-sm font-medium ht rounded-lg hover:bg-white/10">New Arrivals</a>
-        <a href="/user/getProductList/featured" class="px-3 py-1.5 text-sm font-medium ht rounded-lg hover:bg-white/10">Featured</a>
+        <a href="/user/getProductList/newArraival"
+          class="px-3 py-1.5 text-sm font-medium ht rounded-lg hover:bg-white/10">New Arrivals</a>
+        <a href="/user/getProductList/featured"
+          class="px-3 py-1.5 text-sm font-medium ht rounded-lg hover:bg-white/10">Featured</a>
       </div>
 
       <!-- Spacer -->
@@ -50,106 +105,150 @@ body:not(.no-header-pad){padding-top:64px}
 
       <!-- Desktop Search -->
       <% if(searchBox) { %>
-      <div class="hidden md:block flex-1 max-w-xs">
-        <div class="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input type="search" placeholder="Search..." id="homeSearch" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
-          <div id="resultsContainer" class="hidden absolute left-0 top-full mt-2 w-full border border-[var(--border)] rounded-xl shadow-lg z-20 overflow-hidden" style="background: var(--surface);"></div>
-        </div>
-      </div>
-      <% } %>
-
-      <!-- Right Icons -->
-      <div class="flex items-center gap-1">
-        <!-- Mobile search toggle -->
-        <button id="mobileSearchToggle" class="md:hidden p-2 ht" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-        </button>
-
-        <!-- Wishlist -->
-        <a href="/user/wishlist" class="relative p-2 ht">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-        </a>
-
-        <!-- Cart -->
-        <a href="/user/cart" class="relative p-2 ht">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-          </svg>
-        </a>
-
-        <!-- Profile -->
-        <div class="group relative">
-          <% if(user) { %>
-          <div class="flex cursor-pointer items-center gap-1 p-2 ht">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        <div class="hidden md:block flex-1 max-w-xs">
+          <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <span class="hidden lg:block text-sm font-medium"><%= user.userName %></span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden lg:block w-3 h-3"><polyline points="6 9 12 15 18 9"/></svg>
+            <input type="search" placeholder="Search..." id="homeSearch"
+              class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
+            <div id="resultsContainer"
+              class="hidden absolute left-0 top-full mt-2 w-full border border-[var(--border)] rounded-xl shadow-lg z-20 overflow-hidden"
+              style="background: var(--surface);"></div>
           </div>
-          <% } else { %>
-          <a href="/user/signIn" class="flex cursor-pointer items-center gap-1.5 p-2 ht">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span class="hidden lg:block text-sm font-medium">Sign In</span>
-          </a>
-          <% } %>
+        </div>
+        <% } %>
 
-          <div class="absolute right-0 top-full mt-1 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-[60]">
-            <div style="background: var(--surface);" class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] overflow-hidden">
+          <!-- Right Icons -->
+          <div class="flex items-center gap-1">
+            <!-- Mobile search toggle -->
+            <button id="mobileSearchToggle" class="md:hidden p-2 ht" type="button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+
+            <!-- Wishlist -->
+            <a href="/user/wishlist" class="relative p-2 ht">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </a>
+
+            <!-- Cart -->
+            <a href="/user/cart" class="relative p-2 ht">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+            </a>
+
+            <!-- Profile -->
+            <div class="group relative">
               <% if(user) { %>
-              <div class="px-4 py-3 border-b border-gray-100">
-                <p class="text-sm font-semibold text-gray-900">Welcome</p>
-                <p class="text-xs text-gray-500"><%= user.userName %></p>
-              </div>
-              <div class="py-1">
-                <a href="/user/orders" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Orders</a>
-                <a href="/user/profile" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">My Profile</a>
-                <a href="/user/coupons" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Coupons</a>
-                <a href="/user/wallet" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Wallet</a>
-                <a href="/user/address" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Saved Addresses</a>
-              </div>
-              <div class="border-t border-gray-100 py-1">
-                <a href="/user/signOut" class="block px-4 py-2 text-sm text-[var(--accent)] hover:text-[var(--accent-hover)] hover:bg-[var(--accent-light)] transition-colors btn-press">Sign Out</a>
-              </div>
-              <% } else { %>
-              <div class="px-4 py-3">
-                <p class="text-sm text-gray-600 mb-3">To access account and manage orders</p>
-                <a href="/user/signIn" class="block w-full text-center px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold rounded-lg transition-colors btn-press">Sign In</a>
-              </div>
-              <% } %>
-            </div>
-          </div>
-        </div>
+                <div class="flex cursor-pointer items-center gap-1 p-2 ht">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span class="hidden lg:block text-sm font-medium">
+                    <%= user.userName %>
+                  </span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden lg:block w-3 h-3">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+                <% } else { %>
+                  <a href="/user/signIn" class="flex cursor-pointer items-center gap-1.5 p-2 ht">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span class="hidden lg:block text-sm font-medium">Sign In</span>
+                  </a>
+                  <% } %>
 
-        <!-- Mobile Hamburger -->
-        <button id="mobileMenuToggle" class="md:hidden p-2 ht" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-      </div>
+                    <div
+                      class="absolute right-0 top-full mt-1 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-[60]">
+                      <div style="background: var(--surface);"
+                        class="rounded-xl shadow-xl border border-[var(--border)] min-w-[220px] overflow-hidden">
+                        <% if(user) { %>
+                          <div class="px-4 py-3 border-b border-gray-100">
+                            <p class="text-sm font-semibold text-gray-900">Welcome</p>
+                            <p class="text-xs text-gray-500">
+                              <%= user.userName %>
+                            </p>
+                          </div>
+                          <div class="py-1">
+                            <a href="/user/orders"
+                              class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Orders</a>
+                            <a href="/user/profile"
+                              class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">My
+                              Profile</a>
+                            <a href="/user/coupons"
+                              class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Coupons</a>
+                            <a href="/user/wallet"
+                              class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Wallet</a>
+                            <a href="/user/address"
+                              class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">Saved
+                              Addresses</a>
+                          </div>
+                          <div class="border-t border-gray-100 py-1">
+                            <a href="/user/signOut"
+                              class="block px-4 py-2 text-sm text-[var(--accent)] hover:text-[var(--accent-hover)] hover:bg-[var(--accent-light)] transition-colors btn-press">Sign
+                              Out</a>
+                          </div>
+                          <% } else { %>
+                            <div class="px-4 py-3">
+                              <p class="text-sm text-gray-600 mb-3">To access account and manage orders</p>
+                              <a href="/user/signIn"
+                                class="block w-full text-center px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold rounded-lg transition-colors btn-press">Sign
+                                In</a>
+                            </div>
+                            <% } %>
+                      </div>
+                    </div>
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button id="mobileMenuToggle" class="md:hidden p-2 ht" type="button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          </div>
     </div>
 
     <!-- Mobile Search Bar -->
     <% if(searchBox) { %>
-    <div id="mobileSearchBar" class="md:hidden hidden pb-3">
-      <div class="relative w-full">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="search" placeholder="Search products..." id="homeSearchMobile" class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
+      <div id="mobileSearchBar" class="md:hidden hidden pb-3">
+        <div class="relative w-full">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="search" placeholder="Search products..." id="homeSearchMobile"
+            class="w-full h-9 pl-9 pr-4 text-sm text-gray-700 hs rounded-full outline-none focus:ring-2 focus:ring-[var(--accent)]" />
+        </div>
       </div>
-    </div>
-    <% } %>
+      <% } %>
   </div>
 
   <!-- Mobile Drawer -->
@@ -159,72 +258,80 @@ body:not(.no-header-pad){padding-top:64px}
       <div class="flex items-center justify-between px-4 h-16 border-b border-gray-100">
         <span class="text-base font-semibold text-gray-900">Menu</span>
         <button id="drawerClose" class="p-2 text-gray-400 hover:text-gray-600 transition-colors" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
       <div class="p-4 space-y-3">
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Categories</p>
-        <% if(categories && categories.length > 0) { %>
-          <% categories.forEach(category => { %>
-            <a href="/user/getProductList/<%= category._id %>" class="block px-3 py-2 text-sm text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">
+        <% if(categories && categories.length> 0) { %>
+          <% categories.forEach(category=> { %>
+            <a href="/user/getProductList/<%= category._id %>"
+              class="block px-3 py-2 text-sm text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">
               <%= category.title %>
             </a>
-          <% }) %>
-        <% } else { %>
-          <p class="text-sm text-gray-400 px-3 py-2">No categories</p>
-        <% } %>
-        <hr class="border-gray-100">
-        <a href="/user/getProductList/newArraival" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">New Arrivals</a>
-        <a href="/user/getProductList/featured" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">Featured</a>
+            <% }) %>
+              <% } else { %>
+                <p class="text-sm text-gray-400 px-3 py-2">No categories</p>
+                <% } %>
+                  <hr class="border-gray-100">
+                  <a href="/user/getProductList/newArraival"
+                    class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">New
+                    Arrivals</a>
+                  <a href="/user/getProductList/featured"
+                    class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded-lg transition-colors btn-press">Featured</a>
       </div>
     </div>
   </div>
 </header>
 
 <script>
-(function() {
-  var header = document.getElementById('mainHeader');
-  var isHomepage = document.body.classList.contains('no-header-pad');
+  (function () {
+    var header = document.getElementById('mainHeader');
+    var isHomepage = document.body.classList.contains('no-header-pad');
 
-  if (isHomepage) {
-    var threshold = window.innerHeight * 0.55;
-    function updateHeader() {
-      if (window.scrollY > threshold) {
-        header.classList.add('is-scrolled');
-      } else {
-        header.classList.remove('is-scrolled');
+    if (isHomepage) {
+      var threshold = window.innerHeight * 0.55;
+      function updateHeader() {
+        if (window.scrollY > threshold) {
+          header.classList.add('is-scrolled');
+        } else {
+          header.classList.remove('is-scrolled');
+        }
       }
+      window.addEventListener('scroll', updateHeader, { passive: true });
+      updateHeader();
+    } else {
+      header.classList.add('is-scrolled');
     }
-    window.addEventListener('scroll', updateHeader, { passive: true });
-    updateHeader();
-  } else {
-    header.classList.add('is-scrolled');
-  }
 
-  var toggle = document.getElementById('mobileSearchToggle');
-  var bar = document.getElementById('mobileSearchBar');
-  if (toggle && bar) {
-    toggle.addEventListener('click', function() {
-      bar.classList.toggle('hidden');
-    });
-  }
-
-  var menuToggle = document.getElementById('mobileMenuToggle');
-  var drawer = document.getElementById('mobileDrawer');
-  var drawerOverlay = document.getElementById('drawerOverlay');
-  var drawerClose = document.getElementById('drawerClose');
-  if (menuToggle && drawer) {
-    menuToggle.addEventListener('click', function() {
-      drawer.classList.toggle('hidden');
-    });
-    drawerOverlay.addEventListener('click', function() {
-      drawer.classList.add('hidden');
-    });
-    if (drawerClose) {
-      drawerClose.addEventListener('click', function() {
-        drawer.classList.add('hidden');
+    var toggle = document.getElementById('mobileSearchToggle');
+    var bar = document.getElementById('mobileSearchBar');
+    if (toggle && bar) {
+      toggle.addEventListener('click', function () {
+        bar.classList.toggle('hidden');
       });
     }
-  }
-})();
+
+    var menuToggle = document.getElementById('mobileMenuToggle');
+    var drawer = document.getElementById('mobileDrawer');
+    var drawerOverlay = document.getElementById('drawerOverlay');
+    var drawerClose = document.getElementById('drawerClose');
+    if (menuToggle && drawer) {
+      menuToggle.addEventListener('click', function () {
+        drawer.classList.toggle('hidden');
+      });
+      drawerOverlay.addEventListener('click', function () {
+        drawer.classList.add('hidden');
+      });
+      if (drawerClose) {
+        drawerClose.addEventListener('click', function () {
+          drawer.classList.add('hidden');
+        });
+      }
+    }
+  })();
 </script>

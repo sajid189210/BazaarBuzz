@@ -1,1 +1,126 @@
-﻿<% blocks.head = `    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">    <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">        <a href="/" class="hover:text-[var(--accent)] transition-colors btn-press">Home</a>        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>        <a href="/user/cart" class="hover:text-[var(--accent)] transition-colors btn-press">Cart</a>        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>        <span class="text-gray-800 font-medium">Checkout</span>    </nav>    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Checkout</h1>    <div class="lg:flex lg:gap-10">        <div class="flex-1 min-w-0 space-y-6">            <!-- Address Selection -->            <div class="rounded-xl border border-gray-200 bg-white p-6">                <h2 class="text-base font-semibold text-gray-900 mb-4">Delivery Address</h2>                <% if(user && user.addressId && user.addressId.length > 0) { %>                <div class="space-y-3">                    <% user.addressId.forEach((addr, i) => { %>                    <label class="flex items-start gap-3 cursor-pointer group p-3 rounded-lg border <%= i === 0 ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300' %> transition-colors">                        <input type="radio" name="address" value="<%= addr._id %>" class="mt-1 w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400 shrink-0" <%= i === 0 ? 'checked' : '' %>>                        <div class="text-sm">                            <p class="font-medium text-gray-900"><%= addr.contactName %></p>                            <p class="text-gray-500 mt-0.5"><%= addr.building %>, <%= addr.street %>, <%= addr.district %> <%= addr.pincode %></p>                            <p class="text-gray-500">Phone: <%= addr.contactNumber %></p>                        </div>                    </label>                    <% }) %>                </div>                <% } else { %>                <p class="text-sm text-gray-400">No addresses saved. Please add one.</p>                <% } %>                <a href="/user/address" class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>                    Add New Address                </a>            </div>            <!-- Payment Method -->            <div class="rounded-xl border border-gray-200 bg-white p-6">                <h2 class="text-base font-semibold text-gray-900 mb-4">Payment Method</h2>                <div class="space-y-3">                    <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-900 bg-gray-50 transition-colors">                        <input type="radio" name="paymentMethod" value="cod" class="w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400" checked>                        <span class="text-sm font-medium text-gray-900">Cash on Delivery</span>                    </label>                    <% if(wallet && wallet.balance >= (total || 0)) { %>                    <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">                        <input type="radio" name="paymentMethod" value="wallet" class="w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400">                        <span class="text-sm font-medium text-gray-900">Wallet (Balance: ₹<%= wallet.balance.toLocaleString() %>)</span>                    </label>                    <% } %>                    <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">                        <input type="radio" name="paymentMethod" value="razorpay" class="w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400">                        <span class="text-sm font-medium text-gray-900">Online Payment</span>                    </label>                </div>            </div>            <!-- Coupon -->            <div class="rounded-xl border border-gray-200 bg-white p-6">                <h2 class="text-base font-semibold text-gray-900 mb-4">Apply Coupon</h2>                <div class="flex gap-3">                    <input type="text" id="couponCode" placeholder="Enter coupon code"                        class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />                    <button onclick="applyCoupon()" type="button"                        class="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">Apply</button>                </div>                <div id="couponMessage" class="mt-2 text-xs"></div>            </div>            <button onclick="placeOrder()" type="button"                class="w-full rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">Place Order</button>        </div>        <!-- Order Summary Sidebar -->        <div class="lg:w-96 mt-8 lg:mt-0">            <div class="sticky top-24 rounded-xl border border-gray-200 bg-white p-6">                <h2 class="text-base font-semibold text-gray-900 mb-4">Order Summary</h2>                <div class="space-y-4">                    <% if(cart && cart.items && cart.items.length > 0) { %>                    <% cart.items.forEach(item => {                        const prod = item.product || {};                        const discPrice = prod.discount                            ? Math.round(prod.productPrice - (prod.productPrice * prod.discount / 100))                            : prod.productPrice;                    %>                    <div class="flex gap-3">                        <div class="w-14 h-14 rounded-lg overflow-hidden bg-gray-50 shrink-0">                            <img src="<%= prod.images?.[0] || '/images/placeholder.jpg' %>" alt="" class="w-full h-full object-cover" />                        </div>                        <div class="flex-1 min-w-0">                            <p class="text-xs font-medium text-gray-900 truncate"><%= prod.productName %></p>                            <p class="text-xs text-gray-500">Qty: <%= item.quantity %></p>                            <p class="text-xs font-semibold text-gray-900">₹<%= (discPrice * item.quantity).toLocaleString() %></p>                        </div>                    </div>                    <% }) %>                    <% } %>                    <hr class="border-gray-100">                    <div class="space-y-2 text-sm">                        <div class="flex justify-between text-gray-600">                            <span>Subtotal</span>                            <span>₹<%= (subTotal || 0).toLocaleString() %></span>                        </div>                        <div class="flex justify-between text-gray-600">                            <span>Shipping</span>                            <span class="text-green-600">Free</span>                        </div>                        <div id="discountRow" class="hidden flex justify-between text-green-600">                            <span>Discount</span>                            <span id="discountAmount">-₹0</span>                        </div>                        <hr class="border-gray-100">                        <div class="flex justify-between text-base font-semibold text-gray-900">                            <span>Total</span>                            <span id="checkoutTotal">₹<%= (total || subTotal || 0).toLocaleString() %></span>                        </div>                    </div>                </div>            </div>        </div>    </div></div><% blocks.scripts = `    <script src="/javascript/user/userCheckout.js"></script>` %>
+﻿<% blocks.head=` <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><div
+        class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+        <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8"> <a href="/"
+                class="hover:text-[var(--accent)] transition-colors btn-press">Home</a> <svg
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                <polyline points="9 18 15 12 9 6" />
+            </svg> <a href="/user/cart" class="hover:text-[var(--accent)] transition-colors btn-press">Cart</a> <svg
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                <polyline points="9 18 15 12 9 6" />
+            </svg> <span class="text-gray-800 font-medium">Checkout</span> </nav>
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <div class="lg:flex lg:gap-10">
+            <div class="flex-1 min-w-0 space-y-6"> <!-- Address Selection -->
+                <div class="rounded-xl border border-gray-200 bg-white p-6">
+                    <h2 class="text-base font-semibold text-gray-900 mb-4">Delivery Address</h2>
+                    <% if(user && user.addressId && user.addressId.length> 0) { %> <div class="space-y-3">
+                            <% user.addressId.forEach((addr, i)=> { %> <label
+                                    class="flex items-start gap-3 cursor-pointer group p-3 rounded-lg border <%= i === 0 ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300' %> transition-colors">
+                                    <input type="radio" name="address" value="<%= addr._id %>"
+                                        class="mt-1 w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400 shrink-0"
+                                        <%=i===0 ? 'checked' : '' %>> <div class="text-sm">
+                                        <p class="font-medium text-gray-900">
+                                            <%= addr.contactName %>
+                                        </p>
+                                        <p class="text-gray-500 mt-0.5">
+                                            <%= addr.building %>, <%= addr.street %>, <%= addr.district %>
+                                                        <%= addr.pincode %>
+                                        </p>
+                                        <p class="text-gray-500">Phone: <%= addr.contactNumber %>
+                                        </p>
+                                    </div> </label>
+                                <% }) %>
+                        </div>
+                        <% } else { %>
+                            <p class="text-sm text-gray-400">No addresses saved. Please add one.</p>
+                            <% } %> <a href="/user/address"
+                                    class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg> Add New Address </a>
+                </div> <!-- Payment Method -->
+                <div class="rounded-xl border border-gray-200 bg-white p-6">
+                    <h2 class="text-base font-semibold text-gray-900 mb-4">Payment Method</h2>
+                    <div class="space-y-3"> <label
+                            class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-900 bg-gray-50 transition-colors">
+                            <input type="radio" name="paymentMethod" value="cod"
+                                class="w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400" checked> <span
+                                class="text-sm font-medium text-gray-900">Cash on Delivery</span> </label>
+                        <% if(wallet && wallet.balance>= (total || 0)) { %> <label
+                                class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                                <input type="radio" name="paymentMethod" value="wallet"
+                                    class="w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400"> <span
+                                    class="text-sm font-medium text-gray-900">Wallet (Balance: ₹<%=
+                                        wallet.balance.toLocaleString() %>)</span> </label>
+                            <% } %> <label
+                                    class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                                    <input type="radio" name="paymentMethod" value="razorpay"
+                                        class="w-4 h-4 text-[var(--accent)] border-gray-300 focus:ring-rose-400"> <span
+                                        class="text-sm font-medium text-gray-900">Online Payment</span> </label>
+                    </div>
+                </div> <!-- Coupon -->
+                <div class="rounded-xl border border-gray-200 bg-white p-6">
+                    <h2 class="text-base font-semibold text-gray-900 mb-4">Apply Coupon</h2>
+                    <div class="flex gap-3"> <input type="text" id="couponCode" placeholder="Enter coupon code"
+                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                        <button onclick="applyCoupon()" type="button"
+                            class="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">Apply</button>
+                    </div>
+                    <div id="couponMessage" class="mt-2 text-xs"></div>
+                </div> <button onclick="placeOrder()" type="button"
+                    class="w-full rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">Place
+                    Order</button>
+            </div> <!-- Order Summary Sidebar -->
+            <div class="lg:w-96 mt-8 lg:mt-0">
+                <div class="sticky top-24 rounded-xl border border-gray-200 bg-white p-6">
+                    <h2 class="text-base font-semibold text-gray-900 mb-4">Order Summary</h2>
+                    <div class="space-y-4">
+                        <% if(cart && cart.items && cart.items.length> 0) { %> <% cart.items.forEach(item=> { const prod
+                                = item.product || {}; const discPrice = prod.discount ? Math.round(prod.productPrice -
+                                (prod.productPrice * prod.discount / 100)) : prod.productPrice; %> <div
+                                    class="flex gap-3">
+                                    <div class="w-14 h-14 rounded-lg overflow-hidden bg-gray-50 shrink-0"> <img
+                                            src="<%= prod.images?.[0] || '/images/placeholder.jpg' %>" alt=""
+                                            class="w-full h-full object-cover" /> </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-medium text-gray-900 truncate">
+                                            <%= prod.productName %>
+                                        </p>
+                                        <p class="text-xs text-gray-500">Qty: <%= item.quantity %>
+                                        </p>
+                                        <p class="text-xs font-semibold text-gray-900">₹<%= (discPrice *
+                                                item.quantity).toLocaleString() %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <% }) %>
+                                    <% } %>
+                                        <hr class="border-gray-100">
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex justify-between text-gray-600"> <span>Subtotal</span>
+                                                <span>₹<%= (subTotal || 0).toLocaleString() %></span>
+                                            </div>
+                                            <div class="flex justify-between text-gray-600"> <span>Shipping</span> <span
+                                                    class="text-green-600">Free</span> </div>
+                                            <div id="discountRow" class="hidden flex justify-between text-green-600">
+                                                <span>Discount</span> <span id="discountAmount">-₹0</span>
+                                            </div>
+                                            <hr class="border-gray-100">
+                                            <div class="flex justify-between text-base font-semibold text-gray-900">
+                                                <span>Total</span> <span id="checkoutTotal">₹<%= (total || subTotal ||
+                                                        0).toLocaleString() %></span>
+                                            </div>
+                                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% blocks.scripts=` <script src="/javascript/user/userCheckout.js">
+        </script>` %>

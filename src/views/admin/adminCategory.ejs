@@ -1,1 +1,171 @@
-﻿<!DOCTYPE html><html lang="en"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Admin — Categories</title>    <link rel="stylesheet" href="/css/style.css">    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script></head><body class="bg-gray-50 antialiased">    <div class="flex min-h-screen">        <%- include('../partials/adminSideMenu') %>        <div class="flex-1 ml-[250px]">            <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">                <div class="flex items-center gap-2 text-sm text-gray-500">                    <a href="/admin/dashboard" class="hover:text-gray-700">Dashboard</a>                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>                    <span class="text-gray-900 font-semibold">Categories</span>                </div>            </header>            <main class="p-6">                <div class="flex items-center justify-between mb-6">                    <div>                        <h1 class="text-2xl font-bold text-gray-900">Categories</h1>                        <p class="text-sm text-gray-500 mt-1">Manage product categories and brands</p>                    </div>                    <button onclick="openCategoryModal()" class="rounded-lg bg-gray-900 hover:bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors flex items-center gap-2">                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>                        Add Category                    </button>                </div>                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">                    <div class="overflow-x-auto">                        <table class="min-w-full text-sm">                            <thead>                                <tr class="border-b border-gray-100 bg-gray-50/80">                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">#</th>                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Category</th>                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Brands</th>                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Created</th>                                    <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</th>                                    <th class="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>                                </tr>                            </thead>                            <tbody class="divide-y divide-gray-50">                                <% if(categories && categories.length > 0) { %>                                <% categories.forEach((cat, index) => { %>                                <tr class="hover:bg-gray-50/50 transition-colors">                                    <td class="px-5 py-4 text-gray-400 text-xs font-medium"><%= index + 1 %></td>                                    <td class="px-5 py-4">                                        <span class="text-gray-900 font-medium"><%= cat.title %></span>                                    </td>                                    <td class="px-5 py-4">                                        <% if(cat.brands && cat.brands.length > 0) { %>                                        <div class="flex flex-wrap gap-1.5">                                            <% cat.brands.forEach(function(b) { %>                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100"><%= b %></span>                                            <% }); %>                                        </div>                                        <% } else { %>                                        <span class="text-gray-400">—</span>                                        <% } %>                                    </td>                                    <td class="px-5 py-4 text-gray-500 text-sm">                                        <% const d = new Date(cat.createdAt); %>                                        <%= !isNaN(d) ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—' %>                                    </td>                                    <td class="px-5 py-4">                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full <%= cat.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' %>">                                            <span class="w-1.5 h-1.5 rounded-full <%= cat.isActive ? 'bg-emerald-500' : 'bg-rose-500' %>"></span>                                            <%= cat.isActive ? 'Active' : 'Inactive' %>                                        </span>                                    </td>                                    <td class="px-5 py-4 text-right">                                        <div class="flex items-center justify-end gap-1.5">                                            <button onclick="editCategory('<%= cat._id %>', '<%= cat.title.replace(/'/g, "\\'") %>', '<%= cat.brands ? cat.brands.join(', ').replace(/'/g, "\\'") : '' %>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>                                                Edit                                            </button>                                            <button onclick="toggleCategory('<%= cat._id %>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors <%= cat.isActive ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50' %>">                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="<%= cat.isActive ? 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' : 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' %>"/></svg>                                                <%= cat.isActive ? 'Block' : 'Unblock' %>                                            </button>                                            <button onclick="deleteCategory('<%= cat._id %>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>                                                Delete                                            </button>                                        </div>                                    </td>                                </tr>                                <% }) %>                                <% } else { %>                                <tr>                                    <td colspan="6" class="px-5 py-12 text-center">                                        <div class="flex flex-col items-center gap-2">                                            <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>                                            <span class="text-gray-400 text-sm">No categories found</span>                                            <button onclick="openCategoryModal()" class="text-sm text-rose-500 hover:text-rose-600 font-medium mt-1">Add your first category</button>                                        </div>                                    </td>                                </tr>                                <% } %>                            </tbody>                        </table>                    </div>                </div>            </main>        </div>    </div>    <!-- Category Modal -->    <div id="categoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeCategoryModal()"></div>        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8">            <button type="button" onclick="closeCategoryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>            </button>            <h2 id="categoryModalTitle" class="text-xl font-bold text-gray-900 mb-6">Add Category</h2>            <form id="categoryForm" class="space-y-4">                <input type="hidden" name="categoryId" id="categoryId">                <div>                    <label for="categoryTitle" class="block text-sm font-medium text-gray-700">Category Name</label>                    <input type="text" id="categoryTitle" name="title" required                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />                </div>                <div>                    <label for="brandName" class="block text-sm font-medium text-gray-700">Brand Name</label>                    <input type="text" id="brandName" name="brandName"                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />                </div>                <button type="submit" class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors">Save</button>            </form>        </div>    </div>    <script src="/javascript/admin/adminCategory.js"></script></body></html>
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Categories</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-gray-50 antialiased">
+    <div class="flex min-h-screen"> <%- include('../partials/adminSideMenu') %>
+            <div class="flex-1 ml-[250px]">
+                <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
+                    <div class="flex items-center gap-2 text-sm text-gray-500"> <a href="/admin/dashboard"
+                            class="hover:text-gray-700">Dashboard</a> <svg xmlns="http://www.w3.org/2000/svg" width="12"
+                            height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg> <span class="text-gray-900 font-semibold">Categories</span> </div>
+                </header>
+                <main class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Categories</h1>
+                            <p class="text-sm text-gray-500 mt-1">Manage product categories and brands</p>
+                        </div> <button onclick="openCategoryModal()"
+                            class="rounded-lg bg-gray-900 hover:bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg> Add Category </button>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-gray-100 bg-gray-50/80">
+                                        <th
+                                            class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+                                            #</th>
+                                        <th
+                                            class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+                                            Category</th>
+                                        <th
+                                            class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+                                            Brands</th>
+                                        <th
+                                            class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+                                            Created</th>
+                                        <th
+                                            class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+                                            Status</th>
+                                        <th
+                                            class="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50">
+                                    <% if(categories && categories.length> 0) { %> <% categories.forEach((cat, index)=>
+                                            { %> <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="px-5 py-4 text-gray-400 text-xs font-medium">
+                                                    <%= index + 1 %>
+                                                </td>
+                                                <td class="px-5 py-4"> <span class="text-gray-900 font-medium">
+                                                        <%= cat.title %>
+                                                    </span> </td>
+                                                <td class="px-5 py-4">
+                                                    <% if(cat.brands && cat.brands.length> 0) { %> <div
+                                                            class="flex flex-wrap gap-1.5">
+                                                            <% cat.brands.forEach(function(b) { %> <span
+                                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                                    <%= b %>
+                                                                </span>
+                                                                <% }); %>
+                                                        </div>
+                                                        <% } else { %> <span class="text-gray-400">—</span>
+                                                            <% } %>
+                                                </td>
+                                                <td class="px-5 py-4 text-gray-500 text-sm">
+                                                    <% const d=new Date(cat.createdAt); %>
+                                                        <%= !isNaN(d) ? d.toLocaleDateString('en-IN', { day: 'numeric' ,
+                                                            month: 'short' , year: 'numeric' }) : '—' %>
+                                                </td>
+                                                <td class="px-5 py-4"> <span
+                                                        class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full <%= cat.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' %>">
+                                                        <span
+                                                            class="w-1.5 h-1.5 rounded-full <%= cat.isActive ? 'bg-emerald-500' : 'bg-rose-500' %>"></span>
+                                                        <%= cat.isActive ? 'Active' : 'Inactive' %>
+                                                    </span> </td>
+                                                <td class="px-5 py-4 text-right">
+                                                    <div class="flex items-center justify-end gap-1.5"> <button
+                                                            onclick="editCategory('<%= cat._id %>', '<%= cat.title.replace(/'/g, "
+                                                            \\'") %>', '<%= cat.brands ?
+                                                                cat.brands.join(', ').replace(/' /g, "\\'" ) : '' %>')"
+                                                                class="inline-flex items-center gap-1.5 px-3 py-1.5
+                                                                text-xs font-medium text-gray-600 hover:text-gray-900
+                                                                hover:bg-gray-100 rounded-lg transition-colors"> <svg
+                                                                    class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                                    stroke="currentColor" stroke-width="2">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                </svg> Edit </button> <button
+                                                            onclick="toggleCategory('<%= cat._id %>')"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors <%= cat.isActive ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50' %>">
+                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    d="<%= cat.isActive ? 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' : 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' %>" />
+                                                            </svg>
+                                                            <%= cat.isActive ? 'Block' : 'Unblock' %>
+                                                        </button> <button onclick="deleteCategory('<%= cat._id %>')"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg> Delete </button> </div>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" class="px-5 py-12 text-center">
+                                                            <div class="flex flex-col items-center gap-2"> <svg
+                                                                    class="w-10 h-10 text-gray-300" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor"
+                                                                    stroke-width="1.5">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                                </svg> <span class="text-gray-400 text-sm">No categories
+                                                                    found</span> <button onclick="openCategoryModal()"
+                                                                    class="text-sm text-rose-500 hover:text-rose-600 font-medium mt-1">Add
+                                                                    your first category</button> </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+    </div> <!-- Category Modal -->
+    <div id="categoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeCategoryModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8"> <button type="button"
+                onclick="closeCategoryModal()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"> <svg class="w-5 h-5"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg> </button>
+            <h2 id="categoryModalTitle" class="text-xl font-bold text-gray-900 mb-6">Add Category</h2>
+            <form id="categoryForm" class="space-y-4"> <input type="hidden" name="categoryId" id="categoryId">
+                <div> <label for="categoryTitle" class="block text-sm font-medium text-gray-700">Category Name</label>
+                    <input type="text" id="categoryTitle" name="title" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                </div>
+                <div> <label for="brandName" class="block text-sm font-medium text-gray-700">Brand Name</label> <input
+                        type="text" id="brandName" name="brandName"
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                </div> <button type="submit"
+                    class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors">Save</button>
+            </form>
+        </div>
+    </div>
+    <script src="/javascript/admin/adminCategory.js"></script>
+</body>
+
+</html>

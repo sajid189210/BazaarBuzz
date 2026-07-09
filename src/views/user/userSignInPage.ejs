@@ -1,2 +1,104 @@
-﻿<% bodyClass = 'min-h-screen antialiased'; hideUI = true -%><div class="flex min-h-screen">    <div class="hidden lg:flex lg:w-1/2 relative bg-gray-900">        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(/images/Signup_image.jpg);"></div>        <div class="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-transparent"></div>        <div class="relative z-10 flex flex-col justify-between p-12">            <a href="/" class="text-2xl font-bold text-white">Bazaar<span class="text-[var(--accent)]">Buzz</span></a>            <div>                <h1 class="text-4xl font-bold text-white leading-tight">Welcome back<br>to your style story.</h1>                <p class="mt-3 text-base text-gray-300 max-w-sm">Sign in to continue your shopping journey.</p>            </div>        </div>    </div>    <div class="flex flex-1 items-center justify-center px-6 py-12">        <div class="w-full max-w-md">            <div class="lg:hidden mb-8">                <a href="/" class="text-2xl font-bold text-gray-900">Bazaar<span class="text-[var(--accent)]">Buzz</span></a>            </div>            <h2 class="text-2xl font-bold text-gray-900">Sign In</h2>            <p class="mt-1 text-sm text-gray-500">Please fill out all the fields below.</p>            <% if(authErrors) { %>                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">                    <p class="text-sm text-red-600"><%= authErrors %></p>                </div>            <% } %>            <form id="signInForm" class="mt-8 space-y-5">                <div>                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>                    <input type="email" name="email" id="email" required                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />                </div>                <div>                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>                    <input type="password" name="password" id="password" required                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />                </div>                <div class="flex items-center justify-end">                    <button type="button" onclick="showModal()" class="text-sm text-[var(--accent)] hover:text-[var(--accent)] font-medium transition-colors btn-press">Forgot password?</button>                </div>                <button type="submit"
-                    class="w-full rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--accent-hover)] transition-colors btn-press">Sign In</button>                <div class="relative">                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>                    <div class="relative flex justify-center"><span class="bg-gray-50 px-3 text-sm text-gray-500">or</span></div>                </div>                <a href="/auth/google" class="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors btn-press">                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">                        <path d="M23.766 12.2765C23.766 11.4608 23.6999 10.6406 23.5588 9.83813H12.24V14.4591H18.7217C18.4528 15.9495 17.5885 17.2679 16.323 18.1056V21.104H20.19C22.4608 19.014 23.766 15.9274 23.766 12.2765Z" fill="#4285F4"/>                        <path d="M12.2401 24.0008C15.4766 24.0008 18.2059 22.9382 20.1945 21.1039L16.3276 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.2401 24.0008Z" fill="#34A853"/>                        <path d="M5.50253 14.3002C4.99987 12.8099 4.99987 11.196 5.50253 9.70569V6.61475H1.51649C-0.18551 10.0055-0.18551 14.0004 1.51649 17.3912L5.50253 14.3002Z" fill="#FBBC04"/>                        <path d="M12.2401 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208-0.034466 12.2401 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50264 9.70575C6.45064 6.86173 9.10947 4.74966 12.2401 4.74966Z" fill="#EA4335"/>                    </svg>                    Continue with Google                </a>            </form>            <p class="mt-8 text-center text-sm text-gray-500">                Don't have an account?                <a href="/user/signUp" class="font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">Create one</a>            </p>        </div>    </div></div><!-- Forgot Password Modal --><div class="hidden fixed inset-0 z-50 flex items-center justify-center" id="forgotModal">    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8">        <button type="button" onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors btn-press">            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>        </button>        <h3 class="text-xl font-bold text-gray-900">Forgot Password</h3>        <p class="mt-1 text-sm text-gray-500">Enter your email and new password.</p>        <form class="mt-6 space-y-4" id="forgotForm">            <div>                <label class="block text-sm font-medium text-gray-700">Your Email</label>                <div id="emailError" class="error-message hidden text-xs text-red-500"></div>                <input type="email" id="forgotEmail" required                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />            </div>            <div>                <label class="block text-sm font-medium text-gray-700">New Password</label>                <div id="newPasswordError" class="error-message hidden text-xs text-red-500"></div>                <input type="password" id="newPassword" required                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />            </div>            <div>                <label class="block text-sm font-medium text-gray-700">Confirm Password</label>                <div id="confirmPasswordError" class="error-message hidden text-xs text-red-500"></div>                <input type="password" id="confirmPassword" required                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />            </div>            <button type="submit"                class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">Update Password</button>        </form>    </div></div><% blocks.scripts = `    <script src="/javascript/user/userSignInPage.js"></script>` %>
+﻿<% bodyClass='min-h-screen antialiased' ; hideUI=true -%>
+    <div class="flex min-h-screen">
+        <div class="hidden lg:flex lg:w-1/2 relative bg-gray-900">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(/images/Signup_image.jpg);">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-transparent"></div>
+            <div class="relative z-10 flex flex-col justify-between p-12"> <a href="/"
+                    class="text-2xl font-bold text-white">Bazaar<span class="text-[var(--accent)]">Buzz</span></a>
+                <div>
+                    <h1 class="text-4xl font-bold text-white leading-tight">Welcome back<br>to your style story.</h1>
+                    <p class="mt-3 text-base text-gray-300 max-w-sm">Sign in to continue your shopping journey.</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-1 items-center justify-center px-6 py-12">
+            <div class="w-full max-w-md">
+                <div class="lg:hidden mb-8"> <a href="/" class="text-2xl font-bold text-gray-900">Bazaar<span
+                            class="text-[var(--accent)]">Buzz</span></a> </div>
+                <h2 class="text-2xl font-bold text-gray-900">Sign In</h2>
+                <p class="mt-1 text-sm text-gray-500">Please fill out all the fields below.</p>
+                <% if(authErrors) { %>
+                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-sm text-red-600">
+                            <%= authErrors %>
+                        </p>
+                    </div>
+                    <% } %>
+                        <form id="signInForm" class="mt-8 space-y-5">
+                            <div> <label for="email" class="block text-sm font-medium text-gray-700">Email
+                                    Address</label> <input type="email" name="email" id="email" required
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                            </div>
+                            <div> <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                                <input type="password" name="password" id="password" required
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                            </div>
+                            <div class="flex items-center justify-end"> <button type="button" onclick="showModal()"
+                                    class="text-sm text-[var(--accent)] hover:text-[var(--accent)] font-medium transition-colors btn-press">Forgot
+                                    password?</button> </div> <button type="submit"
+                                class="w-full rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--accent-hover)] transition-colors btn-press">Sign
+                                In</button>
+                            <div class="relative">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-200"></div>
+                                </div>
+                                <div class="relative flex justify-center"><span
+                                        class="bg-gray-50 px-3 text-sm text-gray-500">or</span></div>
+                            </div> <a href="/auth/google"
+                                class="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors btn-press">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M23.766 12.2765C23.766 11.4608 23.6999 10.6406 23.5588 9.83813H12.24V14.4591H18.7217C18.4528 15.9495 17.5885 17.2679 16.323 18.1056V21.104H20.19C22.4608 19.014 23.766 15.9274 23.766 12.2765Z"
+                                        fill="#4285F4" />
+                                    <path
+                                        d="M12.2401 24.0008C15.4766 24.0008 18.2059 22.9382 20.1945 21.1039L16.3276 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.2401 24.0008Z"
+                                        fill="#34A853" />
+                                    <path
+                                        d="M5.50253 14.3002C4.99987 12.8099 4.99987 11.196 5.50253 9.70569V6.61475H1.51649C-0.18551 10.0055-0.18551 14.0004 1.51649 17.3912L5.50253 14.3002Z"
+                                        fill="#FBBC04" />
+                                    <path
+                                        d="M12.2401 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208-0.034466 12.2401 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50264 9.70575C6.45064 6.86173 9.10947 4.74966 12.2401 4.74966Z"
+                                        fill="#EA4335" />
+                                </svg> Continue with Google </a>
+                        </form>
+                        <p class="mt-8 text-center text-sm text-gray-500"> Don't have an account? <a href="/user/signUp"
+                                class="font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">Create
+                                one</a> </p>
+            </div>
+        </div>
+    </div><!-- Forgot Password Modal -->
+    <div class="hidden fixed inset-0 z-50 flex items-center justify-center" id="forgotModal">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8"> <button type="button"
+                onclick="closeModal()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors btn-press"> <svg
+                    class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg> </button>
+            <h3 class="text-xl font-bold text-gray-900">Forgot Password</h3>
+            <p class="mt-1 text-sm text-gray-500">Enter your email and new password.</p>
+            <form class="mt-6 space-y-4" id="forgotForm">
+                <div> <label class="block text-sm font-medium text-gray-700">Your Email</label>
+                    <div id="emailError" class="error-message hidden text-xs text-red-500"></div> <input type="email"
+                        id="forgotEmail" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                </div>
+                <div> <label class="block text-sm font-medium text-gray-700">New Password</label>
+                    <div id="newPasswordError" class="error-message hidden text-xs text-red-500"></div> <input
+                        type="password" id="newPassword" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                </div>
+                <div> <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <div id="confirmPasswordError" class="error-message hidden text-xs text-red-500"></div> <input
+                        type="password" id="confirmPassword" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all" />
+                </div> <button type="submit"
+                    class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">Update
+                    Password</button>
+            </form>
+        </div>
+    </div>
+    <% blocks.scripts=` <script src="/javascript/user/userSignInPage.js">
+        </script>` %>

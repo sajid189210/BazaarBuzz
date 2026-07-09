@@ -1,1 +1,148 @@
-﻿<% blocks.head = `    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">    <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="        crossorigin="anonymous" referrerpolicy="no-referrer" />` %><% blocks.breadcrumb = `    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"        stroke="currentColor" stroke-width="2">        <polyline points="9 18 15 12 9 6" />    </svg>    <span class="text-gray-900 font-semibold">Products</span>` %><div class="flex items-center justify-between mb-6">    <div></div>    <a href="/admin/productList/create"        class="rounded-lg bg-gray-900 hover:bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors flex items-center gap-2">        <i class="fa-solid fa-plus"></i>        <span>Create Product</span>    </a></div><div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">        <div class="relative w-full sm:w-64">            <i                class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>            <input type="text" id="searchInput" placeholder="Search products..."                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">        </div>        <div class="w-full sm:w-48">            <select id="categoryFilter"                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">                <option value="">All Categories</option>                <% if(categories && categories.length> 0) { %>                    <% categories.forEach(cat=> { %>                        <option value="<%= cat.title %>" <%=typeof categoryFilter !=='undefined' &&                            categoryFilter===cat.title ? 'selected' : '' %>><%= cat.title %>                        </option>                        <% }) %>                            <% } %>            </select>        </div>        <div class="w-full sm:w-40">            <select id="statusFilter"                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">                <option value="">All Status</option>                <option value="true" <%=typeof statusFilter !=='undefined' && statusFilter==='true'                    ? 'selected' : '' %>>Active</option>                <option value="false" <%=typeof statusFilter !=='undefined' &&                    statusFilter==='false' ? 'selected' : '' %>>Inactive</option>            </select>        </div>        <div class="w-full sm:w-40">            <select id="stockFilter"                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">                <option value="">All Stock</option>                <option value="instock" <%=typeof stockFilter !=='undefined' &&                    stockFilter==='instock' ? 'selected' : '' %>>In Stock</option>                <option value="outofstock" <%=typeof stockFilter !=='undefined' &&                    stockFilter==='outofstock' ? 'selected' : '' %>>Out of Stock</option>            </select>        </div>        <button id="clearFilters"            class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-rose-500 transition-colors hidden">            <i class="fa-solid fa-xmark mr-1"></i>Clear        </button>    </div></div><div id="productContainer"    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">    <% if(products && products.length> 0) { %>        <% products.forEach(product=> {            const totalStock = (product.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0);            const isOutOfStock = totalStock === 0;            %>            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors product-card"                data-product-id="<%= product._id %>" data-category="<%= product.category || '' %>"                data-status="<%= product.isActive %>" data-stock="<%= totalStock %>">                <div class="aspect-[4/5] bg-gray-50 relative overflow-hidden">                    <img src="<%= product.images?.[0] || '/images/placeholder.jpg' %>"                        alt="<%= product.productName %>" class="w-full h-full object-cover"                        loading="lazy" />                    <div class="absolute top-2 right-2">                        <span                            class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full <%= product.isActive ? 'bg-green-50 text-green-700' : 'bg-red-rose-rose-50 text-rose-700' %>">                            <%= product.isActive ? 'Active' : 'Inactive' %>                        </span>                    </div>                    <% if (isOutOfStock) { %>                        <div class="absolute top-2 left-2">                            <span                                class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-50 text-orange-700">Out                                of Stock</span>                        </div>                        <% } %>                </div>                <div class="p-4">                    <p class="text-xs text-gray-400 uppercase tracking-widest">                        <%= product.brand || 'BazaarBuzz' %>                    </p>                    <p class="text-sm font-medium text-gray-900 truncate mt-0.5">                        <%= product.productName %>                    </p>                    <p class="text-sm font-semibold text-gray-900 mt-1">₹<%=                            product.productPrice?.toLocaleString() || 0 %>                    </p>                    <p class="text-xs text-gray-400 mt-1">Stock: <%= totalStock %> | Category: <%=                                product.category || '-' %>                    </p>                    <div class="flex gap-2 mt-3">                        <a href="/admin/editProduct/<%= product._id %>"                            class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-rose-500 hover:text-rose-500 hover:bg-rose-50 transition-colors"                            title="Edit Product">                            <i class="fa-solid fa-pen-to-square"></i>                            <span class="hidden sm:inline">Edit</span>                        </a>                        <button onclick="toggleProduct('<%= product._id %>')"                            class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors <%= product.isActive ? 'border-rose-300 text-rose-500 hover:border-rose-400 hover:bg-rose-50' : 'border-green-300 text-green-600 hover:border-green-400 hover:bg-green-50' %>"                            title="<%= product.isActive ? 'Deactivate' : 'Activate' %>">                            <i                                class="fa-solid <%= product.isActive ? 'fa-ban' : 'fa-check-circle' %>"></i>                            <span class="hidden sm:inline">                                <%= product.isActive ? 'Block' : 'Unblock' %>                            </span>                        </button>                        <button onclick="deleteProduct('<%= product._id %>')"                            class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 text-rose-500 hover:border-rose-400 hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold transition-colors"                            title="Delete Product">                            <i class="fa-solid fa-trash"></i>                            <span class="hidden sm:inline">Delete</span>                        </button>                    </div>                </div>            </div>            <% }) %>                <% } else { %>                    <div class="col-span-full text-center py-20 text-gray-400">                        <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>                        <p class="text-lg font-medium text-gray-500">No products found</p>                        <p class="text-sm text-gray-400 mt-1">Try adjusting your search or filters                        </p>                    </div>                    <% } %></div><div id="paginationContainer" class="mt-6"></div><% if (typeof totalPages !=='undefined' && totalPages> 1) { %>    <nav id="serverPagination" class="mt-8 flex items-center justify-center gap-2"        aria-label="Pagination">        <a href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) + (searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '') + (categoryFilter ? '&category=' + encodeURIComponent(categoryFilter) : '') + (statusFilter ? '&status=' + encodeURIComponent(statusFilter) : '') + (stockFilter ? '&stock=' + encodeURIComponent(stockFilter) : '') : '#' %>"            class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 <%= currentPage === 1 ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' %> transition-colors"            <%=currentPage===1 ? 'aria-disabled="true"' : '' %>            >            <i class="fa-solid fa-chevron-left"></i>            <span class="hidden sm:inline ml-1">Previous</span>        </a>        <div class="flex items-center gap-1">            <% let startPage=Math.max(1, currentPage - 2); let endPage=Math.min(totalPages,                currentPage + 2); if (endPage - startPage < 4) { if (startPage===1) {                endPage=Math.min(totalPages, startPage + 4); } else if (endPage===totalPages) {                startPage=Math.max(1, endPage - 4); } } %>                    <% for (let i=startPage; i <=endPage; i++) { %>                        <a href="?page=<%= i %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %><%= categoryFilter ? '&category=' + encodeURIComponent(categoryFilter) : '' %><%= statusFilter ? '&status=' + encodeURIComponent(statusFilter) : '' %><%= stockFilter ? '&stock=' + encodeURIComponent(stockFilter) : '' %>"                            class="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium <%= i === currentPage ? 'bg-rose-500 text-white' : 'text-gray-700 hover:bg-gray-100' %> transition-colors"                            <%=i===currentPage ? 'aria-current="page"' : '' %>                            >                            <%= i %>                        </a>                        <% } %>        </div>        <a href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) + (searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '') + (categoryFilter ? '&category=' + encodeURIComponent(categoryFilter) : '') + (statusFilter ? '&status=' + encodeURIComponent(statusFilter) : '') + (stockFilter ? '&stock=' + encodeURIComponent(stockFilter) : '') : '#' %>"            class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 <%= currentPage === totalPages ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' %> transition-colors"            <%=currentPage===totalPages ? 'aria-disabled="true"' : '' %>            >            <span class="hidden sm:inline mr-1">Next</span>            <i class="fa-solid fa-chevron-right"></i>        </a>    </nav>    <div class="mt-4 text-center text-sm text-gray-500">        Showing <%= ((currentPage - 1) * (typeof limit !=='undefined' ? limit : 8)) + 1 %> to <%=                Math.min(currentPage * (typeof limit !=='undefined' ? limit : 8), (typeof totalCount                !=='undefined' ? totalCount : products.length)) %> of <%= typeof totalCount                    !=='undefined' ? totalCount : (products.length + (currentPage - 1) * (typeof                    limit !=='undefined' ? limit : 8)) %> products    </div>    <% } %><% blocks.scripts = `    <script src="/javascript/admin/productList.js"></script>` %><div id="productListData" data-current-page="<%= typeof currentPage !== 'undefined' ? currentPage : 1 %>"    data-total-pages="<%= typeof totalPages !== 'undefined' ? totalPages : 1 %>"    data-limit="<%= typeof limit !== 'undefined' ? limit : 8 %>"    data-search-query="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"    data-category-filter="<%= typeof categoryFilter !== 'undefined' ? categoryFilter : '' %>"    data-status-filter="<%= typeof statusFilter !== 'undefined' ? statusFilter : '' %>"    data-stock-filter="<%= typeof stockFilter !== 'undefined' ? stockFilter : '' %>" style="display: none;"></div>
+﻿<% blocks.head=` <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />` %><% blocks.breadcrumb=` <svg
+        xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
+        <polyline points="9 18 15 12 9 6" /> </svg> <span class="text-gray-900 font-semibold">Products</span>` %><div
+            class="flex items-center justify-between mb-6">
+            <div></div> <a href="/admin/productList/create"
+                class="rounded-lg bg-gray-900 hover:bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> <span>Create Product</span> </a>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div class="relative w-full sm:w-64"> <i
+                        class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Search products..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+                        value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"> </div>
+                <div class="w-full sm:w-48"> <select id="categoryFilter"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">
+                        <option value="">All Categories</option>
+                        <% if(categories && categories.length> 0) { %> <% categories.forEach(cat=> { %> <option
+                                    value="<%= cat.title %>" <%=typeof categoryFilter !=='undefined' &&
+                                    categoryFilter===cat.title ? 'selected' : '' %>><%= cat.title %>
+                                </option>
+                                <% }) %>
+                                    <% } %>
+                    </select> </div>
+                <div class="w-full sm:w-40"> <select id="statusFilter"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">
+                        <option value="">All Status</option>
+                        <option value="true" <%=typeof statusFilter !=='undefined' && statusFilter==='true' ? 'selected'
+                            : '' %>>Active</option>
+                        <option value="false" <%=typeof statusFilter !=='undefined' && statusFilter==='false'
+                            ? 'selected' : '' %>>Inactive</option>
+                    </select> </div>
+                <div class="w-full sm:w-40"> <select id="stockFilter"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">
+                        <option value="">All Stock</option>
+                        <option value="instock" <%=typeof stockFilter !=='undefined' && stockFilter==='instock'
+                            ? 'selected' : '' %>>In Stock</option>
+                        <option value="outofstock" <%=typeof stockFilter !=='undefined' && stockFilter==='outofstock'
+                            ? 'selected' : '' %>>Out of Stock</option>
+                    </select> </div> <button id="clearFilters"
+                    class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-rose-500 transition-colors hidden"> <i
+                        class="fa-solid fa-xmark mr-1"></i>Clear </button>
+            </div>
+        </div>
+        <div id="productContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <% if(products && products.length> 0) { %> <% products.forEach(product=> { const totalStock =
+                    (product.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0); const isOutOfStock =
+                    totalStock === 0; %> <div
+                        class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors product-card"
+                        data-product-id="<%= product._id %>" data-category="<%= product.category || '' %>"
+                        data-status="<%= product.isActive %>" data-stock="<%= totalStock %>">
+                        <div class="aspect-[4/5] bg-gray-50 relative overflow-hidden"> <img
+                                src="<%= product.images?.[0] || '/images/placeholder.jpg' %>"
+                                alt="<%= product.productName %>" class="w-full h-full object-cover" loading="lazy" />
+                            <div class="absolute top-2 right-2"> <span
+                                    class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full <%= product.isActive ? 'bg-green-50 text-green-700' : 'bg-red-rose-rose-50 text-rose-700' %>">
+                                    <%= product.isActive ? 'Active' : 'Inactive' %>
+                                </span> </div>
+                            <% if (isOutOfStock) { %>
+                                <div class="absolute top-2 left-2"> <span
+                                        class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-50 text-orange-700">Out
+                                        of Stock</span> </div>
+                                <% } %>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-xs text-gray-400 uppercase tracking-widest">
+                                <%= product.brand || 'BazaarBuzz' %>
+                            </p>
+                            <p class="text-sm font-medium text-gray-900 truncate mt-0.5">
+                                <%= product.productName %>
+                            </p>
+                            <p class="text-sm font-semibold text-gray-900 mt-1">₹<%=
+                                    product.productPrice?.toLocaleString() || 0 %>
+                            </p>
+                            <p class="text-xs text-gray-400 mt-1">Stock: <%= totalStock %> | Category: <%=
+                                        product.category || '-' %>
+                            </p>
+                            <div class="flex gap-2 mt-3"> <a href="/admin/editProduct/<%= product._id %>"
+                                    class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-rose-500 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                                    title="Edit Product"> <i class="fa-solid fa-pen-to-square"></i> <span
+                                        class="hidden sm:inline">Edit</span> </a> <button
+                                    onclick="toggleProduct('<%= product._id %>')"
+                                    class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors <%= product.isActive ? 'border-rose-300 text-rose-500 hover:border-rose-400 hover:bg-rose-50' : 'border-green-300 text-green-600 hover:border-green-400 hover:bg-green-50' %>"
+                                    title="<%= product.isActive ? 'Deactivate' : 'Activate' %>"> <i
+                                        class="fa-solid <%= product.isActive ? 'fa-ban' : 'fa-check-circle' %>"></i>
+                                    <span class="hidden sm:inline">
+                                        <%= product.isActive ? 'Block' : 'Unblock' %>
+                                    </span> </button> <button onclick="deleteProduct('<%= product._id %>')"
+                                    class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 text-rose-500 hover:border-rose-400 hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold transition-colors"
+                                    title="Delete Product"> <i class="fa-solid fa-trash"></i> <span
+                                        class="hidden sm:inline">Delete</span> </button> </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                        <% } else { %>
+                            <div class="col-span-full text-center py-20 text-gray-400"> <i
+                                    class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
+                                <p class="text-lg font-medium text-gray-500">No products found</p>
+                                <p class="text-sm text-gray-400 mt-1">Try adjusting your search or filters </p>
+                            </div>
+                            <% } %>
+        </div>
+        <div id="paginationContainer" class="mt-6"></div>
+        <% if (typeof totalPages !=='undefined' && totalPages> 1) { %> <nav id="serverPagination"
+                class="mt-8 flex items-center justify-center gap-2" aria-label="Pagination"> <a
+                    href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) + (searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '') + (categoryFilter ? '&category=' + encodeURIComponent(categoryFilter) : '') + (statusFilter ? '&status=' + encodeURIComponent(statusFilter) : '') + (stockFilter ? '&stock=' + encodeURIComponent(stockFilter) : '') : '#' %>"
+                    class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 <%= currentPage === 1 ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' %> transition-colors"
+                    <%=currentPage===1 ? 'aria-disabled="true"' : '' %> > <i class="fa-solid fa-chevron-left"></i> <span
+                        class="hidden sm:inline ml-1">Previous</span> </a>
+                <div class="flex items-center gap-1">
+                    <% let startPage=Math.max(1, currentPage - 2); let endPage=Math.min(totalPages, currentPage + 2); if
+                        (endPage - startPage < 4) { if (startPage===1) { endPage=Math.min(totalPages, startPage + 4); }
+                        else if (endPage===totalPages) { startPage=Math.max(1, endPage - 4); } } %>
+                        <% for (let i=startPage; i <=endPage; i++) { %> <a
+                                href="?page=<%= i %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %><%= categoryFilter ? '&category=' + encodeURIComponent(categoryFilter) : '' %><%= statusFilter ? '&status=' + encodeURIComponent(statusFilter) : '' %><%= stockFilter ? '&stock=' + encodeURIComponent(stockFilter) : '' %>"
+                                class="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium <%= i === currentPage ? 'bg-rose-500 text-white' : 'text-gray-700 hover:bg-gray-100' %> transition-colors"
+                                <%=i===currentPage ? 'aria-current="page"' : '' %> > <%= i %> </a>
+                            <% } %>
+                </div> <a
+                    href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) + (searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '') + (categoryFilter ? '&category=' + encodeURIComponent(categoryFilter) : '') + (statusFilter ? '&status=' + encodeURIComponent(statusFilter) : '') + (stockFilter ? '&stock=' + encodeURIComponent(stockFilter) : '') : '#' %>"
+                    class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 <%= currentPage === totalPages ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' %> transition-colors"
+                    <%=currentPage===totalPages ? 'aria-disabled="true"' : '' %> > <span
+                        class="hidden sm:inline mr-1">Next</span> <i class="fa-solid fa-chevron-right"></i> </a>
+            </nav>
+            <div class="mt-4 text-center text-sm text-gray-500"> Showing <%= ((currentPage - 1) * (typeof limit
+                    !=='undefined' ? limit : 8)) + 1 %> to <%= Math.min(currentPage * (typeof limit !=='undefined' ?
+                        limit : 8), (typeof totalCount !=='undefined' ? totalCount : products.length)) %> of <%= typeof
+                            totalCount !=='undefined' ? totalCount : (products.length + (currentPage - 1) * (typeof
+                            limit !=='undefined' ? limit : 8)) %> products </div>
+            <% } %>
+                <% blocks.scripts=` <script src="/javascript/admin/productList.js">
+                    </script>` %><div id="productListData"
+                        data-current-page="<%= typeof currentPage !== 'undefined' ? currentPage : 1 %>"
+                        data-total-pages="<%= typeof totalPages !== 'undefined' ? totalPages : 1 %>"
+                        data-limit="<%= typeof limit !== 'undefined' ? limit : 8 %>"
+                        data-search-query="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+                        data-category-filter="<%= typeof categoryFilter !== 'undefined' ? categoryFilter : '' %>"
+                        data-status-filter="<%= typeof statusFilter !== 'undefined' ? statusFilter : '' %>"
+                        data-stock-filter="<%= typeof stockFilter !== 'undefined' ? stockFilter : '' %>"
+                        style="display: none;"></div>
