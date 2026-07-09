@@ -97,7 +97,7 @@ const addToCart = async (req, res) => {
         redirectUrl: '/user/signIn'
     });
 
-    const { productId, color, size } = req.body;
+    const { productId, color, size, quantity } = req.body;
     const userId = req.session.user.userId;
 
     if (!productId || !color || !size) {
@@ -113,17 +113,18 @@ const addToCart = async (req, res) => {
         ]);
 
         if (!product) {
-            return response.error(res, "Product not found.", 404);
+            return response.error(res, "Product not found.", 404, { session: true });
         }
 
         const selectedVariant = product.variants.find(v => v.size === size);
 
         if (!selectedVariant) {
-            return response.error(res, "Selected variant not found.", 404);
+            return response.error(res, "Selected variant not found.", 404, { session: true });
         }
 
-        if (selectedVariant.stock <= 0) {
-            return response.error(res, "Product is out of stock.", 400);
+        const reqQty = parseInt(quantity) || 1;
+        if (selectedVariant.stock <= 0 || reqQty > selectedVariant.stock) {
+            return response.error(res, reqQty > selectedVariant.stock ? "Requested quantity exceeds available stock." : "Product is out of stock.", 400, { session: true });
         }
 
         let cart = await Cart.findOne({ user: userId, });
@@ -139,7 +140,7 @@ const addToCart = async (req, res) => {
         );
 
         if (isSameItemExists) {
-            return response.error(res, "Item already exist in the cart", 400);
+            return response.error(res, "Item already exist in the cart", 400, { session: true });
         }
 
         let offer = null;
@@ -169,7 +170,7 @@ const addToCart = async (req, res) => {
 
         cart.items.push({
             product: product._id,
-            quantity: 1,
+            quantity: reqQty,
             selectedColor: color,
             selectedSize: size,
             discountedPrice: round(finalPrice),
@@ -182,7 +183,8 @@ const addToCart = async (req, res) => {
             session: true,
             success: true,
             message: "Product successfully added in the cart.",
-            redirectUrl: '/user/cart'
+            redirectUrl: '/user/cart',
+            cartCount: cart.items.length
         });
 
     } catch (err) {

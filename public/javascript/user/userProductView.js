@@ -754,15 +754,24 @@ async function handleAddToCart(e) {
         }
 
         if (!data.success) {
-            await Swal.fire({ title: 'Error', text: data.message, icon: 'error', confirmButtonText: 'Ok' });
+            Toast.fire({ icon: 'error', title: data.message });
             btn.disabled = false;
             btn.textContent = originalText;
             btn.style.opacity = '';
             return;
         }
 
-        await Swal.fire({ title: 'Added to Cart!', text: data.message, icon: 'success', confirmButtonText: 'View Cart' });
-        window.location.href = data.redirectUrl || '/user/cart';
+        const badge = document.getElementById('cartBadge');
+        if (badge && data.cartCount !== undefined) {
+            badge.textContent = data.cartCount;
+            badge.style.display = '';
+        }
+        Toast.fire({ icon: 'success', title: 'Added to cart!' });
+        document.getElementById('quantityValue').textContent = '1';
+        document.getElementById('quantity').value = '1';
+        btn.disabled = false;
+        btn.textContent = 'Add to Cart';
+        btn.style.opacity = '';
 
     } catch (err) {
         console.log('Error adding to cart.', err);
