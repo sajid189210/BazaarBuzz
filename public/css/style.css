@@ -1307,6 +1307,10 @@ html {
   width: 100vw;
 }
 
+.w-9 {
+  width: 2.25rem;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1660,6 +1664,10 @@ html {
 
 .whitespace-normal {
   white-space: normal;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
 }
 
 .break-normal {
@@ -2692,6 +2700,11 @@ html {
   color: rgb(250 204 21 / var(--tw-text-opacity, 1));
 }
 
+.text-green-300 {
+  --tw-text-opacity: 1;
+  color: rgb(134 239 172 / var(--tw-text-opacity, 1));
+}
+
 .underline {
   text-decoration-line: underline;
 }
@@ -3370,6 +3383,10 @@ html {
 
   .sm\:inline {
     display: inline;
+  }
+
+  .sm\:flex {
+    display: flex;
   }
 
   .sm\:hidden {

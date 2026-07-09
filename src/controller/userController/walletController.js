@@ -23,11 +23,25 @@ const renderWallet = async (req, res) => {
             wallet = newWallet;
         }
 
-        // sort transactions and apply pagination.
         const sortedTransactions = wallet.transactions.sort((a, b) => b.date - a.date);
-        const paginatedTransactions = sortedTransactions.slice((page - 1) * limit, page * limit);
-
         const totalTransactions = sortedTransactions.length;
+
+        let runningBalance = wallet.balance;
+        const enriched = sortedTransactions.map(txn => {
+            const t = txn.toObject();
+            if (t.type === 'credit') {
+                t.balanceBefore = Math.round((runningBalance - t.amount) * 100) / 100;
+                t.balanceAfter = runningBalance;
+                runningBalance = t.balanceBefore;
+            } else {
+                t.balanceBefore = Math.round((runningBalance + t.amount) * 100) / 100;
+                t.balanceAfter = runningBalance;
+                runningBalance = t.balanceBefore;
+            }
+            return t;
+        });
+
+        const paginatedTransactions = enriched.slice((page - 1) * limit, page * limit);
 
         res.render('user/userWallet', {
             title: 'My Wallet',
