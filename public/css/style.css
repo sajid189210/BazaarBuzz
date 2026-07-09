@@ -1387,6 +1387,10 @@ html {
   flex-shrink: 1;
 }
 
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
 .shrink-0 {
   flex-shrink: 0;
 }
@@ -2319,6 +2323,10 @@ html {
   padding-top: 2rem;
 }
 
+.pt-1 {
+  padding-top: 0.25rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2684,6 +2692,10 @@ html {
   color: rgb(250 204 21 / var(--tw-text-opacity, 1));
 }
 
+.underline {
+  text-decoration-line: underline;
+}
+
 .line-through {
   text-decoration-line: line-through;
 }
@@ -2694,6 +2706,10 @@ html {
 
 .underline-offset-auto {
   text-underline-offset: auto;
+}
+
+.underline-offset-2 {
+  text-underline-offset: 2px;
 }
 
 .antialiased {
@@ -3121,6 +3137,12 @@ html {
 .hover\:shadow-lg:hover {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.hover\:shadow-sm:hover {
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 

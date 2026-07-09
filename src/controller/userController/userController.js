@@ -353,6 +353,21 @@ const getAddress = async (req, res) => {
     }
 };
 
+//*--------------[Get Single Address] ---------------
+const getSingleAddress = async (req, res) => {
+    try {
+        if (!req.session.user) return response.error(res, "Not authenticated", 401, { session: false, redirectUrl: '/user/signIn' });
+        const { addressId } = req.params;
+        const user = await User.findById(req.session.user.userId);
+        if (!user) return response.error(res, "User not found", 404);
+        const address = user.addressId.id(addressId);
+        if (!address) return response.error(res, "Address not found", 404);
+        response.success(res, { address }, "Address fetched");
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
 //*--------------[Saves Address] ---------------
 const saveAddress = async (req, res) => {
     const { formInputs } = req.body;
@@ -375,7 +390,7 @@ const saveAddress = async (req, res) => {
 
 //*--------------[Removes Address] ---------------
 const removeAddress = async (req, res) => {
-    const { addressId } = req.query;
+    const { addressId } = req.params;
     const userId = req.session.user.userId;
     try {
 
@@ -383,8 +398,7 @@ const removeAddress = async (req, res) => {
 
         const result = await User.updateOne(
             { _id: userId },
-            { $pull: { addressId: { _id: addressId } } },
-            { new: true }
+            { $pull: { addressId: { _id: addressId } } }
         );
 
         if (!result.modifiedCount) {
@@ -402,15 +416,19 @@ const removeAddress = async (req, res) => {
 const editAddress = async (req, res) => {
     const { formInputs } = req.body;
     const userId = req.session.user.userId;
-    const { addressId } = req.query;
+    const { addressId } = req.params;
     try {
 
         if (!formInputs || !userId) return response.error(res, "Form inputs or user not found.", 400);
 
+        const setFields = {};
+        for (const key of Object.keys(formInputs)) {
+            setFields[`addressId.$.${key}`] = formInputs[key];
+        }
+
         const result = await User.updateOne(
             { _id: userId, 'addressId._id': addressId },
-            { $set: { 'addressId.$': formInputs } },
-            { new: true },
+            { $set: setFields }
         );
 
         if (!result.modifiedCount) {
@@ -514,5 +532,6 @@ module.exports = {
     userSignIn,
     userSignUp,
     getAddress,
+    getSingleAddress,
     subscribeNewsletter,
 }

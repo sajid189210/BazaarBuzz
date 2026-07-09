@@ -28,9 +28,10 @@ router.delete('/otpExpiry', otpController.handleOtpExpiry);
 //*-------------------[User Home Page-]---------------
 router.get('/', userController.userHomepage);
 router.get('/address', userController.getAddress);
+router.get('/address/:addressId', userController.getSingleAddress);
 router.post('/address', userController.saveAddress);
-router.put('/address', userController.editAddress);
-router.delete('/address', userController.removeAddress);
+router.put('/address/:addressId', userController.editAddress);
+router.delete('/address/:addressId', userController.removeAddress);
 router.get('/profile', userController.renderProfile);
 router.put('/profile', userController.updateProfile);
 
