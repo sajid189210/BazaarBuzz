@@ -15,7 +15,6 @@ require('dotenv').config();
 
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
-//? Helper function to handle stock quantity.
 const handleStock = async (order, increment) => {
     const result = await Promise.all(
         order.items.map((item) => {
@@ -43,7 +42,6 @@ const handleStock = async (order, increment) => {
     return result.every(product => product !== null);
 };
 
-//? Helper function to clear cart.
 const clearCart = async (userId) => {
     await Cart.findOneAndUpdate(
         { user: userId },
@@ -59,8 +57,6 @@ const clearCart = async (userId) => {
 const round = (value) => {
     return Math.trunc(value * 100) / 100;
 }
-
-// ------------------------------------------------------------
 
 const getCheckout = async (req, res) => {
     if (!req.session.user) return res.redirect('/user/signIn');
@@ -151,9 +147,9 @@ const proceedToPayment = async (req, res) => {
     if (!req.session.user) return res.redirect('/user/signIn');
 
     const userId = req.session.user.userId || '';
-    const { address, paymentMethod } = req.body;
+    const { addressId, paymentMethod } = req.body;
 
-    if (!address || !paymentMethod) {
+    if (!addressId || !paymentMethod) {
         return response.error(res, "Address and payment method are required.", 400);
     }
 
@@ -163,6 +159,7 @@ const proceedToPayment = async (req, res) => {
             return response.error(res, "User not found.", 404);
         }
 
+        const shippingAddress = user.addressId.id(addressId);
         const cart = await Cart.findOne({ user: userId })
             .populate('items.product')
             .populate('coupon')
@@ -173,7 +170,6 @@ const proceedToPayment = async (req, res) => {
             return res.redirect("/user/cart");
         }
 
-        //* Update user's usedCoupons if used.
         if (cart?.coupon) {
             const usedCouponData = user.usedCoupons.find(c => c.couponId.toString() === cart.coupon._id.toString());
 
@@ -217,7 +213,7 @@ const proceedToPayment = async (req, res) => {
                 unitPrice: item.product.productPrice,
                 finalPrice: item.discountedPrice,
             })),
-            shippingAddress: address,
+            shippingAddress,
             payment: {
                 method: paymentMethod,
             },
@@ -233,7 +229,6 @@ const proceedToPayment = async (req, res) => {
 
         const newOrder = new Order(orderDetails);
 
-        //* payment conditions - razorpay, wallet and cod.
         if (paymentMethod === 'razorpay') {
             try {
                 const options = {
@@ -256,7 +251,6 @@ const proceedToPayment = async (req, res) => {
                     orderId: order.id,
                     orderType: paymentMethod,
                     newOrderId: newOrder._id,
-                    address,
                     totalAmount: newOrder.total,
                     user,
                     RAZORPAY_KEY_ID,
@@ -269,7 +263,6 @@ const proceedToPayment = async (req, res) => {
         } else if (paymentMethod === 'wallet') {
 
             try {
-                // Fetch the user's wallet information
                 let wallet = await Wallet.findOne({ user: userId });
 
                 if (!wallet) {
@@ -279,13 +272,11 @@ const proceedToPayment = async (req, res) => {
                     });
                 }
 
-                // Check if the total amount is within the wallet balance
                 if (newOrder.total > wallet.balance) {
                     return response.error(res, "Insufficient wallet balance.", 400);
                 }
 
-                // Proceed with the payment logic
-                wallet.balance -= newOrder.total; // Deduct the amount from the wallet
+                wallet.balance -= newOrder.total;
                 wallet.transactions.push({
                     orderId: newOrder._id,
                     amount: newOrder.total,
@@ -293,22 +284,12 @@ const proceedToPayment = async (req, res) => {
                     date: new Date(),
                 });
 
-                // Save the order to the database
                 newOrder.payment.status = 'paid';
                 await newOrder.save();
-
                 await user.save();
-
-                // Save the updated wallet
                 await wallet.save();
-
-                // reduce the  stock.
                 await handleStock(newOrder, false);
-
-                // clears the cart.
                 await clearCart(userId);
-
-                // Respond with success
                 return response.success(res, {
                     success: true,
                     message: 'Payment successful via wallet.',
@@ -320,24 +301,18 @@ const proceedToPayment = async (req, res) => {
             } catch (err) {
                 console.error(`Error processing wallet payment: ${err.message}`);
 
-                // Handle specific error
                 if (err.name === 'ValidationError') {
                     return response.error(res, "Invalid wallet transaction.", 400);
                 }
 
-                // General error response
                 response.serverError(res, err);
             }
 
         } else {
-            // Save the order to the database
+            newOrder.payment.paidAt = new Date();
             await newOrder.save();
             await user.save();
-
-            // reduce the  stock.
             await handleStock(newOrder, false);
-
-            // clears the cart.
             await clearCart(userId);
 
             return response.success(res, { success: true, orderType: paymentMethod, newOrderId: newOrder._id });
@@ -459,7 +434,6 @@ const applyCoupon = async (req, res) => {
         cart.coupon = coupon._id;
         await cart.save();
 
-        // Return successful response with applied price
         return response.success(res, {
             success: true,
             message: 'Coupon applied successfully',
