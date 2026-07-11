@@ -1,8 +1,8 @@
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 
-const createCategoryInstance = (title, brand) => {
-    return new categoryModel({ title, brands: [brand] });
+const createCategoryInstance = (title, brands) => {
+    return new categoryModel({ title, brands });
 };
 
 const handleDuplicateError = (err, res) => {
@@ -19,22 +19,22 @@ const createCategory = async (req, res) => {
         if (!title || !brandName) return response.error(res, "Title and brand are required.", 400);
 
         const modTitle = title.trim().toLowerCase();
-        const modBrand = brandName.trim().toLowerCase();
+        const brands = brandName.split(',').map(b => b.trim().toLowerCase()).filter(b => b.length > 0);
 
-        if (!modTitle || !modBrand) return response.error(res, "Please fill out all the fields.", 400);
+        if (!modTitle || brands.length === 0) return response.error(res, "Please fill out all the fields.", 400);
 
         let category = await categoryModel.findOne({ title: modTitle });
 
         if (category) {
-            const existingBrand = category.brands.find(b => b.toLowerCase() === modBrand);
-            if (existingBrand) {
-                return response.error(res, "Brand already exists in this category!", 400);
+            const existingBrands = brands.filter(b => category.brands.some(cb => cb.toLowerCase() === b));
+            if (existingBrands.length > 0) {
+                return response.error(res, `Brand(s) already exist in this category: ${existingBrands.join(', ')}`, 400);
             }
-            category.brands.push(modBrand);
+            category.brands.push(...brands);
             await category.save();
-            return response.success(res, {}, "Brand added to category successfully!");
+            return response.success(res, {}, "Brands added to category successfully!");
         } else {
-            const newCategory = createCategoryInstance(modTitle, modBrand);
+            const newCategory = createCategoryInstance(modTitle, brands);
             await newCategory.save();
             return response.success(res, {}, "Category created successfully!", 201);
         }
@@ -100,15 +100,20 @@ const adminCategory = async (req, res) => {
     try {
         if (!req.session.admin) return res.redirect('/admin/signIn');
 
-        const categories = await categoryModel.find({});
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-        if (!categories) return res.render('admin/adminCategory', {
+        const totalCategories = await categoryModel.countDocuments({});
+        const categories = await categoryModel.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
+
+        res.render('admin/adminCategory', {
             layout: false,
-            message: req.flash(),
-            categories: []
+            categories: categories || [],
+            currentPage: page,
+            totalPages: Math.ceil(totalCategories / limit),
+            limit
         });
-
-        res.render('admin/adminCategory', { layout: false, categories });
     } catch (err) {
         response.serverError(res, err);
     }
