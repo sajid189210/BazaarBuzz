@@ -18,10 +18,12 @@ async function changeOrderStatus(orderId, status) {
     } catch (e) { console.log(e); }
 }
 
-async function approveReturn(orderId) {
-    var dataEl = document.getElementById('orderData');
-    var itemIds = dataEl ? dataEl.dataset.itemIds.split(',') : [];
-    var orderItemId = itemIds[0] || '';
+async function approveReturn(orderId, orderItemId) {
+    if (!orderItemId) {
+        var dataEl = document.getElementById('orderData');
+        var itemIds = dataEl ? dataEl.dataset.itemIds.split(',') : [];
+        orderItemId = itemIds[0] || '';
+    }
     try {
         var res = await fetch('/admin/order/returns', {
             method: 'PATCH',

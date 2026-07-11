@@ -30,13 +30,14 @@ function closeCategoryModal() {
     document.getElementById('categoryModal').classList.add('hidden');
 }
 
-function editCategory(id, title, brandName) {
+function editCategory(id) {
+    var btn = document.querySelector('[data-id="' + id + '"]');
     document.getElementById('categoryModalTitle').textContent = 'Edit Category';
     document.getElementById('categoryId').value = id;
-    document.getElementById('categoryTitle').value = title;
+    document.getElementById('categoryTitle').value = btn ? btn.dataset.title : '';
     document.getElementById('brandList').innerHTML = '';
-    if (brandName) {
-        brandName.split(',').forEach(function (b) {
+    if (btn && btn.dataset.brands) {
+        btn.dataset.brands.split(',').forEach(function (b) {
             var name = b.trim();
             if (name) addBrand(name);
         });

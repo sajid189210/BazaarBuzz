@@ -294,28 +294,6 @@ const topSellingProducts = async () => {
     }
 };
 
-const fetchOrders = async (limit, page) => {
-
-    const filter = {
-        $or: [
-            { 'payment.status': 'pending' },
-            { status: 'processing' },
-            { 'items.return.status': 'requested' }
-        ]
-    };
-
-    const orders = await Order.find(filter)
-        .populate('user')
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .skip((page - 1) * limit);
-
-    const totalOrders = await Order.countDocuments(filter);
-
-    return { orders, totalOrders };
-};
-
-
 const getOrdersByStatus = async () => {
     try {
         return await Order.aggregate([
@@ -379,11 +357,6 @@ const getDashboard = async (req, res) => {
         const paymentMethodSplit = await getPaymentMethodSplit();
         const monthlyOrderCount = await getMonthlyOrderCount();
 
-        const limit = parseInt(req.query.limit) || 10;
-        const page = parseInt(req.query.page) || 1;
-
-        const { orders, totalOrders } = await fetchOrders(limit, page);
-
         res.render('admin/dashboard', {
             layout: 'admin/layout',
             title: 'Dashboard',
@@ -391,13 +364,9 @@ const getDashboard = async (req, res) => {
             revenueByBrand,
             newCustomer,
             topProducts,
-            currentPage: page,
-            totalPages: Math.ceil(totalOrders / limit),
             salesData,
             aovData,
             clvData,
-            orders,
-            limit,
             ordersByStatus,
             paymentMethodSplit,
             monthlyOrderCount,

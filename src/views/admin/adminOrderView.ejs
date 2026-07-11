@@ -8,6 +8,8 @@
         </svg> <span class="text-gray-900 font-semibold">Order #${order ? String(order._id).slice(-8) : ''}</span>` %>
 <% if(order) { %>
     <% var orderItemIds = order.items.map(function(itm) { return itm._id; }); %>
+    <% var returnItemId = ''; order.items.forEach(function(itm) { if (itm.return?.status === 'requested' && !returnItemId) returnItemId = itm._id; }); %>
+    <% var hasActions = order.status === 'processing' || order.status === 'shipped' || (order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned') || returnItemId; %>
     <div id="orderData" data-item-ids="<%= orderItemIds.join(',') %>" style="display:none;"></div>
     <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         <div class="flex flex-wrap items-start justify-between gap-6">
@@ -162,6 +164,7 @@
         </div>
     </div>
 
+    <% if (hasActions) { %>
     <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -197,8 +200,8 @@
                     Cancel Order
                 </button>
             <% } %>
-            <% if(order.status === 'delivered' && order.returnStatus !== 'Requested' && order.returnStatus !== 'Approved' && order.returnStatus !== 'Rejected') { %>
-                <button onclick="approveReturn('<%= order._id %>')"
+            <% if(returnItemId) { %>
+                <button onclick="approveReturn('<%= order._id %>', '<%= returnItemId %>')"
                     class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -208,6 +211,7 @@
             <% } %>
         </div>
     </div>
+<% } %>
 <% } else { %>
     <div class="text-center py-20 text-gray-400">
         <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

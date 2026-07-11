@@ -231,6 +231,7 @@ const changeStatus = async (req, res) => {
                 }
             } else {
                 order.status = updateOrderStatus(order);
+                if (order.status === 'delivered' && order.payment.status === 'pending') order.payment.status = 'paid';
                 await order.save();
             }
 
@@ -238,6 +239,7 @@ const changeStatus = async (req, res) => {
         }
 
         order.status = updateOrderStatus(order);
+        if (order.status === 'delivered' && order.payment.status === 'pending') order.payment.status = 'paid';
 
         await order.save();
 
