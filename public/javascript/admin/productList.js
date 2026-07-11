@@ -162,7 +162,7 @@ function getFilterParams() {
 
 function buildUrl(params) {
     const urlParams = new URLSearchParams();
-    if (params.page > 1) urlParams.set('page', params.page);
+    if (params.page >= 1) urlParams.set('page', params.page);
     if (params.search) urlParams.set('search', params.search);
     if (params.category) urlParams.set('category', params.category);
     if (params.status) urlParams.set('status', params.status);
@@ -194,6 +194,11 @@ function updateClearFiltersButton(params) {
 async function loadProducts(page = 1, paramsOverride = null) {
     const params = paramsOverride || getFilterParams();
     params.page = page;
+
+    const serverPag = document.getElementById('serverPagination');
+    if (serverPag) serverPag.style.display = 'none';
+    const serverLabel = document.getElementById('serverPaginationLabel');
+    if (serverLabel) serverLabel.style.display = 'none';
     
     const newUrl = buildUrl(params);
     window.history.pushState({}, '', newUrl);

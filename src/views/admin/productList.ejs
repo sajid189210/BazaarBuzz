@@ -130,7 +130,7 @@
                     <%=currentPage===totalPages ? 'aria-disabled="true"' : '' %> > <span
                         class="hidden sm:inline mr-1">Next</span> <i class="fa-solid fa-chevron-right"></i> </a>
             </nav>
-            <div class="mt-4 text-center text-sm text-gray-500"> Showing <%= ((currentPage - 1) * (typeof limit
+            <div id="serverPaginationLabel" class="mt-4 text-center text-sm text-gray-500"> Showing <%= ((currentPage - 1) * (typeof limit
                     !=='undefined' ? limit : 8)) + 1 %> to <%= Math.min(currentPage * (typeof limit !=='undefined' ?
                         limit : 8), (typeof totalCount !=='undefined' ? totalCount : products.length)) %> of <%= typeof
                             totalCount !=='undefined' ? totalCount : (products.length + (currentPage - 1) * (typeof
