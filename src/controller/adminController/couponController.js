@@ -101,7 +101,7 @@ const updateCoupons = async (req, res) => {
             return response.error(res, "All fields are required!", 400);
         }
 
-        const coupon = await Coupon.findById(couponId);
+        const coupon = await Coupon.findOne({ _id: couponId, isDeleted: false });
 
         if (!coupon) {
             return response.error(res, 'Coupon not found.', 404);
@@ -154,7 +154,7 @@ const changeCouponStatus = async (req, res) => {
             return response.error(res, "Coupon ID is required.", 400);
         }
 
-        const coupon = await Coupon.findById(couponId);
+        const coupon = await Coupon.findOne({ _id: couponId, isDeleted: false });
 
         if (!coupon) {
             return response.error(res, "Coupon not found.", 404);

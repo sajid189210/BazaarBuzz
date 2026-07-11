@@ -335,7 +335,7 @@ const applyCoupon = async (req, res) => {
 
     try {
         const [coupon, user, cart] = await Promise.all([
-            Coupon.findOne({ couponCode: inputValue.toUpperCase(), isActive: true }),
+            Coupon.findOne({ couponCode: inputValue.toUpperCase(), isActive: true, isDeleted: false }),
             User.findById(userId),
             Cart.findOne({ user: userId }).populate('coupon').populate('items.offer').populate('items.product')
         ]);

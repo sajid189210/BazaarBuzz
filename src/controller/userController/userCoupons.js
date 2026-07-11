@@ -10,7 +10,7 @@ const renderCoupons = async (req, res) => {
 
     try {
         const [coupons, userDetails, categories] = await Promise.all([
-            Coupon.find(),
+            Coupon.find({ isDeleted: false, isActive: true }),
             User.findById(userId),
             Category.find({ isActive: { $ne: false } }),
         ]);
