@@ -1,6 +1,7 @@
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 const productModel = require('../../model/productModel');
+const offerModel = require('../../model/offerModel');
 
 const createCategoryInstance = (title, brands) => {
     return new categoryModel({ title, brands });
@@ -94,6 +95,11 @@ const deleteCategory = async (req, res) => {
             { $set: { isActive: false } }
         );
 
+        await offerModel.updateMany(
+            { category: category._id },
+            { $set: { isActive: false } }
+        );
+
         response.success(res, {}, "Category deleted successfully!");
     } catch (err) {
         response.serverError(res, err);
@@ -136,6 +142,11 @@ const changeCategoryStatus = async (req, res) => {
 
         await productModel.updateMany(
             { category: category.title },
+            { $set: { isActive: category.isActive } }
+        );
+
+        await offerModel.updateMany(
+            { category: category._id },
             { $set: { isActive: category.isActive } }
         );
 

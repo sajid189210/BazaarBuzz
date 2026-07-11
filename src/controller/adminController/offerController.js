@@ -7,12 +7,52 @@ const renderOffer = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
     try {
 
-        const [category, offers] = await Promise.all([
-            Category.findOne({ title: 'Clothes' }).sort({ createdAt: -1 }),
-            Offer.find().sort({ createdAt: -1 })
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const statusFilter = req.query.status || '';
+        const categoryFilter = req.query.category || '';
+
+        let filter = { isDeleted: false };
+
+        if (search) {
+            filter.$or = [
+                { offerName: { $regex: search, $options: 'i' } },
+                { brandName: { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        if (statusFilter) {
+            filter.isActive = statusFilter === 'active';
+        }
+
+        if (categoryFilter) {
+            const catDoc = await Category.findOne({ title: categoryFilter, isDeleted: false });
+            if (catDoc) filter.category = catDoc._id;
+        }
+
+        const [categories, offers, totalOffers] = await Promise.all([
+            Category.find({ isDeleted: false, isActive: true }),
+            Offer.find(filter)
+                .populate('category', 'title')
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit),
+            Offer.countDocuments(filter),
         ]);
 
-        res.render('admin/offer', { layout: false, category, offers })
+        res.render('admin/offer', {
+            layout: false,
+            categories,
+            offers,
+            currentPage: page,
+            totalPages: Math.ceil(totalOffers / limit),
+            totalCount: totalOffers,
+            limit,
+            search,
+            statusFilter,
+            categoryFilter,
+        })
 
     } catch (err) {
         response.serverError(res, err);
@@ -21,22 +61,27 @@ const renderOffer = async (req, res) => {
 
 const createOffer = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
-    const { offerName, brandName, discountValue } = req.body;
+    const { offerName, brandName, discountValue, category } = req.body;
 
     try {
-        if (!offerName || !brandName || !discountValue) {
+        if (!offerName || !brandName || !discountValue || !category) {
             return response.error(res, "Required fields are missing.", 400);
         }
 
-        const offer = await Offer.find();
+        const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
+        if (!catDoc) {
+            return response.error(res, "Selected category not found or is inactive.", 400);
+        }
 
-        if (offer && offer.brandName === brandName) {
-            return response.error(res, "Brand with offer already exists.", 400);
+        const existing = await Offer.findOne({ brandName, category: catDoc._id });
+        if (existing) {
+            return response.error(res, "Offer already exists for this brand in the selected category.", 400);
         }
 
         const newOffer = new Offer({
             offerName,
             brandName,
+            category: catDoc._id,
             discount: discountValue,
         });
 
@@ -51,18 +96,16 @@ const createOffer = async (req, res) => {
 
 const changeStatus = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
-    const { offerId, status } = req.body;
+    const { offerId } = req.body;
 
     try {
-        console.log(offerId)
+        const offer = await Offer.findById(offerId);
+        if (!offer) return response.error(res, "Offer not found.", 404);
 
-        const updatedOffer = await Offer.findByIdAndUpdate(offerId, { $set: { isActive: status } }, { new: true });
+        offer.isActive = !offer.isActive;
+        await offer.save();
 
-        if (!updatedOffer) {
-            return response.error(res, "Sorry!, Something happened!", 400)
-        }
-
-        response.success(res, {}, "status changed");
+        response.success(res, {}, "Status changed");
 
     } catch (err) {
         response.serverError(res, err);
@@ -71,12 +114,17 @@ const changeStatus = async (req, res) => {
 
 const updateOffer = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
-    const { discountValue, offerName, brandName, offerId } = req.body;
+    const { discountValue, offerName, brandName, offerId, category } = req.body;
 
     try {
+        const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
+        if (!catDoc) {
+            return response.error(res, "Selected category not found or is inactive.", 400);
+        }
+
         const updateOffer = await Offer.findByIdAndUpdate(
             offerId,
-            { $set: { discount: discountValue, offerName, brandName, } },
+            { $set: { discount: discountValue, offerName, brandName, category: catDoc._id } },
             { new: true }
         );
 
@@ -98,12 +146,12 @@ const updateOffer = async (req, res) => {
 const removeOffer = async (req, res) => {
     const offerId = req.params.id;
 
-    const result = await Offer.findByIdAndDelete(offerId);
-    console.log(result)
+    const offer = await Offer.findById(offerId);
+    if (!offer) return response.error(res, "Offer not found.", 404);
 
-    if (!result) {
-        return response.error(res, "Could not remove the offer.", 400)
-    }
+    offer.isDeleted = true;
+    offer.isActive = false;
+    await offer.save();
 
     response.success(res, {}, "Offer removed successfully")
 }
