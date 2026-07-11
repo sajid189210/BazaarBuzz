@@ -1,16 +1,13 @@
 const response = require('../../Services/responseMapper');
-const Product = require('../../model/productModel');
 const Order = require('../../model/orderModel');
 
 
 const getMonthlySalesRevenue = async () => {
     try {
         const result = await Order.aggregate([
-            // Match only completed orders that are "delivered" and have a "paid" status
             {
                 $match: {
                     status: "delivered",
-                    "payment.status": "paid",
                 }
             },
             { $unwind: "$items" },
@@ -26,17 +23,13 @@ const getMonthlySalesRevenue = async () => {
                     totalRevenue: { $sum: "$revenue" }
                 }
             },
-            // Sort the result by month (ascending order)
             { $sort: { _id: 1 } }
         ]);
 
 
-        // Prepare the result in an array format, initializing with zeros for all months.
-        const salesData = new Array(12).fill(0); // Initialize an array with 12 zeros (one for each month).
-
-        // Populate the array with the actual total revenue data
+        const salesData = new Array(12).fill(0);
         result.forEach(item => {
-            salesData[item._id - 1] = item.totalRevenue; // MongoDB months are 1-based, so subtract 1
+            salesData[item._id - 1] = item.totalRevenue;
         });
 
         return salesData;
@@ -72,7 +65,6 @@ const generateRevenueByBrand = async () => {
                     }
                 }
             },
-            // Group by the brand and sum the revenues
             {
                 $group: {
                     _id: '$productDetails.brand',
@@ -80,7 +72,6 @@ const generateRevenueByBrand = async () => {
                 }
             },
             { $sort: { totalRevenue: -1 } },
-            // { $limit: 5 }
         ]);
 
         return revenueByBrand;
@@ -93,7 +84,6 @@ const generateRevenueByBrand = async () => {
 const calculateAOV = async () => {
     try {
         const aovData = await Order.aggregate([
-            // Stage 1: Add a month field based on the order's createdAt date
             {
                 $project: {
                     year: { $year: '$createdAt' },
@@ -114,7 +104,6 @@ const calculateAOV = async () => {
                     totalOrders: { $sum: 1 }
                 }
             },
-            // Stage 4: Calculate the Average Order Value (AOV) by dividing totalRevenue by totalOrders
             {
                 $project: {
                     _id: 0,
@@ -173,7 +162,6 @@ const newCustomerRate = async () => {
 const repeatCustomerRate = async () => {
     try {
         const repeatCustomers = await Order.aggregate([
-            // Step 1: Group orders by user, month, and year to count how many orders each user made
             {
                 $group: {
                     _id: {
@@ -184,33 +172,29 @@ const repeatCustomerRate = async () => {
                     orderCount: { $sum: 1 }
                 }
             },
-            // Step 2: Match users who made more than one order (repeat customers)
             {
                 $match: {
-                    orderCount: { $gt: 1 } // Only users who have more than one order
+                    orderCount: { $gt: 1 }
                 }
             },
-            // Step 3: Group by month and year to count the number of repeat customers
             {
                 $group: {
                     _id: { year: "$_id.year", month: "$_id.month" },
-                    repeatCustomerCount: { $sum: 1 } // Count repeat customers for that month/year
+                    repeatCustomerCount: { $sum: 1 }
                 }
             },
-            // Step 4: Group by month and year to get the total number of orders
             {
                 $group: {
                     _id: { year: "$_id.year", month: "$_id.month" },
                     repeatCustomerCount: { $first: "$repeatCustomerCount" },
-                    totalOrderCount: { $sum: 1 } // Count all orders in that month/year
+                    totalOrderCount: { $sum: 1 }
                 }
             },
-            // Step 5: Calculate the repeat customer rate
             {
                 $project: {
                     repeatRate: {
                         $multiply: [
-                            { $divide: ["$repeatCustomerCount", "$totalOrderCount"] }, // Divide repeat customers by total orders
+                            { $divide: ["$repeatCustomerCount", "$totalOrderCount"] },
                             100
                         ]
                     },
@@ -218,7 +202,6 @@ const repeatCustomerRate = async () => {
                     month: "$_id.month"
                 }
             },
-            // Step 6: Sort by year and month
             {
                 $sort: { "year": 1, "month": 1 }
             }
@@ -255,7 +238,7 @@ const customerLifetimeValue = async () => {
             },
             {
                 $project: {
-                    clv: { $divide: ["$totalRevenue", "$totalCustomers"] }  // Calculate the average revenue per customer
+                    clv: { $divide: ["$totalRevenue", "$totalCustomers"] }
                 }
             }
         ]);
@@ -311,37 +294,6 @@ const topSellingProducts = async () => {
     }
 };
 
-const getStockStatus = async () => {
-    try {
-        const result = await Product.aggregate([
-            // Step 1: Unwind the variants array to treat each variant as a separate document
-            {
-                $unwind: "$variants"
-            },
-            // Step 2: Group by size to calculate the total stock for each size (S, M, L, XL, XXL, XXXL)
-            {
-                $group: {
-                    _id: "$variants.size",  // Group by size
-                    totalStock: { $sum: "$variants.stock" }  // Sum stock for each size
-                }
-            },
-            // Step 3: Sort by size (optional, to keep it in a specific order)
-            {
-                $sort: {
-                    "_id": 1  // Sort sizes in ascending order (S, M, L, XL, XXL, XXXL)
-                }
-            }
-        ]);
-
-        return result;  // Returns an array of stock counts for each size
-
-    } catch (err) {
-        console.error("Error fetching size stock data:", err);
-        throw new Error("Error fetching size stock data");
-    }
-};
-
-
 const fetchOrders = async (limit, page) => {
 
     const filter = {
@@ -364,7 +316,53 @@ const fetchOrders = async (limit, page) => {
 };
 
 
-//render the dashboard.
+const getOrdersByStatus = async () => {
+    try {
+        return await Order.aggregate([
+            { $group: { _id: "$status", count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+    } catch (err) {
+        console.error("Error fetching orders by status:", err);
+        throw new Error("Error fetching orders by status");
+    }
+};
+
+const getPaymentMethodSplit = async () => {
+    try {
+        return await Order.aggregate([
+            { $group: { _id: "$payment.method", count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+    } catch (err) {
+        console.error("Error fetching payment method split:", err);
+        throw new Error("Error fetching payment method split");
+    }
+};
+
+const getMonthlyOrderCount = async () => {
+    try {
+        const result = await Order.aggregate([
+            {
+                $addFields: { month: { $month: "$createdAt" } }
+            },
+            {
+                $group: { _id: "$month", count: { $sum: 1 } }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const orderCounts = new Array(12).fill(0);
+        result.forEach(item => {
+            orderCounts[item._id - 1] = item.count;
+        });
+        return orderCounts;
+    } catch (err) {
+        console.error("Error fetching monthly order count:", err);
+        throw new Error("Error fetching monthly order count");
+    }
+};
+
 const getDashboard = async (req, res) => {
     try {
 
@@ -377,7 +375,9 @@ const getDashboard = async (req, res) => {
         const salesData = await getMonthlySalesRevenue();
         const aovData = await calculateAOV();
         const clvData = await customerLifetimeValue();
-        const stock = await getStockStatus();
+        const ordersByStatus = await getOrdersByStatus();
+        const paymentMethodSplit = await getPaymentMethodSplit();
+        const monthlyOrderCount = await getMonthlyOrderCount();
 
         const limit = parseInt(req.query.limit) || 10;
         const page = parseInt(req.query.page) || 1;
@@ -398,7 +398,9 @@ const getDashboard = async (req, res) => {
             clvData,
             orders,
             limit,
-            stock,
+            ordersByStatus,
+            paymentMethodSplit,
+            monthlyOrderCount,
         });
 
     } catch (err) {

@@ -1,7 +1,7 @@
 ﻿<% blocks.head=` <script src="https://cdn.jsdelivr.net/npm/apexcharts">
     </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><!-- Sales Charts Row -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %>
     <div>
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Sales</h2>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -15,13 +15,13 @@
                 <div id="AOV"></div>
             </div>
         </div>
-    </div><!-- Customer Chart -->
+    </div>
     <div>
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Customers</h2>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
             <div id="customerChart"></div>
         </div>
-    </div><!-- Products Charts -->
+    </div>
     <div>
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Products</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -29,10 +29,21 @@
                 <div id="topSellingProductChart"></div>
             </div>
             <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <div id="inStockChart"></div>
+                <div id="ordersByStatusChart"></div>
             </div>
         </div>
-    </div><!-- Recent Orders Table -->
+    </div>
+    <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Orders</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <div id="paymentMethodSplitChart"></div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <div id="monthlyOrderCountChart"></div>
+            </div>
+        </div>
+    </div>
     <div>
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2> <a href="/admin/orders"
@@ -93,5 +104,19 @@
             </div>
         </div>
     </div>
+    <script>
+        const dashboardData = {
+            salesData: <%- JSON.stringify(salesData) %>,
+            revenueByBrand: <%- JSON.stringify(revenueByBrand) %>,
+            aovData: <%- JSON.stringify(aovData) %>,
+            newCustomer: <%- JSON.stringify(newCustomer) %>,
+            repeatedCustomer: <%- JSON.stringify(repeatedCustomer) %>,
+            clvData: <%- JSON.stringify(clvData) %>,
+            topProducts: <%- JSON.stringify(topProducts) %>,
+            ordersByStatus: <%- JSON.stringify(ordersByStatus) %>,
+            paymentMethodSplit: <%- JSON.stringify(paymentMethodSplit) %>,
+            monthlyOrderCount: <%- JSON.stringify(monthlyOrderCount) %>
+        };
+    </script>
     <% blocks.scripts=` <script src="/javascript/admin/dashboard.js">
         </script>` %>
