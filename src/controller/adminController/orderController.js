@@ -68,15 +68,41 @@ const renderOrderList = async (req, res) => {
     if (!req.session.admin) return res.redirect('/admin/signIn');
 
     try {
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || '';
+        const statusFilter = req.query.status || '';
+        const paymentStatusFilter = req.query.paymentStatus || '';
+        const paymentMethodFilter = req.query.paymentMethod || '';
+        const dateFrom = req.query.dateFrom || '';
+        const dateTo = req.query.dateTo || '';
 
         let filter = {};
 
         if (search) {
-            filter._id = search;
+            filter._id = { $regex: search, $options: 'i' };
+        }
+
+        if (statusFilter) {
+            filter.status = statusFilter;
+        }
+
+        if (paymentStatusFilter) {
+            filter['payment.status'] = paymentStatusFilter;
+        }
+
+        if (paymentMethodFilter) {
+            filter['payment.method'] = paymentMethodFilter;
+        }
+
+        if (dateFrom || dateTo) {
+            filter.createdAt = {};
+            if (dateFrom) filter.createdAt.$gte = new Date(dateFrom);
+            if (dateTo) {
+                const end = new Date(dateTo);
+                end.setHours(23, 59, 59, 999);
+                filter.createdAt.$lte = end;
+            }
         }
 
         const orders = await Order.find(filter)
@@ -94,6 +120,12 @@ const renderOrderList = async (req, res) => {
             totalPages: Math.ceil(totalOrders / limit),
             orders,
             limit,
+            search,
+            statusFilter,
+            paymentStatusFilter,
+            paymentMethodFilter,
+            dateFrom,
+            dateTo,
         });
 
     } catch (err) {
