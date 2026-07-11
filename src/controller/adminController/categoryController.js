@@ -1,5 +1,6 @@
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
+const productModel = require('../../model/productModel');
 
 const createCategoryInstance = (title, brands) => {
     return new categoryModel({ title, brands });
@@ -84,11 +85,14 @@ const deleteCategory = async (req, res) => {
         const category = await categoryModel.findById(id);
         if (!category) return response.error(res, "Category not found!", 404);
 
-        const result = await categoryModel.deleteOne({ _id: id });
+        category.isDeleted = true;
+        category.isActive = false;
+        await category.save();
 
-        if (result.deletedCount === 0) {
-            return response.error(res, "Failed to delete category!", 400);
-        }
+        await productModel.updateMany(
+            { category: category.title },
+            { $set: { isActive: false } }
+        );
 
         response.success(res, {}, "Category deleted successfully!");
     } catch (err) {
@@ -104,8 +108,8 @@ const adminCategory = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        const totalCategories = await categoryModel.countDocuments({});
-        const categories = await categoryModel.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
+        const totalCategories = await categoryModel.countDocuments({ isDeleted: false });
+        const categories = await categoryModel.find({ isDeleted: false }).skip(skip).limit(limit).sort({ createdAt: -1 });
 
         res.render('admin/adminCategory', {
             layout: false,
@@ -129,6 +133,11 @@ const changeCategoryStatus = async (req, res) => {
 
         category.isActive = !category.isActive;
         await category.save();
+
+        await productModel.updateMany(
+            { category: category.title },
+            { $set: { isActive: category.isActive } }
+        );
 
         response.success(res, { isActive: category.isActive });
     } catch (err) {

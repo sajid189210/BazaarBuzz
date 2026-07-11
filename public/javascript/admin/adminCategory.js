@@ -71,7 +71,7 @@ async function deleteCategory(id) {
     try {
         const { isConfirmed } = await Swal.fire({
             title: 'Delete Category?',
-            text: 'This action cannot be undone. All brands under this category will be removed.',
+            text: 'This will deactivate the category and all products under it.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Delete',
