@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
@@ -80,7 +81,23 @@ const renderOrderList = async (req, res) => {
         let filter = {};
 
         if (search) {
-            filter._id = { $regex: search, $options: 'i' };
+            const orConditions = [
+                { 'items.name': { $regex: search, $options: 'i' } },
+                { 'items.brand': { $regex: search, $options: 'i' } },
+                {
+                    $expr: {
+                        $regexMatch: {
+                            input: { $toString: '$_id' },
+                            regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+                            options: 'i'
+                        }
+                    }
+                }
+            ];
+            if (mongoose.Types.ObjectId.isValid(search)) {
+                orConditions.push({ _id: new mongoose.Types.ObjectId(search) });
+            }
+            filter.$or = orConditions;
         }
 
         if (statusFilter) {
