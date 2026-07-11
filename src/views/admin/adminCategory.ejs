@@ -91,9 +91,7 @@
                                                     </span> </td>
                                                 <td class="px-5 py-4 text-right">
                                                     <div class="flex items-center justify-end gap-1.5"> <button
-                                                            onclick="editCategory('<%= cat._id %>', '<%= cat.title.replace(/'/g, "
-                                                            \\'") %>', '<%= cat.brands ?
-                                                                cat.brands.join(', ').replace(/' /g, "\\'" ) : '' %>')"
+                                                            onclick="editCategory('<%= cat._id %>', '<%= cat.title.replace(/'/g, "\\'") %>', '<%= cat.brands ? cat.brands.join(', ').replace(/' /g, "\\'") : '' %>')"
                                                                 class="inline-flex items-center gap-1.5 px-3 py-1.5
                                                                 text-xs font-medium text-gray-600 hover:text-gray-900
                                                                 hover:bg-gray-100 rounded-lg transition-colors"> <svg
