@@ -62,6 +62,7 @@ router.get('/coupon', couponController.renderCouponPage);
 router.post('/coupon', couponController.createCoupons);
 router.put('/coupon', couponController.updateCoupons);
 router.delete('/coupon', couponController.deleteCoupons);
+router.patch('/coupon/status', couponController.changeCouponStatus);
 
 //*------------------[Sales Report]--------------------
 router.get('/salesReport', salesReportController.renderReport);

@@ -20,32 +20,17 @@ const couponSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function (value) {
-                const couponType = this.get?.('couponType') ?? this.couponType;
-
-                if (couponType === 'price') {
+                if (this.couponType === 'price') {
                     return value >= 1 && value <= 10000;
                 }
 
-                if (couponType === 'percentage') {
+                if (this.couponType === 'percentage') {
                     return value >= 1 && value <= 100;
                 }
 
-
                 return false;
             },
-            message: function () {
-                const couponType = this.get?.('couponType') ?? this.couponType;
-
-                if (couponType === 'price') {
-                    return 'Coupon value must be between 1 and 10000.';
-                }
-
-                if (couponType === 'percentage') {
-                    return 'Coupon value must be between 1 and 100.';
-                }
-
-                return 'Invalid coupon value.';
-            }
+            message: 'Coupon value must be between 1 and 100 for percentage or between 1 and 10000 for price.'
         }
     },
     minAmount: {
@@ -80,6 +65,10 @@ const couponSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
 }, { timestamps: true });
 
