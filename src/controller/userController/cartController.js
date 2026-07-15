@@ -1,13 +1,9 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
 const response = require('../../Services/responseMapper');
 const Cart = require('../../model/userCartModel');
 const Category = require('../../model/categoryModel');
 const Products = require('../../model/productModel');
 const Offer = require('../../model/offerModel');
-
-
-const round = (value) => {
-    return Math.trunc(value * 100) / 100;
-}
 
 // * shows the cart items.
 const getCart = async (req, res) => {
@@ -79,10 +75,10 @@ const getCart = async (req, res) => {
             cart,
             offers,
             user: req.session.user || null,
-            total: round(total),
-            subTotal: round(subTotal),
-            taxAmount: round(taxAmount),
-            totalDiscount: round(totalDiscount),
+            total: truncCurrency(total),
+            subTotal: truncCurrency(subTotal),
+            taxAmount: truncCurrency(taxAmount),
+            totalDiscount: truncCurrency(totalDiscount),
         });
 
     } catch (err) {
@@ -173,7 +169,7 @@ const addToCart = async (req, res) => {
             quantity: reqQty,
             selectedColor: color,
             selectedSize: size,
-            discountedPrice: round(finalPrice),
+            discountedPrice: truncCurrency(finalPrice),
             offer: offer?._id || null
         });
 
@@ -291,7 +287,7 @@ const updateQuantity = async (req, res) => {
             success: true,
             message: "Quantity updated successfully.",
             quantity: item.quantity,
-            discountedPrice: round(item.discountedPrice * item.quantity),
+            discountedPrice: truncCurrency(item.discountedPrice * item.quantity),
         });
 
     } catch (err) {

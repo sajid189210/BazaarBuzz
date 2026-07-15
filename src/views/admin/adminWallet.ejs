@@ -67,7 +67,7 @@
                                                         <%= txn.type === 'credit' ? '+' : '-' %> ₹<%= txn.amount?.toLocaleString('en-IN') %>
                                                     </span>
                                                 </td>
-                                                <td class="px-5 py-4 text-gray-500 text-sm font-mono"><%= String(txn._id).slice(-8) || '-' %></td>
+                                                <td class="px-5 py-4 text-gray-500 text-sm font-mono uppercase"><%= String(txn._id).slice(-8) || '-' %></td>
                                                 <td class="px-5 py-4 text-gray-600">₹<%= txn.balanceBefore?.toLocaleString('en-IN') %></td>
                                                 <td class="px-5 py-4 text-gray-600">₹<%= txn.balanceAfter?.toLocaleString('en-IN') %></td>
                                             </tr>

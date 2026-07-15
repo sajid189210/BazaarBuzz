@@ -1,3 +1,4 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
 const razorPayInstance = require('../../Services/razorPay');
 const response = require('../../Services/responseMapper');
 const crypto = require('crypto');
@@ -55,10 +56,6 @@ const clearCart = async (userId) => {
         });
 };
 
-const round = (value) => {
-    return Math.trunc(value * 100) / 100;
-}
-
 const getCheckout = async (req, res) => {
     if (!req.session.user) return res.redirect('/user/signIn');
 
@@ -106,15 +103,15 @@ const getCheckout = async (req, res) => {
 
         res.render('user/userCheckout', {
             title: 'Checkout',
-            totalDiscount: round(totalDiscount),
-            subTotal: round(subTotal),
+            totalDiscount: truncCurrency(totalDiscount),
+            subTotal: truncCurrency(subTotal),
             searchBox: false,
-            total: round(total),
+            total: truncCurrency(total),
             cart,
             user,
             wallet,
             categories,
-            taxAmount: round(taxAmount),
+            taxAmount: truncCurrency(taxAmount),
             hasCouponApplied,
         });
 
@@ -225,8 +222,8 @@ const proceedToPayment = async (req, res) => {
             } : null,
             subtotal,
             productDiscount,
-            tax,
-            total: round(total),
+            tax: truncCurrency(tax),
+            total: truncCurrency(total),
         };
 
         const newOrder = new Order(orderDetails);
@@ -432,18 +429,18 @@ const applyCoupon = async (req, res) => {
                     itemCouponShare = coupon.couponValue - couponDiscountAmount;
                 } else {
                     const itemWeight = itemTotal / currentCartTotal;
-                    itemCouponShare = round(coupon.couponValue * itemWeight);
+                    itemCouponShare = truncCurrency(coupon.couponValue * itemWeight);
                 }
 
             } else if (coupon.couponType === "percentage") {
 
-                itemCouponShare = round(itemTotal * (coupon.couponValue / 100));
+                itemCouponShare = truncCurrency(itemTotal * (coupon.couponValue / 100));
 
             } else {
                 return response.error(res, "Invalid coupon.", 400);
             }
 
-            const itemCouponPercentage = round(
+            const itemCouponPercentage = truncCurrency(
                 (itemCouponShare / itemTotal) * 100
             );
 
@@ -455,7 +452,7 @@ const applyCoupon = async (req, res) => {
 
             const simulatedPrice = itemTotal - itemCouponShare;
 
-            const absoluteMinFloor = round(item.product.productPrice * item.quantity * 0.10);
+            const absoluteMinFloor = truncCurrency(item.product.productPrice * item.quantity * 0.10);
 
             if (simulatedPrice < absoluteMinFloor) {
                 return response.error(res, `Coupon cannot be applied. It reduces ${item.product.productName} below its minimum allowed price floor.`, 400);

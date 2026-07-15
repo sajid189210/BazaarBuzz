@@ -1,3 +1,4 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
@@ -12,15 +13,20 @@ const renderReturnsPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
+        const statusFilter = req.query.status || 'all';
 
-        const orders = await Order.find({ 'items.return.status': 'requested' })
+        const matchFilter = statusFilter === 'all'
+            ? { 'items.return.status': { $exists: true, $ne: null } }
+            : { 'items.return.status': statusFilter };
+
+        const orders = await Order.find(matchFilter)
             .populate('user', 'username email')
             .sort({ updatedAt: -1 });
 
         const returns = [];
         orders.forEach(order => {
             order.items.forEach(item => {
-                if (item.return?.status === 'requested') {
+                if (item.return?.status && (statusFilter === 'all' || item.return.status === statusFilter)) {
                     returns.push({
                         orderId: order._id,
                         orderDate: order.createdAt,
@@ -30,6 +36,8 @@ const renderReturnsPage = async (req, res) => {
                         quantity: item.quantity,
                         unitPrice: item.unitPrice,
                         reason: item.return.reason,
+                        returnStatus: item.return.status,
+                        refundedAmount: item.return.refundedAmount,
                         requestedAt: item.return.requestedAt || order.updatedAt,
                         user: order.user,
                     });
@@ -46,6 +54,7 @@ const renderReturnsPage = async (req, res) => {
             returns: paginated,
             currentPage: page,
             totalPages: Math.ceil(totalReturns / limit) || 1,
+            statusFilter,
         });
 
     } catch (err) {
@@ -101,13 +110,14 @@ const returnStatus = async (req, res) => {
             }
 
             const itemTotal = item.finalPrice * item.quantity;
-            const ratio = itemTotal / order.subtotal;
+            const discountedSubtotal = order.items.reduce((sum, i) => sum + (i.finalPrice * i.quantity), 0);
+            const ratio = itemTotal / discountedSubtotal;
 
             const couponShare = (order.coupon?.discount ?? 0) * ratio;
 
             const taxShare = (order.tax ?? 0) * ratio;
 
-            const refundedAmount = itemTotal + taxShare - couponShare;
+            const refundedAmount = truncCurrency(itemTotal + taxShare - couponShare);
 
             item.status = "returned";
 
@@ -124,9 +134,10 @@ const returnStatus = async (req, res) => {
             wallet.balance += refundedAmount;
 
             const stockUpdated = await adjustStock([item], true);
-
+            let stockWarning = false;
             if (!stockUpdated) {
-                return response.error(res, "Failed to restore product stock.", 500);
+                console.warn(`[Stock restore failed] Order: ${orderId}, Item: ${orderItemId}, Product: ${item.productId}`);
+                stockWarning = true;
             }
 
             order.status = updateOrderStatus(order);
@@ -153,7 +164,10 @@ const returnStatus = async (req, res) => {
                 order.save(),
             ]);
 
-            return response.success(res, {}, "Return request approved successfully.");
+            const msg = stockWarning
+                ? "Return approved, but stock restore failed. Check server logs."
+                : "Return request approved successfully.";
+            return response.success(res, { stockWarning }, msg);
         }
 
         item.return.status = "rejected";

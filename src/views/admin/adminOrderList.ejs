@@ -85,7 +85,7 @@
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-5 py-4 text-gray-400 text-xs font-medium"><%= rowNum %></td>
                             <td class="px-5 py-4">
-                                <span class="text-gray-900 font-mono text-xs font-medium"><%= String(order._id)?.slice(-8) || order._id %></span>
+                                <span class="text-gray-900 font-mono text-xs font-medium uppercase"><%= String(order._id)?.slice(-8) || order._id %></span>
                             </td>
                             <td class="px-5 py-4 text-gray-600 text-sm"><%= order.user?.email || '-' %></td>
                             <td class="px-5 py-4 text-gray-500 text-sm">

@@ -1,3 +1,4 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
@@ -7,7 +8,7 @@ const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
 const adjustStock = async (items, increment) => {
-    const result = await Promise.all(
+    const results = await Promise.all(
         items.map((item) => {
             const quantity = increment ? item.quantity : -item.quantity;
 
@@ -30,7 +31,11 @@ const adjustStock = async (items, increment) => {
             )
         })
     );
-    return result.every(product => product !== null);
+    const failed = results.filter(r => !r);
+    if (failed.length) {
+        console.warn(`[Stock] ${failed.length} product(s) not found during stock adjustment`);
+    }
+    return true;
 };
 
 const updateOrderStatus = (order) => {
@@ -229,12 +234,13 @@ const changeStatus = async (req, res) => {
                     adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
                 }
 
+                const discountedSubtotal = order.items.reduce((sum, i) => sum + (i.finalPrice * i.quantity), 0);
                 for (const item of eligibleItems) {
                     const itemTotal = item.finalPrice * item.quantity;
-                    const ratio = itemTotal / order.subtotal;
+                    const ratio = itemTotal / discountedSubtotal;
                     const couponShare = (order.coupon?.discount ?? 0) * ratio;
                     const taxShare = (order.tax ?? 0) * ratio;
-                    const refund = itemTotal + taxShare - couponShare;
+                    const refund = truncCurrency(itemTotal + taxShare - couponShare);
 
                     wallet.transactions.push({ orderId: order._id, amount: refund, type: "credit", refunded: true });
                     wallet.balance += refund;

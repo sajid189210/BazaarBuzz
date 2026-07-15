@@ -19,7 +19,11 @@ async function approveReturn(orderId, itemId) {
         });
         var data = await res.json();
         if (data.success) {
-            await Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Return approved', showConfirmButton: false, timer: 1500 });
+            if (data.stockWarning) {
+                await Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Return approved — stock restore failed', text: 'Check server logs to fix manually', showConfirmButton: false, timer: 4000 });
+            } else {
+                await Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Return approved', showConfirmButton: false, timer: 1500 });
+            }
             setTimeout(function () { location.reload(); }, 1500);
         } else {
             Swal.fire({ title: 'Error', text: data.message || 'Failed to approve return', icon: 'error' });

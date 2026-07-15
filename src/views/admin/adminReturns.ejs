@@ -24,8 +24,19 @@
                 </header>
                 <main class="p-6">
                     <div class="mb-6">
-                        <h1 class="text-2xl font-bold text-gray-900">Return Requests</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">Returns</h1>
                         <p class="text-sm text-gray-500 mt-1">Review and manage customer return requests</p>
+                    </div>
+
+                    <div class="flex items-center gap-3 mb-4">
+                        <a href="?status=all"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors <%= statusFilter === 'all' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50' %>">All</a>
+                        <a href="?status=requested"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors <%= statusFilter === 'requested' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50' %>">Pending</a>
+                        <a href="?status=approved"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors <%= statusFilter === 'approved' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50' %>">Approved</a>
+                        <a href="?status=rejected"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors <%= statusFilter === 'rejected' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50' %>">Rejected</a>
                     </div>
 
                     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -36,6 +47,7 @@
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Order ID</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Product</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Customer</th>
+                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Reason</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>
                                         <th class="text-center px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
@@ -45,12 +57,7 @@
                                     <% if(returns && returns.length > 0) { %>
                                         <% returns.forEach(r => { %>
                                             <tr class="hover:bg-gray-50/50 transition-colors">
-                                                <td class="px-5 py-4">
-                                                    <a href="/admin/order/view?orderId=<%= r.orderId %>"
-                                                        class="text-rose-600 hover:text-rose-700 font-mono font-medium text-xs">
-                                                        #<%= String(r.orderId).slice(-8) %>
-                                                    </a>
-                                                </td>
+                                                <td class="px-5 py-4 font-mono font-medium text-xs text-gray-700 uppercase">#<%= String(r.orderId).slice(-8) %></td>
                                                 <td class="px-5 py-4">
                                                     <div class="flex items-center gap-3">
                                                         <div class="w-10 h-12 rounded-lg overflow-hidden bg-gray-200 shrink-0">
@@ -67,6 +74,18 @@
                                                     <p class="text-xs text-gray-500"><%= r.user?.email || '' %></p>
                                                 </td>
                                                 <td class="px-5 py-4">
+                                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full
+                                                        <%= r.returnStatus === 'requested' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                                           r.returnStatus === 'approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                                           'bg-rose-50 text-rose-700 border border-rose-200' %>">
+                                                        <span class="w-1.5 h-1.5 rounded-full
+                                                            <%= r.returnStatus === 'requested' ? 'bg-amber-500' :
+                                                               r.returnStatus === 'approved' ? 'bg-emerald-500' :
+                                                               'bg-rose-500' %>"></span>
+                                                        <%= r.returnStatus === 'requested' ? 'Pending' : r.returnStatus.charAt(0).toUpperCase() + r.returnStatus.slice(1) %>
+                                                    </span>
+                                                </td>
+                                                <td class="px-5 py-4">
                                                     <p class="text-sm text-gray-600 max-w-[200px] truncate" title="<%= r.reason %>"><%= r.reason || 'N/A' %></p>
                                                 </td>
                                                 <td class="px-5 py-4 text-gray-500 text-sm">
@@ -74,29 +93,35 @@
                                                 </td>
                                                 <td class="px-5 py-4">
                                                     <div class="flex items-center justify-center gap-2">
-                                                        <button onclick="approveReturn('<%= r.orderId %>','<%= r.itemId %>')"
-                                                            class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                                            Approve
-                                                        </button>
-                                                        <button onclick="rejectReturn('<%= r.orderId %>','<%= r.itemId %>')"
-                                                            class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                                            Reject
-                                                        </button>
+                                                        <a href="/admin/order/view?orderId=<%= r.orderId %>"
+                                                            class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition-colors"
+                                                            title="View Order">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                        </a>
+                                                        <% if(r.returnStatus === 'requested') { %>
+                                                            <button onclick="approveReturn('<%= r.orderId %>','<%= r.itemId %>')"
+                                                                class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                                                Approve
+                                                            </button>
+                                                            <button onclick="rejectReturn('<%= r.orderId %>','<%= r.itemId %>')"
+                                                                class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                                                Reject
+                                                            </button>
+                                                        <% } %>
                                                     </div>
                                                 </td>
                                             </tr>
                                         <% }) %>
                                     <% } else { %>
                                         <tr>
-                                            <td colspan="6" class="px-5 py-16 text-center">
+                                            <td colspan="7" class="px-5 py-16 text-center">
                                                 <div class="flex flex-col items-center gap-3">
                                                     <svg class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <span class="text-gray-400 text-sm font-medium">No pending return requests</span>
-                                                    <p class="text-gray-400 text-xs">All returns have been processed</p>
+                                                    <span class="text-gray-400 text-sm font-medium">No return requests found</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -108,7 +133,7 @@
 
                     <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
                         <nav class="mt-8 flex items-center justify-center gap-2" aria-label="Pagination">
-                            <a href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) : '#' %>"
+                            <a href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) + (statusFilter !== 'all' ? '&status=' + statusFilter : '') : '#' %>"
                                 class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors <%= currentPage === 1 ? 'opacity-50 pointer-events-none' : '' %>"
                                 <%= currentPage === 1 ? 'aria-disabled="true"' : '' %>>
                                 <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -119,12 +144,12 @@
                             <div class="flex items-center gap-1">
                                 <% var startPage = Math.max(1, currentPage - 2); var endPage = Math.min(totalPages, currentPage + 2); if (endPage - startPage < 4) { if (startPage === 1) { endPage = Math.min(totalPages, startPage + 4); } else if (endPage === totalPages) { startPage = Math.max(1, endPage - 4); } } %>
                                 <% for (var i = startPage; i <= endPage; i++) { %>
-                                    <a href="?page=<%= i %>"
+                                    <a href="?page=<%= i %><%= statusFilter !== 'all' ? '&status=' + statusFilter : '' %>"
                                         class="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors <%= i === currentPage ? 'bg-rose-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>"
                                         <%= i === currentPage ? 'aria-current="page"' : '' %>><%= i %></a>
                                 <% } %>
                             </div>
-                            <a href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) : '#' %>"
+                            <a href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) + (statusFilter !== 'all' ? '&status=' + statusFilter : '') : '#' %>"
                                 class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors <%= currentPage === totalPages ? 'opacity-50 pointer-events-none' : '' %>"
                                 <%= currentPage === totalPages ? 'aria-disabled="true"' : '' %>>
                                 <span class="hidden sm:inline mr-1">Next</span>

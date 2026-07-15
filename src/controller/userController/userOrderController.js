@@ -1,3 +1,4 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
@@ -217,14 +218,13 @@ const cancelProduct = async (req, res) => {
             }
 
             const itemTotal = item.finalPrice * item.quantity;
-            const ratio = itemTotal / order.subtotal;
+            const discountedSubtotal = order.items.reduce((sum, i) => sum + (i.finalPrice * i.quantity), 0);
+            const ratio = itemTotal / discountedSubtotal;
 
             const couponShare = (order.coupon?.discount ?? 0) * ratio;
             const taxShare = (order.tax ?? 0) * ratio;
 
-            const refund = Number(
-                (itemTotal + taxShare - couponShare).toFixed(2)
-            );
+            const refund = truncCurrency(itemTotal + taxShare - couponShare);
 
             wallet.transactions.push({
                 orderId: order._id,
