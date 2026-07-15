@@ -2,11 +2,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><div
         class="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">
         <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8"> <a href="/"
-                class="hover:text-[var(--accent)] transition-colors btn-press">Home</a> <svg
-                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
-                <polyline points="9 18 15 12 9 6" />
-            </svg> <span class="text-gray-800 font-medium">My Orders</span> </nav>
+                class="hover:text-[var(--accent)] transition-colors btn-press">Home</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-800 font-medium">My Orders</span> </nav>
         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
         <% if(orders && orders.length> 0) { %> <div class="space-y-4">
                 <% orders.forEach(order=> { %> <div
@@ -43,13 +39,7 @@
                     <% }) %>
             </div>
             <% } else { %>
-                <div class="flex flex-col items-center justify-center py-20"> <svg xmlns="http://www.w3.org/2000/svg"
-                        width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 mb-4">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <path d="M16 10a4 4 0 0 1-8 0" />
-                    </svg>
+                <div class="flex flex-col items-center justify-center py-20"> <i class="fa-regular fa-rectangle-list text-5xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-semibold text-gray-500">No orders yet</h3> <a href="/user/productList"
                         class="mt-4 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">Start
                         Shopping</a>

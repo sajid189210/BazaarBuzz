@@ -1,9 +1,6 @@
 ﻿<% if(!product) { %>
 <div class="min-h-screen flex items-center justify-center px-4">
-  <div class="text-center"> <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto text-gray-300 mb-4">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
+  <div class="text-center"> <i class="fa-regular fa-circle-question text-5xl text-gray-300 mb-4"></i>
     <h2 class="text-xl font-semibold text-gray-500">Product Not Found</h2>
     <p class="text-gray-400 mt-2">The product you're looking for doesn't exist or has been removed.</p> <a href="/user/getProductList/all" class="inline-block mt-6 text-rose-500 hover:text-rose-600 font-medium">Browse Products</a>
   </div>
@@ -41,11 +38,7 @@
     </script>
 `; %>
 <main class="page-wrapper" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-2xl);">
-  <nav class="breadcrumbs" aria-label="Breadcrumb"> <a href="/">Home</a> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="9 18 15 12 9 6" />
-    </svg> <a href="/user/getProductList/all">Products</a> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="9 18 15 12 9 6" />
-    </svg> <span aria-current="page">
+  <nav class="breadcrumbs" aria-label="Breadcrumb"> <a href="/">Home</a> <i class="fa-solid fa-chevron-right text-xs"></i> <a href="/user/getProductList/all">Products</a> <i class="fa-solid fa-chevron-right text-xs"></i> <span aria-current="page">
       <%= product.productName %>
     </span> </nav>
   <div class="product-grid">
@@ -63,10 +56,7 @@
       <div class="gallery-main" id="mainImageContainer" role="button" tabindex="0" aria-label="Zoom product image">
         <img id="mainImage" src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.svg' %>" alt="<%= product.productName %>" loading="eager" />
 
-        <div class="zoom-hint"> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg> Zoom </div>
+        <div class="zoom-hint"> <i class="fa-solid fa-magnifying-glass-plus text-xs"></i> Zoom </div>
       </div>
 
     </div>
@@ -86,31 +76,18 @@
           <% } %>
         </div>
         <% if(offerDiscountValue) { %>
-        <div class="offer-badge"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
+        <div class="offer-badge"> <i class="fa-regular fa-clock"></i>
           <%= offerDiscountValue %>% brand offer applied
         </div>
         <% } %>
         <div class="trust-strip" role="list" aria-label="Trust signals">
-          <div class="trust-item" role="listitem"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg> <span>Secure Payment<div class="trust-tooltip">100% encrypted
+          <div class="trust-item" role="listitem"> <i class="fa-regular fa-shield-halved"></i> <span>Secure Payment<div class="trust-tooltip">100% encrypted
                 checkout</div></span> </div>
-          <div class="trust-item" role="listitem"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg> <span>Free Shipping<div class="trust-tooltip">On orders above
+          <div class="trust-item" role="listitem"> <i class="fa-regular fa-truck"></i> <span>Free Shipping<div class="trust-tooltip">On orders above
                 ₹999</div></span> </div>
-          <div class="trust-item" role="listitem"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-              <path d="M23 21v-8a1 1 0 0 0-1-1h-5" />
-            </svg> <span>Easy Returns<div class="trust-tooltip">14 days, free pickup
+          <div class="trust-item" role="listitem"> <i class="fa-regular fa-rotate-left"></i> <span>Easy Returns<div class="trust-tooltip">14 days, free pickup
               </div></span> </div>
-          <div class="trust-item" role="listitem"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg> <span>COD Available<div class="trust-tooltip">Check at checkout
+          <div class="trust-item" role="listitem"> <i class="fa-regular fa-clock"></i> <span>COD Available<div class="trust-tooltip">Check at checkout
               </div></span> </div>
         </div>
         <form class="space-y-6" id="cart-form" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
@@ -152,19 +129,12 @@
             <div class="stock-qty">
               <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">Qty</label>
               <div class="qty-selector"> <button type="button" class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg> </button> <span id="quantityValue" class="qty-value">1</span> <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg> </button> <span id="maxStockHint" class="qty-hint"></span> </div>
+                  <i class="fa-solid fa-minus"></i> </button> <span id="quantityValue" class="qty-value">1</span> <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
+                  <i class="fa-solid fa-plus"></i> </button> <span id="maxStockHint" class="qty-hint"></span> </div>
             </div>
           </div>
           <div class="action-row"> <button type="submit" id="addToCartBtn" class="btn-primary" disabled> Add to Cart </button> <button type="button" id="wishlistBtn" onclick="toggleWishList('<%= product._id %>')" class="btn-wishlist<%= isInWishlist ? 'filled' : '' %>" aria-label="<%= isInWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg> </button> </div>
+              <i class="fa-regular fa-heart"></i> </button> </div>
           <div id="responseMessage" style="font-size: 0.8125rem; text-align: center; min-height: 1.25rem;">
           </div>
         </form>
@@ -242,20 +212,11 @@
         <div style="padding: var(--spacing-md) 0;">
           <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
             Find your perfect fit. Measurements are in centimeters.</p> <button type="button" onclick="openSizeGuide()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; font-size: 0.8125rem; font-weight: 600; color: var(--accent); border: 1px solid var(--accent-border); background: var(--accent-light); border-radius: var(--radius-md); transition: all var(--motion-fast);" onmouseover="this.style.background='var(--accent)';this.style.color='white';" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent)';">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M9 9h6v6H9z" />
-            </svg> Open Size Guide </button>
+            <i class="fa-regular fa-table-cells"></i> Open Size Guide </button>
         </div>
       </div>
       <div id="tab-reviews" class="tab-panel" role="tabpanel" aria-labelledby="tab-reviews">
-        <div style="padding: var(--spacing-2xl) 0; text-align: center;"> <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto var(--spacing-md); color: var(--text-muted);">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="16" y1="13" x2="8" y2="13" />
-            <line x1="16" y1="17" x2="8" y2="17" />
-            <polyline points="10 9 9 9 8 9" />
-          </svg>
+        <div style="padding: var(--spacing-2xl) 0; text-align: center;"> <i class="fa-regular fa-file-lines" style="font-size: 3.5rem; margin: 0 auto var(--spacing-md); color: var(--text-muted); display: block;"></i>
           <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-xs);">
             Reviews Coming Soon</h3>
           <p style="font-size: 0.875rem; color: var(--text-muted);">Customer reviews will
@@ -268,40 +229,20 @@
             <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">
               Shipping</h4>
             <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 2; list-style: none; padding: 0;">
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 6v6l4 2" />
-                </svg>Free standard shipping on orders above ₹999</li>
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 6v6l4 2" />
-                </svg>Standard delivery: 5–7 business days</li>
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 6v6l4 2" />
-                </svg>Express delivery: 2–3 business days (additional charges)</li>
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 6v6l4 2" />
-                </svg>Cash on Delivery available for eligible pincodes</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-clock" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Free standard shipping on orders above ₹999</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-clock" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Standard delivery: 5–7 business days</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-clock" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Express delivery: 2–3 business days (additional charges)</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-clock" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Cash on Delivery available for eligible pincodes</li>
             </ul>
           </div>
           <div>
             <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">
               Returns & Exchanges</h4>
             <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 2; list-style: none; padding: 0;">
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>14-day easy return policy</li>
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>Items must be unworn, unwashed, with original tags</li>
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>Free return pickup for first return on each order</li>
-              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>Refund to original payment method within 5–7 business days</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-rotate-left" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>14-day easy return policy</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-rotate-left" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Items must be unworn, unwashed, with original tags</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-rotate-left" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Free return pickup for first return on each order</li>
+              <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i class="fa-regular fa-rotate-left" style="flex-shrink: 0; margin-top: 0.125rem; color: var(--accent);"></i>Refund to original payment method within 5–7 business days</li>
             </ul>
           </div>
           <div>
@@ -393,14 +334,7 @@
   </section>
   <% } %>
 </main>
-<div id="imageModal" role="dialog" aria-modal="true" aria-label="Product image zoom"> <button class="modal-close-top" onclick="closeImageModal()" aria-label="Close zoom"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg> </button> <button class="modal-nav modal-prev" onclick="navigateModal(-1)" aria-label="Previous image"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="15 18 9 12 15 6" />
-    </svg> </button> <button class="modal-nav modal-next" onclick="navigateModal(1)" aria-label="Next image"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="9 18 15 12 9 6" />
-    </svg> </button> <img id="modalImage" src="" alt="" />
+<div id="imageModal" role="dialog" aria-modal="true" aria-label="Product image zoom"> <button class="modal-close-top" onclick="closeImageModal()" aria-label="Close zoom"> <i class="fa-solid fa-xmark" style="width:24px;height:24px;"></i> </button> <button class="modal-nav modal-prev" onclick="navigateModal(-1)" aria-label="Previous image"> <i class="fa-solid fa-chevron-left" style="width:24px;height:24px;"></i> </button> <button class="modal-nav modal-next" onclick="navigateModal(1)" aria-label="Next image"> <i class="fa-solid fa-chevron-right" style="width:24px;height:24px;"></i> </button> <img id="modalImage" src="" alt="" />
   <div class="modal-counter" id="modalCounter">1 /<%= product.images?.length || 1 %>
   </div>
 </div>
@@ -408,10 +342,7 @@
   <div class="modal-panel">
     <div class="modal-header">
       <h3 class="modal-title">Size Guide -<%= product.gender %>
-      </h3> <button class="modal-close" onclick="closeSizeGuide()" aria-label="Close"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg> </button>
+      </h3> <button class="modal-close" onclick="closeSizeGuide()" aria-label="Close"> <i class="fa-solid fa-xmark"></i> </button>
     </div>
     <div class="modal-body">
       <table class="size-table" role="table">

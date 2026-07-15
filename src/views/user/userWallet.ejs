@@ -3,7 +3,7 @@
 <div class="mx-auto max-w-[800px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">
   <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">
     <a href="/" class="hover:text-[var(--accent)] transition-colors btn-press">Home</a>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
+    <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
     <span class="text-gray-800 font-medium">Wallet</span>
   </nav>
 
@@ -18,12 +18,12 @@
       </div>
       <% if(wallet && wallet.balance > 0) { %>
         <div class="hidden sm:flex items-center gap-1.5 text-xs text-green-300 bg-white/10 rounded-full px-3 py-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <i class="fa-solid fa-check text-green-300 text-xs"></i>
           Active
         </div>
       <% } else { %>
         <div class="hidden sm:flex items-center gap-1.5 text-xs text-gray-400 bg-white/10 rounded-full px-3 py-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <i class="fa-solid fa-circle-exclamation text-gray-400 text-xs"></i>
           No funds
         </div>
       <% } %>
@@ -44,9 +44,9 @@
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 <%= txn.type === 'credit' ? 'bg-green-50' : 'bg-red-50' %>">
                 <% if(txn.type === 'credit') { %>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                  <i class="fa-solid fa-arrow-up text-green-600"></i>
                 <% } else { %>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                  <i class="fa-solid fa-arrow-down text-red-500"></i>
                 <% } %>
               </div>
               <div class="min-w-0">
@@ -75,7 +75,7 @@
         <div class="flex items-center justify-center gap-3 mt-6">
           <% if(currentPage > 1) { %>
             <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="inline-flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors btn-press">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <i class="fa-solid fa-chevron-left text-xs"></i>
               Previous
             </a>
           <% } %>
@@ -83,7 +83,7 @@
           <% if(currentPage < totalPages) { %>
             <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="inline-flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors btn-press">
               Next
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <i class="fa-solid fa-chevron-right text-xs"></i>
             </a>
           <% } %>
         </div>
@@ -91,9 +91,7 @@
     </div>
   <% } else { %>
     <div class="flex flex-col items-center justify-center py-20">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 mb-4">
-        <rect x="1" y="11" width="22" height="12" rx="2" ry="2"/><line x1="7" y1="17" x2="7.01" y2="17"/><line x1="11" y1="17" x2="11.01" y2="17"/><line x1="15" y1="17" x2="15.01" y2="17"/><line x1="1" y1="7" x2="23" y2="7"/>
-      </svg>
+      <i class="fa-regular fa-wallet text-5xl text-gray-300 mb-4"></i>
       <h3 class="text-lg font-semibold text-gray-500">No transactions yet</h3>
       <p class="text-sm text-gray-400 mt-1">Your transaction history will appear here</p>
     </div>

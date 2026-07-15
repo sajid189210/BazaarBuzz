@@ -4,11 +4,10 @@
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">',
     '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>',
 ].join('\n'); %><% blocks.breadcrumb = [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
-    '<polyline points="9 18 15 12 9 6" /><\/svg> <a href="/admin/productList" class="hover:text-gray-700">Products</a>',
-    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
-    '<polyline points="9 18 15 12 9 6" /><\/svg> <span class="text-gray-900 font-semibold">Create Product</span>',
-].join('\n'); %><div class="max-w-4xl mx-auto">
+    '<a href="/admin/productList" class="hover:text-gray-700">Products</a>',
+    '<i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>',
+    '<span class="text-gray-900 font-semibold">Create Product</span>',
+].join(' '); %><div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-xl border border-gray-200 p-8">
                 <form action="/admin/productList/create" method="POST" id="productDetailForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -54,11 +53,7 @@
                             <!-- Variant rows will be added here dynamically --> </div> <button type="button"
                             id="addVariant"
                             class="mt-4 text-sm text-rose-600 font-medium hover:text-rose-700 transition-colors flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg> Add Variant </button> <span id="variantsError"
+                            <i class="fa-solid fa-plus"></i> Add Variant </button> <span id="variantsError"
                             class="error-msg text-red-500 text-xs mt-1 hidden"></span>
                     </div> <!-- Variant Template (hidden) --> <template id="variantTemplate">
                         <div class="variant-row bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
@@ -92,12 +87,8 @@
                                     <div class="variant-colors flex flex-wrap gap-2 mt-1 min-h-[42px]"></div>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 pt-2 border-t border-gray-200"> <button type="button"
-                                    class="add-color add-color-btn" title="Add color"> <svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19" />
-                                        <line x1="5" y1="12" x2="19" y2="12" />
+                            <div class="flex items-center gap-2 pt-2 border-t border-gray-200">                                     <button type="button"
+                                    class="add-color add-color-btn" title="Add color"> <i class="fa-solid fa-plus"></i>
                                     </svg> </button> <span class="text-xs text-gray-400">Add color</span> </div>
                         </div>
                     </template>
