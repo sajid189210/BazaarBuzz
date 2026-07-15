@@ -1,6 +1,7 @@
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
+const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const User = require('../../model/userModel');
@@ -203,12 +204,12 @@ const cancelProduct = async (req, res) => {
             ["wallet", "razorpay"].includes(order.payment.method);
 
         if (shouldRefund) {
-            let wallet = await Wallet.findOne({ owner: userId, type: 'user' });
+            let wallet = await Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER });
 
             if (!wallet) {
                 wallet = new Wallet({
                     owner: userId,
-                    type: 'user',
+                    type: WALLET_TYPE_USER,
                     balance: 0,
                     transactions: [],
                 });
@@ -238,8 +239,21 @@ const cancelProduct = async (req, res) => {
                 order.payment.status = "refunded";
             }
 
+            let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+            if (!adminWallet) {
+                adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+            }
+            adminWallet.balance -= refund;
+            adminWallet.transactions.push({
+                orderId: order._id,
+                amount: refund,
+                type: 'debit',
+                refunded: true,
+            });
+
             await Promise.all([
                 wallet.save(),
+                adminWallet.save(),
                 order.save(),
             ]);
 

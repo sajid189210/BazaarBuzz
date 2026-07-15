@@ -1,4 +1,5 @@
 const response = require('../../Services/responseMapper');
+const { WALLET_TYPE_USER } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
 const Category = require('../../model/categoryModel');
 
@@ -13,12 +14,12 @@ const renderWallet = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const page = parseInt(req.query.page) || 1;
 
-        let wallet = await Wallet.findOne({ owner: userId, type: 'user' });
+        let wallet = await Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER });
 
         const categories = await Category.find();
 
         if (!wallet) {
-            const newWallet = new Wallet({ owner: userId, type: 'user', balance: 0 });
+            const newWallet = new Wallet({ owner: userId, type: WALLET_TYPE_USER, balance: 0 });
             await newWallet.save();
             wallet = newWallet;
         }

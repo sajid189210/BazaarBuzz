@@ -1,4 +1,5 @@
 const response = require('../../Services/responseMapper');
+const { WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
 
 const renderWalletPage = async (req, res) => {
@@ -7,10 +8,10 @@ const renderWalletPage = async (req, res) => {
 
         const adminId = req.session.admin.id;
 
-        let wallet = await Wallet.findOne({ type: 'admin' });
+        let wallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
 
         if (!wallet) {
-            wallet = new Wallet({ owner: adminId, type: 'admin', balance: 0 });
+            wallet = new Wallet({ owner: adminId, type: WALLET_TYPE_ADMIN, balance: 0 });
             await wallet.save();
         }
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../constants/walletTypes');
 
 const walletSchema = new mongoose.Schema({
     owner: {
@@ -7,7 +8,7 @@ const walletSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: [WALLET_TYPE_USER, WALLET_TYPE_ADMIN],
         required: true,
     },
     balance: {

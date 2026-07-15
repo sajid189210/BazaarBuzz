@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
 const bcrypt = require('bcryptjs');
+const { WALLET_TYPE_USER } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
 const Cart = require('../../model/userCartModel');
 const User = require('../../model/userModel');
@@ -263,7 +264,7 @@ const userHomepage = async (req, res) => {
             const userId = req.session.user.userId;
             const [cart, wallet] = await Promise.all([
                 Cart.findOne({ user: userId }),
-                Wallet.findOne({ owner: userId, type: 'user' })
+                Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER })
             ]);
 
             if (!cart) {
@@ -272,7 +273,7 @@ const userHomepage = async (req, res) => {
             }
 
             if (!wallet) {
-                const newWallet = new Wallet({ owner: userId, type: 'user' });
+                const newWallet = new Wallet({ owner: userId, type: WALLET_TYPE_USER });
                 await newWallet.save();
             }
         }

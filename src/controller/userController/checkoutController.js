@@ -1,10 +1,10 @@
 const razorPayInstance = require('../../Services/razorPay');
 const response = require('../../Services/responseMapper');
-const { Types } = require('mongoose');
 const crypto = require('crypto');
 
 const Product = require('../../model/productModel');
 const Coupon = require('../../model/couponModel');
+const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const Wallet = require("../../model/walletModel");
 const Order = require('../../model/orderModel');
 const Cart = require('../../model/userCartModel');
@@ -70,7 +70,8 @@ const getCheckout = async (req, res) => {
                 .populate('items.product')
                 .populate('items.offer')
                 .populate('coupon'),
-            Wallet.findOne({ owner: userId, type: 'user' }),
+            Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER })
+                .then(w => w || new Wallet({ owner: userId, type: WALLET_TYPE_USER, balance: 0 })),
             Category.find({ isActive: { $ne: false } }),
         ]);
 
@@ -263,12 +264,12 @@ const proceedToPayment = async (req, res) => {
         } else if (paymentMethod === 'wallet') {
 
             try {
-                let wallet = await Wallet.findOne({ owner: new Types.ObjectId(userId), type: 'user' });
+                let wallet = await Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER });
 
                 if (!wallet) {
                     wallet = new Wallet({
-                        owner: new Types.ObjectId(userId),
-                        type: 'user',
+                        owner: userId,
+                        type: WALLET_TYPE_USER,
                         balance: 0
                     });
                 }
@@ -286,9 +287,23 @@ const proceedToPayment = async (req, res) => {
                 });
 
                 newOrder.payment.status = 'paid';
+                let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+                if (!adminWallet) {
+                    adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+                }
+                adminWallet.balance += newOrder.total;
+                adminWallet.transactions.push({
+                    orderId: newOrder._id,
+                    amount: newOrder.total,
+                    type: 'credit',
+                    date: new Date(),
+                });
+
+                newOrder.payment.status = 'paid';
                 await newOrder.save();
                 await user.save();
                 await wallet.save();
+                await adminWallet.save();
                 await handleStock(newOrder, false);
                 await clearCart(userId);
                 return response.success(res, {

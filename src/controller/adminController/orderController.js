@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
+const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
@@ -206,12 +207,12 @@ const changeStatus = async (req, res) => {
             }
 
             if (order.payment.status === "paid" && ["razorpay", "wallet"].includes(order.payment.method)) {
-                let wallet = await Wallet.findOne({ owner: order.user, type: 'user' });
+                let wallet = await Wallet.findOne({ owner: order.user, type: WALLET_TYPE_USER });
 
                 if (!wallet) {
                     wallet = new Wallet({
                         owner: order.user,
-                        type: 'user',
+                        type: WALLET_TYPE_USER,
                         balance: 0,
                         transactions: [],
                     });
@@ -235,11 +236,24 @@ const changeStatus = async (req, res) => {
 
                 wallet.balance += refund;
 
+                let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+                if (!adminWallet) {
+                    adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+                }
+                adminWallet.balance -= refund;
+                adminWallet.transactions.push({
+                    orderId: order._id,
+                    amount: refund,
+                    type: 'debit',
+                    refunded: true,
+                });
+
                 try {
                     order.status = updateOrderStatus(order);
 
                     await Promise.all([
                         wallet.save(),
+                        adminWallet.save(),
                         order.save(),
                     ]);
 
@@ -303,12 +317,12 @@ const returnStatus = async (req, res) => {
         }
 
         if (status === "approved") {
-            let wallet = await Wallet.findOne({ owner: order.user, type: 'user' });
+            let wallet = await Wallet.findOne({ owner: order.user, type: WALLET_TYPE_USER });
 
             if (!wallet) {
                 wallet = new Wallet({
                     owner: order.user,
-                    type: 'user',
+                    type: WALLET_TYPE_USER,
                     balance: 0,
                     transactions: [],
                 });
@@ -355,8 +369,21 @@ const returnStatus = async (req, res) => {
                 order.payment.status = "refunded";
             }
 
+            let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+            if (!adminWallet) {
+                adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+            }
+            adminWallet.balance -= refundedAmount;
+            adminWallet.transactions.push({
+                orderId: order._id,
+                amount: refundedAmount,
+                type: 'debit',
+                refunded: true,
+            });
+
             await Promise.all([
                 wallet.save(),
+                adminWallet.save(),
                 order.save(),
             ]);
 
@@ -376,88 +403,12 @@ const returnStatus = async (req, res) => {
     }
 };
 
-const refund = async (req, res) => {
-    const { productId, orderItemId } = req.body;
-    try {
 
-        // Validate input
-        if (!orderItemId || !productId) {
-            return response.error(res, "orderItemId and productId are required", 400);
-        }
-
-        // Update the order's return and payment status
-        const order = await Order.findOneAndUpdate(
-            { 'orderedProducts._id': orderItemId, 'orderedProducts.product': productId },
-            {
-                $set: {
-                    'orderedProducts.$.returnStatus': 'refunded',
-                    'orderedProducts.$.paymentStatus': 'refunded',
-                    'orderedProducts.$.orderStatus': 'returned',
-                }
-            },
-            { new: true }
-        ).populate('coupon');
-
-        // Check if all ordered products are marked as returned
-        const allReturned = order.orderedProducts.every(item => item.paymentStatus === 'refunded');
-
-        // If all items are returned, update the order status
-        if (allReturned) {
-            await Order.findOneAndUpdate(
-                { _id: order._id },
-                {
-                    $set:
-                    {
-                        allOrdersStatus: 'returned',
-                        paymentStatus: 'refunded'
-                    }
-                }
-            );
-        }
-
-        if (!order) {
-            return response.error(res, "Error while processing the refund", 400);
-        }
-
-        // Calculate total amount to refund
-        let totalAmount = order.orderedProducts.reduce((acc, product) => acc + product.totalPay, 0);
-        if (order.coupon) {
-            totalAmount += order.coupon.couponValue;
-        }
-
-        const transactionDetails = {
-            orderId: order._id,
-            amount: totalAmount,
-            type: 'credit',
-            refunded: true
-        }
-
-        // Update user wallet balance
-        const updatedWallet = await Wallet.findOneAndUpdate(
-            { owner: order.user, type: 'user' },
-            {
-                $push: { transactions: transactionDetails },
-                $inc: { balance: totalAmount }
-            },
-            { new: true }
-        );
-
-        if (!updatedWallet) {
-            return response.error(res, "User wallet not found", 404);
-        }
-
-        res.json({ success: true, message: 'Refund processed successfully' });
-
-    } catch (err) {
-        response.serverError(res, err);
-    }
-};
 
 
 module.exports = {
     renderOrderView,
     renderOrderList,
     returnStatus,
-    changeStatus,
-    refund
+    changeStatus
 }
