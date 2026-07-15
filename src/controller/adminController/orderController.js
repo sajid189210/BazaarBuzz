@@ -2,7 +2,7 @@ const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
-const { PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Product = require('../../model/productModel');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
@@ -266,7 +266,26 @@ const changeStatus = async (req, res) => {
         }
 
         order.status = updateOrderStatus(order);
-        if (order.status === 'delivered' && order.payment.status === 'pending') order.payment.status = 'paid';
+        if (order.status === 'delivered' && order.payment.status === 'pending') {
+            order.payment.status = 'paid';
+            order.payment.paidAt = new Date();
+
+            if (order.payment.method === PAYMENT_SOURCE_COD) {
+                let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+                if (!adminWallet) {
+                    adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+                }
+                adminWallet.balance += order.total;
+                adminWallet.transactions.push({
+                    orderId: order._id,
+                    amount: order.total,
+                    type: 'credit',
+                    source: PAYMENT_SOURCE_COD,
+                    date: new Date(),
+                });
+                await adminWallet.save();
+            }
+        }
 
         await order.save();
 

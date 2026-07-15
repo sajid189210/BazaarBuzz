@@ -66,7 +66,8 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-900"><%= item.name || 'Product' %></p>
-                                <p class="text-xs text-gray-500 mt-0.5">Qty: <%= item.quantity %> · ₹<%= item.unitPrice?.toLocaleString() || 0 %> ea</p>
+                                <p class="text-xs text-gray-500 mt-0.5">Size: <%= item.selectedSize %> · <span class="inline-flex items-center gap-1">Color: <span class="color-dot w-3 h-3 rounded-full inline-block border border-gray-300" style="background:<%= item.selectedColor || '#ccc' %>"></span><strong data-color-hex><%= item.selectedColor || 'N/A' %></strong></span></p>
+                                <p class="text-xs text-gray-500">Qty: <%= item.quantity %> · ₹<%= item.unitPrice?.toLocaleString() || 0 %> per unit</p>
                                 <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mt-1
                                     <%= item.status === 'delivered' ? 'bg-emerald-50 text-emerald-700' :
                                        item.status === 'cancelled' ? 'bg-rose-50 text-rose-700' :
@@ -173,4 +174,23 @@
             </div>
         <% } %>
     </div>
-    <% blocks.scripts=` <script src="/javascript/user/userOrderView.js"></script>` %>
+    <% blocks.scripts=`
+    <script src="/javascript/ntc.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ntc === 'undefined') return;
+            document.querySelectorAll('[data-color-hex]').forEach(function(el) {
+                var hex = el.textContent.trim();
+                if (!hex) return;
+                var match = ntc.name(hex);
+                if (match && match[1]) {
+                    el.textContent = match[1];
+                    var dot = el.previousElementSibling;
+                    if (dot && dot.classList.contains('color-dot')) {
+                        dot.style.backgroundColor = match[0];
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/javascript/user/userOrderView.js"></script>` %>

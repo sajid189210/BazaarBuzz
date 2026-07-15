@@ -24,7 +24,7 @@ const handleStock = async (item, increment) => {
             variants: {
                 $elemMatch: {
                     size: item.selectedSize,
-                    color: item.selectedColor,
+                    colors: item.selectedColor,
                 },
             },
         },

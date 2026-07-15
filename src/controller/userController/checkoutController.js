@@ -28,7 +28,7 @@ const handleStock = async (order, increment) => {
                     variants: {
                         $elemMatch: {
                             size: item.selectedSize,
-                            color: item.selectedColor,
+                            colors: item.selectedColor,
                         },
                     },
                 },
@@ -325,23 +325,8 @@ const proceedToPayment = async (req, res) => {
             }
 
         } else {
-            newOrder.payment.paidAt = new Date();
             await newOrder.save();
             await user.save();
-
-            let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
-            if (!adminWallet) {
-                adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
-            }
-            adminWallet.balance += newOrder.total;
-            adminWallet.transactions.push({
-                orderId: newOrder._id,
-                amount: newOrder.total,
-                type: 'credit',
-                source: PAYMENT_SOURCE_COD,
-                date: new Date(),
-            });
-            await adminWallet.save();
 
             await handleStock(newOrder, false);
             await clearCart(userId);
