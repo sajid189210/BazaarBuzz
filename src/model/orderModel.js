@@ -73,6 +73,11 @@ const orderItemSchema = new mongoose.Schema(
             default: "processing",
         },
 
+        deliveredAt: {
+            type: Date,
+            default: null,
+        },
+
         return: {
             type: {
                 status: {

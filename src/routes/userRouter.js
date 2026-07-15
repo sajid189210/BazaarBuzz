@@ -5,6 +5,7 @@ const wishlistController = require('../controller/userController/wishlistControl
 const walletController = require('../controller/userController/walletController');
 const couponController = require('../controller/userController/userCoupons');
 const orderController = require('../controller/userController/userOrderController');
+const userReturnController = require('../controller/userController/returnController');
 const cartController = require('../controller/userController/cartController');
 const userController = require('../controller/userController/userController');
 const otpController = require('../controller/userController/otpVerification');
@@ -65,7 +66,7 @@ router.patch('/checkout/paymentFail', checkoutController.handlePaymentFailure)
 router.get('/orders', orderController.getOrders);
 router.get('/orders/invoice', orderController.downloadInvoice);
 router.post('/orders/retryPayment', orderController.retryPayment);
-router.patch('/orders/return', orderController.requestProductReturn);
+router.patch('/orders/return', userReturnController.requestProductReturn);
 router.patch('/orders/cancel', orderController.cancelProduct);
 
 //*--------------------[Wallet]-----------------------

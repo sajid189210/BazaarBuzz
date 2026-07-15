@@ -9,6 +9,7 @@ const offerController = require('../controller/adminController/offerController')
 const orderController = require('../controller/adminController/orderController');
 const userManagement = require('../controller/adminController/userManagementController');
 const walletController = require('../controller/adminController/walletController');
+const returnController = require('../controller/adminController/returnController');
 
 const { storage } = require('../Services/uploads');
 const multer = require('multer');
@@ -55,7 +56,6 @@ router.delete('/product/:id', productManagement.removeProduct);
 router.get('/orders', orderController.renderOrderList);
 router.get('/order/view', orderController.renderOrderView);
 router.patch('/order/changeStatus', orderController.changeStatus);
-router.patch('/order/returns', orderController.returnStatus);
 // router.patch('/order/refund', orderController.refund);
 
 //*------------------[Coupon Management]--------------------
@@ -76,6 +76,10 @@ router.put('/offer', offerController.updateOffer);
 router.patch('/offer/status', offerController.changeStatus);
 router.delete('/offer/:id', offerController.removeOffer);
 
+
+//*------------------[Returns]--------------------
+router.get('/returns', returnController.renderReturnsPage);
+router.patch('/order/returns', returnController.returnStatus);
 
 //*------------------[Wallet]--------------------
 router.get('/wallet', walletController.renderWalletPage);
