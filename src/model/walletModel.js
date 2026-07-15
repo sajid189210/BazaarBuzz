@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../constants/walletTypes');
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../constants/paymentSources');
 
 const walletSchema = new mongoose.Schema({
     owner: {
@@ -41,6 +42,10 @@ const walletSchema = new mongoose.Schema({
                 required: true,
             },
 
+            source: {
+                type: String,
+                enum: [PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET],
+            },
             refunded: {
                 type: Boolean,
                 default: false,

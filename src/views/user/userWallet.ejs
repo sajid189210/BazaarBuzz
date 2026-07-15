@@ -54,9 +54,10 @@
                   <% if(txn.type === 'credit') { %>
                     Refund
                   <% } else { %>
-                    Payment<%= txn.orderId ? ' #' + String(txn.orderId).slice(-8) : '' %>
+                    Payment
                   <% } %>
                 </p>
+                <p class="text-xs text-gray-400 mt-0.5 font-mono">Txn #<%= String(txn._id).slice(-8) %></p>
                 <p class="text-xs text-gray-400 mt-0.5"><%= new Date(txn.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></p>
               </div>
             </div>

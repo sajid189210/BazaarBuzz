@@ -2,6 +2,7 @@ const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
+const { PAYMENT_SOURCE_WALLET, PAYMENT_SOURCE_RAZORPAY } = require('../../constants/paymentSources');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const User = require('../../model/userModel');
@@ -201,7 +202,7 @@ const cancelProduct = async (req, res) => {
 
         const shouldRefund =
             order.payment.status === "paid" &&
-            ["wallet", "razorpay"].includes(order.payment.method);
+            [PAYMENT_SOURCE_WALLET, PAYMENT_SOURCE_RAZORPAY].includes(order.payment.method);
 
         if (shouldRefund) {
             let wallet = await Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER });

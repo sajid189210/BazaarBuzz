@@ -44,7 +44,7 @@
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date & Time</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Type</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Amount</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Order ID</th>
+                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Transaction ID</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Before</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">After</th>
                                     </tr>
@@ -67,7 +67,7 @@
                                                         <%= txn.type === 'credit' ? '+' : '-' %> ₹<%= txn.amount?.toLocaleString('en-IN') %>
                                                     </span>
                                                 </td>
-                                                <td class="px-5 py-4 text-gray-500 text-sm font-mono"><%= txn.orderId || '-' %></td>
+                                                <td class="px-5 py-4 text-gray-500 text-sm font-mono"><%= String(txn._id).slice(-8) || '-' %></td>
                                                 <td class="px-5 py-4 text-gray-600">₹<%= txn.balanceBefore?.toLocaleString('en-IN') %></td>
                                                 <td class="px-5 py-4 text-gray-600">₹<%= txn.balanceAfter?.toLocaleString('en-IN') %></td>
                                             </tr>

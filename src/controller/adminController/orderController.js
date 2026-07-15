@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
+const { PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
@@ -206,7 +207,7 @@ const changeStatus = async (req, res) => {
                 return response.error(res, "Failed to restore product stock.", 500);
             }
 
-            if (order.payment.status === "paid" && ["razorpay", "wallet"].includes(order.payment.method)) {
+            if (order.payment.status === "paid" && [PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET].includes(order.payment.method)) {
                 let wallet = await Wallet.findOne({ owner: order.user, type: WALLET_TYPE_USER });
 
                 if (!wallet) {

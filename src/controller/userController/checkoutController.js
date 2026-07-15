@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const Product = require('../../model/productModel');
 const Coupon = require('../../model/couponModel');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Wallet = require("../../model/walletModel");
 const Order = require('../../model/orderModel');
 const Cart = require('../../model/userCartModel');
@@ -230,7 +231,7 @@ const proceedToPayment = async (req, res) => {
 
         const newOrder = new Order(orderDetails);
 
-        if (paymentMethod === 'razorpay') {
+        if (paymentMethod === PAYMENT_SOURCE_RAZORPAY) {
             try {
                 const options = {
                     amount: Math.round(newOrder.total * 100), //? total amount to be charged to the customer. Must be an Integer
@@ -261,7 +262,7 @@ const proceedToPayment = async (req, res) => {
                 response.serverError(res, err);
             }
 
-        } else if (paymentMethod === 'wallet') {
+        } else if (paymentMethod === PAYMENT_SOURCE_WALLET) {
 
             try {
                 let wallet = await Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER });
@@ -283,6 +284,7 @@ const proceedToPayment = async (req, res) => {
                     orderId: newOrder._id,
                     amount: newOrder.total,
                     type: 'debit',
+                    source: PAYMENT_SOURCE_WALLET,
                     date: new Date(),
                 });
 
@@ -296,6 +298,7 @@ const proceedToPayment = async (req, res) => {
                     orderId: newOrder._id,
                     amount: newOrder.total,
                     type: 'credit',
+                    source: PAYMENT_SOURCE_WALLET,
                     date: new Date(),
                 });
 
@@ -328,6 +331,21 @@ const proceedToPayment = async (req, res) => {
             newOrder.payment.paidAt = new Date();
             await newOrder.save();
             await user.save();
+
+            let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+            if (!adminWallet) {
+                adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+            }
+            adminWallet.balance += newOrder.total;
+            adminWallet.transactions.push({
+                orderId: newOrder._id,
+                amount: newOrder.total,
+                type: 'credit',
+                source: PAYMENT_SOURCE_COD,
+                date: new Date(),
+            });
+            await adminWallet.save();
+
             await handleStock(newOrder, false);
             await clearCart(userId);
 
@@ -481,7 +499,7 @@ const verifyPayment = async (req, res) => {
             return response.error(res, "Payment verification failed.", 400);
         }
 
-        await Order.findByIdAndUpdate(
+        const order = await Order.findByIdAndUpdate(
             orderId,
             {
                 $set: {
@@ -492,9 +510,24 @@ const verifyPayment = async (req, res) => {
                 }
             },
             {
+                new: true,
                 runValidators: true
             }
         );
+
+        let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+        if (!adminWallet) {
+            adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+        }
+        adminWallet.balance += order.total;
+        adminWallet.transactions.push({
+            orderId: order._id,
+            amount: order.total,
+            type: 'credit',
+            source: PAYMENT_SOURCE_RAZORPAY,
+            date: new Date(),
+        });
+        await adminWallet.save();
 
         await clearCart(userId);
 

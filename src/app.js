@@ -60,6 +60,8 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout'); // Default layout for all views
 
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('./constants/paymentSources');
+
 //* Initialize shared locals for all templates
 app.use((req, res, next) => {
     res.locals.blocks = {};
@@ -68,6 +70,9 @@ app.use((req, res, next) => {
     res.locals.user = null;
     res.locals.hideUI = false;
     res.locals.bodyClass = 'antialiased';
+    res.locals.PAYMENT_SOURCE_COD = PAYMENT_SOURCE_COD;
+    res.locals.PAYMENT_SOURCE_RAZORPAY = PAYMENT_SOURCE_RAZORPAY;
+    res.locals.PAYMENT_SOURCE_WALLET = PAYMENT_SOURCE_WALLET;
     next();
 });
 

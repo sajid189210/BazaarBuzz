@@ -16,7 +16,7 @@
             <div class="flex flex-wrap gap-6">
                 <div>
                     <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Order ID</p>
-                    <p class="text-sm font-mono font-medium text-gray-900 mt-1"><%= order._id %></p>
+                    <p class="text-sm font-mono font-medium text-gray-900 mt-1"><%= String(order._id).slice(-8) %></p>
                 </div>
                 <div>
                     <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Date</p>

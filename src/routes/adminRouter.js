@@ -56,7 +56,7 @@ router.get('/orders', orderController.renderOrderList);
 router.get('/order/view', orderController.renderOrderView);
 router.patch('/order/changeStatus', orderController.changeStatus);
 router.patch('/order/returns', orderController.returnStatus);
-router.patch('/order/refund', orderController.refund);
+// router.patch('/order/refund', orderController.refund);
 
 //*------------------[Coupon Management]--------------------
 router.get('/coupon', couponController.renderCouponPage);

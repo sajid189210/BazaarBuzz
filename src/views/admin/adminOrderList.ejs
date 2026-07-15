@@ -38,9 +38,9 @@
                 <select name="paymentMethod"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all bg-white">
                     <option value="">All Methods</option>
-                    <option value="cod" <%= paymentMethodFilter==='cod' ? 'selected' : '' %>>COD</option>
-                    <option value="razorpay" <%= paymentMethodFilter==='razorpay' ? 'selected' : '' %>>Razorpay</option>
-                    <option value="wallet" <%= paymentMethodFilter==='wallet' ? 'selected' : '' %>>Wallet</option>
+                    <option value="<%= PAYMENT_SOURCE_COD %>" <%= paymentMethodFilter===PAYMENT_SOURCE_COD ? 'selected' : '' %>>COD</option>
+                    <option value="<%= PAYMENT_SOURCE_RAZORPAY %>" <%= paymentMethodFilter===PAYMENT_SOURCE_RAZORPAY ? 'selected' : '' %>>Razorpay</option>
+                    <option value="<%= PAYMENT_SOURCE_WALLET %>" <%= paymentMethodFilter===PAYMENT_SOURCE_WALLET ? 'selected' : '' %>>Wallet</option>
                 </select>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
