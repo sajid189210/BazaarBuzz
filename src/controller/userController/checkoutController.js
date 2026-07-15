@@ -70,7 +70,7 @@ const getCheckout = async (req, res) => {
                 .populate('items.product')
                 .populate('items.offer')
                 .populate('coupon'),
-            Wallet.findOne({ user: userId }),
+            Wallet.findOne({ owner: userId, type: 'user' }),
             Category.find({ isActive: { $ne: false } }),
         ]);
 
@@ -263,11 +263,12 @@ const proceedToPayment = async (req, res) => {
         } else if (paymentMethod === 'wallet') {
 
             try {
-                let wallet = await Wallet.findOne({ user: userId });
+                let wallet = await Wallet.findOne({ owner: new Types.ObjectId(userId), type: 'user' });
 
                 if (!wallet) {
                     wallet = new Wallet({
-                        user: new Types.ObjectId(userId),
+                        owner: new Types.ObjectId(userId),
+                        type: 'user',
                         balance: 0
                     });
                 }

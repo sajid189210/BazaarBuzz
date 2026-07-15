@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 
 const walletSchema = new mongoose.Schema({
-    user: {
+    owner: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'user'
+    },
+    type: {
+        type: String,
+        enum: ['user', 'admin'],
+        required: true,
     },
     balance: {
         type: Number,

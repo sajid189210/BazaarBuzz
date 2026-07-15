@@ -263,7 +263,7 @@ const userHomepage = async (req, res) => {
             const userId = req.session.user.userId;
             const [cart, wallet] = await Promise.all([
                 Cart.findOne({ user: userId }),
-                Wallet.findOne({ user: userId })
+                Wallet.findOne({ owner: userId, type: 'user' })
             ]);
 
             if (!cart) {
@@ -272,7 +272,7 @@ const userHomepage = async (req, res) => {
             }
 
             if (!wallet) {
-                const newWallet = new Wallet({ user: userId });
+                const newWallet = new Wallet({ owner: userId, type: 'user' });
                 await newWallet.save();
             }
         }

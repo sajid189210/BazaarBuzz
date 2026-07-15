@@ -206,11 +206,12 @@ const changeStatus = async (req, res) => {
             }
 
             if (order.payment.status === "paid" && ["razorpay", "wallet"].includes(order.payment.method)) {
-                let wallet = await Wallet.findOne({ user: order.user });
+                let wallet = await Wallet.findOne({ owner: order.user, type: 'user' });
 
                 if (!wallet) {
                     wallet = new Wallet({
-                        userId: order.user,
+                        owner: order.user,
+                        type: 'user',
                         balance: 0,
                         transactions: [],
                     });
@@ -302,11 +303,12 @@ const returnStatus = async (req, res) => {
         }
 
         if (status === "approved") {
-            let wallet = await Wallet.findOne({ user: order.user });
+            let wallet = await Wallet.findOne({ owner: order.user, type: 'user' });
 
             if (!wallet) {
                 wallet = new Wallet({
-                    user: order.user,
+                    owner: order.user,
+                    type: 'user',
                     balance: 0,
                     transactions: [],
                 });
@@ -432,7 +434,7 @@ const refund = async (req, res) => {
 
         // Update user wallet balance
         const updatedWallet = await Wallet.findOneAndUpdate(
-            { user: order.user },
+            { owner: order.user, type: 'user' },
             {
                 $push: { transactions: transactionDetails },
                 $inc: { balance: totalAmount }

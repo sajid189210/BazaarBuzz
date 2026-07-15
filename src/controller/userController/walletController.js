@@ -13,12 +13,12 @@ const renderWallet = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const page = parseInt(req.query.page) || 1;
 
-        let wallet = await Wallet.findOne({ user: userId });
+        let wallet = await Wallet.findOne({ owner: userId, type: 'user' });
 
         const categories = await Category.find();
 
         if (!wallet) {
-            const newWallet = new Wallet({ user: userId, balance: 0 });
+            const newWallet = new Wallet({ owner: userId, type: 'user', balance: 0 });
             await newWallet.save();
             wallet = newWallet;
         }

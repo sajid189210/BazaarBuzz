@@ -203,11 +203,12 @@ const cancelProduct = async (req, res) => {
             ["wallet", "razorpay"].includes(order.payment.method);
 
         if (shouldRefund) {
-            let wallet = await Wallet.findOne({ user: userId });
+            let wallet = await Wallet.findOne({ owner: userId, type: 'user' });
 
             if (!wallet) {
                 wallet = new Wallet({
-                    user: userId,
+                    owner: userId,
+                    type: 'user',
                     balance: 0,
                     transactions: [],
                 });

@@ -8,6 +8,7 @@ const adminController = require("../controller/adminController/adminController")
 const offerController = require('../controller/adminController/offerController');
 const orderController = require('../controller/adminController/orderController');
 const userManagement = require('../controller/adminController/userManagementController');
+const walletController = require('../controller/adminController/walletController');
 
 const { storage } = require('../Services/uploads');
 const multer = require('multer');
@@ -75,6 +76,9 @@ router.put('/offer', offerController.updateOffer);
 router.patch('/offer/status', offerController.changeStatus);
 router.delete('/offer/:id', offerController.removeOffer);
 
+
+//*------------------[Wallet]--------------------
+router.get('/wallet', walletController.renderWalletPage);
 
 //*------------[Dashboard]------------------
 router.get("/dashboard", dashboardController.getDashboard);

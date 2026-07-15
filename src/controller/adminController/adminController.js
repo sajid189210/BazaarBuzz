@@ -30,7 +30,7 @@ const validateCredentials = async (req, res) => {
             return res.redirect("/admin/signIn");
         }
 
-        req.session.admin = true;
+        req.session.admin = { id: admin._id, email: admin.email };
         res.redirect('/admin/dashboard');
 
     } catch (err) {
