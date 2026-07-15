@@ -1,12 +1,9 @@
 async function changeOrderStatus(orderId, status) {
-    var dataEl = document.getElementById('orderData');
-    var itemIds = dataEl ? dataEl.dataset.itemIds.split(',') : [];
-    var orderItemId = itemIds[0] || '';
     try {
         var res = await fetch('/admin/order/changeStatus', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderStatus: status, orderId: orderId, orderItemId: orderItemId })
+            body: JSON.stringify({ orderStatus: status, orderId: orderId })
         });
         var data = await res.json();
         if (data.success) {

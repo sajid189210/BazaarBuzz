@@ -2,12 +2,13 @@ const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const { PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
+const Product = require('../../model/productModel');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 
-const handleStock = async (order, increment) => {
+const adjustStock = async (items, increment) => {
     const result = await Promise.all(
-        order.items.map((item) => {
+        items.map((item) => {
             const quantity = increment ? item.quantity : -item.quantity;
 
             return Product.findOneAndUpdate(
@@ -175,10 +176,14 @@ const renderOrderView = async (req, res) => {
 const changeStatus = async (req, res) => {
     if (!req.session.admin) return res.redirect("/admin/signIn");
 
-    const { orderStatus, orderId, orderItemId } = req.body;
+    const { orderStatus, orderId } = req.body;
 
-    if (!orderStatus || !orderId || !orderItemId) {
+    if (!orderStatus || !orderId) {
         return response.error(res, "Failed to update status.", 400);
+    }
+
+    if (!['shipped', 'delivered', 'cancelled'].includes(orderStatus)) {
+        return response.error(res, "Invalid status.", 400);
     }
 
     try {
@@ -188,20 +193,23 @@ const changeStatus = async (req, res) => {
             return response.error(res, "Order not found.", 404);
         }
 
-        const item = order.items.id(orderItemId);
+        const eligibleItems = order.items.filter(item => {
+            if (orderStatus === 'shipped') return item.status === 'processing';
+            if (orderStatus === 'delivered') return item.status === 'shipped';
+            if (orderStatus === 'cancelled') return item.status === 'processing';
+            return false;
+        });
 
-        if (!item) {
-            return response.error(res, "Order item not found.", 404);
+        if (!eligibleItems.length) {
+            return response.error(res, `No items are eligible for '${orderStatus}' status.`, 400);
         }
 
-        if (item.status === orderStatus) {
-            return response.error(res, "Order item is already in this status.", 400);
+        for (const item of eligibleItems) {
+            item.status = orderStatus;
         }
 
-        item.status = orderStatus;
-
-        if (orderStatus === "cancelled") {
-            const stockUpdated = await handleStock(order, true);
+        if (orderStatus === 'cancelled') {
+            const stockUpdated = await adjustStock(eligibleItems, true);
 
             if (!stockUpdated) {
                 return response.error(res, "Failed to restore product stock.", 500);
@@ -209,57 +217,34 @@ const changeStatus = async (req, res) => {
 
             if (order.payment.status === "paid" && [PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET].includes(order.payment.method)) {
                 let wallet = await Wallet.findOne({ owner: order.user, type: WALLET_TYPE_USER });
-
                 if (!wallet) {
-                    wallet = new Wallet({
-                        owner: order.user,
-                        type: WALLET_TYPE_USER,
-                        balance: 0,
-                        transactions: [],
-                    });
+                    wallet = new Wallet({ owner: order.user, type: WALLET_TYPE_USER, balance: 0, transactions: [] });
                 }
-
-                const itemTotal = item.finalPrice * item.quantity;
-                const ratio = itemTotal / order.subtotal;
-
-                const couponShare = (order.coupon?.discount ?? 0) * ratio;
-
-                const taxShare = (order.tax ?? 0) * ratio;
-
-                const refund = itemTotal + taxShare - couponShare;
-
-                wallet.transactions.push({
-                    orderId: order._id,
-                    amount: refund,
-                    type: "credit",
-                    refunded: true,
-                });
-
-                wallet.balance += refund;
 
                 let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
                 if (!adminWallet) {
                     adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
                 }
-                adminWallet.balance -= refund;
-                adminWallet.transactions.push({
-                    orderId: order._id,
-                    amount: refund,
-                    type: 'debit',
-                    refunded: true,
-                });
+
+                for (const item of eligibleItems) {
+                    const itemTotal = item.finalPrice * item.quantity;
+                    const ratio = itemTotal / order.subtotal;
+                    const couponShare = (order.coupon?.discount ?? 0) * ratio;
+                    const taxShare = (order.tax ?? 0) * ratio;
+                    const refund = itemTotal + taxShare - couponShare;
+
+                    wallet.transactions.push({ orderId: order._id, amount: refund, type: "credit", refunded: true });
+                    wallet.balance += refund;
+
+                    adminWallet.transactions.push({ orderId: order._id, amount: refund, type: 'debit', refunded: true });
+                    adminWallet.balance -= refund;
+                }
 
                 try {
                     order.status = updateOrderStatus(order);
-
-                    await Promise.all([
-                        wallet.save(),
-                        adminWallet.save(),
-                        order.save(),
-                    ]);
-
+                    await Promise.all([wallet.save(), adminWallet.save(), order.save()]);
                 } catch (err) {
-                    await handleStock(order, false);
+                    await adjustStock(eligibleItems, false);
                     throw err;
                 }
             } else {
@@ -354,7 +339,7 @@ const returnStatus = async (req, res) => {
 
             wallet.balance += refundedAmount;
 
-            const stockUpdated = await handleStock(order, true);
+            const stockUpdated = await adjustStock([item], true);
 
             if (!stockUpdated) {
                 return response.error(
