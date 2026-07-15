@@ -1,4 +1,5 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
+const colorName = require('../../utils/colorName').name;
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
@@ -313,94 +314,211 @@ const retryPayment = async (req, res) => {
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.query;
-        const order = await Order.findById(orderId);
+        if (!orderId) return response.error(res, "Order ID is required.", 400);
 
+        const order = await Order.findById(orderId);
+        if (!order) return response.error(res, "Order not found.", 404);
+
+        const userId = req.session?.user?.userId;
+        if (!userId || order.user.toString() !== userId) {
+            return response.error(res, "Unauthorized to access this order.", 403);
+        }
+
+        const deliveredItems = order.items.filter(item => item.status === 'delivered');
+        if (!deliveredItems.length) {
+            return response.error(res, "No delivered items to invoice.", 400);
+        }
+
+        // --- Proportional cost calculation (mirrors return logic) ---
+        const deliveredGross = deliveredItems.reduce((sum, i) => sum + (i.finalPrice * i.quantity), 0);
+        const totalGross = order.items.reduce((sum, i) => sum + (i.finalPrice * i.quantity), 0);
+        const ratio = totalGross > 0 ? deliveredGross / totalGross : 0;
+
+        const couponDiscount = truncCurrency((order.coupon?.discount || 0) * ratio);
+        const invoiceTax = truncCurrency((order.tax || 0) * ratio);
+        const invoiceShipping = truncCurrency((order.shippingFee || 0) * ratio);
+        const grandTotal = truncCurrency(deliveredGross - couponDiscount + invoiceTax + invoiceShipping);
+
+        // --- PDF Generation ---
         const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=invoice_${orderId}.pdf`);
 
         doc.pipe(res);
 
-        // Header Section
-        doc
-            .fontSize(20)
-            .text('INVOICE', { align: 'center' })
-            .moveDown(1.5);
+        const BLUE = '#1e40af';
+        const GRAY = '#6b7280';
+        const DARK = '#1f2937';
+        const LIGHT_BG = '#f3f4f6';
+        const MARGIN = 50;
+        const PAGE_WIDTH = 595.28;
+        const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
-        // Invoice and Customer Details
-        doc
-            .fontSize(12)
-            .text(`Name: ${order.shippingAddress.contactName}`, { align: 'left' })
-            .text(`Phone Number: ${order.shippingAddress.contactNumber}`)
-            .text(`Email: ${order.shippingAddress.email || 'N/A'}`)
-            .text(
-                `Address: ${order.shippingAddress.building}, ${order.shippingAddress.street}, ${order.shippingAddress.district}, ${order.shippingAddress.state}, ${order.shippingAddress.pincode}`
-            )
-            .moveDown();
+        // ─────── HEADER ───────
+        doc.fontSize(26).font('Helvetica-Bold').fillColor(BLUE)
+            .text('BAZZARBUZZ', MARGIN, 50, { continued: false });
 
-        doc
-            .text(`Invoice No.: ${order._id}`, { align: 'left' })
-            .text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`)
-            .moveDown(2);
+        doc.fontSize(9).font('Helvetica').fillColor(GRAY)
+            .text('Fashion Marketplace', MARGIN, 78);
 
-        // Table Header
-        doc
-            .fontSize(14)
-            .font('Helvetica-Bold')
-            .text('Products', { underline: true, align: 'left' })
-            .moveDown();
+        // Invoice title right-aligned
+        doc.fontSize(20).font('Helvetica-Bold').fillColor(DARK)
+            .text('TAX INVOICE', MARGIN, 50, { align: 'right' });
 
-        // Table Columns
-        const tableTop = doc.y;
-        const columnSpacing = 100;
-        const startX = doc.x;
+        // Separator
+        const sepY = 105;
+        doc.moveTo(MARGIN, sepY).lineTo(PAGE_WIDTH - MARGIN, sepY).strokeColor('#d1d5db').lineWidth(1).stroke();
 
-        doc
-            .fontSize(10)
-            .text('SLNo.', startX, tableTop)
-            .text('Name', startX + columnSpacing, tableTop)
-            .text('Quantity', startX + columnSpacing * 2, tableTop)
-            .text('Price', startX + columnSpacing * 3, tableTop)
-            .text('Amount', startX + columnSpacing * 5, tableTop)
-            .moveDown(3);
+        // ─────── INVOICE META ───────
+        const metaY = sepY + 20;
+        doc.fontSize(9).font('Helvetica-Bold').fillColor(GRAY);
 
-        // Ordered Products
-        order.items.forEach((item, index) => {
-            const y = doc.y;
+        const leftMeta = [
+            { label: 'Invoice No.', value: `INV-${String(order._id).slice(-8).toUpperCase()}` },
+            { label: 'Order ID', value: String(order._id) },
+        ];
+        const rightMeta = [
+            { label: 'Invoice Date', value: new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) },
+            { label: 'Payment', value: `${(order.payment?.method || '-').toUpperCase()} / ${(order.payment?.status || '-')}` },
+        ];
 
-            doc
-                .font('Helvetica')
-                .fontSize(10)
-                .text(index + 1, startX, y)
-                .text(item.name, startX + columnSpacing, y, { width: columnSpacing - 10, align: 'left' })
-                .text(item.quantity, startX + columnSpacing * 2, y)
-                .text(`${item.unitPrice.toFixed(2)}`, startX + columnSpacing * 3, y)
-                .text(`${item.finalPrice.toFixed(2)}`, startX + columnSpacing * 5, y);
-
-            doc.moveDown(8);
+        leftMeta.forEach((item, i) => {
+            doc.text(item.label, MARGIN, metaY + i * 16);
+        });
+        doc.font('Helvetica').fillColor(DARK);
+        leftMeta.forEach((item, i) => {
+            doc.text(item.value, MARGIN + 80, metaY + i * 16);
         });
 
-        const totalSectionTop = doc.y;
+        doc.font('Helvetica-Bold').fillColor(GRAY);
+        rightMeta.forEach((item, i) => {
+            doc.text(item.label, PAGE_WIDTH - MARGIN - 160, metaY + i * 16);
+        });
+        doc.font('Helvetica').fillColor(DARK);
+        rightMeta.forEach((item, i) => {
+            doc.text(item.value, PAGE_WIDTH - MARGIN - 90, metaY + i * 16);
+        });
 
-        doc
-            .font('Helvetica')
-            .fontSize(12)
-            .text(`Sub Total: ${order.subtotal.toFixed(2)}`, startX, doc.y, { align: 'right' })
-            .moveDown();
+        // ─────── BILL TO ───────
+        const billY = metaY + 16 * Math.max(leftMeta.length, rightMeta.length) + 20;
+        const sepY2 = billY;
+        doc.moveTo(MARGIN, sepY2).lineTo(PAGE_WIDTH - MARGIN, sepY2).strokeColor('#d1d5db').lineWidth(1).stroke();
 
-        doc
-            .font('Helvetica')
-            .fontSize(12)
-            .text(`Total Tax (5%): ${order.tax.toFixed(2)}`, startX + columnSpacing, totalSectionTop + 15, { align: 'right' })
-            .moveDown(3);
+        const addr = order.shippingAddress;
+        doc.fontSize(10).font('Helvetica-Bold').fillColor(DARK)
+            .text('Bill To:', MARGIN, sepY2 + 15);
 
+        doc.fontSize(9).font('Helvetica').fillColor(DARK)
+            .text(addr.contactName, MARGIN, sepY2 + 32);
+        const addrLine = [addr.building, addr.street].filter(Boolean).join(', ') + ', ' +
+            (addr.landmark ? addr.landmark + ', ' : '') +
+            `${addr.district}, ${addr.state} — ${addr.pincode}`;
+        doc.text(addrLine, MARGIN, sepY2 + 48, { width: CONTENT_WIDTH });
+        doc.text(`Phone: ${addr.contactNumber}`, MARGIN, sepY2 + 66);
 
-        doc
-            .font('Helvetica-Bold')
-            .fontSize(12)
-            .text(`Total Amount: ${(order.total).toFixed(2)}`, startX + columnSpacing * 2, totalSectionTop + 30, { align: 'right' })
-            .moveDown();
+        // ─────── ITEMS TABLE ───────
+        const tableY = sepY2 + 95;
+        const sepY3 = tableY - 10;
+        doc.moveTo(MARGIN, sepY3).lineTo(PAGE_WIDTH - MARGIN, sepY3).strokeColor('#d1d5db').lineWidth(1).stroke();
+
+        // Table configuration — no overlapping columns
+        const colPos = [MARGIN, MARGIN + 30, MARGIN + 210, MARGIN + 300, MARGIN + 340, MARGIN + 405];
+        const colKeys = ['#', 'Product', 'Size / Color', 'Qty', 'Unit Price', 'Total'];
+        const colWidths = [30, 180, 90, 40, 65, 65];
+        const rowHeight = 22;
+
+        // Header row background
+        doc.rect(MARGIN, tableY, CONTENT_WIDTH, rowHeight).fill(LIGHT_BG);
+        doc.fontSize(8).font('Helvetica-Bold').fillColor(DARK);
+        colKeys.forEach((key, i) => {
+            doc.text(key, colPos[i] + 4, tableY + 6, { width: colWidths[i] - 8, align: i === 0 ? 'center' : i >= 3 ? 'right' : 'left' });
+        });
+
+        // Data rows
+        doc.fontSize(8).font('Helvetica').fillColor(DARK);
+        let rowY = tableY + rowHeight;
+        deliveredItems.forEach((item, idx) => {
+            const hex = item.selectedColor || '#ccc';
+            const cName = colorName(hex);
+            const sizeText = (item.selectedSize || '-') + '  ' + cName;
+            const lineTotal = (item.finalPrice * item.quantity);
+            const values = [
+                String(idx + 1),
+                item.name || 'Product',
+                sizeText,
+                String(item.quantity),
+                `₹${Number(item.unitPrice || 0).toFixed(2)}`,
+                `₹${lineTotal.toFixed(2)}`,
+            ];
+
+            // Alternate row bg
+            if (idx % 2 === 1) {
+                doc.rect(MARGIN, rowY, CONTENT_WIDTH, rowHeight).fill('#fafafa');
+            }
+
+            values.forEach((val, i) => {
+                if (i === 2) {
+                    const dotX = colPos[i] + 4;
+                    const dotY = rowY + 5;
+                    const dotSize = 10;
+                    doc.rect(dotX, dotY, dotSize, dotSize).fillAndStroke(hex, '#d1d5db');
+                    doc.font('Helvetica').fontSize(8).fillColor(DARK);
+                    doc.text(cName, dotX + dotSize + 5, rowY + 6, { width: colWidths[i] - dotSize - 13, align: 'left' });
+                    doc.font('Helvetica').fontSize(7).fillColor(GRAY);
+                    doc.text(item.selectedSize || '-', dotX + dotSize + 5, rowY + 6, { width: colWidths[i] - dotSize - 13, align: 'right' });
+                } else {
+                    const align = i === 0 ? 'center' : i >= 3 ? 'right' : 'left';
+                    doc.font('Helvetica').fontSize(8).fillColor(DARK);
+                    doc.text(val, colPos[i] + 4, rowY + 6, { width: colWidths[i] - 8, align });
+                }
+            });
+
+            rowY += rowHeight;
+        });
+
+        // ─────── AMOUNT SUMMARY (shop style) ───────
+        const summaryY = rowY + 15;
+        const summaryX = PAGE_WIDTH - MARGIN - 220;
+        const summaryW = 220;
+        const valueX = summaryX + 80;
+        const valueW = summaryW - 80;
+
+        const sumLines = [
+            { label: 'Subtotal', value: `₹${deliveredGross.toFixed(2)}`, bold: false },
+        ];
+        if (couponDiscount > 0) {
+            sumLines.push({ label: 'Coupon', value: `-₹${couponDiscount.toFixed(2)}`, bold: false });
+        }
+        if (invoiceTax > 0) {
+            sumLines.push({ label: 'Tax', value: `₹${invoiceTax.toFixed(2)}`, bold: false });
+        }
+        sumLines.push({ label: 'Shipping', value: `₹${invoiceShipping.toFixed(2)}`, bold: false });
+        sumLines.push({ label: null, value: null, isLine: true });
+        sumLines.push({ label: 'Grand Total', value: `₹${grandTotal.toFixed(2)}`, bold: true });
+
+        let sy = summaryY;
+        sumLines.forEach(line => {
+            if (line.isLine) {
+                doc.moveTo(summaryX, sy + 2).lineTo(PAGE_WIDTH - MARGIN, sy + 2).strokeColor('#d1d5db').lineWidth(1).stroke();
+                sy += 10;
+                return;
+            }
+            if (line.bold) {
+                doc.font('Helvetica-Bold').fontSize(11).fillColor(DARK);
+            } else {
+                doc.font('Helvetica').fontSize(9).fillColor(GRAY);
+            }
+            doc.text(line.label, summaryX, sy);
+            doc.text(line.value, valueX, sy, { width: valueW, align: 'right' });
+            sy += line.bold ? 22 : 16;
+        });
+
+        // ─────── FOOTER ───────
+        const footerY = Math.max(sy + 40, 720);
+        doc.moveTo(MARGIN, footerY).lineTo(PAGE_WIDTH - MARGIN, footerY).strokeColor('#d1d5db').lineWidth(1).stroke();
+        doc.fontSize(9).font('Helvetica').fillColor(GRAY)
+            .text('Thank you for shopping with BazaarBuzz!', MARGIN, footerY + 15, { align: 'center', width: CONTENT_WIDTH });
 
         doc.end();
 
