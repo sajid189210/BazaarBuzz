@@ -1,14 +1,14 @@
-﻿<% blocks.head=` <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><% blocks.breadcrumb=` <svg
-        xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2">
-        <polyline points="9 18 15 12 9 6" /></svg> <a href="/admin/productList" class="hover:text-gray-700">Products</a>
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6" />
-        </svg> <span class="text-gray-900 font-semibold">Edit Product</span>` %><div class="max-w-4xl mx-auto">
+﻿<% blocks.head = [
+    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">',
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"><\/script>',
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">',
+    '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>',
+].join('\n'); %><% blocks.breadcrumb = [
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
+    '<polyline points="9 18 15 12 9 6" /><\/svg> <a href="/admin/productList" class="hover:text-gray-700">Products</a>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
+    '<polyline points="9 18 15 12 9 6" /><\/svg> <span class="text-gray-900 font-semibold">Edit Product</span>',
+].join('\n'); %><div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-xl border border-gray-200 p-8">
                 <% if(product) { %>
                     <form action="/admin/editProduct/<%= product._id %>" method="POST" id="productDetailForm">
@@ -28,10 +28,11 @@
                                 <select id="category" name="category"
                                     class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 outline-none transition-all">
                                     <option value="">Select</option>
-                                    <% if(categories && categories.length> 0) { // Find the category that matches the
-                                        product's category title const matchedCategory = categories.find(cat =>
-                                        product.category && cat.title.toLowerCase() === product.category.toLowerCase()
-                                        ); categories.forEach(cat => { %> <option value="<%= cat._id %>"
+                                    <% if(categories && categories.length > 0) {
+                                        var matchedCategory = categories.find(function(cat) {
+                                            return product.category && cat.title.toLowerCase() === product.category.toLowerCase();
+                                        });
+                                        categories.forEach(function(cat) { %> <option value="<%= cat._id %>"
                                             <%=(matchedCategory && matchedCategory._id.toString()===cat._id.toString())
                                             ? 'selected' : '' %>><%= cat.title %>
                                         </option>
@@ -150,8 +151,10 @@
                         & Upload</button> </div>
             </div>
         </div>
-        <% blocks.scripts=` <script id="productVariantsData" type="application/json"><%- JSON.stringify(product.variants
-                || []) %></script>
-                <script>        // Pass product variants data to JavaScript        window.productVariants = JSON.parse(document.getElementById('productVariantsData').textContent);    </script>
-                <script src="/javascript/ntc.js"></script>
-                <script src="/javascript/admin/editProduct.js"></script>` %>
+        <% var variantsJSON = JSON.stringify(product.variants || []); %>
+        <% blocks.scripts = [
+            '<script id="productVariantsData" type="application/json">' + variantsJSON + '<\/script>',
+            '<script>window.productVariants = JSON.parse(document.getElementById("productVariantsData").textContent);<\/script>',
+            '<script src="/javascript/ntc.js"><\/script>',
+            '<script src="/javascript/admin/editProduct.js"><\/script>',
+        ].join('\n'); %>

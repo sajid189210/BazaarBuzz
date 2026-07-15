@@ -1,14 +1,14 @@
-﻿<% blocks.head=` <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><% blocks.breadcrumb=` <svg
-        xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2">
-        <polyline points="9 18 15 12 9 6" /></svg> <a href="/admin/productList" class="hover:text-gray-700">Products</a>
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6" />
-        </svg> <span class="text-gray-900 font-semibold">Create Product</span>` %><div class="max-w-4xl mx-auto">
+﻿<% blocks.head = [
+    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">',
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"><\/script>',
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">',
+    '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>',
+].join('\n'); %><% blocks.breadcrumb = [
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
+    '<polyline points="9 18 15 12 9 6" /><\/svg> <a href="/admin/productList" class="hover:text-gray-700">Products</a>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
+    '<polyline points="9 18 15 12 9 6" /><\/svg> <span class="text-gray-900 font-semibold">Create Product</span>',
+].join('\n'); %><div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-xl border border-gray-200 p-8">
                 <form action="/admin/productList/create" method="POST" id="productDetailForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -132,6 +132,7 @@
                         & Upload</button> </div>
             </div>
         </div>
-        <% blocks.scripts=` <script src="/javascript/ntc.js">
-            </script>
-            <script src="/javascript/admin/createProduct.js"></script>` %>
+        <% blocks.scripts = [
+            '<script src="/javascript/ntc.js"><\/script>',
+            '<script src="/javascript/admin/createProduct.js"><\/script>',
+        ].join('\n'); %>
