@@ -21,6 +21,30 @@
     transition: color .3s ease
   }
 
+  body:not(.no-header-pad) #mainHeader {
+    background-color: var(--surface);
+    mix-blend-mode: normal;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08)
+  }
+
+  body:not(.no-header-pad) #mainHeader .ht {
+    color: var(--text-secondary);
+    mix-blend-mode: normal
+  }
+
+  body:not(.no-header-pad) #mainHeader .ht:hover {
+    color: var(--text-primary)
+  }
+
+  body:not(.no-header-pad) #mainHeader .hs {
+    background: var(--surface-elevated);
+    border-color: var(--border)
+  }
+
+  body:not(.no-header-pad) #mainHeader .hs::placeholder {
+    color: var(--text-muted)
+  }
+
   #mainHeader.is-scrolled {
     background-color: var(--surface);
     mix-blend-mode: normal;
@@ -106,18 +130,18 @@
           <!-- Right Icons -->
           <div class="flex items-center gap-1">
             <!-- Mobile search toggle -->
-            <button id="mobileSearchToggle" class="md:hidden p-2 ht" type="button">
+            <button id="mobileSearchToggle" class="md:hidden inline-flex items-center justify-center p-2 ht" type="button">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
 
             <!-- Wishlist -->
-            <a href="/user/wishlist" class="relative p-2 ht">
+            <a href="/user/wishlist" class="relative inline-flex items-center justify-center p-2 ht">
               <i class="fa-regular fa-heart"></i>
             </a>
 
             <!-- Cart -->
-            <a href="/user/cart" class="relative p-2 ht">
-              <i class="fa-regular fa-cart-shopping"></i>
+            <a href="/user/cart" class="relative inline-flex items-center justify-center p-2 ht">
+              <i class="fa-solid fa-cart-shopping"></i>
               <span id="cartBadge" style="display:none; position:absolute; top:-3px; right:-3px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; line-height:16px; text-align:center; box-shadow:0 0 0 2px var(--surface);">0</span>
             </a>
 
@@ -132,7 +156,7 @@
                   <i class="fa-solid fa-chevron-down hidden lg:block fa-xs"></i>
                 </div>
                 <% } else { %>
-                  <a href="/user/signIn" class="flex cursor-pointer items-center gap-1.5 p-2 ht">
+                  <a href="/user/signIn" class="inline-flex cursor-pointer items-center justify-center gap-1.5 p-2 ht">
                     <i class="fa-regular fa-circle-user"></i>
                     <span class="hidden lg:block text-sm font-medium">Sign In</span>
                   </a>
@@ -181,7 +205,7 @@
             </div>
 
             <!-- Mobile Hamburger -->
-            <button id="mobileMenuToggle" class="md:hidden p-2 ht" type="button">
+            <button id="mobileMenuToggle" class="md:hidden inline-flex items-center justify-center p-2 ht" type="button">
               <i class="fa-solid fa-bars"></i>
             </button>
           </div>
@@ -248,8 +272,6 @@
       }
       window.addEventListener('scroll', updateHeader, { passive: true });
       updateHeader();
-    } else {
-      header.classList.add('is-scrolled');
     }
 
     var toggle = document.getElementById('mobileSearchToggle');

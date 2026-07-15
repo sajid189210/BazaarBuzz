@@ -16,7 +16,7 @@ const renderReturnsPage = async (req, res) => {
         const statusFilter = req.query.status || 'all';
 
         const matchFilter = statusFilter === 'all'
-            ? { 'items.return.status': { $exists: true, $ne: null } }
+            ? { 'items.return.status': { $in: ['requested', 'approved', 'rejected', 'completed'] } }
             : { 'items.return.status': statusFilter };
 
         const orders = await Order.find(matchFilter)
