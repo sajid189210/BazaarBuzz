@@ -9,191 +9,269 @@
     <% var returnItemId = ''; order.items.forEach(function(itm) { if (itm.return?.status === 'requested' && !returnItemId) returnItemId = itm._id; }); %>
     <% var hasActions = order.status === 'processing' || order.status === 'shipped' || (order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned') || returnItemId; %>
     <div id="orderData" data-item-ids="<%= orderItemIds.join(',') %>" style="display:none;"></div>
-    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <div class="flex flex-wrap items-start justify-between gap-6">
-            <div class="flex flex-wrap gap-6">
-                <div>
-                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Order ID</p>
-                    <p class="text-sm font-mono font-medium text-gray-900 mt-1 uppercase"><%= String(order._id).slice(-8) %></p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Date</p>
-                    <p class="text-sm text-gray-700 mt-1"><%= new Date(order.createdAt).toLocaleString('en-IN') %></p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Status</p>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full mt-1
-                        <%= order.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                           order.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
-                           order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                           order.status === 'shipped' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
-                           order.status === 'partially_delivered' ? 'bg-teal-50 text-teal-700 border border-teal-200' :
-                           'bg-amber-50 text-amber-700 border border-amber-200' %>">
-                        <span class="w-1.5 h-1.5 rounded-full
-                            <%= order.status === 'delivered' ? 'bg-emerald-500' :
-                               order.status === 'cancelled' ? 'bg-rose-500' :
-                               order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-500' :
-                               order.status === 'shipped' ? 'bg-sky-500' :
-                               order.status === 'partially_delivered' ? 'bg-teal-500' :
-                               'bg-amber-500' %>"></span>
-                        <%= order.status === 'partially_delivered' ? 'Partially Delivered' :
-                           order.status === 'partially_returned' ? 'Partially Returned' :
-                           order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-mono font-bold text-gray-900 uppercase tracking-wider">#<%= String(order._id).slice(-8) %></span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full
+                    <%= order.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                       order.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
+                       order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                       order.status === 'shipped' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
+                       order.status === 'partially_delivered' ? 'bg-teal-50 text-teal-700 border border-teal-200' :
+                       'bg-amber-50 text-amber-700 border border-amber-200' %>">
+                    <span class="w-1.5 h-1.5 rounded-full
+                        <%= order.status === 'delivered' ? 'bg-emerald-500' :
+                           order.status === 'cancelled' ? 'bg-rose-500' :
+                           order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-500' :
+                           order.status === 'shipped' ? 'bg-sky-500' :
+                           order.status === 'partially_delivered' ? 'bg-teal-500' :
+                           'bg-amber-500' %>"></span>
+                    <%= order.status === 'partially_delivered' ? 'Partially Delivered' :
+                       order.status === 'partially_returned' ? 'Partially Returned' :
+                       order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                </span>
+                <% if(order.coupon) { %>
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2.5 py-1 rounded-full border border-green-200 ml-auto">
+                        <i class="fa-solid fa-tag text-xs"></i>
+                        <%= order.coupon.code %>
                     </span>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Payment</p>
-                    <p class="text-sm text-gray-700 mt-1">
-                        <%= order.payment?.method || '-' %>
-                        <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full ml-1.5
-                            <%= order.payment?.status === 'paid' || order.payment?.status === 'refunded' ? 'bg-green-50 text-green-700' : order.payment?.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700' %>">
-                            <%= order.payment?.status ? order.payment.status.charAt(0).toUpperCase() + order.payment.status.slice(1) : '-' %>
-                        </span>
-                    </p>
-                </div>
+                <% } %>
             </div>
-            <% if(order.coupon) { %>
-                <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
-                    <i class="fa-solid fa-tag text-xs"></i>
-                    Coupon: <%= order.coupon.code %>
-                </div>
-            <% } %>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 border-b border-gray-100">
+            <div class="px-6 py-4">
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Date</p>
+                <p class="text-sm text-gray-700 mt-1"><%= new Date(order.createdAt).toLocaleString('en-IN') %></p>
+            </div>
+            <div class="px-6 py-4">
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Payment</p>
+                <p class="text-sm text-gray-700 mt-1 flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full
+                        <%= order.payment?.status === 'paid' || order.payment?.status === 'refunded' ? 'bg-green-500' : order.payment?.status === 'failed' ? 'bg-red-500' : 'bg-amber-500' %>"></span>
+                    <%= order.payment?.method || '-' %>
+                    <span class="inline-block text-xs font-semibold px-1.5 py-0.5 rounded ml-1
+                        <%= order.payment?.status === 'paid' || order.payment?.status === 'refunded' ? 'bg-green-50 text-green-700' : order.payment?.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700' %>">
+                        <%= order.payment?.status ? order.payment.status.charAt(0).toUpperCase() + order.payment.status.slice(1) : '-' %>
+                    </span>
+                </p>
+            </div>
+            <div class="px-6 py-4">
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Items</p>
+                <p class="text-sm text-gray-700 mt-1"><%= order.items.length %> item<%= order.items.length !== 1 ? 's' : '' %></p>
+            </div>
+            <div class="px-6 py-4">
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Total</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">₹<%= order.total?.toLocaleString() || 0 %></p>
+            </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-box text-gray-400"></i>
-            Items
-        </h3>
-        <div class="space-y-3">
-            <% order.items.forEach(item => { %>
-                <div class="flex gap-4 p-4 rounded-lg bg-gray-50 items-center">
-                    <div class="w-16 h-20 rounded-lg overflow-hidden bg-gray-200 shrink-0">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-box text-gray-400"></i>
+                Items (<%= order.items.length %>)
+            </h3>
+        </div>
+        <div class="divide-y divide-gray-100">
+            <% order.items.forEach((item, idx) => { %>
+                <div class="flex gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors">
+                    <div class="w-16 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
                         <img src="<%= item.image || item.productId?.images?.[0] || '/images/placeholder.jpg' %>" alt=""
                             class="w-full h-full object-cover" />
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900"><%= item.name || item.productId?.productName || 'Product' %></p>
-                        <p class="text-xs text-gray-500 mt-0.5">
-                            Qty: <%= item.quantity %> · Size: <%= item.selectedSize || 'N/A' %> · Color: <%= item.selectedColor || 'N/A' %>
-                        </p>
-                        <p class="text-xs text-gray-500">₹<%= item.unitPrice?.toLocaleString() || 0 %> ea · Final: ₹<%= item.finalPrice?.toLocaleString() || 0 %></p>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mt-1
-                            <%= item.status === 'delivered' ? 'bg-emerald-50 text-emerald-700' :
-                               item.status === 'cancelled' ? 'bg-rose-50 text-rose-700' :
-                               item.status === 'returned' ? 'bg-blue-50 text-blue-700' :
-                               item.status === 'shipped' ? 'bg-sky-50 text-sky-700' :
-                               'bg-amber-50 text-amber-700' %>">
-                            <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
-                        </span>
-                        <% if(item.return?.status) { %>
-                            <span class="text-xs text-gray-500 ml-1">· Return: <%= item.return.status %></span>
-                        <% } %>
+                    <div class="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900"><%= item.name || item.productId?.productName || 'Product' %></p>
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mt-1">
+                                <span>Qty: <strong><%= item.quantity %></strong></span>
+                                <span>Size: <strong><%= item.selectedSize || 'N/A' %></strong></span>
+                                <span class="inline-flex items-center gap-1">Color: <span class="color-dot w-3 h-3 rounded-full inline-block border border-gray-300" style="background:<%= item.selectedColor || '#ccc' %>"></span><strong data-color-hex><%= item.selectedColor || 'N/A' %></strong></span>
+                            </div>
+                            <div class="flex items-center gap-3 mt-1.5">
+                                <span class="text-xs text-gray-500">₹<%= (item.unitPrice || 0).toLocaleString() %> / unit</span>
+                                <span class="text-xs text-gray-400">×</span>
+                                <span class="text-xs text-gray-500"><%= item.quantity %> qty</span>
+                                <span class="text-xs text-gray-400">=</span>
+                                <span class="text-xs font-semibold text-gray-900">₹<%= (item.finalPrice * item.quantity).toLocaleString() %></span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full
+                                <%= item.status === 'delivered' ? 'bg-emerald-50 text-emerald-700' :
+                                   item.status === 'cancelled' ? 'bg-rose-50 text-rose-700' :
+                                   item.status === 'returned' ? 'bg-blue-50 text-blue-700' :
+                                   item.status === 'shipped' ? 'bg-sky-50 text-sky-700' :
+                                   'bg-amber-50 text-amber-700' %>">
+                                <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
+                            </span>
+                            <% if(item.return?.status === 'requested') { %>
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                    <i class="fa-solid fa-rotate-left text-xs"></i>
+                                    Return Requested
+                                </span>
+                            <% } else if(item.return?.status === 'approved') { %>
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+                                    <i class="fa-solid fa-check-circle text-xs"></i>
+                                    Return Approved
+                                </span>
+                            <% } else if(item.return?.status === 'rejected') { %>
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                    <i class="fa-solid fa-circle-xmark text-xs"></i>
+                                    Return Rejected
+                                </span>
+                            <% } %>
+                        </div>
                     </div>
-                    <p class="text-sm font-semibold text-gray-900 shrink-0">₹<%= (item.finalPrice * item.quantity).toLocaleString() %></p>
                 </div>
             <% }) %>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-receipt text-gray-400"></i>
-            Price Summary
-        </h3>
-        <div class="space-y-2 text-sm">
-            <div class="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>₹<%= order.subtotal?.toLocaleString() || 0 %></span>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-gray-400"></i>
+                    Price Summary
+                </h3>
             </div>
-            <% if(order.productDiscount > 0) { %>
-                <div class="flex justify-between text-green-600">
-                    <span>Product Discount</span>
-                    <span>-₹<%= order.productDiscount.toLocaleString() %></span>
-                </div>
-            <% } %>
-            <% if(order.coupon?.discount > 0) { %>
-                <div class="flex justify-between text-green-600">
-                    <span>Coupon Discount</span>
-                    <span>-₹<%= order.coupon.discount.toLocaleString() %></span>
-                </div>
-            <% } %>
-            <% if(order.tax > 0) { %>
+            <div class="px-6 py-4 space-y-2.5 text-sm">
                 <div class="flex justify-between text-gray-600">
-                    <span>Tax</span>
-                    <span>₹<%= order.tax.toLocaleString() %></span>
+                    <span>Subtotal (<%= order.items.length %> item<%= order.items.length !== 1 ? 's' : '' %>)</span>
+                    <span>₹<%= order.subtotal?.toLocaleString() || 0 %></span>
                 </div>
-            <% } %>
-            <% if(order.shippingFee > 0) { %>
-                <div class="flex justify-between text-gray-600">
-                    <span>Shipping Fee</span>
-                    <span>₹<%= order.shippingFee.toLocaleString() %></span>
+                <% if(order.productDiscount > 0) { %>
+                    <div class="flex justify-between text-emerald-600">
+                        <span>Product Discount</span>
+                        <span>-₹<%= order.productDiscount.toLocaleString() %></span>
+                    </div>
+                <% } %>
+                <% if(order.coupon?.discount > 0) { %>
+                    <div class="flex justify-between text-emerald-600">
+                        <span>Coupon (<%= order.coupon.code %>)</span>
+                        <span>-₹<%= order.coupon.discount.toLocaleString() %></span>
+                    </div>
+                <% } %>
+                <% if(order.tax > 0) { %>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Tax</span>
+                        <span>₹<%= order.tax.toLocaleString() %></span>
+                    </div>
+                <% } %>
+                <% if(order.shippingFee > 0) { %>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Shipping Fee</span>
+                        <span>₹<%= order.shippingFee.toLocaleString() %></span>
+                    </div>
+                <% } else { %>
+                    <div class="flex justify-between text-emerald-600">
+                        <span>Shipping Fee</span>
+                        <span>Free</span>
+                    </div>
+                <% } %>
+                <hr class="border-gray-200">
+                <div class="flex justify-between text-base font-semibold text-gray-900">
+                    <span>Total</span>
+                    <span class="text-lg">₹<%= order.total?.toLocaleString() || 0 %></span>
                 </div>
-            <% } %>
-            <hr class="border-gray-200">
-            <div class="flex justify-between text-base font-semibold text-gray-900">
-                <span>Total</span>
-                <span>₹<%= order.total?.toLocaleString() || 0 %></span>
             </div>
         </div>
-    </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-location-dot text-gray-400"></i>
-            Delivery Address
-        </h3>
-        <div class="text-sm text-gray-700 space-y-1">
-            <p class="font-medium text-gray-900"><%= order.shippingAddress?.contactName || order.addressId?.fullName || 'N/A' %></p>
-            <p><%= order.shippingAddress?.building || '' %><%= order.shippingAddress?.building && order.shippingAddress?.street ? ', ' : '' %><%= order.shippingAddress?.street || '' %></p>
-            <p><%= order.shippingAddress?.landmark ? order.shippingAddress.landmark + ', ' : '' %><%= order.shippingAddress?.district || order.addressId?.city || '' %>, <%= order.shippingAddress?.state || order.addressId?.state || '' %> — <%= order.shippingAddress?.pincode || order.addressId?.pincode || '' %></p>
-            <p>Phone: <%= order.shippingAddress?.contactNumber || order.addressId?.mobile || 'N/A' %></p>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-gray-400"></i>
+                    Delivery Address
+                </h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-user text-rose-500 text-sm"></i>
+                    </div>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <p class="font-semibold text-gray-900"><%= order.shippingAddress?.contactName || order.addressId?.fullName || 'N/A' %></p>
+                        <p class="text-gray-500"><%= order.shippingAddress?.building || '' %><%= order.shippingAddress?.building && order.shippingAddress?.street ? ', ' : '' %><%= order.shippingAddress?.street || '' %></p>
+                        <p class="text-gray-500"><%= order.shippingAddress?.landmark ? order.shippingAddress.landmark + ', ' : '' %><%= order.shippingAddress?.district || order.addressId?.city || '' %>, <%= order.shippingAddress?.state || order.addressId?.state || '' %> <span class="font-mono">— <%= order.shippingAddress?.pincode || order.addressId?.pincode || '' %></span></p>
+                        <div class="flex items-center gap-1.5 text-gray-500 pt-1">
+                            <i class="fa-solid fa-phone text-xs"></i>
+                            <span><%= order.shippingAddress?.contactNumber || order.addressId?.mobile || 'N/A' %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <% if (hasActions) { %>
-    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-bolt text-gray-400"></i>
-            Actions
-        </h3>
-        <div class="flex flex-wrap gap-3">
-            <% if(order.status === 'processing') { %>
-                <button onclick="changeOrderStatus('<%= order._id %>', 'shipped')"
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors">
-                    <i class="fa-solid fa-truck"></i>
-                    Mark as Shipped
-                </button>
-            <% } %>
-            <% if(order.status === 'shipped') { %>
-                <button onclick="changeOrderStatus('<%= order._id %>', 'delivered')"
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors">
-                    <i class="fa-solid fa-check-circle"></i>
-                    Mark as Delivered
-                </button>
-            <% } %>
-            <% if(order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned') { %>
-                <button onclick="changeOrderStatus('<%= order._id %>', 'cancelled')"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 px-5 py-2.5 text-sm font-semibold transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                    Cancel Order
-                </button>
-            <% } %>
-            <% if(returnItemId) { %>
-                <button onclick="approveReturn('<%= order._id %>', '<%= returnItemId %>')"
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Approve Return
-                </button>
-            <% } %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-gray-400"></i>
+                Actions
+            </h3>
+        </div>
+        <div class="px-6 py-4">
+            <div class="flex flex-wrap gap-3">
+                <% if(order.status === 'processing') { %>
+                    <button onclick="changeOrderStatus('<%= order._id %>', 'shipped')"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]">
+                        <i class="fa-solid fa-truck"></i>
+                        Mark as Shipped
+                    </button>
+                <% } %>
+                <% if(order.status === 'shipped') { %>
+                    <button onclick="changeOrderStatus('<%= order._id %>', 'delivered')"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]">
+                        <i class="fa-solid fa-check-circle"></i>
+                        Mark as Delivered
+                    </button>
+                <% } %>
+                <% if(order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned') { %>
+                    <button onclick="confirmCancel('<%= order._id %>')"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.98]">
+                        <i class="fa-solid fa-xmark"></i>
+                        Cancel Order
+                    </button>
+                <% } %>
+                <% if(returnItemId) { %>
+                    <button onclick="confirmApproveReturn('<%= order._id %>', '<%= returnItemId %>')"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Approve Return
+                    </button>
+                <% } %>
+            </div>
         </div>
     </div>
-<% } %>
+    <% } %>
 <% } else { %>
-    <div class="text-center py-20 text-gray-400">
-        <i class="fa-regular fa-face-frown text-5xl text-gray-300 mb-3"></i>
-        <p>Order not found</p>
+    <div class="flex flex-col items-center justify-center py-24 text-gray-400">
+        <i class="fa-regular fa-face-frown text-6xl text-gray-300 mb-4"></i>
+        <p class="text-lg font-medium text-gray-500">Order not found</p>
+        <p class="text-sm text-gray-400 mt-1">The order you're looking for doesn't exist or has been removed.</p>
     </div>
 <% } %>
-<% blocks.scripts=` <script src="/javascript/admin/adminOrderView.js"></script>` %>
+<% blocks.scripts=`
+    <script src="/javascript/ntc.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ntc === 'undefined') return;
+            document.querySelectorAll('[data-color-hex]').forEach(function(el) {
+                var hex = el.textContent.trim();
+                if (!hex) return;
+                var match = ntc.name(hex);
+                if (match && match[1]) {
+                    el.textContent = match[1];
+                    var dot = el.previousElementSibling;
+                    if (dot && dot.classList.contains('color-dot')) {
+                        dot.style.backgroundColor = match[0];
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/javascript/admin/adminOrderView.js"></script>` %>
