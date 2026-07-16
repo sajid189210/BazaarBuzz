@@ -280,10 +280,11 @@ document.getElementById('forgotStep2').addEventListener('submit', async function
     faHideMsg();
 
     const otpValue = document.getElementById('forgotOtp').value;
+    const forgotEmail = document.getElementById('forgotEmail').value;
     if (!otpValue || otpValue.length !== 4) { faMsg('Please enter a valid 4-digit OTP.', 'error'); return; }
 
     faLoading('forgotStep2', true);
-    const data = await faFetch('/user/forgotPassword/otpVerify', { otpValue: otpValue, otpId: forgotOtpId }, 'forgotStep2');
+    const data = await faFetch('/user/forgotPassword/otpVerify', { otpValue: otpValue, otpId: forgotOtpId, email: forgotEmail }, 'forgotStep2');
     if (!data) return;
 
     const s2 = fa('forgotStep2'); if (s2) s2.classList.add('hidden');

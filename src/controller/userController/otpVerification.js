@@ -43,6 +43,7 @@ const requestOTP = async (req, res) => {
 
         try {
             const newOTP = await OTP.create({
+                email,
                 otpNumber,
                 expiry
             });
@@ -80,10 +81,10 @@ const requestOTP = async (req, res) => {
 };
 
 const verifyOTP = async (req, res) => {
-    const { otpValue, otpId } = req.body;
+    const { otpValue, otpId, email } = req.body;
 
     try {
-        const otp = await OTP.findById(otpId);
+        const otp = await OTP.findOne({ _id: otpId, email });
 
         if (!otp) {
             return response.error(res, MSG.OTP_NOT_FOUND, 404);
@@ -96,6 +97,9 @@ const verifyOTP = async (req, res) => {
         if (enteredOtp !== otpNumber || Date.now() > expiryTime) {
             return response.error(res, MSG.OTP_INVALID_EXPIRED, 400);
         }
+
+        req.session.otpVerified = true;
+        req.session.otpEmail = email;
 
         const verifiedOtp = await OTP.findByIdAndUpdate(otpId, { $set: { isVerified: true } }, { new: true });
 
@@ -153,6 +157,7 @@ const requestPasswordResetOTP = async (req, res) => {
 
         try {
             const newOTP = await OTP.create({
+                email,
                 otpNumber,
                 expiry,
                 purpose: 'passwordReset'
@@ -191,10 +196,11 @@ const requestPasswordResetOTP = async (req, res) => {
 };
 
 const verifyPasswordResetOTP = async (req, res) => {
-    const { otpValue, otpId } = req.body;
+    const { otpValue, otpId, email } = req.body;
 
     try {
-        const otp = await OTP.findOne({ _id: otpId, purpose: 'passwordReset' });
+        const otpEmail = email || req.session.passwordResetEmail;
+        const otp = await OTP.findOne({ _id: otpId, email: otpEmail, purpose: 'passwordReset' });
 
         if (!otp) {
             return response.error(res, MSG.OTP_NOT_FOUND, 404);

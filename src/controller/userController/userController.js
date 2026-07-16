@@ -40,6 +40,10 @@ const userSignUpValidation = async (req, res, next) => {
             return res.json({ success: false, message: MSG.EMAIL_TAKEN });
         }
 
+        if (!req.session.otpVerified || req.session.otpEmail !== email) {
+            return res.json({ success: false, message: MSG.OTP_INVALID_EXPIRED });
+        }
+
         const details = {
             username: username,
             email: email,
@@ -60,6 +64,9 @@ const userSignUpValidation = async (req, res, next) => {
             userEmail: user.email,
             userName: user.username
         };
+
+        delete req.session.otpVerified;
+        delete req.session.otpEmail;
 
         response.success(res, {
             success: true,
