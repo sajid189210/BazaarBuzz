@@ -66,6 +66,11 @@ async function placeOrder() {
                         window.location.href = '/user/checkout/orderSummary/' + data.newOrderId;
                     } else {
                         await Swal.fire({ title: 'Payment Failed', text: verifyData.message, icon: 'error' });
+                        await fetch('/user/checkout/paymentFail', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ newOrderId: data.newOrderId })
+                        });
                     }
                 },
                 modal: {

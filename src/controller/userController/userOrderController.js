@@ -10,12 +10,13 @@ const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const User = require('../../model/userModel');
 
+const crypto = require('crypto');
 const PDFDocument = require('pdfkit');
 require('dotenv').config();
 
 //* Razorpay configuration.
 const razorPayInstance = require('../../Services/razorPay');
-const { RAZORPAY_KEY_ID } = process.env;
+const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
 const handleStock = async (item, increment) => {
     const quantity = increment ? item.quantity : -item.quantity;
@@ -286,6 +287,10 @@ const retryPayment = async (req, res) => {
             return response.error(res, MSG.ORDER_USER_NOT_FOUND, 400);
         }
 
+        if (repayingOrder.payment.status !== 'failed' || repayingOrder.payment.method !== PAYMENT_SOURCE_RAZORPAY) {
+            return response.error(res, 'This order is not eligible for retry.', 400);
+        }
+
         const totalPay = repayingOrder.total;
 
         const options = {
@@ -300,6 +305,7 @@ const retryPayment = async (req, res) => {
         return response.success(res, {
             success: true,
             razorPayOrderId: order.id,
+            amount: order.amount,
             currency: order.currency,
             RAZORPAY_KEY_ID,
             address: repayingOrder.shippingAddress,
@@ -307,6 +313,57 @@ const retryPayment = async (req, res) => {
             user,
         });
 
+    } catch (err) {
+        return response.serverError(res, err);
+    }
+};
+
+const verifyRetryPayment = async (req, res) => {
+    if (!req.session.user) return res.redirect('/user/signIn');
+
+    const { razorpayPaymentId, razorpayOrderId, signature, orderId } = req.body;
+
+    try {
+        const generatedSignature = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
+            .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+            .digest('hex');
+
+        if (generatedSignature !== signature) {
+            return response.error(res, MSG.PAYMENT_VERIFY_FAILED, 400);
+        }
+
+        const order = await Order.findByIdAndUpdate(
+            orderId,
+            {
+                $set: {
+                    'payment.status': 'paid',
+                    'payment.transactionId': razorpayPaymentId,
+                    'payment.gatewayOrderId': razorpayOrderId,
+                    'payment.paidAt': new Date()
+                }
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!order) {
+            return response.error(res, MSG.ORDER_NOT_FOUND, 404);
+        }
+
+        let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+        if (!adminWallet) {
+            adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+        }
+        adminWallet.balance += order.total;
+        adminWallet.transactions.push({
+            orderId: order._id,
+            amount: order.total,
+            type: 'credit',
+            source: PAYMENT_SOURCE_RAZORPAY,
+            date: new Date(),
+        });
+        await adminWallet.save();
+
+        return response.success(res, { success: true }, MSG.PAYMENT_VERIFIED);
     } catch (err) {
         return response.serverError(res, err);
     }
@@ -535,5 +592,6 @@ module.exports = {
     requestProductReturn,
     cancelProduct,
     retryPayment,
+    verifyRetryPayment,
     getOrders,
 }

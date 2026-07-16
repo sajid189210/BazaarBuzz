@@ -230,7 +230,7 @@
                         Mark as Delivered
                     </button>
                 <% } %>
-                <% if(order.status !== 'cancelled' && order.status !== 'shipped' && order.status !== 'delivered' && order.status !== 'returned') { %>
+                <% if(order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned') { %>
                     <button onclick="confirmCancel('<%= order._id %>')"
                         class="inline-flex items-center gap-1.5 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.98]">
                         <i class="fa-solid fa-xmark"></i>

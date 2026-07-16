@@ -66,6 +66,7 @@ router.patch('/checkout/paymentFail', checkoutController.handlePaymentFailure)
 router.get('/orders', orderController.getOrders);
 router.get('/orders/invoice', orderController.downloadInvoice);
 router.post('/orders/retryPayment', orderController.retryPayment);
+router.post('/orders/verifyRetryPayment', orderController.verifyRetryPayment);
 router.patch('/orders/return', userReturnController.requestProductReturn);
 router.patch('/orders/cancel', orderController.cancelProduct);
 

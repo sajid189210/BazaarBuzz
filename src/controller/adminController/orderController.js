@@ -202,13 +202,15 @@ const changeStatus = async (req, res) => {
         const eligibleItems = order.items.filter(item => {
             if (orderStatus === 'shipped') return item.status === 'processing';
             if (orderStatus === 'delivered') return item.status === 'shipped';
-            if (orderStatus === 'cancelled') return item.status === 'processing';
+            if (orderStatus === 'cancelled') return item.status === 'processing' || item.status === 'shipped';
             return false;
         });
 
         if (!eligibleItems.length) {
             return response.error(res, MSG.ORDER_ELIGIBLE_STATUS(orderStatus), 400);
         }
+
+        const cancelledFromShipped = orderStatus === 'cancelled' && eligibleItems.some(item => item.status === 'shipped');
 
         for (const item of eligibleItems) {
             item.status = orderStatus;
@@ -260,6 +262,9 @@ const changeStatus = async (req, res) => {
             } else {
                 order.status = updateOrderStatus(order);
                 if (order.status === 'delivered' && order.payment.status === 'pending') order.payment.status = 'paid';
+                if (cancelledFromShipped && order.payment.method === PAYMENT_SOURCE_COD && order.payment.status === 'pending') {
+                    order.payment.status = 'failed';
+                }
                 await order.save();
             }
 
