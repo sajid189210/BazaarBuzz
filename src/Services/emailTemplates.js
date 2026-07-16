@@ -144,12 +144,6 @@ Need help? Contact us at ${BRAND.supportEmail}
   return { html, text };
 }
 
-/**
- * Generates a branded password reset email template
- * @param {string} otp - The 4-digit OTP code
- * @param {number} expiryMinutes - OTP expiry in minutes
- * @returns {{html: string, text: string}}
- */
 function generatePasswordResetEmail(otp, expiryMinutes = 1) {
   const { html, text } = generateOTPEmail(otp, expiryMinutes);
   

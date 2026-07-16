@@ -19,7 +19,12 @@ router.post("/signUp", userController.userSignUpValidation);
 //*---------------[User Sign In]--------------------
 router.get('/signIn', userController.userSignIn);
 router.post('/signIn', userController.userSignInValidation);
-router.put('/updatePassword', userController.updatePassword);
+router.put('/changePassword', userController.updatePassword);
+
+//*---------------[Forgot Password (OTP)]--------------------
+router.post('/forgotPassword/otpRequest', otpController.requestPasswordResetOTP);
+router.post('/forgotPassword/otpVerify', otpController.verifyPasswordResetOTP);
+router.put('/forgotPassword/reset', userController.resetPasswordWithOTP);
 
 //*-------[OTP verification]---------------
 router.post('/otpRequest', otpController.requestOTP);

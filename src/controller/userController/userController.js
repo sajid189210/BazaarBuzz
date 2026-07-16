@@ -141,22 +141,55 @@ const userSignInValidation = async (req, res) => {
     }
 };
 
-//* ---------------Update Password---------------------------
+//* ---------------Update Password (Profile)---------------------------
 const updatePassword = async (req, res) => {
-    const { newInput, email } = req.body;
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
+
+    const { currentPassword, newPassword } = req.body;
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: req.session.user.userEmail });
 
-        if (!user) return response.error(res, MSG.PROVIDE_VALID_EMAIL, 400);
+        if (!user) return response.error(res, MSG.USER_NOT_FOUND, 400);
 
-        const hashedPassword = await bcrypt.hash(newInput, 10);
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return response.error(res, MSG.INVALID_PASSWORD, 400);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await User.updateOne(
-            { email },
-            { $set: { password: hashedPassword } },
-            { new: true }
+            { _id: user._id },
+            { $set: { password: hashedPassword } }
         );
+
+        response.success(res, {}, MSG.PASSWORD_UPDATED);
+
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+//* ---------------Reset Password via OTP (Forgot Password)---------------------------
+const resetPasswordWithOTP = async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        if (!req.session.passwordResetVerified || req.session.passwordResetEmail !== email) {
+            return response.error(res, MSG.OTP_INVALID_EXPIRED, 400);
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) return response.error(res, MSG.USER_NOT_FOUND, 400);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await User.updateOne(
+            { _id: user._id },
+            { $set: { password: hashedPassword } }
+        );
+
+        delete req.session.passwordResetVerified;
+        delete req.session.passwordResetEmail;
 
         response.success(res, {}, MSG.PASSWORD_UPDATED);
 
@@ -477,6 +510,7 @@ module.exports = {
     userSignUpValidation,
     searchSingleProduct,
     updatePassword,
+    resetPasswordWithOTP,
     removeAddress,
     renderProfile,
     updateProfile,

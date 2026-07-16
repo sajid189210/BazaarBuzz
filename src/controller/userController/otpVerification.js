@@ -4,7 +4,7 @@ const User = require('../../model/userModel');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const OTP = require('../../model/otpModel');
-const { generateOTPEmail } = require('../../Services/emailTemplates');
+const { generateOTPEmail, generatePasswordResetEmail } = require('../../Services/emailTemplates');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -131,8 +131,100 @@ const handleOtpExpiry = async (req, res) => {
     }
 };
 
+const requestPasswordResetOTP = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await getUser(email);
+
+        if (!user) {
+            return response.error(res, MSG.USER_NOT_FOUND, 400);
+        }
+
+        if (user.googleId) {
+            return response.error(res, MSG.GOOGLE_LOGIN_METHOD, 400);
+        }
+
+        const otpNumber = crypto.randomInt(1000, 9999);
+        const expiry = Date.now() + 60 * 1000;
+
+        req.session.otp = otpNumber;
+        req.session.passwordResetEmail = email;
+
+        try {
+            const newOTP = await OTP.create({
+                otpNumber,
+                expiry,
+                purpose: 'passwordReset'
+            });
+
+            const { html, text } = generatePasswordResetEmail(newOTP.otpNumber, 1);
+
+            const mailOptions = {
+                from: `"BazaarBuzz" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: 'Your BazaarBuzz Password Reset Code',
+                text,
+                html
+            };
+
+            transporter.sendMail(mailOptions, (err, info) => {
+                if (err) {
+                    console.error(`Error sending email: ${err}`);
+                    return response.error(res, MSG.OTP_FAILED(err.message), 500);
+                }
+
+                console.info('Password reset email sent:', info.response);
+
+                response.success(res, {
+                    success: true,
+                    message: MSG.OTP_SENT,
+                    otpId: newOTP._id
+                });
+            });
+        } catch (err) {
+            response.serverError(res, err);
+        }
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+const verifyPasswordResetOTP = async (req, res) => {
+    const { otpValue, otpId } = req.body;
+
+    try {
+        const otp = await OTP.findOne({ _id: otpId, purpose: 'passwordReset' });
+
+        if (!otp) {
+            return response.error(res, MSG.OTP_NOT_FOUND, 404);
+        }
+
+        const otpNumber = Number(otp.otpNumber);
+        const enteredOtp = Number(otpValue);
+        const expiryTime = new Date(otp.expiry).getTime();
+
+        if (enteredOtp !== otpNumber || Date.now() > expiryTime) {
+            return response.error(res, MSG.OTP_INVALID_EXPIRED, 400);
+        }
+
+        await OTP.findByIdAndDelete(otpId);
+
+        req.session.passwordResetVerified = true;
+
+        response.success(res, {
+            success: true,
+            message: MSG.OTP_VERIFIED
+        });
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
 module.exports = {
     requestOTP,
     verifyOTP,
     handleOtpExpiry,
+    requestPasswordResetOTP,
+    verifyPasswordResetOTP,
 };
