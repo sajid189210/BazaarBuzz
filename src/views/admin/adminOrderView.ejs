@@ -17,6 +17,7 @@
                 <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full
                     <%= order.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                        order.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
+                       order.status === 'payment_failed' ? 'bg-red-50 text-red-700 border border-red-200' :
                        order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
                        order.status === 'shipped' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
                        order.status === 'partially_delivered' ? 'bg-teal-50 text-teal-700 border border-teal-200' :
@@ -24,12 +25,14 @@
                     <span class="w-1.5 h-1.5 rounded-full
                         <%= order.status === 'delivered' ? 'bg-emerald-500' :
                            order.status === 'cancelled' ? 'bg-rose-500' :
+                           order.status === 'payment_failed' ? 'bg-red-500' :
                            order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-500' :
                            order.status === 'shipped' ? 'bg-sky-500' :
                            order.status === 'partially_delivered' ? 'bg-teal-500' :
                            'bg-amber-500' %>"></span>
                     <%= order.status === 'partially_delivered' ? 'Partially Delivered' :
                        order.status === 'partially_returned' ? 'Partially Returned' :
+                       order.status === 'payment_failed' ? 'Payment Failed' :
                        order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
                 </span>
                 <% if(order.coupon) { %>

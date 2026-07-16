@@ -336,6 +336,7 @@ const verifyRetryPayment = async (req, res) => {
             orderId,
             {
                 $set: {
+                    status: 'processing',
                     'payment.status': 'paid',
                     'payment.transactionId': razorpayPaymentId,
                     'payment.gatewayOrderId': razorpayOrderId,

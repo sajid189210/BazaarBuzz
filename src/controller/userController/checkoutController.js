@@ -527,6 +527,7 @@ const handlePaymentFailure = async (req, res) => {
             newOrderId,
             {
                 $set: {
+                    status: 'payment_failed',
                     'payment.status': 'failed',
                 }
             },

@@ -71,6 +71,7 @@ async function placeOrder() {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ newOrderId: data.newOrderId })
                         });
+                        window.location.href = '/user/checkout/orderSummary/' + data.newOrderId;
                     }
                 },
                 modal: {
@@ -80,7 +81,11 @@ async function placeOrder() {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ newOrderId: data.newOrderId })
                         });
+                        window.location.href = '/user/checkout/orderSummary/' + data.newOrderId;
                     }
+                },
+                onerror: function (err) {
+                    console.error('Razorpay error:', err);
                 }
             };
             var rzp = new Razorpay(options);

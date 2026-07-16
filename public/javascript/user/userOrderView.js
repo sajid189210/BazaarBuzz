@@ -89,6 +89,12 @@ async function retryPayment(orderId) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Retry Payment';
                 }
+            },
+            onerror: function (err) {
+                var msg = err.error && err.error.description ? err.error.description : 'Payment failed. Please try again.';
+                Swal.fire({ icon: 'error', title: 'Payment Error', text: msg });
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Retry Payment';
             }
         };
         var rzp = new Razorpay(options);

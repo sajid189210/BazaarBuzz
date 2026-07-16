@@ -240,6 +240,7 @@ const orderSchema = new mongoose.Schema(
             enum: [
                 "processing",
                 "shipped",
+                "payment_failed",
                 "partially_delivered",
                 "delivered",
                 "cancelled",

@@ -23,7 +23,7 @@
                             </div>
                             <div class="text-left sm:text-right">
                                 <p class="text-xs text-gray-400">Status</p> <span
-                                    class="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full                         <%= order.status === 'Delivered' ? 'bg-green-50 text-green-700' :                            order.status === 'Cancelled' ? 'bg-red-50 text-red-700' :                            'bg-amber-50 text-amber-700' %>">
+                                    class="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full                         <%= order.status === 'delivered' ? 'bg-green-50 text-green-700' :                            order.status === 'cancelled' ? 'bg-red-50 text-red-700' :                            order.status === 'payment_failed' ? 'bg-red-50 text-red-700' :                            'bg-amber-50 text-amber-700' %>">
                                     <%= order.status %>
                                 </span>
                             </div>

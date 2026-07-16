@@ -199,6 +199,10 @@ const changeStatus = async (req, res) => {
             return response.error(res, MSG.ORDER_NOT_FOUND, 404);
         }
 
+        if (order.payment.status === 'failed') {
+            return response.error(res, 'Cannot change status for failed payment orders.', 400);
+        }
+
         const eligibleItems = order.items.filter(item => {
             if (orderStatus === 'shipped') return item.status === 'processing';
             if (orderStatus === 'delivered') return item.status === 'shipped';
