@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const nocache = require('nocache');
 const session = require('express-session');
 const passport = require('passport');
@@ -16,10 +17,11 @@ const expressLayouts = require('express-ejs-layouts');
 
 
 //* Middleware Setup
+app.use(compression());
 app.use(nocache());
 // app.use(helmet());
 app.use(cors());
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.use(session({
     secret: process.env.SECRET_KEY,
