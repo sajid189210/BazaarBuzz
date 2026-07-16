@@ -3,7 +3,23 @@
 @tailwind utilities;
 
 @layer base {
-    html {
-        font-family: "Poppins", system-ui;
-    }
+  :root {
+    /* Design tokens for unified product cards */
+    --card-border: #e5e7eb;
+    --card-border-hover: var(--accent);
+    --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --card-shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --badge-sale: #ef4444;
+    --badge-sale-text: #fff;
+    --badge-new: #22c55e;
+    --badge-new-text: #fff;
+    --text-brand: #9ca3af;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
   }
+
+  html {
+    font-family: "Poppins", system-ui;
+  }
+}

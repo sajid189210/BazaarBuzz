@@ -1,10 +1,14 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
+const { updateStock } = require('../../utils/stockUtils');
 const razorPayInstance = require('../../Services/razorPay');
+const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
-const { Types } = require('mongoose');
+const MSG = require('../../constants/messages');
 const crypto = require('crypto');
 
-const Product = require('../../model/productModel');
 const Coupon = require('../../model/couponModel');
+const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Wallet = require("../../model/walletModel");
 const Order = require('../../model/orderModel');
 const Cart = require('../../model/userCartModel');
@@ -15,35 +19,7 @@ require('dotenv').config();
 
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
-//? Helper function to handle stock quantity.
-const handleStock = async (order, increment) => {
-    const result = await Promise.all(
-        order.items.map((item) => {
-            const quantity = increment ? item.quantity : -item.quantity;
 
-            return Product.findOneAndUpdate(
-                {
-                    _id: item.productId,
-                    variants: {
-                        $elemMatch: {
-                            size: item.selectedSize,
-                            color: item.selectedColor,
-                        },
-                    },
-                },
-                {
-                    $inc: {
-                        "variants.$.stock": quantity,
-                    },
-                },
-                { new: true, runValidators: true }
-            )
-        })
-    );
-    return result.every(product => product !== null);
-};
-
-//? Helper function to clear cart.
 const clearCart = async (userId) => {
     await Cart.findOneAndUpdate(
         { user: userId },
@@ -56,14 +32,8 @@ const clearCart = async (userId) => {
         });
 };
 
-const round = (value) => {
-    return Math.trunc(value * 100) / 100;
-}
-
-// ------------------------------------------------------------
-
 const getCheckout = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId;
 
@@ -74,17 +44,18 @@ const getCheckout = async (req, res) => {
                 .populate('items.product')
                 .populate('items.offer')
                 .populate('coupon'),
-            Wallet.findOne({ user: userId }),
+            Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER })
+                .then(w => w || new Wallet({ owner: userId, type: WALLET_TYPE_USER, balance: 0 })),
             Category.find({ isActive: { $ne: false } }),
         ]);
 
         if (!user || !cart) {
-            return response.error(res, 'Failed to load checkout', 400);
+            return response.error(res, MSG.FAILED_LOAD_CHECKOUT, 400);
         }
 
         if (!cart.items?.length) {
-            req.flash("error", "Your cart is empty. Add some items before proceeding to checkout.");
-            return res.redirect("/user/cart");
+            req.flash("error", MSG.CART_EMPTY_FLASH);
+            return res.redirect(R.USER_CART);
         }
 
         let subTotal = 0;
@@ -108,15 +79,15 @@ const getCheckout = async (req, res) => {
 
         res.render('user/userCheckout', {
             title: 'Checkout',
-            totalDiscount: round(totalDiscount),
-            subTotal: round(subTotal),
+            totalDiscount: truncCurrency(totalDiscount),
+            subTotal: truncCurrency(subTotal),
             searchBox: false,
-            total: round(total),
+            total: truncCurrency(total),
             cart,
             user,
             wallet,
             categories,
-            taxAmount: round(taxAmount),
+            taxAmount: truncCurrency(taxAmount),
             hasCouponApplied,
         });
 
@@ -126,7 +97,7 @@ const getCheckout = async (req, res) => {
 };
 
 const getOrderSummary = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
     const orderId = req.params.id;
 
     try {
@@ -148,32 +119,32 @@ const getOrderSummary = async (req, res) => {
 }
 
 const proceedToPayment = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId || '';
-    const { address, paymentMethod } = req.body;
+    const { addressId, paymentMethod } = req.body;
 
-    if (!address || !paymentMethod) {
-        return response.error(res, "Address and payment method are required.", 400);
+    if (!addressId || !paymentMethod) {
+        return response.error(res, MSG.ADDRESS_PAYMENT_REQUIRED, 400);
     }
 
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return response.error(res, "User not found.", 404);
+            return response.error(res, MSG.USER_NOT_FOUND, 404);
         }
 
+        const shippingAddress = user.addressId.id(addressId);
         const cart = await Cart.findOne({ user: userId })
             .populate('items.product')
             .populate('coupon')
             .populate('items.offer');
 
         if (!cart.items?.length) {
-            req.flash("error", "Your cart is empty. Add some items before proceeding to checkout.");
-            return res.redirect("/user/cart");
+            req.flash("error", MSG.CART_EMPTY_FLASH);
+            return res.redirect(R.USER_CART);
         }
 
-        //* Update user's usedCoupons if used.
         if (cart?.coupon) {
             const usedCouponData = user.usedCoupons.find(c => c.couponId.toString() === cart.coupon._id.toString());
 
@@ -217,7 +188,7 @@ const proceedToPayment = async (req, res) => {
                 unitPrice: item.product.productPrice,
                 finalPrice: item.discountedPrice,
             })),
-            shippingAddress: address,
+            shippingAddress,
             payment: {
                 method: paymentMethod,
             },
@@ -227,14 +198,13 @@ const proceedToPayment = async (req, res) => {
             } : null,
             subtotal,
             productDiscount,
-            tax,
-            total: round(total),
+            tax: truncCurrency(tax),
+            total: truncCurrency(total),
         };
 
         const newOrder = new Order(orderDetails);
 
-        //* payment conditions - razorpay, wallet and cod.
-        if (paymentMethod === 'razorpay') {
+        if (paymentMethod === PAYMENT_SOURCE_RAZORPAY) {
             try {
                 const options = {
                     amount: Math.round(newOrder.total * 100), //? total amount to be charged to the customer. Must be an Integer
@@ -247,7 +217,7 @@ const proceedToPayment = async (req, res) => {
 
                 await newOrder.save();
                 await user.save();
-                await handleStock(newOrder, false);
+                await updateStock(newOrder.items, false);
 
                 return response.success(res, {
                     razorpayOrderId: order.id,
@@ -256,7 +226,6 @@ const proceedToPayment = async (req, res) => {
                     orderId: order.id,
                     orderType: paymentMethod,
                     newOrderId: newOrder._id,
-                    address,
                     totalAmount: newOrder.total,
                     user,
                     RAZORPAY_KEY_ID,
@@ -266,52 +235,56 @@ const proceedToPayment = async (req, res) => {
                 response.serverError(res, err);
             }
 
-        } else if (paymentMethod === 'wallet') {
+        } else if (paymentMethod === PAYMENT_SOURCE_WALLET) {
 
             try {
-                // Fetch the user's wallet information
-                let wallet = await Wallet.findOne({ user: userId });
+                let wallet = await Wallet.findOne({ owner: userId, type: WALLET_TYPE_USER });
 
                 if (!wallet) {
                     wallet = new Wallet({
-                        user: new Types.ObjectId(userId),
+                        owner: userId,
+                        type: WALLET_TYPE_USER,
                         balance: 0
                     });
                 }
 
-                // Check if the total amount is within the wallet balance
                 if (newOrder.total > wallet.balance) {
-                    return response.error(res, "Insufficient wallet balance.", 400);
+                    return response.error(res, MSG.INSUFFICIENT_WALLET, 400);
                 }
 
-                // Proceed with the payment logic
-                wallet.balance -= newOrder.total; // Deduct the amount from the wallet
+                wallet.balance -= newOrder.total;
                 wallet.transactions.push({
                     orderId: newOrder._id,
                     amount: newOrder.total,
                     type: 'debit',
+                    source: PAYMENT_SOURCE_WALLET,
                     date: new Date(),
                 });
 
-                // Save the order to the database
+                newOrder.payment.status = 'paid';
+                let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+                if (!adminWallet) {
+                    adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+                }
+                adminWallet.balance += newOrder.total;
+                adminWallet.transactions.push({
+                    orderId: newOrder._id,
+                    amount: newOrder.total,
+                    type: 'credit',
+                    source: PAYMENT_SOURCE_WALLET,
+                    date: new Date(),
+                });
+
                 newOrder.payment.status = 'paid';
                 await newOrder.save();
-
                 await user.save();
-
-                // Save the updated wallet
                 await wallet.save();
-
-                // reduce the  stock.
-                await handleStock(newOrder, false);
-
-                // clears the cart.
+                await adminWallet.save();
+                await updateStock(newOrder.items, false);
                 await clearCart(userId);
-
-                // Respond with success
                 return response.success(res, {
                     success: true,
-                    message: 'Payment successful via wallet.',
+                    message: MSG.WALLET_PAYMENT_SUCCESS,
                     balance: wallet.balance,
                     orderType: paymentMethod,
                     newOrderId: newOrder._id
@@ -320,24 +293,18 @@ const proceedToPayment = async (req, res) => {
             } catch (err) {
                 console.error(`Error processing wallet payment: ${err.message}`);
 
-                // Handle specific error
                 if (err.name === 'ValidationError') {
-                    return response.error(res, "Invalid wallet transaction.", 400);
+                    return response.error(res, MSG.INVALID_WALLET_TX, 400);
                 }
 
-                // General error response
                 response.serverError(res, err);
             }
 
         } else {
-            // Save the order to the database
             await newOrder.save();
             await user.save();
 
-            // reduce the  stock.
-            await handleStock(newOrder, false);
-
-            // clears the cart.
+            await updateStock(newOrder.items, false);
             await clearCart(userId);
 
             return response.success(res, { success: true, orderType: paymentMethod, newOrderId: newOrder._id });
@@ -349,32 +316,32 @@ const proceedToPayment = async (req, res) => {
 };
 
 const applyCoupon = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
-    const { cartId, inputValue } = req.body;
+    const { inputValue } = req.body;
     const userId = req.session.user.userId;
 
-    if (!cartId || !inputValue) {
-        return response.error(res, "Invalid input", 400);
+    if (!inputValue) {
+        return response.error(res, MSG.INVALID_INPUT, 400);
     }
 
     try {
         const [coupon, user, cart] = await Promise.all([
-            Coupon.findOne({ couponCode: inputValue.toUpperCase(), isActive: true }),
+            Coupon.findOne({ couponCode: inputValue.toUpperCase(), isActive: true, isDeleted: false }),
             User.findById(userId),
-            Cart.findById(cartId).populate('coupon').populate('items.offer').populate('items.product')
+            Cart.findOne({ user: userId }).populate('coupon').populate('items.offer').populate('items.product')
         ]);
 
         if (!coupon || !user || !cart) {
-            return response.error(res, "Failed to apply coupon.", 400);
+            return response.error(res, MSG.FAILED_APPLY_COUPON, 400);
         }
 
         if (!cart.items.length) {
-            return response.error(res, "Your cart is empty.", 400);
+            return response.error(res, MSG.CART_EMPTY, 400);
         }
 
         if (cart.coupon) {
-            return response.error(res, "A coupon is already applied.", 409);
+            return response.error(res, MSG.COUPON_ALREADY_APPLIED, 409);
         }
 
         const now = new Date();
@@ -384,13 +351,13 @@ const applyCoupon = async (req, res) => {
         expiryDate.setHours(0, 0, 0, 0);
 
         if (now > expiryDate) {
-            return response.error(res, "Coupon has expired", 400, { toast: false });
+            return response.error(res, MSG.COUPON_EXPIRED, 400, { toast: false });
         }
 
         const usedCouponData = user.usedCoupons.find(c => c.couponId.toString() === coupon._id.toString());
 
         if (usedCouponData && usedCouponData.count >= coupon.count) {
-            return response.error(res, "Looks like this coupon has already been used!", 400);
+            return response.error(res, MSG.COUPON_ALREADY_USED, 400);
         }
 
         let currentCartTotal = 0;
@@ -399,7 +366,7 @@ const applyCoupon = async (req, res) => {
         }
 
         if (currentCartTotal < coupon.minAmount) {
-            return response.error(res, `Almost there! Bump your cart up by ${coupon.minAmount} to claim your savings.`, 400);
+            return response.error(res, MSG.COUPON_MIN_AMOUNT(coupon.minAmount), 400);
         }
 
         let couponDiscountAmount = 0;
@@ -409,7 +376,7 @@ const applyCoupon = async (req, res) => {
             const item = cart.items[i];
 
             if (!item.product) {
-                return response.error(res, "One or more products in your cart are no longer available.", 400);
+                return response.error(res, MSG.COUPON_PRODUCT_UNAVAILABLE, 400);
             }
 
             const itemTotal = item.discountedPrice * item.quantity;
@@ -423,18 +390,18 @@ const applyCoupon = async (req, res) => {
                     itemCouponShare = coupon.couponValue - couponDiscountAmount;
                 } else {
                     const itemWeight = itemTotal / currentCartTotal;
-                    itemCouponShare = round(coupon.couponValue * itemWeight);
+                    itemCouponShare = truncCurrency(coupon.couponValue * itemWeight);
                 }
 
             } else if (coupon.couponType === "percentage") {
 
-                itemCouponShare = round(itemTotal * (coupon.couponValue / 100));
+                itemCouponShare = truncCurrency(itemTotal * (coupon.couponValue / 100));
 
             } else {
-                return response.error(res, "Invalid coupon.", 400);
+                return response.error(res, MSG.INVALID_COUPON, 400);
             }
 
-            const itemCouponPercentage = round(
+            const itemCouponPercentage = truncCurrency(
                 (itemCouponShare / itemTotal) * 100
             );
 
@@ -446,10 +413,10 @@ const applyCoupon = async (req, res) => {
 
             const simulatedPrice = itemTotal - itemCouponShare;
 
-            const absoluteMinFloor = round(item.product.productPrice * item.quantity * 0.10);
+            const absoluteMinFloor = truncCurrency(item.product.productPrice * item.quantity * 0.10);
 
             if (simulatedPrice < absoluteMinFloor) {
-                return response.error(res, `Coupon cannot be applied. It reduces ${item.product.productName} below its minimum allowed price floor.`, 400);
+                return response.error(res, MSG.COUPON_PRICE_FLOOR(item.product.productName), 400);
             }
 
             couponDiscountAmount += itemCouponShare;
@@ -459,10 +426,9 @@ const applyCoupon = async (req, res) => {
         cart.coupon = coupon._id;
         await cart.save();
 
-        // Return successful response with applied price
         return response.success(res, {
             success: true,
-            message: 'Coupon applied successfully',
+            message: MSG.COUPON_APPLIED,
             appliedPrice: currentCartTotal - couponDiscountAmount,
             couponDiscount: couponDiscountAmount,
             itemCouponBreakdown
@@ -475,7 +441,7 @@ const applyCoupon = async (req, res) => {
 };
 
 const verifyPayment = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId;
     const { razorpayPaymentId, razorpayOrderId, signature, orderId } = req.body;
@@ -488,10 +454,10 @@ const verifyPayment = async (req, res) => {
         const isVerified = generatedSignature === signature;
 
         if (!isVerified) {
-            return response.error(res, "Payment verification failed.", 400);
+            return response.error(res, MSG.PAYMENT_VERIFY_FAILED, 400);
         }
 
-        await Order.findByIdAndUpdate(
+        const order = await Order.findByIdAndUpdate(
             orderId,
             {
                 $set: {
@@ -502,13 +468,28 @@ const verifyPayment = async (req, res) => {
                 }
             },
             {
+                new: true,
                 runValidators: true
             }
         );
 
+        let adminWallet = await Wallet.findOne({ type: WALLET_TYPE_ADMIN });
+        if (!adminWallet) {
+            adminWallet = new Wallet({ type: WALLET_TYPE_ADMIN, balance: 0 });
+        }
+        adminWallet.balance += order.total;
+        adminWallet.transactions.push({
+            orderId: order._id,
+            amount: order.total,
+            type: 'credit',
+            source: PAYMENT_SOURCE_RAZORPAY,
+            date: new Date(),
+        });
+        await adminWallet.save();
+
         await clearCart(userId);
 
-        return response.success(res, {}, 'Payment verified successfully');
+        return response.success(res, {}, MSG.PAYMENT_VERIFIED);
     } catch (err) {
         return response.serverError(res, err);
     }
@@ -521,6 +502,7 @@ const handlePaymentFailure = async (req, res) => {
             newOrderId,
             {
                 $set: {
+                    status: 'payment_failed',
                     'payment.status': 'failed',
                 }
             },
@@ -528,10 +510,10 @@ const handlePaymentFailure = async (req, res) => {
         );
 
         if (!order) {
-            return response.error(res, "Order could not be found.", 400);
+            return response.error(res, MSG.ORDER_NOT_FOUND_CHECKOUT, 400);
         }
 
-        await handleStock(order, true);
+        await updateStock(order.items, true);
 
         return response.success(res, { success: true });
 

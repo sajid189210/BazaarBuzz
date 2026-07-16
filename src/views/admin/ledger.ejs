@@ -1,1 +1,50 @@
-﻿<!DOCTYPE html><html lang="en"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Admin — Ledger</title>    <link rel="stylesheet" href="/css/style.css">    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon"></head><body class="bg-gray-50 antialiased">    <div class="flex min-h-screen">        <%- include('../partials/adminSideMenu') %>        <div class="flex-1 ml-[250px]">            <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">                <div class="flex items-center gap-2 text-sm text-gray-500">                    <a href="/admin/dashboard" class="hover:text-gray-700">Dashboard</a>                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>                    <span class="text-gray-900 font-semibold">Ledger</span>                </div>            </header>            <main class="p-6">                <div class="text-center py-20 text-gray-400">Ledger page — content pending</div>            </main>        </div>    </div></body></html>
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Ledger</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="bg-gray-50 antialiased">
+    <div class="flex min-h-screen"> <%- include('../partials/adminSideMenu') %>
+            <div class="flex-1 ml-0 lg:ml-[250px] min-w-0 transition-margin duration-300">
+                <header class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 z-40">
+                        <div class="flex items-center gap-3">
+                            <button id="adminSidebarToggle"
+                                class="lg:hidden inline-flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                                type="button">
+                                <i class="fa-solid fa-bars"></i>
+                            </button>
+                            <span class="text-lg font-bold text-gray-900 sm:hidden">Bazaar<span class="text-rose-500">Buzz</span></span>
+                            <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 min-w-0"> <a href="/admin/dashboard"
+                            class="hover:text-gray-700 shrink-0">Dashboard</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-900 font-semibold">Ledger</span> </div>
+                    </div>
+                </header>
+                <main class="p-4 sm:p-6">
+                    <div class="text-center py-20 text-gray-400">Ledger page — content pending</div>
+                </main>
+            </div>
+    </div>
+    <script>
+        (function() {
+            var toggle = document.getElementById('adminSidebarToggle');
+            var sidebar = document.getElementById('adminSidebar');
+            var overlay = document.getElementById('adminSidebarOverlay');
+            var close = document.getElementById('adminSidebarClose');
+            if (!toggle || !sidebar) return;
+            function open() { sidebar.classList.remove('-translate-x-full'); if (overlay) overlay.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+            function closeSidebar() { sidebar.classList.add('-translate-x-full'); if (overlay) overlay.classList.add('hidden'); document.body.style.overflow = ''; }
+            toggle.addEventListener('click', open);
+            if (close) close.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+            window.addEventListener('resize', function() { if (window.innerWidth >= 1024) { sidebar.classList.remove('-translate-x-full'); if (overlay) overlay.classList.add('hidden'); document.body.style.overflow = ''; } });
+        })();
+    </script>
+</body>
+
+</html>

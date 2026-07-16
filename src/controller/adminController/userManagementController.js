@@ -1,3 +1,5 @@
+const R = require('../../constants/redirects');
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const userModel = require('../../model/userModel');
 
@@ -10,7 +12,7 @@ const getUserById = async (id) => {
 
 const userManagementPage = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -93,13 +95,13 @@ const unBlockUser = async (req, res) => {
         const id = req.params.id;
 
         if (!id) {
-            return response.error(res, "Invalid user ID provided.", 400);
+            return response.error(res, MSG.INVALID_USER_ID, 400);
         }
 
         const user = await getUserById(id);
 
         if (user.isBlocked === 'unblocked') {
-            return response.error(res, "User is already unblocked", 400);
+            return response.error(res, MSG.USER_ALREADY_UNBLOCKED, 400);
         }
 
         await userModel.findByIdAndUpdate(
@@ -110,7 +112,7 @@ const unBlockUser = async (req, res) => {
 
         req.session.user = true;
 
-        return response.success(res, {}, "User has been successfully unblocked")
+        return response.success(res, {}, MSG.USER_UNBLOCKED)
 
     } catch (err) {
         response.serverError(res, err);
@@ -124,13 +126,13 @@ const blockUser = async (req, res) => {
         const id = req.params.id;
 
         if (!id) {
-            return response.error(res, "Invalid user ID provided.", 400);
+            return response.error(res, MSG.INVALID_USER_ID, 400);
         }
 
         const user = await getUserById(id);
 
         if (user.isBlocked === 'blocked') {
-            return response.error(res, "User is already blocked.", 400);
+            return response.error(res, MSG.USER_ALREADY_BLOCKED, 400);
         }
 
         await userModel.findByIdAndUpdate(
@@ -141,7 +143,7 @@ const blockUser = async (req, res) => {
 
         req.session.user = false;
 
-        return response.success(res, {}, "User has been successfully blocked");
+        return response.success(res, {}, MSG.USER_BLOCKED);
 
     } catch (err) {
         response.serverError(res, err);

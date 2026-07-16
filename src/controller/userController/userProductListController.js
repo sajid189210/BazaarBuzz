@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
@@ -126,26 +127,44 @@ const filterProductsList = async (req, res) => {
         // Populate products
         const products = await getProduct();
 
-        // Apply filters if at least one is provided
+        // Determine which products to show
+        let resultProducts = products;
         if (Object.values(filterData).some(value => value)) {
-            // Apply filters
-            filteredProducts = await filterProducts(filterData, products);
+            resultProducts = await filterProducts(filterData, products);
+        }
 
+        // If request prefers HTML (direct navigation), render the page
+        if (req.accepts('html')) {
+            const [categories, offers] = await Promise.all([
+                getCategory(),
+                getOffers(),
+            ]);
+            return res.render('user/userProductList', {
+                title: categoryFilter ? `Category: ${categoryFilter}` : 'Filtered Products',
+                user: req.session.user || null,
+                categories,
+                products: resultProducts,
+                offers,
+                collectionId,
+                searchBox: true
+            });
+        }
+
+        // Otherwise return JSON (AJAX from filter form)
+        if (Object.values(filterData).some(value => value)) {
             return response.success(res, {
                 success: true,
-                products: filteredProducts,
-                collectionId
-            });
-        } else {
-
-            // If no filters are applied, return all products
-            return response.success(res, {
-                success: false,
-                message: "Please select a filter",
-                products,
+                products: resultProducts,
                 collectionId
             });
         }
+
+        return response.success(res, {
+            success: false,
+            message: MSG.SELECT_FILTER,
+            products: resultProducts,
+            collectionId
+        });
 
     } catch (err) {
         response.serverError(res, err);}

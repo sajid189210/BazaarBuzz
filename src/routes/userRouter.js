@@ -5,6 +5,7 @@ const wishlistController = require('../controller/userController/wishlistControl
 const walletController = require('../controller/userController/walletController');
 const couponController = require('../controller/userController/userCoupons');
 const orderController = require('../controller/userController/userOrderController');
+const userReturnController = require('../controller/userController/returnController');
 const cartController = require('../controller/userController/cartController');
 const userController = require('../controller/userController/userController');
 const otpController = require('../controller/userController/otpVerification');
@@ -28,9 +29,10 @@ router.delete('/otpExpiry', otpController.handleOtpExpiry);
 //*-------------------[User Home Page-]---------------
 router.get('/', userController.userHomepage);
 router.get('/address', userController.getAddress);
+router.get('/address/:addressId', userController.getSingleAddress);
 router.post('/address', userController.saveAddress);
-router.put('/address', userController.editAddress);
-router.delete('/address', userController.removeAddress);
+router.put('/address/:addressId', userController.editAddress);
+router.delete('/address/:addressId', userController.removeAddress);
 router.get('/profile', userController.renderProfile);
 router.put('/profile', userController.updateProfile);
 
@@ -64,7 +66,8 @@ router.patch('/checkout/paymentFail', checkoutController.handlePaymentFailure)
 router.get('/orders', orderController.getOrders);
 router.get('/orders/invoice', orderController.downloadInvoice);
 router.post('/orders/retryPayment', orderController.retryPayment);
-router.patch('/orders/return', orderController.requestProductReturn);
+router.post('/orders/verifyRetryPayment', orderController.verifyRetryPayment);
+router.patch('/orders/return', userReturnController.requestProductReturn);
 router.patch('/orders/cancel', orderController.cancelProduct);
 
 //*--------------------[Wallet]-----------------------
@@ -81,5 +84,8 @@ router.get('/signOut', userController.userSignOut);
 //*------------------[User Common Routes]----------------
 router.get('/search', userController.searchSingleProduct);
 router.get('/search/list', userController.searchMultipleProducts);
+
+//*------------------[Newsletter]----------------
+router.post('/newsletter/subscribe', userController.subscribeNewsletter);
 
 module.exports = router;        

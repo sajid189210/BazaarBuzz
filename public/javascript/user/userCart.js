@@ -1,3 +1,16 @@
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof ntc === 'undefined') return;
+    document.querySelectorAll('.cart-color').forEach(function (el) {
+        var hex = (el.getAttribute('data-color') || '').trim();
+        var dot = el.querySelector('.cart-color-dot');
+        var nameEl = el.querySelector('.cart-color-name');
+        if (!hex) { nameEl.textContent = 'N/A'; return; }
+        var match = ntc.name(hex);
+        if (dot) dot.style.backgroundColor = match[0];
+        if (nameEl) nameEl.textContent = match[1];
+    });
+});
+
 async function removeItem(itemId) {
     try {
         const { isConfirmed } = await Swal.fire({
@@ -12,7 +25,7 @@ async function removeItem(itemId) {
             const response = await fetch(`/user/cart/removeItem`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ itemId })
+                body: JSON.stringify({ itemId }) 
             });
             const data = await response.json();
             if (!data.success) {

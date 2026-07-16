@@ -1,18 +1,60 @@
+const R = require('../../constants/redirects');
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Offer = require('../../model/offerModel');
 
 
 const renderOffer = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     try {
 
-        const [category, offers] = await Promise.all([
-            Category.findOne({ title: 'Clothes' }).sort({ createdAt: -1 }),
-            Offer.find().sort({ createdAt: -1 })
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const statusFilter = req.query.status || '';
+        const categoryFilter = req.query.category || '';
+
+        let filter = { isDeleted: false };
+
+        if (search) {
+            filter.$or = [
+                { offerName: { $regex: search, $options: 'i' } },
+                { brandName: { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        if (statusFilter) {
+            filter.isActive = statusFilter === 'active';
+        }
+
+        if (categoryFilter) {
+            const catDoc = await Category.findOne({ title: categoryFilter, isDeleted: false });
+            if (catDoc) filter.category = catDoc._id;
+        }
+
+        const [categories, offers, totalOffers] = await Promise.all([
+            Category.find({ isDeleted: false, isActive: true }),
+            Offer.find(filter)
+                .populate('category', 'title')
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit),
+            Offer.countDocuments(filter),
         ]);
 
-        res.render('admin/offer', { layout: false, category, offers })
+        res.render('admin/offer', {
+            layout: false,
+            categories,
+            offers,
+            currentPage: page,
+            totalPages: Math.ceil(totalOffers / limit),
+            totalCount: totalOffers,
+            limit,
+            search,
+            statusFilter,
+            categoryFilter,
+        })
 
     } catch (err) {
         response.serverError(res, err);
@@ -20,29 +62,34 @@ const renderOffer = async (req, res) => {
 };
 
 const createOffer = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
-    const { offerName, brandName, discountValue } = req.body;
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
+    const { offerName, brandName, discountValue, category } = req.body;
 
     try {
-        if (!offerName || !brandName || !discountValue) {
-            return response.error(res, "Required fields are missing.", 400);
+        if (!offerName || !brandName || !discountValue || !category) {
+            return response.error(res, MSG.OFFER_FIELDS_MISSING, 400);
         }
 
-        const offer = await Offer.find();
+        const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
+        if (!catDoc) {
+            return response.error(res, MSG.OFFER_CATEGORY_INACTIVE, 400);
+        }
 
-        if (offer && offer.brandName === brandName) {
-            return response.error(res, "Brand with offer already exists.", 400);
+        const existing = await Offer.findOne({ brandName, category: catDoc._id });
+        if (existing) {
+            return response.error(res, MSG.OFFER_EXISTS, 400);
         }
 
         const newOffer = new Offer({
             offerName,
             brandName,
+            category: catDoc._id,
             discount: discountValue,
         });
 
         await newOffer.save();
 
-        response.success(res, {}, "Offer created successfully", 201)
+        response.success(res, {}, MSG.OFFER_CREATED, 201)
 
     } catch (err) {
         response.serverError(res, err);
@@ -50,19 +97,17 @@ const createOffer = async (req, res) => {
 };
 
 const changeStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
-    const { offerId, status } = req.body;
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
+    const { offerId } = req.body;
 
     try {
-        console.log(offerId)
+        const offer = await Offer.findById(offerId);
+        if (!offer) return response.error(res, MSG.OFFER_NOT_FOUND, 404);
 
-        const updatedOffer = await Offer.findByIdAndUpdate(offerId, { $set: { isActive: status } }, { new: true });
+        offer.isActive = !offer.isActive;
+        await offer.save();
 
-        if (!updatedOffer) {
-            return response.error(res, "Sorry!, Something happened!", 400)
-        }
-
-        response.success(res, {}, "status changed");
+        response.success(res, {}, MSG.OFFER_STATUS_CHANGED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -70,25 +115,29 @@ const changeStatus = async (req, res) => {
 };
 
 const updateOffer = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
-    const { discountValue, offerName, brandName, offerId } = req.body;
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
+    const { discountValue, offerName, brandName, offerId, category } = req.body;
 
     try {
+        const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
+        if (!catDoc) {
+            return response.error(res, MSG.OFFER_CATEGORY_INACTIVE, 400);
+        }
+
         const updateOffer = await Offer.findByIdAndUpdate(
             offerId,
-            { $set: { discount: discountValue, offerName, brandName, } },
+            { $set: { discount: discountValue, offerName, brandName, category: catDoc._id } },
             { new: true }
         );
 
         if (!updateOffer) {
-            return response.error(res, "Could not find offer", 400);
+            return response.error(res, MSG.OFFER_UPDATE_FAILED, 400);
         }
 
-        response.success(res, {}, "Offer updated successfully");
+        response.success(res, {}, MSG.OFFER_UPDATED);
     } catch (err) {
-        if (err.code === 11000) { // MongoDB duplicate key error code
-            console.error(`MongoDB duplicate key error: ${err}`);
-            return response.error(res, "Offer name must be unique.", 409);
+        if (err.code === 11000) {
+            return response.error(res, MSG.OFFER_NAME_UNIQUE, 409);
         }
 
         response.serverError(res, err);
@@ -98,14 +147,14 @@ const updateOffer = async (req, res) => {
 const removeOffer = async (req, res) => {
     const offerId = req.params.id;
 
-    const result = await Offer.findByIdAndDelete(offerId);
-    console.log(result)
+    const offer = await Offer.findById(offerId);
+    if (!offer) return response.error(res, MSG.OFFER_NOT_FOUND, 404);
 
-    if (!result) {
-        return response.error(res, "Could not remove the offer.", 400)
-    }
+    offer.isDeleted = true;
+    offer.isActive = false;
+    await offer.save();
 
-    response.success(res, {}, "Offer removed successfully")
+    response.success(res, {}, MSG.OFFER_REMOVED)
 }
 
 module.exports = {

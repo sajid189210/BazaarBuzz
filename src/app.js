@@ -34,17 +34,17 @@ app.use(flash());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 300,
-    standardHeaders: true,
-    legacyHeaders: false,
-    statusCode: 429,
-    message: {
-        success: false,
-        message: "Too many requests. Please try again later."
-    }
-}));
+// app.use(rateLimit({
+//     windowMs: 15 * 60 * 1000,
+//     max: 300,
+//     standardHeaders: true,
+//     legacyHeaders: false,
+//     statusCode: 429,
+//     message: {
+//         success: false,
+//         message: "Too many requests. Please try again later."
+//     }
+// }));
 
 
 //* Passport initialization
@@ -60,13 +60,19 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout'); // Default layout for all views
 
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('./constants/paymentSources');
+
 //* Initialize shared locals for all templates
 app.use((req, res, next) => {
     res.locals.blocks = {};
     res.locals.categories = [];
     res.locals.searchBox = false;
     res.locals.user = null;
-    res.locals.hideUI = true;
+    res.locals.hideUI = false;
+    res.locals.bodyClass = 'antialiased';
+    res.locals.PAYMENT_SOURCE_COD = PAYMENT_SOURCE_COD;
+    res.locals.PAYMENT_SOURCE_RAZORPAY = PAYMENT_SOURCE_RAZORPAY;
+    res.locals.PAYMENT_SOURCE_WALLET = PAYMENT_SOURCE_WALLET;
     next();
 });
 

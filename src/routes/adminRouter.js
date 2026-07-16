@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const salesReportController = require('../controller/adminController/salesReportController');
 const dashboardController = require('../controller/adminController/dashboardController')
 const categoryController = require("../controller/adminController/categoryController");
 const productManagement = require('../controller/adminController/productController');
@@ -8,6 +7,8 @@ const adminController = require("../controller/adminController/adminController")
 const offerController = require('../controller/adminController/offerController');
 const orderController = require('../controller/adminController/orderController');
 const userManagement = require('../controller/adminController/userManagementController');
+const walletController = require('../controller/adminController/walletController');
+const returnController = require('../controller/adminController/returnController');
 
 const { storage } = require('../Services/uploads');
 const multer = require('multer');
@@ -54,18 +55,14 @@ router.delete('/product/:id', productManagement.removeProduct);
 router.get('/orders', orderController.renderOrderList);
 router.get('/order/view', orderController.renderOrderView);
 router.patch('/order/changeStatus', orderController.changeStatus);
-router.patch('/order/returns', orderController.returnStatus);
-router.patch('/order/refund', orderController.refund);
+// router.patch('/order/refund', orderController.refund);
 
 //*------------------[Coupon Management]--------------------
 router.get('/coupon', couponController.renderCouponPage);
 router.post('/coupon', couponController.createCoupons);
 router.put('/coupon', couponController.updateCoupons);
 router.delete('/coupon', couponController.deleteCoupons);
-
-//*------------------[Sales Report]--------------------
-router.get('/salesReport', salesReportController.renderReport);
-router.post('/downloadReport', salesReportController.downloadReport)
+router.patch('/coupon/status', couponController.changeCouponStatus);
 
 //*------------------[Offer]--------------------
 router.get('/offer', offerController.renderOffer);
@@ -74,6 +71,13 @@ router.put('/offer', offerController.updateOffer);
 router.patch('/offer/status', offerController.changeStatus);
 router.delete('/offer/:id', offerController.removeOffer);
 
+
+//*------------------[Returns]--------------------
+router.get('/returns', returnController.renderReturnsPage);
+router.patch('/order/returns', returnController.returnStatus);
+
+//*------------------[Wallet]--------------------
+router.get('/wallet', walletController.renderWalletPage);
 
 //*------------[Dashboard]------------------
 router.get("/dashboard", dashboardController.getDashboard);

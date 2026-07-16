@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../constants/paymentSources');
 
 const orderItemSchema = new mongoose.Schema(
     {
@@ -70,6 +71,11 @@ const orderItemSchema = new mongoose.Schema(
                 "returned",
             ],
             default: "processing",
+        },
+
+        deliveredAt: {
+            type: Date,
+            default: null,
         },
 
         return: {
@@ -159,7 +165,7 @@ const orderSchema = new mongoose.Schema(
         payment: {
             method: {
                 type: String,
-                enum: ["cod", "razorpay", "wallet"],
+                enum: [PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET],
                 required: true,
             },
 
@@ -234,6 +240,7 @@ const orderSchema = new mongoose.Schema(
             enum: [
                 "processing",
                 "shipped",
+                "payment_failed",
                 "partially_delivered",
                 "delivered",
                 "cancelled",

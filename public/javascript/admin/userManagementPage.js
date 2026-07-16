@@ -1,4 +1,5 @@
 // Debounce utility
+let gTotalPages = 1;
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -98,13 +99,9 @@ function renderLoadingState() {
 }
 
 function renderPagination(currentPage, totalPages, totalCount, limit, params) {
+    gTotalPages = totalPages;
     const baseParams = { ...params };
     delete baseParams.page;
-
-    const buildPageUrl = (page) => {
-        const p = { ...baseParams, page };
-        return buildUrl(p);
-    };
 
     let startPage = Math.max(1, currentPage - 2);
     let endPage = Math.min(totalPages, currentPage + 2);
@@ -118,8 +115,8 @@ function renderPagination(currentPage, totalPages, totalCount, limit, params) {
 
     if (totalPages > 1) {
         html += `
-            <nav class="flex items-center justify-center gap-2" aria-label="Pagination">
-                <a href="${buildPageUrl(currentPage - 1)}" class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''} transition-colors" ${currentPage === 1 ? 'aria-disabled="true"' : ''}>
+            <nav class="flex items-center justify-center gap-2" aria-label="Pagination" data-pagination>
+                <a href="#" data-page="${currentPage - 1}" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''} transition-colors" ${currentPage === 1 ? 'aria-disabled="true"' : ''}>
                     <i class="fa-solid fa-chevron-left"></i>
                     <span class="hidden sm:inline ml-1">Previous</span>
                 </a>
@@ -128,7 +125,7 @@ function renderPagination(currentPage, totalPages, totalCount, limit, params) {
 
         for (let i = startPage; i <= endPage; i++) {
             html += `
-                <a href="${buildPageUrl(i)}" class="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium ${i === currentPage ? 'bg-rose-500 text-white' : 'text-gray-700 hover:bg-gray-100'} transition-colors" ${i === currentPage ? 'aria-current="page"' : ''}>
+                <a href="#" data-page="${i}" class="min-w-[44px] h-11 flex items-center justify-center rounded-lg text-sm font-medium ${i === currentPage ? 'bg-rose-500 text-white' : 'text-gray-700 hover:bg-gray-100'} transition-colors" ${i === currentPage ? 'aria-current="page"' : ''}>
                     ${i}
                 </a>
             `;
@@ -136,7 +133,7 @@ function renderPagination(currentPage, totalPages, totalCount, limit, params) {
 
         html += `
                 </div>
-                <a href="${buildPageUrl(currentPage + 1)}" class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''} transition-colors" ${currentPage === totalPages ? 'aria-disabled="true"' : ''}>
+                <a href="#" data-page="${currentPage + 1}" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''} transition-colors" ${currentPage === totalPages ? 'aria-disabled="true"' : ''}>
                     <span class="hidden sm:inline mr-1">Next</span>
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
@@ -324,6 +321,15 @@ function initEventListeners() {
         const params = getFilterParams();
         updateFilterInputs(params);
         loadUsers(params.page);
+    });
+
+    document.getElementById('paginationContainer')?.addEventListener('click', (e) => {
+        const link = e.target.closest('[data-page]');
+        if (!link) return;
+        e.preventDefault();
+        const page = parseInt(link.dataset.page);
+        if (page < 1 || page > gTotalPages) return;
+        loadUsers(page);
     });
 }
 

@@ -5,6 +5,11 @@ const offerModel = new mongoose.Schema({
         type: String,
         required: true
     },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+    },
     offerName: {
         type: String,
         required: true,
@@ -17,19 +22,16 @@ const offerModel = new mongoose.Schema({
     discount: {
         type: Number,
         required: true,
-        validate: {
-            validator: function (value) {
-                const discount = this.get?.('discount') ?? this.discount;
-                return productPrice > 0 && productPrice <= 100;
-            },
-            message: function () {
-                return "Discount value must be between 1 and 100"
-            }
-        }
+        min: 1,
+        max: 100,
     },
     isActive: {
         type: Boolean,
         default: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 

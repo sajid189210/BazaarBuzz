@@ -5,7 +5,11 @@ module.exports = {
     "./node_modules/tw-elements/js/**/*.js"
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'xs': '480px',
+      },
+    },
   },
   plugins: [require("tw-elements/plugin.cjs")],
 }

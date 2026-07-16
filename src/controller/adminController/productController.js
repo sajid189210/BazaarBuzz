@@ -1,3 +1,5 @@
+const R = require('../../constants/redirects');
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 const mongoose = require('mongoose');
@@ -11,16 +13,15 @@ const getCategory = async (req, res) => {
     const categoryId = req.params.id;
     try {
         const category = await categoryModel.findById(categoryId);
-        if (!category) return response.error(res, "Category not found", 400);
+        if (!category) return response.error(res, MSG.CATEGORY_NOT_FOUND, 400);
 
-        // Return category with brands array for dynamic brand dropdown
         return response.success(res, { 
             category: {
                 _id: category._id,
                 title: category.title,
                 brands: category.brands || []
             }
-        }, 'Category found');
+        }, MSG.CATEGORY_FOUND);
 
     } catch (err) {
         response.serverError(res, err);
@@ -31,7 +32,7 @@ const getCategory = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
@@ -128,7 +129,7 @@ const getProducts = async (req, res) => {
 const getProductsJson = async (req, res) => {
     try {
 
-        if (!req.session.admin) return response.error(res, 'Unauthorized', 401);
+        if (!req.session.admin) return response.error(res, MSG.UNAUTHORIZED_AJAX, 401);
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
@@ -202,7 +203,7 @@ const getProductsJson = async (req, res) => {
             totalPages: Math.ceil(count / limit),
             totalCount: count,
             limit
-        }, 'Products fetched successfully');
+        }, MSG.PRODUCTS_FETCHED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -213,7 +214,7 @@ const getProductsJson = async (req, res) => {
 const getCreateProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const Category = await categoryModel.find();
 
         if (!Category) throw new Error("Error caught while fetching category data.");
@@ -234,7 +235,7 @@ const createProducts = async (req, res) => {
         const variants = req.body.variants || [];
         
         if (!variants || variants.length === 0) {
-            return res.redirect('/admin/productList/create');
+            return res.redirect(R.ADMIN_PRODUCT_CREATE);
         }
 
         let categoryName;
@@ -266,7 +267,7 @@ const createProducts = async (req, res) => {
         const newProduct = new Product(productData);
         await newProduct.save();
 
-        res.redirect('/admin/productList');
+        res.redirect(R.ADMIN_PRODUCT_LIST);
 
     } catch (err) {
         response.serverError(res, err);
@@ -280,16 +281,16 @@ const productUpdate = async (req, res) => {
         const { productId } = req.query;
         const { productDetails } = req.body;
 
-        if (!productDetails || !productId) return response.error(res, "Missing required fields. Please provide both productId and productDetails", 400);
+        if (!productDetails || !productId) return response.error(res, MSG.MISSING_REQUIRED_FIELDS, 400);
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
             { $set: productDetails },
             { new: true }
         );
 
-        if (!updatedProduct) return response.error(res, "Product not found", 404);
+        if (!updatedProduct) return response.error(res, MSG.PRODUCT_NOT_FOUND, 404);
 
-        response.success(res, {}, "Product updated successfully");
+        response.success(res, {}, MSG.PRODUCT_UPDATED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -302,7 +303,7 @@ const isActive = async (req, res) => {
 
         const product = await Product.findById(productId);
 
-        if (!product) return response.error(res, "Product not found", 400);
+        if (!product) return response.error(res, MSG.PRODUCT_NOT_FOUND, 400);
 
         const updatedProduct = await Product.findByIdAndUpdate(productId,
             { $set: { isActive: !product.isActive } },
@@ -310,7 +311,7 @@ const isActive = async (req, res) => {
         );
 
         const status = updatedProduct.isActive ? 'active' : 'inactive';
-        response.success(res, { updatedProduct }, `Product is now ${status}`);
+        response.success(res, { updatedProduct }, MSG.PRODUCT_STATUS(status));
 
     } catch (err) {
         response.serverError(res, err);
@@ -353,11 +354,11 @@ const extractFilePath = async (req, res) => {
 
 const getEditProduct = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const productId = req.params.id;
         const product = await Product.findById(productId);
         const categories = await categoryModel.find();
-        if (!product) return res.redirect('/admin/productList');
+        if (!product) return res.redirect(R.ADMIN_PRODUCT_LIST);
         res.render('admin/editProduct', { layout: 'admin/layout', title: 'Edit Product', product, categories });
     } catch (err) {
         response.serverError(res, err);
@@ -366,7 +367,7 @@ const getEditProduct = async (req, res) => {
 
 const postEditProduct = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const productId = req.params.id;
         const { productName, brand, category, productPrice, discount, productDescription } = req.body;
         
@@ -375,7 +376,7 @@ const postEditProduct = async (req, res) => {
         const images = req.body.images ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) : [];
 
         if (!variants || variants.length === 0) {
-            return res.redirect('/admin/productList');
+            return res.redirect(R.ADMIN_PRODUCT_LIST);
         }
 
         let categoryName;
@@ -410,8 +411,8 @@ const postEditProduct = async (req, res) => {
             { new: true }
         );
 
-        if (!updated) return response.error(res, "Product not found", 404);
-        res.redirect('/admin/productList');
+        if (!updated) return response.error(res, MSG.PRODUCT_NOT_FOUND, 404);
+        res.redirect(R.ADMIN_PRODUCT_LIST);
     } catch (err) {
         response.serverError(res, err);
     }
@@ -421,11 +422,11 @@ const removeProduct = async (req, res) => {
     const productId = req.params.id;
     try {
 
-        if (!productId) return response.error(res, "Product ID not found.", 400);
+        if (!productId) return response.error(res, MSG.PRODUCT_ID_NOT_FOUND, 400);
 
         const product = await Product.findById(productId);
 
-        if (!product) return response.error(res, "Product not found.", 404);
+        if (!product) return response.error(res, MSG.PRODUCT_NOT_FOUND, 404);
 
         const removedProduct = await Product.findByIdAndUpdate(
             productId,
@@ -433,7 +434,7 @@ const removeProduct = async (req, res) => {
             { new: true }
         );
 
-        return response.success(res, { product: removedProduct }, 'Product removed successfully');
+        return response.success(res, { product: removedProduct }, MSG.PRODUCT_REMOVED);
 
     } catch (err) {
         response.serverError(res, err);

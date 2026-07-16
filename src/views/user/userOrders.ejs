@@ -1,1 +1,198 @@
-﻿<% blocks.head = `    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %><div class="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8 pt-6 pb-16">    <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">        <a href="/" class="hover:text-[var(--accent)] transition-colors btn-press">Home</a>        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>        <span class="text-gray-800 font-medium">My Orders</span>    </nav>    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">My Orders</h1>    <% if(orders && orders.length > 0) { %>    <div class="space-y-4">        <% orders.forEach(order => { %>        <div class="rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300 transition-colors">            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">                <div>                    <p class="text-xs text-gray-400">Order ID</p>                    <p class="text-sm font-medium text-gray-900"><%= order._id %></p>                </div>                <div class="text-left sm:text-right">                    <p class="text-xs text-gray-400">Placed on</p>                    <p class="text-sm text-gray-700"><%= new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></p>                </div>                <div class="text-left sm:text-right">                    <p class="text-xs text-gray-400">Status</p>                    <span class="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full                         <%= order.status === 'Delivered' ? 'bg-green-50 text-green-700' :                            order.status === 'Cancelled' ? 'bg-red-50 text-red-700' :                            'bg-amber-50 text-amber-700' %>"><%= order.status %></span>                </div>                <div class="text-left sm:text-right">                    <p class="text-xs text-gray-400">Total</p>                    <p class="text-sm font-semibold text-gray-900">₹<%= order.total.toLocaleString() %></p>                </div>                <a href="/user/checkout/orderSummary/<%= order._id %>"                    class="shrink-0 rounded-lg border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 hover:border-gray-400 transition-colors text-center">View Details</a>            </div>        </div>        <% }) %>    </div>    <% } else { %>    <div class="flex flex-col items-center justify-center py-20">        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 mb-4"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>        <h3 class="text-lg font-semibold text-gray-500">No orders yet</h3>        <a href="/user/productList" class="mt-4 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent)] transition-colors btn-press">Start Shopping</a>    </div>    <% } %></div>
+﻿<% blocks.head=` <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>` %>
+<div class="mx-auto max-w-[1200px] px-3 xs:px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-16">
+  <nav class="hidden lg:flex items-center gap-2 text-sm text-gray-500 mb-8">
+    <a href="/" class="hover:text-[var(--accent)] transition-colors btn-press">Home</a>
+    <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+    <span class="text-gray-800 font-medium">My Orders</span>
+  </nav>
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <h1 class="text-xl xs:text-2xl font-bold text-gray-900">My Orders</h1>
+    <div class="flex flex-wrap items-center gap-3">
+      <form method="GET" action="/user/orders" id="filterForm" class="flex flex-wrap items-center gap-3">
+        <% if (statusFilter || search) { %>
+          <a href="/user/orders"
+            class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 transition-colors">
+            <i class="fa-solid fa-xmark"></i>
+            Clear
+          </a>
+        <% } %>
+
+        <div class="relative">
+          <select name="status"
+            class="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-8 text-sm text-gray-700 focus:border-gray-400 focus:outline-none transition-colors cursor-pointer">
+            <option value="">All Statuses</option>
+            <option value="processing" <%= statusFilter === 'processing' ? 'selected' : '' %>>Processing</option>
+            <option value="shipped" <%= statusFilter === 'shipped' ? 'selected' : '' %>>Shipped</option>
+            <option value="delivered" <%= statusFilter === 'delivered' ? 'selected' : '' %>>Delivered</option>
+            <option value="cancelled" <%= statusFilter === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            <option value="returned" <%= statusFilter === 'returned' ? 'selected' : '' %>>Returned</option>
+            <option value="partially_returned" <%= statusFilter === 'partially_returned' ? 'selected' : '' %>>Partially Returned</option>
+            <option value="partially_delivered" <%= statusFilter === 'partially_delivered' ? 'selected' : '' %>>Partially Delivered</option>
+            <option value="payment_failed" <%= statusFilter === 'payment_failed' ? 'selected' : '' %>>Payment Failed</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+        </div>
+
+        <div class="relative">
+          <input type="text" name="search" placeholder="Order ID" value="<%= search || '' %>"
+            class="w-full sm:w-32 rounded-lg border border-gray-300 bg-white py-2.5 pl-8 pr-3 text-sm text-gray-700 placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors" />
+          <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+        </div>
+
+        <div class="relative">
+          <input type="date" name="date" value="<%= date || '' %>"
+            class="rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 focus:border-gray-400 focus:outline-none transition-colors" />
+        </div>
+
+        <button type="submit"
+          class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">
+          Search
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <% if (orders && orders.length > 0) { %>
+    <div class="space-y-5">
+      <% orders.forEach(order => { %>
+        <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+          <% var itemCount = order.items.length; %>
+          <% var shownItems = order.items.slice(0, 3); %>
+          <% var remaining = itemCount - shownItems.length; %>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 px-3 xs:px-4 sm:px-5 py-3 xs:py-4 border-b border-gray-100">
+                <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] xs:text-xs sm:text-sm">
+                    <div>
+                        <span class="text-gray-400">Order</span>
+                        <span class="ml-1.5 font-mono font-medium text-gray-900 uppercase"><%= String(order._id).slice(-8) %></span>
+                    </div>
+                    <div class="hidden xs:block w-px h-4 bg-gray-200"></div>
+                    <div>
+                        <span class="text-gray-400">Placed</span>
+                        <span class="ml-1.5 text-gray-700"><%= new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                    </div>
+                    <div class="hidden xs:block w-px h-4 bg-gray-200"></div>
+                    <div>
+                        <span class="text-gray-400">Payment</span>
+                        <span class="ml-1.5 text-gray-700"><%= order.payment?.method || '-' %></span>
+                        <span class="ml-1 inline-flex items-center gap-1 text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 sm:px-2 py-0.5 rounded-full
+                            <%= order.payment?.status === 'paid' || order.payment?.status === 'refunded' ? 'bg-green-50 text-green-700' : order.payment?.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700' %>">
+                            <span class="w-1 h-1 xs:w-1.5 xs:h-1.5 rounded-full
+                                <%= order.payment?.status === 'paid' || order.payment?.status === 'refunded' ? 'bg-green-500' : order.payment?.status === 'failed' ? 'bg-red-500' : 'bg-amber-500' %>"></span>
+                            <%= order.payment?.status ? order.payment.status.charAt(0).toUpperCase() + order.payment.status.slice(1) : '-' %>
+                        </span>
+                    </div>
+                </div>
+                <span class="inline-flex items-center gap-1.5 text-[10px] xs:text-xs sm:text-sm font-semibold px-2 sm:px-3 py-1 rounded-full
+              <%= order.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : order.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' : order.status === 'payment_failed' ? 'bg-red-50 text-red-700 border border-red-200' : order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-50 text-blue-700 border border-blue-200' : order.status === 'shipped' ? 'bg-sky-50 text-sky-700 border border-sky-200' : 'bg-amber-50 text-amber-700 border border-amber-200' %>">
+              <span class="w-1.5 h-1.5 rounded-full
+                <%= order.status === 'delivered' ? 'bg-emerald-500' : order.status === 'cancelled' ? 'bg-rose-500' : order.status === 'payment_failed' ? 'bg-red-500' : order.status === 'returned' || order.status === 'partially_returned' ? 'bg-blue-500' : order.status === 'shipped' ? 'bg-sky-500' : 'bg-amber-500' %>"></span>
+              <%= order.status === 'partially_delivered' ? 'Partially Delivered' : order.status === 'partially_returned' ? 'Partially Returned' : order.status === 'payment_failed' ? 'Payment Failed' : order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+            </span>
+          </div>
+
+          <div class="px-3 xs:px-4 sm:px-5 py-3 xs:py-4">
+            <div class="flex flex-col sm:flex-row gap-2 xs:gap-3">
+              <% shownItems.forEach(item => { %>
+                <div class="flex items-center gap-3 flex-1 min-w-0 p-2 xs:p-2.5 rounded-lg <%= shownItems.length === 1 ? 'bg-gray-50' : 'bg-gray-50' %>">
+                  <div class="w-12 xs:w-14 h-14 xs:h-16 rounded-md overflow-hidden bg-gray-200 shrink-0">
+                    <img src="<%= item.image || '/images/placeholder.jpg' %>" alt="<%= item.name %>" class="w-full h-full object-cover" onerror="this.src='/images/placeholder.jpg'" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs xs:text-sm font-medium text-gray-900 truncate"><%= item.name %></p>
+                    <p class="text-[11px] xs:text-xs sm:text-sm text-gray-500 mt-0.5">Qty: <%= item.quantity %> · ₹<%= item.unitPrice?.toLocaleString('en-IN') || 0 %></p>
+                    <span class="inline-flex items-center gap-1 text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 sm:px-2 py-0.5 rounded-full mt-1
+                      <%= item.status === 'delivered' ? 'bg-emerald-50 text-emerald-700' : item.status === 'cancelled' ? 'bg-rose-50 text-rose-700' : item.status === 'returned' ? 'bg-blue-50 text-blue-700' : item.status === 'shipped' ? 'bg-sky-50 text-sky-700' : 'bg-amber-50 text-amber-700' %>">
+                      <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
+                    </span>
+                  </div>
+                </div>
+              <% }) %>
+              <% if (remaining > 0) { %>
+                <div class="flex items-center justify-center w-full sm:w-20 shrink-0 rounded-lg bg-gray-50 text-sm font-medium text-gray-500 min-h-[44px]">
+                  +<%= remaining %> more
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 px-3 xs:px-4 sm:px-5 py-2.5 xs:py-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+              <div>
+                    <span class="text-[11px] xs:text-xs sm:text-sm text-gray-400"><%= itemCount %> item<%= itemCount > 1 ? 's' : '' %></span>
+                    <span class="mx-2 text-gray-300">·</span>
+                    <span class="text-sm xs:text-base font-semibold text-gray-900">₹<%= order.total.toLocaleString('en-IN') %></span>
+                </div>
+                <a href="/user/checkout/orderSummary/<%= order._id %>"
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 sm:px-4 py-2 text-[11px] xs:text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors btn-press">
+                  View Details
+                  <i class="fa-solid fa-chevron-right text-[10px] xs:text-xs"></i>
+                </a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (totalPages > 1) { %>
+      <div class="flex items-center justify-center gap-2 mt-10">
+        <% var prevPage = Math.max(currentPage - 1, 1); %>
+        <% var nextPage = Math.min(currentPage + 1, totalPages); %>
+        <% var qs = (search ? '&search=' + encodeURIComponent(search) : '') + (date ? '&date=' + encodeURIComponent(date) : '') + (statusFilter ? '&status=' + encodeURIComponent(statusFilter) : ''); %>
+
+        <a href="?page=<%= prevPage %><%= qs %>"
+          class="inline-flex items-center justify-center min-w-[44px] h-11 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-100 transition-colors <%= currentPage <= 1 ? 'pointer-events-none opacity-40' : '' %>">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </a>
+
+        <% var startPage = Math.max(1, currentPage - 2); %>
+        <% var endPage = Math.min(totalPages, currentPage + 2); %>
+
+        <% if (startPage > 1) { %>
+          <a href="?page=1<%= qs %>" class="inline-flex items-center justify-center min-w-[44px] h-11 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-100 transition-colors">1</a>
+          <% if (startPage > 2) { %>
+            <span class="text-sm text-gray-400 px-1">…</span>
+          <% } %>
+        <% } %>
+
+        <% for (var p = startPage; p <= endPage; p++) { %>
+          <a href="?page=<%= p %><%= qs %>"
+            class="inline-flex items-center justify-center min-w-[44px] h-11 rounded-lg text-sm font-medium transition-colors
+            <%= p === currentPage ? 'bg-gray-900 text-white shadow-sm' : 'border border-gray-300 text-gray-600 hover:bg-gray-100' %>">
+            <%= p %>
+          </a>
+        <% } %>
+
+        <% if (endPage < totalPages) { %>
+          <% if (endPage < totalPages - 1) { %>
+            <span class="text-sm text-gray-400 px-1">…</span>
+          <% } %>
+          <a href="?page=<%= totalPages %><%= qs %>" class="inline-flex items-center justify-center min-w-[44px] h-11 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-100 transition-colors"><%= totalPages %></a>
+        <% } %>
+
+        <a href="?page=<%= nextPage %><%= qs %>"
+          class="inline-flex items-center justify-center min-w-[44px] h-11 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-100 transition-colors <%= currentPage >= totalPages ? 'pointer-events-none opacity-40' : '' %>">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </a>
+      </div>
+    <% } %>
+
+  <% } else { %>
+    <div class="flex flex-col items-center justify-center py-24">
+      <i class="<%= statusFilter || search || date ? 'fa-regular fa-circle-question' : 'fa-regular fa-rectangle-list' %> text-5xl text-gray-300 mb-4"></i>
+      <h3 class="text-lg font-semibold text-gray-500"><%= statusFilter || search || date ? 'No matching orders' : 'No orders yet' %></h3>
+      <p class="text-sm text-gray-400 mt-1"><%= statusFilter || search || date ? 'Try adjusting your search or filter criteria' : 'Looks like you haven\'t placed any orders' %></p>
+      <% if (statusFilter || search || date) { %>
+        <a href="/user/orders" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">
+          <i class="fa-solid fa-xmark"></i>
+          Clear Filters
+        </a>
+      <% } else { %>
+        <a href="/user/productList" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors btn-press">
+          Start Shopping
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</div>

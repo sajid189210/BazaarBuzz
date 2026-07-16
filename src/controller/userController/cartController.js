@@ -1,19 +1,17 @@
+const { truncCurrency } = require('../../utils/currencyUtils');
+const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
+const MSG = require('../../constants/messages');
 const Cart = require('../../model/userCartModel');
 const Category = require('../../model/categoryModel');
 const Products = require('../../model/productModel');
 const Offer = require('../../model/offerModel');
 
-
-const round = (value) => {
-    return Math.trunc(value * 100) / 100;
-}
-
 // * shows the cart items.
 const getCart = async (req, res) => {
     try {
 
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
         const userId = req.session.user.userId;
 
         const [categories, cart, offers] = await Promise.all([
@@ -23,7 +21,7 @@ const getCart = async (req, res) => {
         ]);
 
         if (!cart) {
-            return res.redirect('/user');
+            return res.redirect(R.USER);
         }
 
         const originalLength = cart.items.length;
@@ -79,10 +77,10 @@ const getCart = async (req, res) => {
             cart,
             offers,
             user: req.session.user || null,
-            total: round(total),
-            subTotal: round(subTotal),
-            taxAmount: round(taxAmount),
-            totalDiscount: round(totalDiscount),
+            total: truncCurrency(total),
+            subTotal: truncCurrency(subTotal),
+            taxAmount: truncCurrency(taxAmount),
+            totalDiscount: truncCurrency(totalDiscount),
         });
 
     } catch (err) {
@@ -92,16 +90,16 @@ const getCart = async (req, res) => {
 
 //* Adds items to the cart
 const addToCart = async (req, res) => {
-    if (!req.session.user) return response.error(res, "Please Sign In to view the cart.", 400, {
+    if (!req.session.user) return response.error(res, MSG.CART_AUTH_REQUIRED, 400, {
         session: false,
-        redirectUrl: '/user/signIn'
+        redirectUrl: R.USER_SIGNIN
     });
 
-    const { productId, color, size } = req.body;
+    const { productId, color, size, quantity } = req.body;
     const userId = req.session.user.userId;
 
     if (!productId || !color || !size) {
-        return response.error(res, "Product details are missing.", 400, {
+        return response.error(res, MSG.PRODUCT_DETAILS_MISSING, 400, {
             session: true,
         });
     }
@@ -113,17 +111,18 @@ const addToCart = async (req, res) => {
         ]);
 
         if (!product) {
-            return response.error(res, "Product not found.", 404);
+            return response.error(res, MSG.PRODUCT_NOT_FOUND, 404, { session: true });
         }
 
         const selectedVariant = product.variants.find(v => v.size === size);
 
         if (!selectedVariant) {
-            return response.error(res, "Selected variant not found.", 404);
+            return response.error(res, MSG.SELECTED_VARIANT_NOT_FOUND, 404, { session: true });
         }
 
-        if (selectedVariant.stock <= 0) {
-            return response.error(res, "Product is out of stock.", 400);
+        const reqQty = parseInt(quantity) || 1;
+        if (selectedVariant.stock <= 0 || reqQty > selectedVariant.stock) {
+            return response.error(res, reqQty > selectedVariant.stock ? MSG.QTY_EXCEEDS_STOCK : MSG.OUT_OF_STOCK, 400, { session: true });
         }
 
         let cart = await Cart.findOne({ user: userId, });
@@ -139,7 +138,7 @@ const addToCart = async (req, res) => {
         );
 
         if (isSameItemExists) {
-            return response.error(res, "Item already exist in the cart", 400);
+            return response.error(res, MSG.ITEM_EXISTS_CART, 400, { session: true });
         }
 
         let offer = null;
@@ -169,10 +168,10 @@ const addToCart = async (req, res) => {
 
         cart.items.push({
             product: product._id,
-            quantity: 1,
+            quantity: reqQty,
             selectedColor: color,
             selectedSize: size,
-            discountedPrice: round(finalPrice),
+            discountedPrice: truncCurrency(finalPrice),
             offer: offer?._id || null
         });
 
@@ -181,8 +180,9 @@ const addToCart = async (req, res) => {
         return response.success(res, {
             session: true,
             success: true,
-            message: "Product successfully added in the cart.",
-            redirectUrl: '/user/cart'
+            message: MSG.PRODUCT_ADDED_CART,
+            redirectUrl: R.USER_CART,
+            cartCount: cart.items.length
         });
 
     } catch (err) {
@@ -192,13 +192,13 @@ const addToCart = async (req, res) => {
 
 //* Remove items from the cart.
 const removeItem = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { itemId } = req.body;
     const userId = req.session.user.userId;
 
     try {
-        if (!itemId) return response.error(res, 'Item ID or User ID is not found.', 400);
+        if (!itemId) return response.error(res, MSG.ITEM_ID_NOT_FOUND, 400);
 
         const result = await Cart.updateOne(
             { user: userId },
@@ -207,7 +207,7 @@ const removeItem = async (req, res) => {
 
         if (result.modifiedCount === 0) throw new Error("Item not found or already removed from the user's cart");
 
-        response.success(res, {}, "Item successfully removed from the cart.");
+        response.success(res, {}, MSG.ITEM_REMOVED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -216,26 +216,26 @@ const removeItem = async (req, res) => {
 
 //* Quantity updates
 const updateQuantity = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { itemId, process } = req.body;
     const userId = req.session.user.userId;
 
     if (!itemId || typeof process !== 'boolean') {
-        return response.error(res, "Invalid request.", 400);
+        return response.error(res, MSG.INVALID_REQUEST, 400);
     }
 
     try {
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
 
         if (!cart) {
-            return response.error(res, "Cart not found.", 404);
+            return response.error(res, MSG.CART_NOT_FOUND, 404);
         }
 
         const item = cart.items.find(item => item._id.toString() === itemId);
 
         if (!item) {
-            return response.error(res, "Cart item not found.", 404);
+            return response.error(res, MSG.CART_ITEM_NOT_FOUND, 404);
         }
 
         const variant = item.product.variants.find(
@@ -243,7 +243,7 @@ const updateQuantity = async (req, res) => {
         );
 
         if (!variant) {
-            return response.error(res, "Variant not found.", 404);
+                return response.error(res, MSG.VARIANT_NOT_FOUND, 404);
         }
 
         if (process) {
@@ -252,7 +252,7 @@ const updateQuantity = async (req, res) => {
             if (item.quantity >= 5) {
                 return response.error(
                     res,
-                    "Maximum 5 quantities are allowed.",
+                    MSG.MAX_QTY_REACHED,
                     400
                 );
             }
@@ -261,7 +261,7 @@ const updateQuantity = async (req, res) => {
             if (item.quantity >= variant.stock) {
                 return response.error(
                     res,
-                    "Only " + variant.stock + " item(s) available in stock.",
+                    MSG.STOCK_LIMIT_REACHED(variant.stock),
                     400
                 );
             }
@@ -274,7 +274,7 @@ const updateQuantity = async (req, res) => {
             if (item.quantity === 1) {
                 return response.error(
                     res,
-                    "Quantity cannot be less than 1.",
+                    MSG.MIN_QTY,
                     400
                 );
             }
@@ -287,9 +287,9 @@ const updateQuantity = async (req, res) => {
 
         return response.success(res, {
             success: true,
-            message: "Quantity updated successfully.",
+            message: MSG.QTY_UPDATED,
             quantity: item.quantity,
-            discountedPrice: round(item.discountedPrice * item.quantity),
+            discountedPrice: truncCurrency(item.discountedPrice * item.quantity),
         });
 
     } catch (err) {
