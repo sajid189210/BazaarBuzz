@@ -78,8 +78,13 @@ app.use((req, res, next) => {
 
 
 //* Static files
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use(express.static(path.join(__dirname, '..', 'public'), {
+    maxAge: '1y',
+    immutable: true
+}));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'), {
+    maxAge: '7d'
+}));
 
 
 //* Route Setup
