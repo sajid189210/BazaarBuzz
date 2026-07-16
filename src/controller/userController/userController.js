@@ -4,6 +4,7 @@ const response = require('../../Services/responseMapper');
 const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 const bcrypt = require('bcryptjs');
 const { WALLET_TYPE_USER } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
@@ -39,10 +40,14 @@ const userSignUpValidation = async (req, res, next) => {
             return res.json({ success: false, message: MSG.EMAIL_TAKEN });
         }
 
+        if (!req.session.otpVerified || req.session.otpEmail !== email) {
+            return res.json({ success: false, message: MSG.OTP_INVALID_EXPIRED });
+        }
+
         const details = {
             username: username,
             email: email,
-            password: bcrypt.hashSync(password, 10),
+            password: await bcrypt.hash(password, 10),
         };
 
         try {
@@ -59,6 +64,9 @@ const userSignUpValidation = async (req, res, next) => {
             userEmail: user.email,
             userName: user.username
         };
+
+        delete req.session.otpVerified;
+        delete req.session.otpEmail;
 
         response.success(res, {
             success: true,
@@ -141,22 +149,55 @@ const userSignInValidation = async (req, res) => {
     }
 };
 
-//* ---------------Update Password---------------------------
+//* ---------------Update Password (Profile)---------------------------
 const updatePassword = async (req, res) => {
-    const { newInput, email } = req.body;
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
+
+    const { currentPassword, newPassword } = req.body;
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: req.session.user.userEmail });
 
-        if (!user) return response.error(res, MSG.PROVIDE_VALID_EMAIL, 400);
+        if (!user) return response.error(res, MSG.USER_NOT_FOUND, 400);
 
-        const hashedPassword = await bcrypt.hash(newInput, 10);
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return response.error(res, MSG.INVALID_PASSWORD, 400);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await User.updateOne(
-            { email },
-            { $set: { password: hashedPassword } },
-            { new: true }
+            { _id: user._id },
+            { $set: { password: hashedPassword } }
         );
+
+        response.success(res, {}, MSG.PASSWORD_UPDATED);
+
+    } catch (err) {
+        response.serverError(res, err);
+    }
+};
+
+//* ---------------Reset Password via OTP (Forgot Password)---------------------------
+const resetPasswordWithOTP = async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        if (!req.session.passwordResetVerified || req.session.passwordResetEmail !== email) {
+            return response.error(res, MSG.OTP_INVALID_EXPIRED, 400);
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) return response.error(res, MSG.USER_NOT_FOUND, 400);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await User.updateOne(
+            { _id: user._id },
+            { $set: { password: hashedPassword } }
+        );
+
+        delete req.session.passwordResetVerified;
+        delete req.session.passwordResetEmail;
 
         response.success(res, {}, MSG.PASSWORD_UPDATED);
 
@@ -256,7 +297,7 @@ const searchSingleProduct = async (req, res) => {
 
         const { search } = req.query || '';
 
-        const regex = new RegExp(search, 'i');
+        const regex = new RegExp(escapeRegex(search), 'i');
 
         const products = await Product.find({ productName: regex });
 
@@ -273,7 +314,7 @@ const searchMultipleProducts = async (req, res) => {
 
         const { search } = req.query || '';
 
-        const regex = new RegExp(search, 'i');
+        const regex = new RegExp(escapeRegex(search), 'i');
 
         const products = await Product.find({ productName: regex });
 
@@ -477,6 +518,7 @@ module.exports = {
     userSignUpValidation,
     searchSingleProduct,
     updatePassword,
+    resetPasswordWithOTP,
     removeAddress,
     renderProfile,
     updateProfile,

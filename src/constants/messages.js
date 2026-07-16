@@ -219,4 +219,5 @@ module.exports = Object.freeze({
   OTP_INVALID_EXPIRED: 'Invalid or expired otp',
   OTP_INVALID_ID: 'Invalid OTP ID',
   OTP_EXPIRED: 'OTP has been expired',
+  OTP_VERIFIED: 'OTP verified successfully',
 });

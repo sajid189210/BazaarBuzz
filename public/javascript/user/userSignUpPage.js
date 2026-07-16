@@ -480,6 +480,7 @@ document.getElementById('OTPForm').addEventListener('submit', async function (ev
 
     const otpInputs = document.querySelectorAll('.otp-input');
     const otpId = document.getElementById('modalOtpId').value;
+    const email = document.getElementById('email').value;
 
     const otpValue = parseInt(Array.from(otpInputs).map(input => input.value).join(''));
 
@@ -489,7 +490,7 @@ document.getElementById('OTPForm').addEventListener('submit', async function (ev
         const response = await fetch('/user/otpVerify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ otpValue, otpId })
+            body: JSON.stringify({ otpValue, otpId, email })
         });
 
         const data = await response.json();

@@ -56,7 +56,7 @@ async function toggleCategory(id) {
             cancelButtonText: 'No'
         });
         if (!isConfirmed) return;
-        const res = await fetch('/admin/categoryStatus/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const res = await fetch('/admin/categoryStatus/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: '{}' });
         const data = await res.json();
         if (data.success) {
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Status updated', showConfirmButton: false, timer: 1500 });

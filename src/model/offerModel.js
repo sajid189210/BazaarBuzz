@@ -38,4 +38,8 @@ const offerModel = new mongoose.Schema({
 
 const Offer = mongoose.model('Offer', offerModel);
 
+offerModel.index({ isActive: 1, category: 1 });
+offerModel.index({ isDeleted: 1, createdAt: -1 });
+offerModel.index({ brandName: 1, category: 1 });
+
 module.exports = Offer;

@@ -1,12 +1,11 @@
-const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Offer = require('../../model/offerModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 
 
 const renderOffer = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     try {
 
         const page = parseInt(req.query.page) || 1;
@@ -19,8 +18,8 @@ const renderOffer = async (req, res) => {
 
         if (search) {
             filter.$or = [
-                { offerName: { $regex: search, $options: 'i' } },
-                { brandName: { $regex: search, $options: 'i' } },
+                { offerName: { $regex: escapeRegex(search), $options: 'i' } },
+                { brandName: { $regex: escapeRegex(search), $options: 'i' } },
             ];
         }
 
@@ -62,7 +61,6 @@ const renderOffer = async (req, res) => {
 };
 
 const createOffer = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     const { offerName, brandName, discountValue, category } = req.body;
 
     try {
@@ -97,7 +95,6 @@ const createOffer = async (req, res) => {
 };
 
 const changeStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     const { offerId } = req.body;
 
     try {
@@ -115,7 +112,6 @@ const changeStatus = async (req, res) => {
 };
 
 const updateOffer = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     const { discountValue, offerName, brandName, offerId, category } = req.body;
 
     try {

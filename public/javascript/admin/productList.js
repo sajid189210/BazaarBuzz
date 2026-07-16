@@ -257,7 +257,7 @@ async function toggleProduct(productId) {
     if (!isConfirmed) return;
     
     const res = await fetch('/admin/status', { 
-        method: 'PUT', 
+        method: 'PATCH', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ productId }) 
     });

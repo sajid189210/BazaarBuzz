@@ -4,7 +4,7 @@ async function applyCoupon() {
     if (!code) { msg.textContent = 'Please enter a coupon code'; msg.className = 'mt-2 text-xs text-red-500'; return; }
     try {
         const res = await fetch('/user/checkout/applyCoupon', {
-            method: 'PUT',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ inputValue: code })
         });

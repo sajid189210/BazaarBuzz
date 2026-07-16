@@ -3,7 +3,7 @@ document.getElementById('profileForm')?.addEventListener('submit', async functio
     const formData = new FormData(this);
     const body = Object.fromEntries(formData);
     try {
-        const res = await fetch('/user/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const res = await fetch('/user/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await res.json();
         if (data.success) {
             Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: data.message });
@@ -19,7 +19,7 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
     const formData = new FormData(this);
     const body = Object.fromEntries(formData);
     try {
-        const res = await fetch('/user/changePassword', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const res = await fetch('/user/changePassword', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await res.json();
         if (data.success) {
             Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: data.message });

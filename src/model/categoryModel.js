@@ -44,4 +44,7 @@ const categorySchema = new mongoose.Schema({
 
 const Category = mongoose.model("Category", categorySchema);
 
+categorySchema.index({ isDeleted: 1, isActive: 1 });
+categorySchema.index({ isDeleted: 1, createdAt: -1 });
+
 module.exports = Category;

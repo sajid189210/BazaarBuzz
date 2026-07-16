@@ -48,4 +48,8 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('user', userSchema);
 
+userSchema.index({ googleId: 1 });
+userSchema.index({ isBlocked: 1, createdAt: -1 });
+userSchema.index({ createdAt: -1 });
+
 module.exports = User;

@@ -2,15 +2,12 @@ const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const { updateStock } = require('../../utils/stockUtils');
 const response = require('../../Services/responseMapper');
-const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const { updateOrderStatus } = require('./orderController');
 
 const renderReturnsPage = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
@@ -65,8 +62,6 @@ const renderReturnsPage = async (req, res) => {
 };
 
 const returnStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     const { orderItemId, orderId, status, reason } = req.body;
 
     if (!orderItemId || !orderId) {

@@ -1,6 +1,7 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const { updateStock } = require('../../utils/stockUtils');
+const { escapeRegex } = require('../../utils/regexUtils');
 const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
 const MSG = require('../../constants/messages');
@@ -45,8 +46,6 @@ const updateOrderStatus = (order) => {
 // -----------------------------------------------------------
 
 const renderOrderList = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -61,8 +60,8 @@ const renderOrderList = async (req, res) => {
 
         if (search) {
             const orConditions = [
-                { 'items.name': { $regex: search, $options: 'i' } },
-                { 'items.brand': { $regex: search, $options: 'i' } },
+                { 'items.name': { $regex: escapeRegex(search), $options: 'i' } },
+                { 'items.brand': { $regex: escapeRegex(search), $options: 'i' } },
                 {
                     $expr: {
                         $regexMatch: {
@@ -130,8 +129,6 @@ const renderOrderList = async (req, res) => {
 };
 
 const renderOrderView = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     const { orderId } = req.query;
 
     try {
@@ -150,8 +147,6 @@ const renderOrderView = async (req, res) => {
 }
 
 const changeStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     const { orderStatus, orderId } = req.body;
 
     if (!orderStatus || !orderId) {

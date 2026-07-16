@@ -1,12 +1,10 @@
-const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Coupon = require('../../model/couponModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 
 const renderCouponPage = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
         const page = Math.max(1, parseInt(req.query.page) || 1);
         const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 10));
         const skip = (page - 1) * limit;
@@ -18,8 +16,8 @@ const renderCouponPage = async (req, res) => {
 
         if (search) {
             filter.$or = [
-                { couponCode: { $regex: search, $options: 'i' } },
-                { couponType: { $regex: search, $options: 'i' } },
+                { couponCode: { $regex: escapeRegex(search), $options: 'i' } },
+                { couponType: { $regex: escapeRegex(search), $options: 'i' } },
             ];
         }
 
@@ -51,8 +49,6 @@ const renderCouponPage = async (req, res) => {
 };
 
 const createCoupons = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     const { couponCode, couponType, couponValue, minAmount, expiry, count } = req.body;
 
     if (!couponCode || !couponType || !couponValue || !minAmount || !expiry || !count) {
@@ -94,8 +90,6 @@ const createCoupons = async (req, res) => {
 };
 
 const updateCoupons = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     try {
         const { couponCode, couponType, couponValue, minAmount, expiry, count, couponId } = req.body;
 
@@ -126,8 +120,6 @@ const updateCoupons = async (req, res) => {
 };
 
 const deleteCoupons = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     try {
         const deletedCoupon = await Coupon.findByIdAndUpdate(
             req.query.couponId,
@@ -147,8 +139,6 @@ const deleteCoupons = async (req, res) => {
 };
 
 const changeCouponStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     try {
         const { couponId } = req.body;
 

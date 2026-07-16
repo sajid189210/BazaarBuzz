@@ -74,4 +74,8 @@ const couponSchema = new mongoose.Schema({
 
 const Coupon = mongoose.model('Coupon', couponSchema);
 
+couponSchema.index({ isDeleted: 1, isActive: 1 });
+couponSchema.index({ isDeleted: 1, createdAt: -1 });
+couponSchema.index({ couponCode: 1, isDeleted: 1 });
+
 module.exports = Coupon;

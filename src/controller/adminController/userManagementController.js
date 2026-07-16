@@ -1,7 +1,7 @@
-const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const userModel = require('../../model/userModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 
 //?------finding the user by ID--------------
 const getUserById = async (id) => {
@@ -12,8 +12,6 @@ const getUserById = async (id) => {
 
 const userManagementPage = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || '';
@@ -24,7 +22,7 @@ const userManagementPage = async (req, res) => {
         let filter = {};
 
         if (search) {
-            const regex = new RegExp(search, 'i');
+            const regex = new RegExp(escapeRegex(search), 'i');
             filter.$or = [
                 { email: regex },
                 { username: regex }

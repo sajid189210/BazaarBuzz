@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const nocache = require('nocache');
 const session = require('express-session');
 const passport = require('passport');
@@ -16,10 +17,11 @@ const expressLayouts = require('express-ejs-layouts');
 
 
 //* Middleware Setup
+app.use(compression());
 app.use(nocache());
 // app.use(helmet());
 app.use(cors());
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.use(session({
     secret: process.env.SECRET_KEY,
@@ -34,17 +36,17 @@ app.use(flash());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// app.use(rateLimit({
-//     windowMs: 15 * 60 * 1000,
-//     max: 300,
-//     standardHeaders: true,
-//     legacyHeaders: false,
-//     statusCode: 429,
-//     message: {
-//         success: false,
-//         message: "Too many requests. Please try again later."
-//     }
-// }));
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10000,
+    standardHeaders: true,
+    legacyHeaders: false,
+    statusCode: 429,
+    message: {
+        success: false,
+        message: "Too many requests. Please try again later."
+    }
+}));
 
 
 //* Passport initialization
@@ -73,13 +75,19 @@ app.use((req, res, next) => {
     res.locals.PAYMENT_SOURCE_COD = PAYMENT_SOURCE_COD;
     res.locals.PAYMENT_SOURCE_RAZORPAY = PAYMENT_SOURCE_RAZORPAY;
     res.locals.PAYMENT_SOURCE_WALLET = PAYMENT_SOURCE_WALLET;
+    res.locals.supportEmail = process.env.SUPPORT_EMAIL || 'support@bazaarbuzz.com';
     next();
 });
 
 
 //* Static files
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use(express.static(path.join(__dirname, '..', 'public'), {
+    maxAge: '1y',
+    immutable: true
+}));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'), {
+    maxAge: '7d'
+}));
 
 
 //* Route Setup
