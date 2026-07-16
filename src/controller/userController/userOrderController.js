@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { truncCurrency } = require('../../utils/currencyUtils');
 const colorName = require('../../utils/colorName').name;
 const { updateStock } = require('../../utils/stockUtils');
@@ -9,7 +10,7 @@ const { PAYMENT_SOURCE_WALLET, PAYMENT_SOURCE_RAZORPAY } = require('../../consta
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const User = require('../../model/userModel');
-
+const Category = require('../../model/categoryModel');
 const crypto = require('crypto');
 const PDFDocument = require('pdfkit');
 require('dotenv').config();
@@ -17,15 +18,6 @@ require('dotenv').config();
 //* Razorpay configuration.
 const razorPayInstance = require('../../Services/razorPay');
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
-
-//? Validate date
-const validateDate = (date) => {
-    const [month, day, year] = date.split('/').map(Number);
-    const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
-    const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
-
-    return { startOfDay, endOfDay }
-}
 
 const updateOrderStatus = (order) => {
     const statuses = order.items.map(item => item.status);
@@ -67,16 +59,39 @@ const getOrders = async (req, res) => {
 
     const userId = req.session.user.userId;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 5;
     const search = req.query.search || '';
+    const date = req.query.date || '';
+    const statusFilter = req.query.status || '';
 
     let filter = { user: userId }
 
-    if (search) {
-        const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+    if (statusFilter && ['processing', 'shipped', 'delivered', 'cancelled', 'returned', 'payment_failed', 'partially_returned', 'partially_delivered'].includes(statusFilter)) {
+        filter.status = statusFilter;
+    }
 
-        if (regex.test(search)) {
-            const { startOfDay, endOfDay } = validateDate(search);
+    if (search) {
+        const objectIdRegex = /^[0-9a-f]{24}$/i;
+
+        if (objectIdRegex.test(search)) {
+            filter._id = new mongoose.Types.ObjectId(search);
+        } else if (search.length >= 3) {
+            const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            filter.$expr = {
+                $regexMatch: {
+                    input: { $toString: '$_id' },
+                    regex: escaped + '$'
+                }
+            };
+        }
+    }
+
+    if (date) {
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+        if (dateRegex.test(date)) {
+            const startOfDay = new Date(`${date}T00:00:00.000Z`);
+            const endOfDay = new Date(`${date}T23:59:59.999Z`);
 
             filter.createdAt = {
                 $gte: startOfDay,
@@ -99,7 +114,9 @@ const getOrders = async (req, res) => {
             title: 'My Orders',
             totalPages: Math.ceil(totalOrders / limit),
             currentPage: page,
-            searchBox: false,
+            search: search,
+            date: date,
+            statusFilter: statusFilter,
             orders,
             limit,
             user: req.session.user || null,
