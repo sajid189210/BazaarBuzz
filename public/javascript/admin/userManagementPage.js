@@ -224,7 +224,7 @@ async function toggleUser(userId) {
 
     try {
         const response = await fetch(`/admin/userList/${endpoint}/${userId}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' }
         });
 

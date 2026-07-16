@@ -118,7 +118,7 @@ function editCoupon(id) {
       if (!vals.expiry) { Swal.showValidationMessage('Expiry date is required'); return false; }
       if (!vals.count) { Swal.showValidationMessage('Usage limit is required'); return false; }
       return fetch('/admin/coupon', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(vals)
       }).then(res => res.json()).then(data => {

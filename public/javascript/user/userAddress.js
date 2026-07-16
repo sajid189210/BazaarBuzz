@@ -50,7 +50,7 @@ document.getElementById('addressForm')?.addEventListener('submit', async functio
     formData.delete('addressId');
     const formInputs = Object.fromEntries(formData);
     const url = addressId ? `/user/address/${addressId}` : '/user/address';
-    const method = addressId ? 'PUT' : 'POST';
+    const method = addressId ? 'PATCH' : 'POST';
     try {
         const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ formInputs }) });
         const data = await res.json();

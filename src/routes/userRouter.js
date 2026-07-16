@@ -19,12 +19,12 @@ router.post("/signUp", userController.userSignUpValidation);
 //*---------------[User Sign In]--------------------
 router.get('/signIn', userController.userSignIn);
 router.post('/signIn', userController.userSignInValidation);
-router.put('/changePassword', userController.updatePassword);
+router.patch('/changePassword', userController.updatePassword);
 
 //*---------------[Forgot Password (OTP)]--------------------
 router.post('/forgotPassword/otpRequest', otpController.requestPasswordResetOTP);
 router.post('/forgotPassword/otpVerify', otpController.verifyPasswordResetOTP);
-router.put('/forgotPassword/reset', userController.resetPasswordWithOTP);
+router.patch('/forgotPassword/reset', userController.resetPasswordWithOTP);
 
 //*-------[OTP verification]---------------
 router.post('/otpRequest', otpController.requestOTP);
@@ -36,10 +36,10 @@ router.get('/', userController.userHomepage);
 router.get('/address', userController.getAddress);
 router.get('/address/:addressId', userController.getSingleAddress);
 router.post('/address', userController.saveAddress);
-router.put('/address/:addressId', userController.editAddress);
+router.patch('/address/:addressId', userController.editAddress);
 router.delete('/address/:addressId', userController.removeAddress);
 router.get('/profile', userController.renderProfile);
-router.put('/profile', userController.updateProfile);
+router.patch('/profile', userController.updateProfile);
 
 //*-------------------[View Product Page]----------------
 router.get('/viewProduct', productViewController.viewProduct);
@@ -50,21 +50,21 @@ router.get('/filterProductList/:id', productListController.filterProductsList);
 
 //*--------------------[Cart List]-----------------------
 router.get('/cart', cartController.getCart);
-router.put('/cart', cartController.addToCart);
+router.post('/cart', cartController.addToCart);
 router.patch('/cart/updateQuantity', cartController.updateQuantity);
 router.delete('/cart/removeItem', cartController.removeItem);
 
 //*--------------------[Wishlist]-----------------------
 router.get('/wishlist', wishlistController.renderWishlist);
-router.put('/wishlist', wishlistController.addToWishList);
-router.put('/removeList', wishlistController.removeProduct);
+router.post('/wishlist', wishlistController.addToWishList);
+router.delete('/removeList', wishlistController.removeProduct);
 
 //*--------------------[Checkout]-----------------------
 router.get('/checkout', checkoutController.getCheckout);
 router.get('/checkout/orderSummary/:id', checkoutController.getOrderSummary);
 router.post('/checkout/payment', checkoutController.proceedToPayment);
 router.post('/checkout/verify', checkoutController.verifyPayment);
-router.put('/checkout/applyCoupon', checkoutController.applyCoupon);
+router.patch('/checkout/applyCoupon', checkoutController.applyCoupon);
 router.patch('/checkout/paymentFail', checkoutController.handlePaymentFailure)
 
 //*--------------------[Orders]-----------------------

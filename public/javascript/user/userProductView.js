@@ -633,7 +633,7 @@ async function toggleWishList(productId) {
     
     try {
         const res = await fetch('/user/wishlist', { 
-            method: 'PUT', 
+            method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ productId }) 
         });
@@ -740,7 +740,7 @@ async function handleAddToCart(e) {
     
     try {
         const response = await fetch('/user/cart', {
-            method: 'PUT',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ productId, size: selectedSize, color: selectedColor, quantity })
         });

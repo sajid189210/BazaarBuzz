@@ -53,7 +53,7 @@
                 <% } %>
     </div>
     <% blocks.scripts=` <script> async function removeFromWishlist(productId) { try { const res = await
-        fetch('/user/removeList', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body:
+        fetch('/user/removeList', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body:
         JSON.stringify({ productId }) }); const data = await res.json(); if (data.success) { Swal.mixin({ toast: true,
         position: 'top-end', showConfirmButton: false, timer: 2000 }).fire({ icon: 'success', title: data.message });
         setTimeout(() => location.reload(), 1500); } } catch (e) { console.log(e); } } </script>` %>

@@ -26,7 +26,7 @@ router.use(adminAuth);
 //*--------------------[Category]----------------
 router.get("/category", categoryController.adminCategory);
 router.post("/category/create", categoryController.createCategory);
-router.put("/categoryStatus/:id", categoryController.changeCategoryStatus);
+router.patch("/categoryStatus/:id", categoryController.changeCategoryStatus);
 router.patch("/category/update", categoryController.updateCategory);
 router.delete("/category/delete/:id", categoryController.deleteCategory);
 
@@ -34,8 +34,8 @@ router.delete("/category/delete/:id", categoryController.deleteCategory);
 //*---------------[User Management]-------------------------
 router.get('/userList/', userManagement.userManagementPage);
 // router.post('/search', userManagement.searchUser);
-router.put('/userList/blocked/:id', userManagement.blockUser);
-router.put('/userList/unblocked/:id', userManagement.unBlockUser);
+router.patch('/userList/blocked/:id', userManagement.blockUser);
+router.patch('/userList/unblocked/:id', userManagement.unBlockUser);
 
 
 //*------------------[Product Management]--------------------
@@ -47,8 +47,8 @@ router.get('/searchProduct', productManagement.searchProduct);
 router.get('/removeProduct', productManagement.removeProduct);
 router.post('/productList/create', productManagement.createProducts);
 router.post('/uploadImage', upload.single('croppedImage'), productManagement.extractFilePath);
-router.put('/status', productManagement.isActive);
-router.put('/productList/update', productManagement.productUpdate);
+router.patch('/status', productManagement.isActive);
+router.patch('/productList/update', productManagement.productUpdate);
 router.get('/editProduct/:id', productManagement.getEditProduct);
 router.post('/editProduct/:id', productManagement.postEditProduct);
 router.delete('/product/:id', productManagement.removeProduct);
@@ -62,14 +62,14 @@ router.patch('/order/changeStatus', orderController.changeStatus);
 //*------------------[Coupon Management]--------------------
 router.get('/coupon', couponController.renderCouponPage);
 router.post('/coupon', couponController.createCoupons);
-router.put('/coupon', couponController.updateCoupons);
+router.patch('/coupon', couponController.updateCoupons);
 router.delete('/coupon', couponController.deleteCoupons);
 router.patch('/coupon/status', couponController.changeCouponStatus);
 
 //*------------------[Offer]--------------------
 router.get('/offer', offerController.renderOffer);
 router.post('/offer', offerController.createOffer);
-router.put('/offer', offerController.updateOffer);
+router.patch('/offer', offerController.updateOffer);
 router.patch('/offer/status', offerController.changeStatus);
 router.delete('/offer/:id', offerController.removeOffer);
 

@@ -309,7 +309,7 @@ document.getElementById('forgotStep3').addEventListener('submit', async function
 
     let response;
     try {
-        response = await fetch('/user/forgotPassword/reset', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, newPassword: newPassword }) });
+        response = await fetch('/user/forgotPassword/reset', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, newPassword: newPassword }) });
     } catch (e) {
         console.error('reset fetch error:', e);
         faLoading('forgotStep3', false);

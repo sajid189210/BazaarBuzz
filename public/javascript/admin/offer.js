@@ -178,7 +178,7 @@ async function editOffer(id) {
     }
     try {
       const res = await fetch('/admin/offer', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result.value)
       });
