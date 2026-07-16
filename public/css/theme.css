@@ -242,3 +242,13 @@ button, a, input, select, textarea, .btn-press {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ==========================================
+   DESKTOP SCALING — scale all rem-based sizes
+   on laptop/desktop screens (1024px+)
+   ========================================== */
+@media (min-width: 1024px) {
+  .user-html {
+    font-size: 18px;
+  }
+}

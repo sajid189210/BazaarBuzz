@@ -10,7 +10,7 @@
 
         <% if (badge) { %>
           <div class="absolute top-3 left-3 z-10">
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] xs:text-xs sm:text-sm font-semibold uppercase tracking-wide
             <% if (badge === 'sale') { %> bg-[var(--badge-sale)] text-[var(--badge-sale-text)]
             <% } else if (badge === 'new') { %> bg-[var(--badge-new)] text-[var(--badge-new-text)]
             <% } else { %> bg-[var(--accent)] text-white <% } %>">
@@ -27,7 +27,7 @@
       </div>
 
       <div class="mt-3 space-y-1 px-1">
-        <p class="text-[11px] text-[var(--text-brand)] uppercase tracking-widest font-medium">
+        <p class="text-[11px] xs:text-xs sm:text-sm text-[var(--text-brand)] uppercase tracking-widest font-medium">
           <%= product.brand || 'BazaarBuzz' %>
         </p>
 
@@ -37,11 +37,11 @@
 
         <div class="flex items-baseline gap-2">
           <% if (showDiscount) { %>
-            <span class="text-sm font-semibold text-[var(--text-primary)]">₹<%= discPrice.toLocaleString() %></span>
-            <span class="text-xs text-[var(--text-muted)] line-through">₹<%= product.productPrice.toLocaleString() %>
+            <span class="text-sm font-semibold text-[var(--text-primary)]">₹<%= discPrice.toLocaleString('en-IN') %></span>
+            <span class="text-xs text-[var(--text-muted)] line-through">₹<%= product.productPrice.toLocaleString('en-IN') %>
                 </span>
             <% } else { %>
-              <span class="text-sm font-semibold text-[var(--text-primary)]">₹<%= product.productPrice.toLocaleString()
+              <span class="text-sm font-semibold text-[var(--text-primary)]">₹<%= product.productPrice.toLocaleString('en-IN')
                   %></span>
               <% } %>
         </div>

@@ -3,13 +3,13 @@
     <%- include('../partials/homeCarousel')%>
 
         <!-- FEATURED PRODUCTS (Primary Conversion Driver) -->
-        <section class="py-12 md:py-16 reveal">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <section class="py-10 sm:py-12 md:py-16 reveal">
+            <div class="mx-auto max-w-[1400px] px-3 xs:px-4 sm:px-6 lg:px-8">
                 <%- include('../partials/sectionHeader', { title: 'Featured Products' ,
                     subtitle: 'Our curated picks for you' , cta: { href: '/user/getProductList/featured' ,
                     label: 'View all' } }) %>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                         <% if(products && products.length) { %>
                             <% products.forEach((product)=> {
                                 if(product.featured) {
@@ -39,13 +39,13 @@
         </section>
 
         <!-- NEW ARRIVALS (Freshness Signal - Now Grid) -->
-        <section class="py-12 md:py-16 bg-gray-50 reveal">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <section class="py-10 sm:py-12 md:py-16 bg-gray-50 reveal">
+            <div class="mx-auto max-w-[1400px] px-3 xs:px-4 sm:px-6 lg:px-8">
                 <%- include('../partials/sectionHeader', { title: 'New Arrivals' ,
                     subtitle: 'The freshest drops this week' , cta: { href: '/user/getProductList/newArrival' ,
                     label: 'View all' } }) %>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                         <% if(products && products.length) { %>
                             <% products.forEach((product)=> {
                                 var discPrice = product.discount ?
@@ -64,8 +64,8 @@
         </section>
 
         <!-- SHOP BY CATEGORY (Navigation Aid) -->
-        <section class="py-12 md:py-16 reveal">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <section class="py-10 sm:py-12 md:py-16 reveal">
+            <div class="mx-auto max-w-[1400px] px-3 xs:px-4 sm:px-6 lg:px-8">
                 <%- include('../partials/sectionHeader', { title: 'Shop by Category' ,
                     subtitle: 'Explore our curated collections' }) %>
 
@@ -113,8 +113,8 @@
         </section>
 
         <!-- SEASONAL SALE BANNER (Promotional) -->
-        <section class="py-12 md:py-16 bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] reveal">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <section class="py-10 sm:py-12 md:py-16 bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] reveal">
+            <div class="mx-auto max-w-[1400px] px-3 xs:px-4 sm:px-6 lg:px-8">
                 <div
                     class="relative rounded-2xl overflow-hidden bg-black/10 backdrop-blur-sm p-8 md:p-12 lg:p-16 text-center">
                     <div class="absolute inset-0 bg-[url('/uploads/banner2.gif')] bg-cover bg-center opacity-10"></div>
@@ -138,8 +138,8 @@
         </section>
 
         <!-- FOOTER TRUST SECTION (Conversion Capture) -->
-        <section class="py-16 bg-gray-50 border-t border-gray-200">
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <section class="py-12 sm:py-16 bg-gray-50 border-t border-gray-200">
+            <div class="mx-auto max-w-[1400px] px-3 xs:px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
                     <!-- Brands Showcase -->
                     <div>
