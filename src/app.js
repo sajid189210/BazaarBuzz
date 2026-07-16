@@ -75,6 +75,7 @@ app.use((req, res, next) => {
     res.locals.PAYMENT_SOURCE_COD = PAYMENT_SOURCE_COD;
     res.locals.PAYMENT_SOURCE_RAZORPAY = PAYMENT_SOURCE_RAZORPAY;
     res.locals.PAYMENT_SOURCE_WALLET = PAYMENT_SOURCE_WALLET;
+    res.locals.supportEmail = process.env.SUPPORT_EMAIL || 'support@bazaarbuzz.com';
     next();
 });
 

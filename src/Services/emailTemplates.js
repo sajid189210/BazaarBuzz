@@ -1,3 +1,6 @@
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3080';
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@bazaarbuzz.com';
+
 const BRAND = {
   name: 'BazaarBuzz',
   primaryColor: '#E11D48',
@@ -7,9 +10,9 @@ const BRAND = {
   mutedColor: '#6B7280',
   borderColor: '#FECdd3',
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  logoUrl: 'https://bazaarbuzz.com/uploads/favicon-32x32.png',
-  websiteUrl: 'https://bazaarbuzz.com',
-  supportEmail: 'support@bazaarbuzz.com'
+  logoUrl: `${BASE_URL}/uploads/favicon-32x32.png`,
+  websiteUrl: BASE_URL,
+  supportEmail: SUPPORT_EMAIL
 };
 
 function generateOTPEmail(otp, expiryMinutes = 1) {
