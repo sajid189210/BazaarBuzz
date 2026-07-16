@@ -45,8 +45,6 @@ const updateOrderStatus = (order) => {
 // -----------------------------------------------------------
 
 const renderOrderList = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -130,8 +128,6 @@ const renderOrderList = async (req, res) => {
 };
 
 const renderOrderView = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     const { orderId } = req.query;
 
     try {
@@ -150,8 +146,6 @@ const renderOrderView = async (req, res) => {
 }
 
 const changeStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
     const { orderStatus, orderId } = req.body;
 
     if (!orderStatus || !orderId) {

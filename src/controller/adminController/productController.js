@@ -32,8 +32,6 @@ const getCategory = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
         const search = req.query.search || '';
@@ -129,8 +127,6 @@ const getProducts = async (req, res) => {
 const getProductsJson = async (req, res) => {
     try {
 
-        if (!req.session.admin) return response.error(res, MSG.UNAUTHORIZED_AJAX, 401);
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
         const search = req.query.search || '';
@@ -214,7 +210,6 @@ const getProductsJson = async (req, res) => {
 const getCreateProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const Category = await categoryModel.find();
 
         if (!Category) throw new Error("Error caught while fetching category data.");
@@ -354,7 +349,6 @@ const extractFilePath = async (req, res) => {
 
 const getEditProduct = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const productId = req.params.id;
         const product = await Product.findById(productId);
         const categories = await categoryModel.find();
@@ -367,7 +361,6 @@ const getEditProduct = async (req, res) => {
 
 const postEditProduct = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const productId = req.params.id;
         const { productName, brand, category, productPrice, discount, productDescription } = req.body;
         

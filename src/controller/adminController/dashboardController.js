@@ -1,4 +1,3 @@
-const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Order = require('../../model/orderModel');
@@ -345,8 +344,6 @@ const getMonthlyOrderCount = async () => {
 
 const getDashboard = async (req, res) => {
     try {
-
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
         const repeatedCustomer = await repeatCustomerRate();
         const revenueByBrand = await generateRevenueByBrand();

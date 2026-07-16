@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const adminAuth = require('../middleware/adminAuth');
 const dashboardController = require('../controller/adminController/dashboardController')
 const categoryController = require("../controller/adminController/categoryController");
 const productManagement = require('../controller/adminController/productController');
@@ -20,6 +21,7 @@ router.get("/signIn", adminController.adminSignIn);
 router.get("/signOut", adminController.adminSignOut);
 router.post("/signIn", adminController.validateCredentials);
 
+router.use(adminAuth);
 
 //*--------------------[Category]----------------
 router.get("/category", categoryController.adminCategory);

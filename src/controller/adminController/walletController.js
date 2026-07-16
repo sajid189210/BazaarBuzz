@@ -1,4 +1,3 @@
-const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
@@ -6,7 +5,6 @@ const Wallet = require('../../model/walletModel');
 
 const renderWalletPage = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
         const adminId = req.session.admin.id;
 
