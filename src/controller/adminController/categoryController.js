@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
@@ -109,7 +110,7 @@ const deleteCategory = async (req, res) => {
 
 const adminCategory = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;

@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Order = require('../../model/orderModel');
@@ -8,7 +9,7 @@ const { PassThrough } = require('stream');
 let match = {};
 
 const renderReport = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     try {
         let selectedDate = req.query.selectedDate || null;
 
@@ -69,7 +70,7 @@ const renderReport = async (req, res) => {
 
 
 const downloadReport = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
     try {
         // Fetch orders based on any filters applied
         const orders = await Order.find(match)

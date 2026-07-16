@@ -1,3 +1,5 @@
+const R = require('../../constants/redirects');
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const passport = require('passport');
 const User = require('../../model/userModel');
@@ -21,7 +23,7 @@ const callback = async (req, res, next) => {
         }
 
         if (!authResult) {
-            return res.redirect('/user/signIn');
+            return res.redirect(R.USER_SIGNIN);
         }
 
         req.session.user = {
@@ -30,7 +32,7 @@ const callback = async (req, res, next) => {
             userName: authResult.username,
             userEmail: authResult.email
         };
-        res.redirect('/');
+        res.redirect(R.HOME);
     })(req, res, next);
 };
 

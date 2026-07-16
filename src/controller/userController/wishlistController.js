@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Wishlist = require('../../model/wishlistModel');
@@ -9,7 +10,7 @@ const Category = require('../../model/categoryModel');
 const renderWishlist = async (req, res) => {
     try {
 
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
         const userId = req.session.user.userId;
 
@@ -48,7 +49,7 @@ const renderWishlist = async (req, res) => {
 const addToWishList = async (req, res) => {
     try {
         if (!req.session.user) return response.error(res, MSG.WISHLIST_AUTH_REQUIRED, 400, { session: false,
-            redirectUrl: MSG.USER_SIGNIN
+            redirectUrl: R.USER_SIGNIN
         });
 
         const userId = req.session.user.userId;
@@ -59,7 +60,7 @@ const addToWishList = async (req, res) => {
 
         const existingItem = wishlist.items.find(item => item.product.toString() === productId);
 
-        if (existingItem) return response.error(res, MSG.WISHLIST_EXISTS, 409, { session: true, redirectUrl: "/user/wishlist" });
+        if (existingItem) return response.error(res, MSG.WISHLIST_EXISTS, 409, { session: true, redirectUrl: R.USER_WISHLIST });
 
         wishlist.items.push({ product: productId });
         await wishlist.save();
@@ -75,7 +76,7 @@ const addToWishList = async (req, res) => {
 }
 
 const removeProduct = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
     const userId = req.session.user.userId;
     const { productId } = req.body;
 

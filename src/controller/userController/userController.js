@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const { body, validationResult } = require('express-validator');
@@ -61,7 +62,7 @@ const userSignUpValidation = async (req, res, next) => {
 
         response.success(res, {
             success: true,
-            redirectUrl: '/'
+            redirectUrl: R.HOME
         });
 
     } catch (err) {
@@ -74,7 +75,7 @@ const userSignUpValidation = async (req, res, next) => {
 const userSignUp = (req, res) => {
 
     try {
-        if (req.session.user) return res.redirect('/');
+        if (req.session.user) return res.redirect(R.HOME);
         const authErrors = req.session.userAuthErrorMessages || '';
 
         req.session.userAuthErrorMessages = '';
@@ -132,7 +133,7 @@ const userSignInValidation = async (req, res) => {
             userName: user.username
         };
 
-        return res.redirect('/');
+        return res.redirect(R.HOME);
 
     } catch (err) {
         console.error(`Error caught userSignInValidation in the userController. ${err.message}`);
@@ -169,7 +170,7 @@ const updatePassword = async (req, res) => {
 const userSignIn = (req, res) => {
     try {
 
-        if (req.session.user) return res.redirect('/');
+        if (req.session.user) return res.redirect(R.HOME);
 
         const authErrors = req.session.signInAuthErrorMessages || '';
 
@@ -291,7 +292,7 @@ const searchMultipleProducts = async (req, res) => {
 const getAddress = async (req, res) => {
     try {
 
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
         const userDetails = await User.findById(req.session.user.userId)
         const categories = await Category.find();
@@ -312,7 +313,7 @@ const getAddress = async (req, res) => {
 //*--------------[Get Single Address] ---------------
 const getSingleAddress = async (req, res) => {
     try {
-        if (!req.session.user) return response.error(res, MSG.NOT_AUTHENTICATED, 401, { session: false, redirectUrl: MSG.USER_SIGNIN });
+        if (!req.session.user) return response.error(res, MSG.NOT_AUTHENTICATED, 401, { session: false, redirectUrl: R.USER_SIGNIN });
         const { addressId } = req.params;
         const user = await User.findById(req.session.user.userId);
         if (!user) return response.error(res, MSG.USER_NOT_FOUND, 404);
@@ -401,7 +402,7 @@ const editAddress = async (req, res) => {
 const renderProfile = async (req, res) => {
     try {
 
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
         const userId = req.session.user.userId;
 
@@ -424,7 +425,7 @@ const renderProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
         const userId = req.session.user.userId;
         const { username, email, phone } = req.body;
@@ -445,7 +446,7 @@ const userSignOut = (req, res) => {
     try {
 
         req.session.destroy();
-        res.redirect('/user/signIn');
+        res.redirect(R.USER_SIGNIN);
 
     } catch (err) {
         response.serverError(res, err);

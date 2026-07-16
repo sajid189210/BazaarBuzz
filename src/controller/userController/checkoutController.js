@@ -1,10 +1,11 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
+const { updateStock } = require('../../utils/stockUtils');
 const razorPayInstance = require('../../Services/razorPay');
+const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
 const MSG = require('../../constants/messages');
 const crypto = require('crypto');
 
-const Product = require('../../model/productModel');
 const Coupon = require('../../model/couponModel');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
@@ -18,32 +19,6 @@ require('dotenv').config();
 
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
-const handleStock = async (order, increment) => {
-    const result = await Promise.all(
-        order.items.map((item) => {
-            const quantity = increment ? item.quantity : -item.quantity;
-
-            return Product.findOneAndUpdate(
-                {
-                    _id: item.productId,
-                    variants: {
-                        $elemMatch: {
-                            size: item.selectedSize,
-                            colors: item.selectedColor,
-                        },
-                    },
-                },
-                {
-                    $inc: {
-                        "variants.$.stock": quantity,
-                    },
-                },
-                { new: true, runValidators: true }
-            )
-        })
-    );
-    return result.every(product => product !== null);
-};
 
 const clearCart = async (userId) => {
     await Cart.findOneAndUpdate(
@@ -58,7 +33,7 @@ const clearCart = async (userId) => {
 };
 
 const getCheckout = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId;
 
@@ -80,7 +55,7 @@ const getCheckout = async (req, res) => {
 
         if (!cart.items?.length) {
             req.flash("error", MSG.CART_EMPTY_FLASH);
-            return res.redirect("/user/cart");
+            return res.redirect(R.USER_CART);
         }
 
         let subTotal = 0;
@@ -122,7 +97,7 @@ const getCheckout = async (req, res) => {
 };
 
 const getOrderSummary = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
     const orderId = req.params.id;
 
     try {
@@ -144,7 +119,7 @@ const getOrderSummary = async (req, res) => {
 }
 
 const proceedToPayment = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId || '';
     const { addressId, paymentMethod } = req.body;
@@ -167,7 +142,7 @@ const proceedToPayment = async (req, res) => {
 
         if (!cart.items?.length) {
             req.flash("error", MSG.CART_EMPTY_FLASH);
-            return res.redirect("/user/cart");
+            return res.redirect(R.USER_CART);
         }
 
         if (cart?.coupon) {
@@ -242,7 +217,7 @@ const proceedToPayment = async (req, res) => {
 
                 await newOrder.save();
                 await user.save();
-                await handleStock(newOrder, false);
+                await updateStock(newOrder.items, false);
 
                 return response.success(res, {
                     razorpayOrderId: order.id,
@@ -305,7 +280,7 @@ const proceedToPayment = async (req, res) => {
                 await user.save();
                 await wallet.save();
                 await adminWallet.save();
-                await handleStock(newOrder, false);
+                await updateStock(newOrder.items, false);
                 await clearCart(userId);
                 return response.success(res, {
                     success: true,
@@ -329,7 +304,7 @@ const proceedToPayment = async (req, res) => {
             await newOrder.save();
             await user.save();
 
-            await handleStock(newOrder, false);
+            await updateStock(newOrder.items, false);
             await clearCart(userId);
 
             return response.success(res, { success: true, orderType: paymentMethod, newOrderId: newOrder._id });
@@ -341,7 +316,7 @@ const proceedToPayment = async (req, res) => {
 };
 
 const applyCoupon = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { inputValue } = req.body;
     const userId = req.session.user.userId;
@@ -466,7 +441,7 @@ const applyCoupon = async (req, res) => {
 };
 
 const verifyPayment = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId;
     const { razorpayPaymentId, razorpayOrderId, signature, orderId } = req.body;
@@ -538,7 +513,7 @@ const handlePaymentFailure = async (req, res) => {
             return response.error(res, MSG.ORDER_NOT_FOUND_CHECKOUT, 400);
         }
 
-        await handleStock(order, true);
+        await updateStock(order.items, true);
 
         return response.success(res, { success: true });
 

@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
 const Order = require('../../model/orderModel');
 const MSG = require('../../constants/messages');
@@ -5,7 +6,7 @@ const MSG = require('../../constants/messages');
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
 const requestProductReturn = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { orderId, orderItemId, reason } = req.body;
 

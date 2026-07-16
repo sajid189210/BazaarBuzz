@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
@@ -31,7 +32,7 @@ const getCategory = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
@@ -213,7 +214,7 @@ const getProductsJson = async (req, res) => {
 const getCreateProducts = async (req, res) => {
     try {
 
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const Category = await categoryModel.find();
 
         if (!Category) throw new Error("Error caught while fetching category data.");
@@ -234,7 +235,7 @@ const createProducts = async (req, res) => {
         const variants = req.body.variants || [];
         
         if (!variants || variants.length === 0) {
-            return res.redirect('/admin/productList/create');
+            return res.redirect(R.ADMIN_PRODUCT_CREATE);
         }
 
         let categoryName;
@@ -266,7 +267,7 @@ const createProducts = async (req, res) => {
         const newProduct = new Product(productData);
         await newProduct.save();
 
-        res.redirect('/admin/productList');
+        res.redirect(R.ADMIN_PRODUCT_LIST);
 
     } catch (err) {
         response.serverError(res, err);
@@ -353,11 +354,11 @@ const extractFilePath = async (req, res) => {
 
 const getEditProduct = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const productId = req.params.id;
         const product = await Product.findById(productId);
         const categories = await categoryModel.find();
-        if (!product) return res.redirect('/admin/productList');
+        if (!product) return res.redirect(R.ADMIN_PRODUCT_LIST);
         res.render('admin/editProduct', { layout: 'admin/layout', title: 'Edit Product', product, categories });
     } catch (err) {
         response.serverError(res, err);
@@ -366,7 +367,7 @@ const getEditProduct = async (req, res) => {
 
 const postEditProduct = async (req, res) => {
     try {
-        if (!req.session.admin) return res.redirect('/admin/signIn');
+        if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
         const productId = req.params.id;
         const { productName, brand, category, productPrice, discount, productDescription } = req.body;
         
@@ -375,7 +376,7 @@ const postEditProduct = async (req, res) => {
         const images = req.body.images ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) : [];
 
         if (!variants || variants.length === 0) {
-            return res.redirect('/admin/productList');
+            return res.redirect(R.ADMIN_PRODUCT_LIST);
         }
 
         let categoryName;
@@ -411,7 +412,7 @@ const postEditProduct = async (req, res) => {
         );
 
         if (!updated) return response.error(res, MSG.PRODUCT_NOT_FOUND, 404);
-        res.redirect(MSG.ADMIN_PRODUCT_LIST);
+        res.redirect(R.ADMIN_PRODUCT_LIST);
     } catch (err) {
         response.serverError(res, err);
     }

@@ -1,9 +1,9 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const colorName = require('../../utils/colorName').name;
+const { updateStock } = require('../../utils/stockUtils');
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
-const Category = require('../../model/categoryModel');
-const Product = require('../../model/productModel');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const { PAYMENT_SOURCE_WALLET, PAYMENT_SOURCE_RAZORPAY } = require('../../constants/paymentSources');
 const Wallet = require('../../model/walletModel');
@@ -17,33 +17,6 @@ require('dotenv').config();
 //* Razorpay configuration.
 const razorPayInstance = require('../../Services/razorPay');
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
-
-const handleStock = async (item, increment) => {
-    const quantity = increment ? item.quantity : -item.quantity;
-
-    const product = await Product.findOneAndUpdate(
-        {
-            _id: item.productId,
-            variants: {
-                $elemMatch: {
-                    size: item.selectedSize,
-                    colors: item.selectedColor,
-                },
-            },
-        },
-        {
-            $inc: {
-                "variants.$.stock": quantity,
-            },
-        },
-        {
-            new: true,
-            runValidators: true,
-        }
-    );
-
-    return !!product;
-};
 
 //? Validate date
 const validateDate = (date) => {
@@ -90,7 +63,7 @@ const updateOrderStatus = (order) => {
 // ----------------------------------------
 
 const getOrders = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const userId = req.session.user.userId;
     const page = parseInt(req.query.page) || 1;
@@ -139,7 +112,7 @@ const getOrders = async (req, res) => {
 }
 
 const requestProductReturn = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { productId, orderItemId, reason } = req.body;
 
@@ -167,7 +140,7 @@ const requestProductReturn = async (req, res) => {
 };
 
 const cancelProduct = async (req, res) => {
-    if (!req.session.user) return res.redirect("/user/signIn");
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { orderItemId, orderId } = req.body;
     const userId = req.session.user.userId;
@@ -192,8 +165,7 @@ const cancelProduct = async (req, res) => {
             return response.error(res, MSG.ITEM_ALREADY_CANCELLED, 400);
         }
 
-        // Restore stock only for this item
-        const stockUpdated = await handleStock(item, true);
+        const stockUpdated = await updateStock([item], true);
 
         if (!stockUpdated) {
             return response.error(res, MSG.CANCELLATION_FAILED, 500);
@@ -274,7 +246,7 @@ const cancelProduct = async (req, res) => {
 };
 
 const retryPayment = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
     const userId = req.session.user.userId;
 
     try {
@@ -288,7 +260,7 @@ const retryPayment = async (req, res) => {
         }
 
         if (repayingOrder.payment.status !== 'failed' || repayingOrder.payment.method !== PAYMENT_SOURCE_RAZORPAY) {
-            return response.error(res, 'This order is not eligible for retry.', 400);
+            return response.error(res, MSG.ORDER_NOT_ELIGIBLE_RETRY, 400);
         }
 
         const totalPay = repayingOrder.total;
@@ -319,7 +291,7 @@ const retryPayment = async (req, res) => {
 };
 
 const verifyRetryPayment = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { razorpayPaymentId, razorpayOrderId, signature, orderId } = req.body;
 

@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
@@ -141,7 +142,7 @@ const filterProductsList = async (req, res) => {
             // If no filters are applied, return all products
             return response.success(res, {
                 success: false,
-                message: "Please select a filter",
+                message: MSG.SELECT_FILTER,
                 products,
                 collectionId
             });

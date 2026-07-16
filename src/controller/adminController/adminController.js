@@ -1,4 +1,5 @@
 //validating admin credentials.
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const adminModel = require('../../model/adminModel');
@@ -14,25 +15,25 @@ const validateCredentials = async (req, res) => {
 
         if (!email || !password) {
             req.flash("error", MSG.FILL_ALL_FIELDS);
-            return res.redirect('/admin/signIn');
+            return res.redirect(R.ADMIN_SIGNIN);
         }
 
         const admin = await adminModel.findOne({ email }).lean();
 
         if (!admin) {
             req.flash('error', MSG.INVALID_CREDENTIALS);
-            return res.redirect("/admin/signIn");
+            return res.redirect(R.ADMIN_SIGNIN);
         }
 
         const isPasswordMatch = await bcrypt.compare(password, admin.password);
 
         if (!isPasswordMatch) {
             req.flash("error", MSG.INVALID_CREDENTIALS_ASTERISK);
-            return res.redirect("/admin/signIn");
+            return res.redirect(R.ADMIN_SIGNIN);
         }
 
         req.session.admin = { id: admin._id, email: admin.email };
-        res.redirect('/admin/dashboard');
+        res.redirect(R.ADMIN_DASHBOARD);
 
     } catch (err) {
         response.serverError(res, err);
@@ -45,7 +46,7 @@ const validateCredentials = async (req, res) => {
 const adminSignIn = async (req, res) => {
     try {
         if (req.session.admin) {
-            return res.redirect('/admin/dashboard');
+            return res.redirect(R.ADMIN_DASHBOARD);
         }
 
         res.locals.hideUI = true;
@@ -62,7 +63,7 @@ const adminSignOut = (req, res) => {
     try {
 
         req.session.destroy();
-        res.redirect("/admin/signIn")
+        res.redirect(R.ADMIN_SIGNIN)
 
     } catch (err) {
         response.serverError(res, err);

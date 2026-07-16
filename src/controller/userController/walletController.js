@@ -1,3 +1,4 @@
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER } = require('../../constants/walletTypes');
@@ -9,7 +10,7 @@ const razorpayInstance = require('../../Services/razorPay');
 const renderWallet = async (req, res) => {
     try {
 
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
         const userId = req.session.user.userId;
 
         const limit = parseInt(req.query.limit) || 10;
@@ -63,7 +64,7 @@ const renderWallet = async (req, res) => {
 
 const createRazorpayOrder = async (req, res) => {
     try {
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
         const userId = req.session.user.userId;
         const walletMoneyInput = parseInt(req.body.walletMoneyInput, 10);

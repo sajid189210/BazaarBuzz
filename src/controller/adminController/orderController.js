@@ -1,43 +1,13 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
+const { updateStock } = require('../../utils/stockUtils');
+const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
 const MSG = require('../../constants/messages');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
-const Product = require('../../model/productModel');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
-
-const adjustStock = async (items, increment) => {
-    const results = await Promise.all(
-        items.map((item) => {
-            const quantity = increment ? item.quantity : -item.quantity;
-
-            return Product.findOneAndUpdate(
-                {
-                    _id: item.productId,
-                    variants: {
-                        $elemMatch: {
-                            size: item.selectedSize,
-                            color: item.selectedColor,
-                        },
-                    },
-                },
-                {
-                    $inc: {
-                        "variants.$.stock": quantity,
-                    },
-                },
-                { new: true, runValidators: true }
-            )
-        })
-    );
-    const failed = results.filter(r => !r);
-    if (failed.length) {
-        console.warn(`[Stock] ${failed.length} product(s) not found during stock adjustment`);
-    }
-    return true;
-};
 
 const updateOrderStatus = (order) => {
     const statuses = order.items.map(item => item.status);
@@ -75,7 +45,7 @@ const updateOrderStatus = (order) => {
 // -----------------------------------------------------------
 
 const renderOrderList = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
     try {
         const page = parseInt(req.query.page) || 1;
@@ -160,7 +130,7 @@ const renderOrderList = async (req, res) => {
 };
 
 const renderOrderView = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
     const { orderId } = req.query;
 
@@ -168,8 +138,8 @@ const renderOrderView = async (req, res) => {
         const order = await Order.findById(orderId);
 
         if (!order) {
-            req.flash("error", "Failed to load orders.", 400);
-            return res.redirect('/admin/dashboard');
+            req.flash("error", MSG.FAILED_LOAD_ORDERS, 400);
+            return res.redirect(R.ADMIN_DASHBOARD);
         }
 
         res.render('admin/adminOrderView', { layout: 'admin/layout', title: 'Order Details', order });
@@ -180,7 +150,7 @@ const renderOrderView = async (req, res) => {
 }
 
 const changeStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/signIn");
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
     const { orderStatus, orderId } = req.body;
 
@@ -200,7 +170,7 @@ const changeStatus = async (req, res) => {
         }
 
         if (order.payment.status === 'failed') {
-            return response.error(res, 'Cannot change status for failed payment orders.', 400);
+            return response.error(res, MSG.ORDER_FAILED_PAYMENT_STATUS, 400);
         }
 
         const eligibleItems = order.items.filter(item => {
@@ -224,7 +194,7 @@ const changeStatus = async (req, res) => {
         }
 
         if (orderStatus === 'cancelled') {
-            const stockUpdated = await adjustStock(eligibleItems, true);
+            const stockUpdated = await updateStock(eligibleItems, true);
 
             if (!stockUpdated) {
                 return response.error(res, MSG.FAILED_RESTORE_STOCK, 500);
@@ -260,7 +230,7 @@ const changeStatus = async (req, res) => {
                     order.status = updateOrderStatus(order);
                     await Promise.all([wallet.save(), adminWallet.save(), order.save()]);
                 } catch (err) {
-                    await adjustStock(eligibleItems, false);
+                    await updateStock(eligibleItems, false);
                     throw err;
                 }
             } else {
@@ -311,6 +281,5 @@ module.exports = {
     renderOrderView,
     renderOrderList,
     changeStatus,
-    adjustStock,
     updateOrderStatus,
 }

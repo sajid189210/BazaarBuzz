@@ -1,10 +1,5 @@
 module.exports = Object.freeze({
 
-  // ───── Redirects ─────
-  ADMIN_SIGNIN: '/admin/signIn',
-  USER_SIGNIN: '/user/signIn',
-  USER_CART: '/user/cart',
-
   // ───── Auth ─────
   CART_AUTH_REQUIRED: 'Please Sign In to view the cart.',
   UNAUTHORIZED_ORDER: 'Unauthorized to access this order.',
@@ -162,6 +157,16 @@ module.exports = Object.freeze({
   INVALID_DATE_SELECTION: 'Invalid date selection.',
   INVALID_FORMAT: 'Invalid format selection.',
 
+  ORDER_FAILED_PAYMENT_STATUS: 'Cannot change status for failed payment orders.',
+  ORDER_NOT_ELIGIBLE_RETRY: 'This order is not eligible for retry.',
+
+  // ───── Server ─────
+  SERVER_ERROR: 'Server error',
+  SELECT_FILTER: 'Please select a filter',
+
+  // ───── Stock ─────
+  STOCK_LIMIT_REACHED: (avail) => `Only ${avail} item(s) available in stock.`,
+
   // ───── Admin: Dashboard ─────
   FAILED_LOAD_ORDERS: 'Failed to load orders.',
 
@@ -214,7 +219,4 @@ module.exports = Object.freeze({
   OTP_INVALID_EXPIRED: 'Invalid or expired otp',
   OTP_INVALID_ID: 'Invalid OTP ID',
   OTP_EXPIRED: 'OTP has been expired',
-
-  // ───── Redirects (additional) ─────
-  ADMIN_PRODUCT_LIST: '/admin/productList',
 });

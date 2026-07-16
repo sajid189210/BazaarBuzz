@@ -1,15 +1,15 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
+const { updateStock } = require('../../utils/stockUtils');
 const response = require('../../Services/responseMapper');
+const R = require('../../constants/redirects');
 const MSG = require('../../constants/messages');
-const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
-const Product = require('../../model/productModel');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
-const { adjustStock, updateOrderStatus } = require('./orderController');
+const { updateOrderStatus } = require('./orderController');
 
 const renderReturnsPage = async (req, res) => {
-    if (!req.session.admin) return res.redirect('/admin/signIn');
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
     try {
         const page = parseInt(req.query.page) || 1;
@@ -60,12 +60,12 @@ const renderReturnsPage = async (req, res) => {
 
     } catch (err) {
         console.error('Returns page error:', err);
-        res.status(500).send('Server error');
+        res.status(500).send(MSG.SERVER_ERROR);
     }
 };
 
 const returnStatus = async (req, res) => {
-    if (!req.session.admin) return res.redirect("/admin/signIn");
+    if (!req.session.admin) return res.redirect(R.ADMIN_SIGNIN);
 
     const { orderItemId, orderId, status, reason } = req.body;
 
@@ -134,7 +134,7 @@ const returnStatus = async (req, res) => {
 
             wallet.balance += refundedAmount;
 
-            const stockUpdated = await adjustStock([item], true);
+            const stockUpdated = await updateStock([item], true);
             let stockWarning = false;
             if (!stockUpdated) {
                 console.warn(`[Stock restore failed] Order: ${orderId}, Item: ${orderItemId}, Product: ${item.productId}`);

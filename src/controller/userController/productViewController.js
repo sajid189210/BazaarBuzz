@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Product = require('../../model/productModel');
 const Category = require('../../model/categoryModel');
@@ -11,7 +12,7 @@ const viewProduct = async (req, res) => {
 
         if (!product) {
             return res.render('user/userProductView', {
-                title: 'Product Not Found',
+                title: MSG.PRODUCT_NOT_FOUND,
                 product: null,
                 categories: await Category.find(),
                 searchBox: true,

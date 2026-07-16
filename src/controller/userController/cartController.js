@@ -1,4 +1,5 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
+const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
 const MSG = require('../../constants/messages');
 const Cart = require('../../model/userCartModel');
@@ -10,7 +11,7 @@ const Offer = require('../../model/offerModel');
 const getCart = async (req, res) => {
     try {
 
-        if (!req.session.user) return res.redirect('/user/signIn');
+        if (!req.session.user) return res.redirect(R.USER_SIGNIN);
         const userId = req.session.user.userId;
 
         const [categories, cart, offers] = await Promise.all([
@@ -20,7 +21,7 @@ const getCart = async (req, res) => {
         ]);
 
         if (!cart) {
-            return res.redirect('/user');
+            return res.redirect(R.USER);
         }
 
         const originalLength = cart.items.length;
@@ -91,7 +92,7 @@ const getCart = async (req, res) => {
 const addToCart = async (req, res) => {
     if (!req.session.user) return response.error(res, MSG.CART_AUTH_REQUIRED, 400, {
         session: false,
-        redirectUrl: '/user/signIn'
+        redirectUrl: R.USER_SIGNIN
     });
 
     const { productId, color, size, quantity } = req.body;
@@ -180,7 +181,7 @@ const addToCart = async (req, res) => {
             session: true,
             success: true,
             message: MSG.PRODUCT_ADDED_CART,
-            redirectUrl: '/user/cart',
+            redirectUrl: R.USER_CART,
             cartCount: cart.items.length
         });
 
@@ -191,7 +192,7 @@ const addToCart = async (req, res) => {
 
 //* Remove items from the cart.
 const removeItem = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { itemId } = req.body;
     const userId = req.session.user.userId;
@@ -215,7 +216,7 @@ const removeItem = async (req, res) => {
 
 //* Quantity updates
 const updateQuantity = async (req, res) => {
-    if (!req.session.user) return res.redirect('/user/signIn');
+    if (!req.session.user) return res.redirect(R.USER_SIGNIN);
 
     const { itemId, process } = req.body;
     const userId = req.session.user.userId;
@@ -260,7 +261,7 @@ const updateQuantity = async (req, res) => {
             if (item.quantity >= variant.stock) {
                 return response.error(
                     res,
-                    "Only " + variant.stock + " item(s) available in stock.",
+                    MSG.STOCK_LIMIT_REACHED(variant.stock),
                     400
                 );
             }
