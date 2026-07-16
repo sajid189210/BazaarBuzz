@@ -1,6 +1,15 @@
-<aside class="w-[250px] h-screen fixed top-0 left-0 py-6 px-4 bg-white border-r border-gray-200 overflow-y-auto z-50">
-    <a href="/admin/dashboard" class="text-2xl font-bold text-gray-900 block text-center">Bazaar<span
-            class="text-rose-500">Buzz</span></a>
+<!-- Sidebar overlay backdrop (mobile) -->
+<div id="adminSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+<aside id="adminSidebar"
+    class="w-[250px] h-screen fixed top-0 left-0 py-6 px-4 bg-white border-r border-gray-200 overflow-y-auto z-50 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <div class="flex items-center justify-between lg:justify-center">
+        <a href="/admin/dashboard" class="text-2xl font-bold text-gray-900">Bazaar<span
+                class="text-rose-500">Buzz</span></a>
+        <button id="adminSidebarClose" class="lg:hidden p-2 text-gray-400 hover:text-gray-600 transition-colors" type="button">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
     <p class="text-[10px] text-gray-400 uppercase tracking-widest text-center mt-1">Admin Panel</p>
 
     <nav class="mt-8">

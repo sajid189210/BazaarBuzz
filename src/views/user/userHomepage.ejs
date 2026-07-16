@@ -9,7 +9,7 @@
                     subtitle: 'Our curated picks for you' , cta: { href: '/user/getProductList/featured' ,
                     label: 'View all' } }) %>
 
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                         <% if(products && products.length) { %>
                             <% products.forEach((product)=> {
                                 if(product.featured) {
@@ -45,7 +45,7 @@
                     subtitle: 'The freshest drops this week' , cta: { href: '/user/getProductList/newArrival' ,
                     label: 'View all' } }) %>
 
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                         <% if(products && products.length) { %>
                             <% products.forEach((product)=> {
                                 var discPrice = product.discount ?
@@ -145,7 +145,7 @@
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Trusted Brands</h3>
                         <div
-                            class="flex flex-wrap items-center gap-4 md:gap-8 opacity-60 hover:opacity-100 transition-opacity">
+                            class="flex flex-nowrap md:flex-wrap items-center gap-4 md:gap-8 overflow-x-auto pb-2 md:pb-0 opacity-60 hover:opacity-100 transition-opacity scrollbar-none">
                             <% if(categories && categories.length) { %>
                                 <% const allBrands=[]; categories.forEach(cat=> {
                                     if(cat.brands) cat.brands.forEach(b => allBrands.push(b));

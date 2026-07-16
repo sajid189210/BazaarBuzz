@@ -7,7 +7,7 @@
                 class="hover:text-[var(--accent)] transition-colors btn-press">Home</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-800 font-medium">Cart</span> </nav>
         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
         <div class="lg:flex lg:gap-10">
-            <div class="flex-1 min-w-0 max-h-[calc(100vh-280px)] overflow-y-auto">
+            <div class="flex-1 min-w-0 max-h-none lg:max-h-[calc(100dvh-280px)] overflow-y-auto">
                 <% if(cart && cart.items && cart.items.length> 0) { %> <div class="space-y-4">
                         <% cart.items.forEach((item, index)=> { const prod = item.product || {}; const offer =
                             item.offer || null; const finalUnitPrice = item.discountedPrice || prod.productPrice; const
@@ -27,8 +27,8 @@
                                                     class="text-sm font-medium text-gray-900 hover:text-[var(--accent)] transition-colors">
                                                     <%= prod.productName %>
                                                 </a>
-                                            </div> <button onclick="removeItem('<%= item._id %>')"
-                                                class="shrink-0 text-gray-400 hover:text-red-500 transition-colors btn-press">
+                                             </div> <button onclick="removeItem('<%= item._id %>')"
+                                                class="shrink-0 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors btn-press">
                                                 <i class="fa-regular fa-trash-can"></i> </button>
                                         </div>
                                             <p class="text-xs text-gray-400 mt-1">
@@ -89,12 +89,12 @@
                                     <div class="flex items-center justify-between mt-3">
                                         <div class="flex items-center gap-1"> <button
                                                 onclick="updateQuantity('<%= item._id %>', -1)"
-                                                class="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 transition-colors text-sm btn-press">&minus;</button>
+                                                class="w-9 h-9 rounded-md border border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 transition-colors text-sm btn-press">&minus;</button>
                                             <span
-                                                class="w-8 text-center text-sm font-medium text-gray-900 quantity-display">
+                                                class="w-10 text-center text-sm font-medium text-gray-900 quantity-display">
                                                 <%= item.quantity %>
                                             </span> <button onclick="updateQuantity('<%= item._id %>', 1)"
-                                                class="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 transition-colors text-sm btn-press">+</button>
+                                                class="w-9 h-9 rounded-md border border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 transition-colors text-sm btn-press">+</button>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <% if(prod.productPrice !==finalUnitPrice) { %> <span

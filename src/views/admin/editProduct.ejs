@@ -11,7 +11,7 @@
     '<span class="text-gray-900 font-semibold">Edit Product</span>',
 ].join(' '); %>
             <div class="max-w-4xl mx-auto">
-                <div class="bg-white rounded-xl border border-gray-200 p-8">
+                <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 lg:p-8">
 <% if(product) { %>
                                 <form action="/admin/editProduct/<%= product._id %>" method="POST"
                                     id="productDetailForm">

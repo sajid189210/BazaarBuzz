@@ -765,10 +765,18 @@
   max-height: 60vh;
 }
 
+.size-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 calc(-1 * var(--spacing-lg));
+  padding: 0 var(--spacing-lg);
+}
+
 .size-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
+  min-width: 400px;
 }
 
 .size-table th,
@@ -1136,6 +1144,26 @@
 @media (min-width: 1024px) {
   .breadcrumbs {
     display: inline-flex;
+  }
+}
+
+@media (max-width: 639px) {
+  .specs-table {
+    grid-template-columns: 1fr;
+  }
+
+  .specs-table dt {
+    border-right: none;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .specs-table dd {
+    padding-top: 0;
+  }
+
+  .carousel-card {
+    flex: 0 0 70vw;
   }
 }
 

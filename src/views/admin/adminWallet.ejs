@@ -7,26 +7,35 @@
     <title>Admin — My Wallet</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50 antialiased">
     <div class="flex min-h-screen"> <%- include('../partials/adminSideMenu') %>
-            <div class="flex-1 ml-[250px]">
-                <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
-                    <div class="flex items-center gap-2 text-sm text-gray-500"> <a href="/admin/dashboard"
-                            class="hover:text-gray-700">Dashboard</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-900 font-semibold">My Wallet</span> </div>
+            <div class="flex-1 ml-0 lg:ml-[250px] min-w-0 transition-margin duration-300">
+                <header class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 z-40">
+                        <div class="flex items-center gap-3">
+                            <button id="adminSidebarToggle"
+                                class="lg:hidden inline-flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                                type="button">
+                                <i class="fa-solid fa-bars"></i>
+                            </button>
+                            <span class="text-lg font-bold text-gray-900 sm:hidden">Bazaar<span class="text-rose-500">Buzz</span></span>
+                            <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 min-w-0"> <a href="/admin/dashboard"
+                                class="hover:text-gray-700 shrink-0">Dashboard</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-900 font-semibold">My Wallet</span> </div>
+                    </div>
                 </header>
-                <main class="p-6">
+                <main class="p-4 sm:p-6">
                     <div class="mb-6">
-                        <h1 class="text-2xl font-bold text-gray-900">My Wallet</h1>
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">My Wallet</h1>
                         <p class="text-sm text-gray-500 mt-1">View your wallet balance and transaction history</p>
                     </div>
 
-                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-6 mb-6 text-white shadow-lg">
-                        <p class="text-sm font-medium text-emerald-100 uppercase tracking-wider">Available Balance</p>
-                        <p class="text-4xl font-bold mt-2">₹<%= wallet.balance?.toLocaleString('en-IN') || '0' %></p>
+                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-5 sm:p-6 mb-6 text-white shadow-lg">
+                        <p class="text-xs sm:text-sm font-medium text-emerald-100 uppercase tracking-wider">Available Balance</p>
+                        <p class="text-3xl sm:text-4xl font-bold mt-2">₹<%= wallet.balance?.toLocaleString('en-IN') || '0' %></p>
                     </div>
 
                     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -37,35 +46,35 @@
                             <table class="min-w-full text-sm">
                                 <thead class="bg-gray-50/80">
                                     <tr>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date & Time</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Type</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Amount</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Transaction ID</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Before</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">After</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Date & Time</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Type</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Amount</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Transaction ID</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Before</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">After</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
                                     <% if(transactions && transactions.length > 0) { %>
                                         <% transactions.forEach(txn => { %>
                                             <tr class="hover:bg-gray-50/50 transition-colors">
-                                                <td class="px-5 py-4 text-gray-500 text-sm">
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">
                                                     <%= new Date(txn.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
                                                 </td>
-                                                <td class="px-5 py-4">
-                                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full <%= txn.type === 'credit' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' %>">
-                                                        <span class="w-1.5 h-1.5 rounded-full <%= txn.type === 'credit' ? 'bg-emerald-500' : 'bg-rose-500' %>"></span>
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4">
+                                                    <span class="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full <%= txn.type === 'credit' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' %>">
+                                                        <span class="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full <%= txn.type === 'credit' ? 'bg-emerald-500' : 'bg-rose-500' %>"></span>
                                                         <%= txn.type === 'credit' ? 'Credit' : 'Debit' %>
                                                     </span>
                                                 </td>
-                                                <td class="px-5 py-4">
-                                                    <span class="font-medium <%= txn.type === 'credit' ? 'text-emerald-600' : 'text-rose-600' %>">
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4">
+                                                    <span class="font-medium text-xs sm:text-sm <%= txn.type === 'credit' ? 'text-emerald-600' : 'text-rose-600' %>">
                                                         <%= txn.type === 'credit' ? '+' : '-' %> ₹<%= txn.amount?.toLocaleString('en-IN') %>
                                                     </span>
                                                 </td>
-                                                <td class="px-5 py-4 text-gray-500 text-sm font-mono uppercase"><%= String(txn._id).slice(-8) || '-' %></td>
-                                                <td class="px-5 py-4 text-gray-600">₹<%= txn.balanceBefore?.toLocaleString('en-IN') %></td>
-                                                <td class="px-5 py-4 text-gray-600">₹<%= txn.balanceAfter?.toLocaleString('en-IN') %></td>
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm font-mono uppercase hidden lg:table-cell"><%= String(txn._id).slice(-8) || '-' %></td>
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-600 hidden lg:table-cell">₹<%= txn.balanceBefore?.toLocaleString('en-IN') %></td>
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-600 hidden lg:table-cell">₹<%= txn.balanceAfter?.toLocaleString('en-IN') %></td>
                                             </tr>
                                         <% }) %>
                                     <% } else { %>
@@ -113,6 +122,21 @@
                 </main>
             </div>
     </div>
+    <script>
+        (function() {
+            var toggle = document.getElementById('adminSidebarToggle');
+            var sidebar = document.getElementById('adminSidebar');
+            var overlay = document.getElementById('adminSidebarOverlay');
+            var close = document.getElementById('adminSidebarClose');
+            if (!toggle || !sidebar) return;
+            function open() { sidebar.classList.remove('-translate-x-full'); if (overlay) overlay.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+            function closeSidebar() { sidebar.classList.add('-translate-x-full'); if (overlay) overlay.classList.add('hidden'); document.body.style.overflow = ''; }
+            toggle.addEventListener('click', open);
+            if (close) close.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+            window.addEventListener('resize', function() { if (window.innerWidth >= 1024) { sidebar.classList.remove('-translate-x-full'); if (overlay) overlay.classList.add('hidden'); document.body.style.overflow = ''; } });
+        })();
+    </script>
     <script src="/javascript/admin/adminWallet.js"></script>
 </body>
 

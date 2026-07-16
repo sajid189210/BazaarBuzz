@@ -21,21 +21,63 @@
         <div class="flex min-h-screen">
             <%- include('../partials/adminSideMenu') %>
 
-                <div class="flex-1 ml-[250px]">
-                    <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <a href="/admin/dashboard" class="text-gray-900 font-semibold">Dashboard</a>
-                            <%- blocks?.breadcrumb %>
+                <div class="flex-1 ml-0 lg:ml-[250px] min-w-0 transition-margin duration-300">
+                    <header class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 z-40">
+                        <div class="flex items-center gap-3">
+                            <button id="adminSidebarToggle"
+                                class="lg:hidden inline-flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                                type="button">
+                                <i class="fa-solid fa-bars"></i>
+                            </button>
+                            <span class="text-lg font-bold text-gray-900 sm:hidden">Bazaar<span class="text-rose-500">Buzz</span></span>
+                            <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 min-w-0">
+                                <a href="/admin/dashboard" class="text-gray-900 font-semibold shrink-0">Dashboard</a>
+                                <%- blocks?.breadcrumb %>
+                            </div>
                         </div>
                     </header>
                     <% } %>
 
-                        <main class="<%= hideUI ? '' : 'p-6 space-y-8' %>">
+                        <main class="<%= hideUI ? '' : 'p-4 sm:p-6 space-y-6 sm:space-y-8' %>">
                             <%- body %>
                         </main>
                         <% if (!hideUI) { %>
                 </div>
         </div>
+
+        <script>
+            (function() {
+                var toggle = document.getElementById('adminSidebarToggle');
+                var close = document.getElementById('adminSidebarClose');
+                var overlay = document.getElementById('adminSidebarOverlay');
+                var sidebar = document.getElementById('adminSidebar');
+                if (!toggle || !sidebar) return;
+
+                function open() {
+                    sidebar.classList.remove('-translate-x-full');
+                    if (overlay) overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeSidebar() {
+                    sidebar.classList.add('-translate-x-full');
+                    if (overlay) overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+
+                toggle.addEventListener('click', open);
+                if (close) close.addEventListener('click', closeSidebar);
+                if (overlay) overlay.addEventListener('click', closeSidebar);
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 1024) {
+                        sidebar.classList.remove('-translate-x-full');
+                        if (overlay) overlay.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }
+                });
+            })();
+        </script>
         <% } %>
 
             <%- blocks?.scripts %>

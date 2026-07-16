@@ -29,9 +29,9 @@
             title: { text: 'Monthly Sales Revenue', style: { fontSize: '14px', fontWeight: 600 } },
             plotOptions: { bar: { borderRadius: 4, columnWidth: '60%' } },
             xaxis: { categories: months, labels: { style: { fontSize: '11px' } } },
-            yaxis: { labels: { formatter: function (v) { return '\u20B9' + v.toLocaleString(); } } },
+            yaxis: { labels: { formatter: function (v) { return '\u20B9' + v.toLocaleString('en-IN'); } } },
             colors: ['#e11d48'],
-            tooltip: { y: { formatter: function (v) { return '\u20B9' + v.toLocaleString(); } } },
+            tooltip: { y: { formatter: function (v) { return '\u20B9' + v.toLocaleString('en-IN'); } } },
             dataLabels: { enabled: false },
             grid: { borderColor: '#f1f1f1' }
         }).render();
@@ -53,7 +53,7 @@
             title: { text: 'Revenue by Brand', style: { fontSize: '14px', fontWeight: 600 } },
             colors: ['#e11d48', '#f43f5e', '#fb7185', '#fda4af', '#fecdd3', '#fce7f3'],
             legend: { position: 'bottom', fontSize: '12px' },
-            tooltip: { y: { formatter: function (v) { return '\u20B9' + v.toLocaleString(); } } },
+            tooltip: { y: { formatter: function (v) { return '\u20B9' + v.toLocaleString('en-IN'); } } },
             dataLabels: { enabled: false },
             plotOptions: {
                 pie: {
@@ -65,7 +65,7 @@
                                 label: 'Total',
                                 formatter: function (w) {
                                     var total = w.globals.seriesTotals.reduce(function (a, b) { return a + b; }, 0);
-                                    return '\u20B9' + total.toLocaleString();
+                                    return '\u20B9' + total.toLocaleString('en-IN');
                                 }
                             }
                         }
@@ -99,8 +99,8 @@
                 categories: sorted.map(function (d) { return months[d.month - 1] + ' ' + d.year; }),
                 labels: { style: { fontSize: '11px' }, rotate: -45 }
             },
-            yaxis: { labels: { formatter: function (v) { return '\u20B9' + v.toLocaleString(); } } },
-            tooltip: { y: { formatter: function (v) { return '\u20B9' + v.toLocaleString(); } } },
+            yaxis: { labels: { formatter: function (v) { return '\u20B9' + v.toLocaleString('en-IN'); } } },
+            tooltip: { y: { formatter: function (v) { return '\u20B9' + v.toLocaleString('en-IN'); } } },
             dataLabels: { enabled: false },
             grid: { borderColor: '#f1f1f1' },
             markers: { size: 4, colors: ['#e11d48'] }

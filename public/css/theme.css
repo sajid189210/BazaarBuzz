@@ -213,3 +213,32 @@ html {
 .reveal-delay-2 { transition-delay: 200ms; }
 .reveal-delay-3 { transition-delay: 300ms; }
 .reveal-delay-4 { transition-delay: 400ms; }
+
+/* Prevent 300ms tap delay on mobile */
+button, a, input, select, textarea, .btn-press {
+  touch-action: manipulation;
+}
+
+/* Performance: remove backdrop blur on mobile */
+@media (max-width: 767px) {
+  .backdrop-blur-sm, .backdrop-blur-md, .backdrop-blur-lg {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-blur-sm, .backdrop-blur-md, .backdrop-blur-lg {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Hide scrollbar for brand section on mobile */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -65,7 +65,7 @@
               <p class="font-semibold <%= txn.type === 'credit' ? 'text-green-600' : 'text-red-500' %>">
                 <%= txn.type === 'credit' ? '+' : '-' %>₹<%= txn.amount.toLocaleString() %>
               </p>
-              <p class="text-xs text-gray-400 mt-0.5 whitespace-nowrap">₹<%= (txn.balanceBefore || 0).toLocaleString() %> → ₹<%= (txn.balanceAfter || 0).toLocaleString() %></p>
+              <p class="text-xs text-gray-400 mt-0.5">₹<%= (txn.balanceBefore || 0).toLocaleString() %> → ₹<%= (txn.balanceAfter || 0).toLocaleString() %></p>
             </div>
           </div>
         <% }) %>
@@ -74,14 +74,14 @@
       <% if(totalPages > 1) { %>
         <div class="flex items-center justify-center gap-3 mt-6">
           <% if(currentPage > 1) { %>
-            <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="inline-flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors btn-press">
+            <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="min-h-[44px] inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors btn-press">
               <i class="fa-solid fa-chevron-left text-xs"></i>
               Previous
             </a>
           <% } %>
           <span class="text-sm text-gray-400">Page <%= currentPage %> of <%= totalPages %></span>
           <% if(currentPage < totalPages) { %>
-            <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="inline-flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors btn-press">
+            <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="min-h-[44px] inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors btn-press">
               Next
               <i class="fa-solid fa-chevron-right text-xs"></i>
             </a>

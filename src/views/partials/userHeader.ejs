@@ -3,7 +3,11 @@
     padding-top: 64px
   }
 
-  #mainHeader {
+    .btn-press {
+    touch-action: manipulation;
+  }
+
+#mainHeader {
     transition: background-color .3s ease, box-shadow .3s ease
   }
 
@@ -226,7 +230,7 @@
   <!-- Mobile Drawer -->
   <div id="mobileDrawer" class="fixed inset-0 z-[70] hidden">
     <div id="drawerOverlay" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-    <div style="background: var(--surface);" class="absolute right-0 top-0 h-full w-72 shadow-xl">
+    <div style="background: var(--surface);" class="absolute right-0 top-0 h-full w-80 max-w-[85vw] shadow-xl">
       <div class="flex items-center justify-between px-4 h-16 border-b border-gray-100">
         <span class="text-base font-semibold text-gray-900">Menu</span>
         <button id="drawerClose" class="p-2 text-gray-400 hover:text-gray-600 transition-colors" type="button">

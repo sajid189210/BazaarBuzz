@@ -7,28 +7,36 @@
     <title>Admin — Offers</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="shortcut icon" href="/uploads/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50 antialiased">
     <div class="flex min-h-screen"> <%- include('../partials/adminSideMenu') %>
-            <div class="flex-1 ml-[250px]">
-                <header class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
-                    <div class="flex items-center gap-2 text-sm text-gray-500"> <a href="/admin/dashboard"
-                            class="hover:text-gray-700">Dashboard</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-900 font-semibold">Offers</span> </div>
+            <div class="flex-1 ml-0 lg:ml-[250px] min-w-0 transition-margin duration-300">
+                <header class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 z-40">
+                        <div class="flex items-center gap-3">
+                            <button id="adminSidebarToggle"
+                                class="lg:hidden inline-flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                                type="button">
+                                <i class="fa-solid fa-bars"></i>
+                            </button>
+                            <span class="text-lg font-bold text-gray-900 sm:hidden">Bazaar<span class="text-rose-500">Buzz</span></span>
+                            <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 min-w-0"> <a href="/admin/dashboard"
+                                class="hover:text-gray-700 shrink-0">Dashboard</a> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i> <span class="text-gray-900 font-semibold">Offers</span> </div>
+                    </div>
                 </header>
-                <main class="p-6">
+                <main class="p-4 sm:p-6">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <i class="fa-solid fa-percent text-gray-400"></i>
-                            <h1 class="text-2xl font-bold text-gray-900">Offers</h1>
+                            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2"><i class="fa-solid fa-percent text-gray-400 text-lg sm:text-xl"></i>Offers</h1>
                             <p class="text-sm text-gray-500 mt-1">Manage brand offers and discounts</p>
                         </div>
                         <button onclick="openCreateOfferModal()"
-                            class="rounded-lg bg-gray-900 hover:bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors flex items-center gap-2">
+                            class="rounded-lg bg-gray-900 hover:bg-gray-800 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white transition-colors flex items-center gap-1.5 sm:gap-2 shrink-0">
                             <i class="fa-solid fa-plus"></i>
-                            Create Offer
+                            <span>Create Offer</span>
                         </button>
                     </div>
 
@@ -75,10 +83,10 @@
                                 <thead class="bg-gray-50/80">
                                     <tr>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Offer Name</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Brand Name</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Category</th>
+                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">Brand Name</th>
+                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">Category</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Discount</th>
-                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Created</th>
+                                        <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">Created</th>
                                         <th class="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</th>
                                         <th class="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Actions</th>
                                     </tr>
@@ -88,10 +96,10 @@
                                         <% offers.forEach(offer => { %>
                                             <tr class="hover:bg-gray-50/50 transition-colors">
                                                 <td class="px-5 py-4 text-gray-900 font-medium"><%= offer.offerName %></td>
-                                                <td class="px-5 py-4 text-gray-600"><%= offer.brandName || '-' %></td>
-                                                <td class="px-5 py-4 text-gray-600"><%= offer.category?.title || '-' %></td>
+                                                <td class="px-5 py-4 text-gray-600 hidden md:table-cell"><%= offer.brandName || '-' %></td>
+                                                <td class="px-5 py-4 text-gray-600 hidden md:table-cell"><%= offer.category?.title || '-' %></td>
                                                 <td class="px-5 py-4 text-gray-900 font-medium"><%= offer.discount %>%</td>
-                                                <td class="px-5 py-4 text-gray-500 text-sm">
+                                                <td class="px-5 py-4 text-gray-500 text-sm hidden md:table-cell">
                                                     <%= new Date(offer.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
                                                 </td>
                                                 <td class="px-5 py-4">
@@ -166,6 +174,21 @@
                 </main>
             </div>
     </div>
+    <script>
+        (function() {
+            var toggle = document.getElementById('adminSidebarToggle');
+            var sidebar = document.getElementById('adminSidebar');
+            var overlay = document.getElementById('adminSidebarOverlay');
+            var close = document.getElementById('adminSidebarClose');
+            if (!toggle || !sidebar) return;
+            function open() { sidebar.classList.remove('-translate-x-full'); if (overlay) overlay.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+            function closeSidebar() { sidebar.classList.add('-translate-x-full'); if (overlay) overlay.classList.add('hidden'); document.body.style.overflow = ''; }
+            toggle.addEventListener('click', open);
+            if (close) close.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+            window.addEventListener('resize', function() { if (window.innerWidth >= 1024) { sidebar.classList.remove('-translate-x-full'); if (overlay) overlay.classList.add('hidden'); document.body.style.overflow = ''; } });
+        })();
+    </script>
     <script id="categoriesData" type="application/json"><%- JSON.stringify(categories || []) %></script>
     <script id="offersData" type="application/json"><%- JSON.stringify(offers || []) %></script>
     <script src="/javascript/admin/offer.js"></script>
