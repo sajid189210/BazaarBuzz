@@ -1,6 +1,7 @@
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Coupon = require('../../model/couponModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 
 const renderCouponPage = async (req, res) => {
     try {
@@ -15,8 +16,8 @@ const renderCouponPage = async (req, res) => {
 
         if (search) {
             filter.$or = [
-                { couponCode: { $regex: search, $options: 'i' } },
-                { couponType: { $regex: search, $options: 'i' } },
+                { couponCode: { $regex: escapeRegex(search), $options: 'i' } },
+                { couponType: { $regex: escapeRegex(search), $options: 'i' } },
             ];
         }
 

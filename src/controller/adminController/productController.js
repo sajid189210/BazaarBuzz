@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Product = require('../../model/productModel');
 const path = require('path');
 const fs = require('fs');
+const { escapeRegex } = require('../../utils/regexUtils');
 
 
 //* middleware for getting selected category from the product update.
@@ -46,9 +47,9 @@ const getProducts = async (req, res) => {
         
         if (search) {
             filter.$or = [
-                { productName: { $regex: search, $options: 'i' } },
-                { brand: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
+                { productName: { $regex: escapeRegex(search), $options: 'i' } },
+                { brand: { $regex: escapeRegex(search), $options: 'i' } },
+                { category: { $regex: escapeRegex(search), $options: 'i' } }
             ];
         }
         
@@ -141,9 +142,9 @@ const getProductsJson = async (req, res) => {
         
         if (search) {
             filter.$or = [
-                { productName: { $regex: search, $options: 'i' } },
-                { brand: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
+                { productName: { $regex: escapeRegex(search), $options: 'i' } },
+                { brand: { $regex: escapeRegex(search), $options: 'i' } },
+                { category: { $regex: escapeRegex(search), $options: 'i' } }
             ];
         }
         
@@ -317,7 +318,7 @@ const isActive = async (req, res) => {
 const searchProduct = async (req, res) => {
     const search = req.query.search || '';
     try {
-        const regex = new RegExp(search, 'i');
+        const regex = new RegExp(escapeRegex(search), 'i');
         const products = await Product.find({ productName: regex });
 
         response.success(res, { products });

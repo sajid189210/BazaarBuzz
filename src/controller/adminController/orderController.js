@@ -1,6 +1,7 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const { updateStock } = require('../../utils/stockUtils');
+const { escapeRegex } = require('../../utils/regexUtils');
 const R = require('../../constants/redirects');
 const response = require('../../Services/responseMapper');
 const MSG = require('../../constants/messages');
@@ -59,8 +60,8 @@ const renderOrderList = async (req, res) => {
 
         if (search) {
             const orConditions = [
-                { 'items.name': { $regex: search, $options: 'i' } },
-                { 'items.brand': { $regex: search, $options: 'i' } },
+                { 'items.name': { $regex: escapeRegex(search), $options: 'i' } },
+                { 'items.brand': { $regex: escapeRegex(search), $options: 'i' } },
                 {
                     $expr: {
                         $regexMatch: {

@@ -4,6 +4,7 @@ const response = require('../../Services/responseMapper');
 const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 const bcrypt = require('bcryptjs');
 const { WALLET_TYPE_USER } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
@@ -289,7 +290,7 @@ const searchSingleProduct = async (req, res) => {
 
         const { search } = req.query || '';
 
-        const regex = new RegExp(search, 'i');
+        const regex = new RegExp(escapeRegex(search), 'i');
 
         const products = await Product.find({ productName: regex });
 
@@ -306,7 +307,7 @@ const searchMultipleProducts = async (req, res) => {
 
         const { search } = req.query || '';
 
-        const regex = new RegExp(search, 'i');
+        const regex = new RegExp(escapeRegex(search), 'i');
 
         const products = await Product.find({ productName: regex });
 

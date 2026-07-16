@@ -1,6 +1,7 @@
 const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const userModel = require('../../model/userModel');
+const { escapeRegex } = require('../../utils/regexUtils');
 
 //?------finding the user by ID--------------
 const getUserById = async (id) => {
@@ -21,7 +22,7 @@ const userManagementPage = async (req, res) => {
         let filter = {};
 
         if (search) {
-            const regex = new RegExp(search, 'i');
+            const regex = new RegExp(escapeRegex(search), 'i');
             filter.$or = [
                 { email: regex },
                 { username: regex }
