@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const { WALLET_TYPE_USER } = require('../../constants/walletTypes');
 const Wallet = require('../../model/walletModel');
@@ -68,7 +69,7 @@ const createRazorpayOrder = async (req, res) => {
         const walletMoneyInput = parseInt(req.body.walletMoneyInput, 10);
 
         if (isNaN(walletMoneyInput) || walletMoneyInput <= 0) {
-            return response.error(res, "Please input a valid amount greater than 0.", 400);
+            return response.error(res, MSG.INVALID_AMOUNT, 400);
         }
 
         const totalAmount = walletMoneyInput * 100;

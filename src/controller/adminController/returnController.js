@@ -1,6 +1,7 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
+const MSG = require('../../constants/messages');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const Product = require('../../model/productModel');
 const Wallet = require('../../model/walletModel');
@@ -69,32 +70,32 @@ const returnStatus = async (req, res) => {
     const { orderItemId, orderId, status, reason } = req.body;
 
     if (!orderItemId || !orderId) {
-        return response.error(res, "Failed to load product data.", 400);
+        return response.error(res, MSG.RETURN_FAILED_LOAD, 400);
     }
 
     if (!["approved", "rejected"].includes(status)) {
-        return response.error(res, "Invalid return status.", 400);
+        return response.error(res, MSG.RETURN_INVALID_STATUS, 400);
     }
 
     if (status === "rejected" && !reason?.trim()) {
-        return response.error(res, "Please provide a reason for rejecting the return.", 400);
+        return response.error(res, MSG.RETURN_REJECT_REASON_REQUIRED, 400);
     }
 
     try {
         const order = await Order.findById(orderId);
 
         if (!order) {
-            return response.error(res, "Order not found.", 404);
+            return response.error(res, MSG.ORDER_NOT_FOUND, 404);
         }
 
         const item = order.items.id(orderItemId);
 
         if (!item) {
-            return response.error(res, "Order item not found.", 404);
+            return response.error(res, MSG.RETURN_ORDER_ITEM_NOT_FOUND, 404);
         }
 
         if (!item.return || item.return.status !== "requested") {
-            return response.error(res, "No pending return request found.", 400);
+            return response.error(res, MSG.RETURN_NO_PENDING, 400);
         }
 
         if (status === "approved") {
@@ -165,8 +166,8 @@ const returnStatus = async (req, res) => {
             ]);
 
             const msg = stockWarning
-                ? "Return approved, but stock restore failed. Check server logs."
-                : "Return request approved successfully.";
+                ? MSG.RETURN_APPROVED_STOCK_FAIL
+                : MSG.RETURN_APPROVED;
             return response.success(res, { stockWarning }, msg);
         }
 
@@ -175,7 +176,7 @@ const returnStatus = async (req, res) => {
 
         await order.save();
 
-        return response.success(res, {}, "Return request rejected successfully.");
+        return response.success(res, {}, MSG.RETURN_REJECTED);
 
     } catch (err) {
         return response.serverError(res, err);

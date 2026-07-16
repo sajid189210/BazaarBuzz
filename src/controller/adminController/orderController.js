@@ -1,6 +1,7 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const mongoose = require('mongoose');
 const response = require('../../Services/responseMapper');
+const MSG = require('../../constants/messages');
 const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Product = require('../../model/productModel');
@@ -184,18 +185,18 @@ const changeStatus = async (req, res) => {
     const { orderStatus, orderId } = req.body;
 
     if (!orderStatus || !orderId) {
-        return response.error(res, "Failed to update status.", 400);
+        return response.error(res, MSG.FAILED_UPDATE_STATUS, 400);
     }
 
     if (!['shipped', 'delivered', 'cancelled'].includes(orderStatus)) {
-        return response.error(res, "Invalid status.", 400);
+        return response.error(res, MSG.INVALID_STATUS, 400);
     }
 
     try {
         const order = await Order.findById(orderId);
 
         if (!order) {
-            return response.error(res, "Order not found.", 404);
+            return response.error(res, MSG.ORDER_NOT_FOUND, 404);
         }
 
         const eligibleItems = order.items.filter(item => {
@@ -206,7 +207,7 @@ const changeStatus = async (req, res) => {
         });
 
         if (!eligibleItems.length) {
-            return response.error(res, `No items are eligible for '${orderStatus}' status.`, 400);
+            return response.error(res, MSG.ORDER_ELIGIBLE_STATUS(orderStatus), 400);
         }
 
         for (const item of eligibleItems) {
@@ -220,7 +221,7 @@ const changeStatus = async (req, res) => {
             const stockUpdated = await adjustStock(eligibleItems, true);
 
             if (!stockUpdated) {
-                return response.error(res, "Failed to restore product stock.", 500);
+                return response.error(res, MSG.FAILED_RESTORE_STOCK, 500);
             }
 
             if (order.payment.status === "paid" && [PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET].includes(order.payment.method)) {
@@ -262,7 +263,7 @@ const changeStatus = async (req, res) => {
                 await order.save();
             }
 
-            return response.success(res, { success: true }, "Status changed successfully.");
+            return response.success(res, { success: true }, MSG.STATUS_CHANGED);
         }
 
         order.status = updateOrderStatus(order);
@@ -289,7 +290,7 @@ const changeStatus = async (req, res) => {
 
         await order.save();
 
-        return response.success(res, { success: true }, "Status changed successfully.");
+        return response.success(res, { success: true }, MSG.STATUS_CHANGED);
 
     } catch (err) {
         return response.serverError(res, err);

@@ -1,5 +1,6 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const colorName = require('../../utils/colorName').name;
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Product = require('../../model/productModel');
@@ -155,9 +156,9 @@ const requestProductReturn = async (req, res) => {
             { new: true, runValidators: true }
         );
 
-        if (!order) return response.error(res, "Failed to request return request.", 400);
+        if (!order) return response.error(res, MSG.RETURN_FAILED_LOAD, 400);
 
-        response.success(res, {}, "Order successfully requested for return. Order will be returned when approved.")
+        response.success(res, {}, MSG.RETURN_ORDER_SUCCESS)
 
     } catch (err) {
         return response.serverError(res, err);
@@ -177,24 +178,24 @@ const cancelProduct = async (req, res) => {
         ]);
 
         if (!user || !order) {
-            return response.error(res, !user ? "User not found." : "Order not found.", 404);
+            return response.error(res, !user ? MSG.USER_NOT_FOUND : MSG.ORDER_NOT_FOUND, 404);
         }
 
         const item = order.items.id(orderItemId);
 
         if (!item) {
-            return response.error(res, "Product not found in this order.", 404);
+            return response.error(res, MSG.PRODUCT_NOT_FOUND_ORDER, 404);
         }
 
         if (item.status === "cancelled") {
-            return response.error(res, "This product has already been cancelled.", 400);
+            return response.error(res, MSG.ITEM_ALREADY_CANCELLED, 400);
         }
 
         // Restore stock only for this item
         const stockUpdated = await handleStock(item, true);
 
         if (!stockUpdated) {
-            return response.error(res, "Failed to process cancellation.", 500);
+            return response.error(res, MSG.CANCELLATION_FAILED, 500);
         }
 
         item.status = "cancelled";
@@ -259,12 +260,12 @@ const cancelProduct = async (req, res) => {
                 order.save(),
             ]);
 
-            return response.success(res, {}, "You have cancelled the product. The refund has been credited to your wallet.");
+            return response.success(res, {}, MSG.CANCELLED_REFUND);
         }
 
         await order.save();
 
-        return response.success(res, {}, "You have cancelled the product.");
+        return response.success(res, {}, MSG.CANCELLED_NO_REFUND);
 
     } catch (err) {
         return response.serverError(res, err);
@@ -282,7 +283,7 @@ const retryPayment = async (req, res) => {
         const repayingOrder = await Order.findById(orderId);
 
         if (!repayingOrder || !user) {
-            return response.error(res, "Order or user was not found", 400);
+            return response.error(res, MSG.ORDER_USER_NOT_FOUND, 400);
         }
 
         const totalPay = repayingOrder.total;
@@ -314,19 +315,19 @@ const retryPayment = async (req, res) => {
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.query;
-        if (!orderId) return response.error(res, "Order ID is required.", 400);
+        if (!orderId) return response.error(res, MSG.ORDER_ID_REQUIRED, 400);
 
         const order = await Order.findById(orderId);
-        if (!order) return response.error(res, "Order not found.", 404);
+        if (!order) return response.error(res, MSG.ORDER_NOT_FOUND, 404);
 
         const userId = req.session?.user?.userId;
         if (!userId || order.user.toString() !== userId) {
-            return response.error(res, "Unauthorized to access this order.", 403);
+            return response.error(res, MSG.UNAUTHORIZED_ORDER, 403);
         }
 
         const deliveredItems = order.items.filter(item => item.status === 'delivered');
         if (!deliveredItems.length) {
-            return response.error(res, "No delivered items to invoice.", 400);
+            return response.error(res, MSG.NO_DELIVERED_ITEMS, 400);
         }
 
         // --- Proportional cost calculation (mirrors return logic) ---

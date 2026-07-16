@@ -1,6 +1,7 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const razorPayInstance = require('../../Services/razorPay');
 const response = require('../../Services/responseMapper');
+const MSG = require('../../constants/messages');
 const crypto = require('crypto');
 
 const Product = require('../../model/productModel');
@@ -74,11 +75,11 @@ const getCheckout = async (req, res) => {
         ]);
 
         if (!user || !cart) {
-            return response.error(res, 'Failed to load checkout', 400);
+            return response.error(res, MSG.FAILED_LOAD_CHECKOUT, 400);
         }
 
         if (!cart.items?.length) {
-            req.flash("error", "Your cart is empty. Add some items before proceeding to checkout.");
+            req.flash("error", MSG.CART_EMPTY_FLASH);
             return res.redirect("/user/cart");
         }
 
@@ -149,13 +150,13 @@ const proceedToPayment = async (req, res) => {
     const { addressId, paymentMethod } = req.body;
 
     if (!addressId || !paymentMethod) {
-        return response.error(res, "Address and payment method are required.", 400);
+        return response.error(res, MSG.ADDRESS_PAYMENT_REQUIRED, 400);
     }
 
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return response.error(res, "User not found.", 404);
+            return response.error(res, MSG.USER_NOT_FOUND, 404);
         }
 
         const shippingAddress = user.addressId.id(addressId);
@@ -165,7 +166,7 @@ const proceedToPayment = async (req, res) => {
             .populate('items.offer');
 
         if (!cart.items?.length) {
-            req.flash("error", "Your cart is empty. Add some items before proceeding to checkout.");
+            req.flash("error", MSG.CART_EMPTY_FLASH);
             return res.redirect("/user/cart");
         }
 
@@ -273,7 +274,7 @@ const proceedToPayment = async (req, res) => {
                 }
 
                 if (newOrder.total > wallet.balance) {
-                    return response.error(res, "Insufficient wallet balance.", 400);
+                    return response.error(res, MSG.INSUFFICIENT_WALLET, 400);
                 }
 
                 wallet.balance -= newOrder.total;
@@ -308,7 +309,7 @@ const proceedToPayment = async (req, res) => {
                 await clearCart(userId);
                 return response.success(res, {
                     success: true,
-                    message: 'Payment successful via wallet.',
+                    message: MSG.WALLET_PAYMENT_SUCCESS,
                     balance: wallet.balance,
                     orderType: paymentMethod,
                     newOrderId: newOrder._id
@@ -318,7 +319,7 @@ const proceedToPayment = async (req, res) => {
                 console.error(`Error processing wallet payment: ${err.message}`);
 
                 if (err.name === 'ValidationError') {
-                    return response.error(res, "Invalid wallet transaction.", 400);
+                    return response.error(res, MSG.INVALID_WALLET_TX, 400);
                 }
 
                 response.serverError(res, err);
@@ -346,7 +347,7 @@ const applyCoupon = async (req, res) => {
     const userId = req.session.user.userId;
 
     if (!inputValue) {
-        return response.error(res, "Invalid input", 400);
+        return response.error(res, MSG.INVALID_INPUT, 400);
     }
 
     try {
@@ -357,15 +358,15 @@ const applyCoupon = async (req, res) => {
         ]);
 
         if (!coupon || !user || !cart) {
-            return response.error(res, "Failed to apply coupon.", 400);
+            return response.error(res, MSG.FAILED_APPLY_COUPON, 400);
         }
 
         if (!cart.items.length) {
-            return response.error(res, "Your cart is empty.", 400);
+            return response.error(res, MSG.CART_EMPTY, 400);
         }
 
         if (cart.coupon) {
-            return response.error(res, "A coupon is already applied.", 409);
+            return response.error(res, MSG.COUPON_ALREADY_APPLIED, 409);
         }
 
         const now = new Date();
@@ -375,13 +376,13 @@ const applyCoupon = async (req, res) => {
         expiryDate.setHours(0, 0, 0, 0);
 
         if (now > expiryDate) {
-            return response.error(res, "Coupon has expired", 400, { toast: false });
+            return response.error(res, MSG.COUPON_EXPIRED, 400, { toast: false });
         }
 
         const usedCouponData = user.usedCoupons.find(c => c.couponId.toString() === coupon._id.toString());
 
         if (usedCouponData && usedCouponData.count >= coupon.count) {
-            return response.error(res, "Looks like this coupon has already been used!", 400);
+            return response.error(res, MSG.COUPON_ALREADY_USED, 400);
         }
 
         let currentCartTotal = 0;
@@ -390,7 +391,7 @@ const applyCoupon = async (req, res) => {
         }
 
         if (currentCartTotal < coupon.minAmount) {
-            return response.error(res, `Almost there! Bump your cart up by ${coupon.minAmount} to claim your savings.`, 400);
+            return response.error(res, MSG.COUPON_MIN_AMOUNT(coupon.minAmount), 400);
         }
 
         let couponDiscountAmount = 0;
@@ -400,7 +401,7 @@ const applyCoupon = async (req, res) => {
             const item = cart.items[i];
 
             if (!item.product) {
-                return response.error(res, "One or more products in your cart are no longer available.", 400);
+                return response.error(res, MSG.COUPON_PRODUCT_UNAVAILABLE, 400);
             }
 
             const itemTotal = item.discountedPrice * item.quantity;
@@ -422,7 +423,7 @@ const applyCoupon = async (req, res) => {
                 itemCouponShare = truncCurrency(itemTotal * (coupon.couponValue / 100));
 
             } else {
-                return response.error(res, "Invalid coupon.", 400);
+                return response.error(res, MSG.INVALID_COUPON, 400);
             }
 
             const itemCouponPercentage = truncCurrency(
@@ -440,7 +441,7 @@ const applyCoupon = async (req, res) => {
             const absoluteMinFloor = truncCurrency(item.product.productPrice * item.quantity * 0.10);
 
             if (simulatedPrice < absoluteMinFloor) {
-                return response.error(res, `Coupon cannot be applied. It reduces ${item.product.productName} below its minimum allowed price floor.`, 400);
+                return response.error(res, MSG.COUPON_PRICE_FLOOR(item.product.productName), 400);
             }
 
             couponDiscountAmount += itemCouponShare;
@@ -452,7 +453,7 @@ const applyCoupon = async (req, res) => {
 
         return response.success(res, {
             success: true,
-            message: 'Coupon applied successfully',
+            message: MSG.COUPON_APPLIED,
             appliedPrice: currentCartTotal - couponDiscountAmount,
             couponDiscount: couponDiscountAmount,
             itemCouponBreakdown
@@ -478,7 +479,7 @@ const verifyPayment = async (req, res) => {
         const isVerified = generatedSignature === signature;
 
         if (!isVerified) {
-            return response.error(res, "Payment verification failed.", 400);
+            return response.error(res, MSG.PAYMENT_VERIFY_FAILED, 400);
         }
 
         const order = await Order.findByIdAndUpdate(
@@ -513,7 +514,7 @@ const verifyPayment = async (req, res) => {
 
         await clearCart(userId);
 
-        return response.success(res, {}, 'Payment verified successfully');
+        return response.success(res, {}, MSG.PAYMENT_VERIFIED);
     } catch (err) {
         return response.serverError(res, err);
     }
@@ -533,7 +534,7 @@ const handlePaymentFailure = async (req, res) => {
         );
 
         if (!order) {
-            return response.error(res, "Order could not be found.", 400);
+            return response.error(res, MSG.ORDER_NOT_FOUND_CHECKOUT, 400);
         }
 
         await handleStock(order, true);

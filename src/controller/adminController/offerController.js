@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Category = require('../../model/categoryModel');
 const Offer = require('../../model/offerModel');
@@ -65,17 +66,17 @@ const createOffer = async (req, res) => {
 
     try {
         if (!offerName || !brandName || !discountValue || !category) {
-            return response.error(res, "Required fields are missing.", 400);
+            return response.error(res, MSG.OFFER_FIELDS_MISSING, 400);
         }
 
         const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
         if (!catDoc) {
-            return response.error(res, "Selected category not found or is inactive.", 400);
+            return response.error(res, MSG.OFFER_CATEGORY_INACTIVE, 400);
         }
 
         const existing = await Offer.findOne({ brandName, category: catDoc._id });
         if (existing) {
-            return response.error(res, "Offer already exists for this brand in the selected category.", 400);
+            return response.error(res, MSG.OFFER_EXISTS, 400);
         }
 
         const newOffer = new Offer({
@@ -87,7 +88,7 @@ const createOffer = async (req, res) => {
 
         await newOffer.save();
 
-        response.success(res, {}, "Offer created successfully", 201)
+        response.success(res, {}, MSG.OFFER_CREATED, 201)
 
     } catch (err) {
         response.serverError(res, err);
@@ -100,12 +101,12 @@ const changeStatus = async (req, res) => {
 
     try {
         const offer = await Offer.findById(offerId);
-        if (!offer) return response.error(res, "Offer not found.", 404);
+        if (!offer) return response.error(res, MSG.OFFER_NOT_FOUND, 404);
 
         offer.isActive = !offer.isActive;
         await offer.save();
 
-        response.success(res, {}, "Status changed");
+        response.success(res, {}, MSG.OFFER_STATUS_CHANGED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -119,7 +120,7 @@ const updateOffer = async (req, res) => {
     try {
         const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
         if (!catDoc) {
-            return response.error(res, "Selected category not found or is inactive.", 400);
+            return response.error(res, MSG.OFFER_CATEGORY_INACTIVE, 400);
         }
 
         const updateOffer = await Offer.findByIdAndUpdate(
@@ -129,14 +130,13 @@ const updateOffer = async (req, res) => {
         );
 
         if (!updateOffer) {
-            return response.error(res, "Could not find offer", 400);
+            return response.error(res, MSG.OFFER_UPDATE_FAILED, 400);
         }
 
-        response.success(res, {}, "Offer updated successfully");
+        response.success(res, {}, MSG.OFFER_UPDATED);
     } catch (err) {
-        if (err.code === 11000) { // MongoDB duplicate key error code
-            console.error(`MongoDB duplicate key error: ${err}`);
-            return response.error(res, "Offer name must be unique.", 409);
+        if (err.code === 11000) {
+            return response.error(res, MSG.OFFER_NAME_UNIQUE, 409);
         }
 
         response.serverError(res, err);
@@ -147,13 +147,13 @@ const removeOffer = async (req, res) => {
     const offerId = req.params.id;
 
     const offer = await Offer.findById(offerId);
-    if (!offer) return response.error(res, "Offer not found.", 404);
+    if (!offer) return response.error(res, MSG.OFFER_NOT_FOUND, 404);
 
     offer.isDeleted = true;
     offer.isActive = false;
     await offer.save();
 
-    response.success(res, {}, "Offer removed successfully")
+    response.success(res, {}, MSG.OFFER_REMOVED)
 }
 
 module.exports = {

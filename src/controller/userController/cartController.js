@@ -1,5 +1,6 @@
 const { truncCurrency } = require('../../utils/currencyUtils');
 const response = require('../../Services/responseMapper');
+const MSG = require('../../constants/messages');
 const Cart = require('../../model/userCartModel');
 const Category = require('../../model/categoryModel');
 const Products = require('../../model/productModel');
@@ -88,7 +89,7 @@ const getCart = async (req, res) => {
 
 //* Adds items to the cart
 const addToCart = async (req, res) => {
-    if (!req.session.user) return response.error(res, "Please Sign In to view the cart.", 400, {
+    if (!req.session.user) return response.error(res, MSG.CART_AUTH_REQUIRED, 400, {
         session: false,
         redirectUrl: '/user/signIn'
     });
@@ -97,7 +98,7 @@ const addToCart = async (req, res) => {
     const userId = req.session.user.userId;
 
     if (!productId || !color || !size) {
-        return response.error(res, "Product details are missing.", 400, {
+        return response.error(res, MSG.PRODUCT_DETAILS_MISSING, 400, {
             session: true,
         });
     }
@@ -109,18 +110,18 @@ const addToCart = async (req, res) => {
         ]);
 
         if (!product) {
-            return response.error(res, "Product not found.", 404, { session: true });
+            return response.error(res, MSG.PRODUCT_NOT_FOUND, 404, { session: true });
         }
 
         const selectedVariant = product.variants.find(v => v.size === size);
 
         if (!selectedVariant) {
-            return response.error(res, "Selected variant not found.", 404, { session: true });
+            return response.error(res, MSG.SELECTED_VARIANT_NOT_FOUND, 404, { session: true });
         }
 
         const reqQty = parseInt(quantity) || 1;
         if (selectedVariant.stock <= 0 || reqQty > selectedVariant.stock) {
-            return response.error(res, reqQty > selectedVariant.stock ? "Requested quantity exceeds available stock." : "Product is out of stock.", 400, { session: true });
+            return response.error(res, reqQty > selectedVariant.stock ? MSG.QTY_EXCEEDS_STOCK : MSG.OUT_OF_STOCK, 400, { session: true });
         }
 
         let cart = await Cart.findOne({ user: userId, });
@@ -136,7 +137,7 @@ const addToCart = async (req, res) => {
         );
 
         if (isSameItemExists) {
-            return response.error(res, "Item already exist in the cart", 400, { session: true });
+            return response.error(res, MSG.ITEM_EXISTS_CART, 400, { session: true });
         }
 
         let offer = null;
@@ -178,7 +179,7 @@ const addToCart = async (req, res) => {
         return response.success(res, {
             session: true,
             success: true,
-            message: "Product successfully added in the cart.",
+            message: MSG.PRODUCT_ADDED_CART,
             redirectUrl: '/user/cart',
             cartCount: cart.items.length
         });
@@ -196,7 +197,7 @@ const removeItem = async (req, res) => {
     const userId = req.session.user.userId;
 
     try {
-        if (!itemId) return response.error(res, 'Item ID or User ID is not found.', 400);
+        if (!itemId) return response.error(res, MSG.ITEM_ID_NOT_FOUND, 400);
 
         const result = await Cart.updateOne(
             { user: userId },
@@ -205,7 +206,7 @@ const removeItem = async (req, res) => {
 
         if (result.modifiedCount === 0) throw new Error("Item not found or already removed from the user's cart");
 
-        response.success(res, {}, "Item successfully removed from the cart.");
+        response.success(res, {}, MSG.ITEM_REMOVED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -220,20 +221,20 @@ const updateQuantity = async (req, res) => {
     const userId = req.session.user.userId;
 
     if (!itemId || typeof process !== 'boolean') {
-        return response.error(res, "Invalid request.", 400);
+        return response.error(res, MSG.INVALID_REQUEST, 400);
     }
 
     try {
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
 
         if (!cart) {
-            return response.error(res, "Cart not found.", 404);
+            return response.error(res, MSG.CART_NOT_FOUND, 404);
         }
 
         const item = cart.items.find(item => item._id.toString() === itemId);
 
         if (!item) {
-            return response.error(res, "Cart item not found.", 404);
+            return response.error(res, MSG.CART_ITEM_NOT_FOUND, 404);
         }
 
         const variant = item.product.variants.find(
@@ -241,7 +242,7 @@ const updateQuantity = async (req, res) => {
         );
 
         if (!variant) {
-            return response.error(res, "Variant not found.", 404);
+                return response.error(res, MSG.VARIANT_NOT_FOUND, 404);
         }
 
         if (process) {
@@ -250,7 +251,7 @@ const updateQuantity = async (req, res) => {
             if (item.quantity >= 5) {
                 return response.error(
                     res,
-                    "Maximum 5 quantities are allowed.",
+                    MSG.MAX_QTY_REACHED,
                     400
                 );
             }
@@ -272,7 +273,7 @@ const updateQuantity = async (req, res) => {
             if (item.quantity === 1) {
                 return response.error(
                     res,
-                    "Quantity cannot be less than 1.",
+                    MSG.MIN_QTY,
                     400
                 );
             }
@@ -285,7 +286,7 @@ const updateQuantity = async (req, res) => {
 
         return response.success(res, {
             success: true,
-            message: "Quantity updated successfully.",
+            message: MSG.QTY_UPDATED,
             quantity: item.quantity,
             discountedPrice: truncCurrency(item.discountedPrice * item.quantity),
         });

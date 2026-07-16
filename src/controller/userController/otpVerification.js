@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const User = require('../../model/userModel');
 const nodemailer = require('nodemailer');
@@ -32,7 +33,7 @@ const requestOTP = async (req, res) => {
         const user = await getUser(email);
 
         if (user) {
-            return response.error(res, 'Email already taken', 400);
+            return response.error(res, MSG.OTP_EMAIL_TAKEN, 400);
         }
 
         const otpNumber = crypto.randomInt(1000, 9999);
@@ -59,14 +60,14 @@ const requestOTP = async (req, res) => {
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
                     console.error(`Error sending email: ${err}`);
-                    return response.error(res, `Failed to send OTP: ${err.message}`, 500);
+                    return response.error(res, MSG.OTP_FAILED(err.message), 500);
                 }
 
                 console.info('Email sent successfully:', info.response);
 
                 response.success(res, {
                     success: true,
-                    message: 'OTP sent to your email',
+                    message: MSG.OTP_SENT,
                     otpId: newOTP._id
                 });
             });
@@ -85,17 +86,15 @@ const verifyOTP = async (req, res) => {
         const otp = await OTP.findById(otpId);
 
         if (!otp) {
-            return response.error(res, 'OTP not found', 404);
+            return response.error(res, MSG.OTP_NOT_FOUND, 404);
         }
 
         const otpNumber = Number(otp.otpNumber);
         const enteredOtp = Number(otpValue);
         const expiryTime = new Date(otp.expiry).getTime();
 
-        console.log('OTP Debug:', { otpNumber, enteredOtp, expiryTime, now: Date.now(), expired: Date.now() > expiryTime });
-
         if (enteredOtp !== otpNumber || Date.now() > expiryTime) {
-            return response.error(res, 'Invalid or expired otp', 400);
+            return response.error(res, MSG.OTP_INVALID_EXPIRED, 400);
         }
 
         const verifiedOtp = await OTP.findByIdAndUpdate(otpId, { $set: { isVerified: true } }, { new: true });
@@ -114,20 +113,18 @@ const verifyOTP = async (req, res) => {
 const handleOtpExpiry = async (req, res) => {
     try {
         if (!req.query.otpId) {
-            return response.error(res, 'Invalid OTP ID', 400);
+            return response.error(res, MSG.OTP_INVALID_ID, 400);
         }
 
         const otp = await OTP.findByIdAndDelete(req.query.otpId);
 
-        console.log(otp);
-
         if (!otp) {
-            return response.error(res, 'OTP not found', 404);
+            return response.error(res, MSG.OTP_NOT_FOUND, 404);
         }
 
         response.success(res, {
             success: true,
-            message: 'OTP has been expired',
+            message: MSG.OTP_EXPIRED,
         });
     } catch (err) {
         response.serverError(res, err);

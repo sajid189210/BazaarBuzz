@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const { body, validationResult } = require('express-validator');
 const Category = require('../../model/categoryModel');
@@ -16,45 +17,25 @@ const userSignUpValidation = async (req, res, next) => {
     try {
         const { username, email, password, confirmPassword } = req.body;
 
-        // Username validation: letters only, min 3 chars
         if (!username || !/^[A-Za-z]{3,}$/.test(username)) {
-            return res.json({
-                success: false,
-                message: 'Username must contain only letters and be at least 3 characters long.'
-            });
+            return res.json({ success: false, message: MSG.USERNAME_LETTERS_ONLY });
         }
 
-        // Email validation: basic format
         if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            return res.json({
-                success: false,
-                message: 'Please enter a valid email address.'
-            });
+            return res.json({ success: false, message: MSG.VALID_EMAIL });
         }
 
-        // Password validation: min 8 chars, at least 1 number, 1 special char
         if (!password || !/^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
-            return res.json({
-                success: false,
-                message: 'Password must be at least 8 characters long and contain at least one number and one special character (@$!%*?&).'
-            });
+            return res.json({ success: false, message: MSG.PASSWORD_REQUIREMENTS });
         }
 
-        // Confirm password match
         if (password !== confirmPassword) {
-            return res.json({
-                success: false,
-                message: 'Passwords do not match.'
-            });
+            return res.json({ success: false, message: MSG.PASSWORDS_MISMATCH });
         }
 
-        // Check if email already exists
         const checkExistingUser = await User.findOne({ email: email });
         if (checkExistingUser) {
-            return res.json({
-                success: false,
-                message: 'Email is already taken.'
-            });
+            return res.json({ success: false, message: MSG.EMAIL_TAKEN });
         }
 
         const details = {
@@ -67,10 +48,7 @@ const userSignUpValidation = async (req, res, next) => {
             const newUser = new User(details);
             await newUser.save();
         } catch (err) {
-            return res.json({
-                success: false,
-                message: 'Error creating user. Please try again.'
-            });
+            return res.json({ success: false, message: MSG.ERROR_CREATING_USER });
         }
 
         const user = await User.findOne({ email: email });
@@ -121,51 +99,31 @@ const userSignInValidation = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Email validation
         if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            return res.json({
-                success: false,
-                message: 'Please enter a valid email address.'
-            });
+            return res.json({ success: false, message: MSG.VALID_EMAIL });
         }
 
-        // Password required
         if (!password) {
-            return res.json({
-                success: false,
-                message: 'Password is required.'
-            });
+            return res.json({ success: false, message: MSG.PASSWORD_REQUIRED });
         }
 
         const user = await User.findOne({ email: email });
 
         if (!user) {
-            return res.json({
-                success: false,
-                message: 'User not found. Please check your email or sign up.'
-            });
+            return res.json({ success: false, message: MSG.USER_NOT_FOUND_SIGNIN });
         }
 
         if (user.isBlocked === 'blocked') {
-            return res.json({
-                success: false,
-                message: 'You are blocked by the admin. Please contact support.'
-            });
+            return res.json({ success: false, message: MSG.USER_BLOCKED_CONTACT });
         }
 
         if (user.googleId) {
-            return res.json({
-                success: false,
-                message: 'Login failed. Please ensure you are using the correct method. If you signed up with Google, please log in using the Google option.'
-            });
+            return res.json({ success: false, message: MSG.GOOGLE_LOGIN_METHOD });
         }
 
         const isMatchPassword = await bcrypt.compare(password, user.password);
         if (!isMatchPassword) {
-            return res.json({
-                success: false,
-                message: 'Invalid password. Please try again.'
-            });
+            return res.json({ success: false, message: MSG.INVALID_PASSWORD });
         }
 
         req.session.user = {
@@ -178,10 +136,7 @@ const userSignInValidation = async (req, res) => {
 
     } catch (err) {
         console.error(`Error caught userSignInValidation in the userController. ${err.message}`);
-        return res.json({
-            success: false,
-            message: 'An unexpected error occurred. Please try again.'
-        });
+        return res.json({ success: false, message: MSG.UNEXPECTED_ERROR });
     }
 };
 
@@ -192,7 +147,7 @@ const updatePassword = async (req, res) => {
     try {
         const user = await User.findOne({ email });
 
-        if (!user) return response.error(res, "Provide a valid email.", 400);
+        if (!user) return response.error(res, MSG.PROVIDE_VALID_EMAIL, 400);
 
         const hashedPassword = await bcrypt.hash(newInput, 10);
 
@@ -202,7 +157,7 @@ const updatePassword = async (req, res) => {
             { new: true }
         );
 
-        response.success(res, {}, "Password Updated Successfully");
+        response.success(res, {}, MSG.PASSWORD_UPDATED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -357,13 +312,13 @@ const getAddress = async (req, res) => {
 //*--------------[Get Single Address] ---------------
 const getSingleAddress = async (req, res) => {
     try {
-        if (!req.session.user) return response.error(res, "Not authenticated", 401, { session: false, redirectUrl: '/user/signIn' });
+        if (!req.session.user) return response.error(res, MSG.NOT_AUTHENTICATED, 401, { session: false, redirectUrl: MSG.USER_SIGNIN });
         const { addressId } = req.params;
         const user = await User.findById(req.session.user.userId);
-        if (!user) return response.error(res, "User not found", 404);
+        if (!user) return response.error(res, MSG.USER_NOT_FOUND, 404);
         const address = user.addressId.id(addressId);
-        if (!address) return response.error(res, "Address not found", 404);
-        response.success(res, { address }, "Address fetched");
+        if (!address) return response.error(res, MSG.ADDRESS_NOT_FOUND, 404);
+        response.success(res, { address }, MSG.ADDRESS_FETCHED);
     } catch (err) {
         response.serverError(res, err);
     }
@@ -382,7 +337,7 @@ const saveAddress = async (req, res) => {
 
         if (!user) throw new Error("Error while adding new address.");
 
-        response.success(res, {}, "You have successfully added address.");
+        response.success(res, {}, MSG.ADDRESS_ADDED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -395,7 +350,7 @@ const removeAddress = async (req, res) => {
     const userId = req.session.user.userId;
     try {
 
-        if (!addressId || !userId) return response.error(res, "address or user not found", 400);
+        if (!addressId || !userId) return response.error(res, MSG.ADDRESS_OR_USER_NOT_FOUND, 400);
 
         const result = await User.updateOne(
             { _id: userId },
@@ -403,10 +358,10 @@ const removeAddress = async (req, res) => {
         );
 
         if (!result.modifiedCount) {
-            return response.error(res, "Address not found", 404);
+            return response.error(res, MSG.ADDRESS_NOT_FOUND, 404);
         }
 
-        response.success(res, {}, "Address Successfully removed");
+        response.success(res, {}, MSG.ADDRESS_REMOVED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -420,7 +375,7 @@ const editAddress = async (req, res) => {
     const { addressId } = req.params;
     try {
 
-        if (!formInputs || !userId) return response.error(res, "Form inputs or user not found.", 400);
+        if (!formInputs || !userId) return response.error(res, MSG.FORM_INPUTS_REQUIRED, 400);
 
         const setFields = {};
         for (const key of Object.keys(formInputs)) {
@@ -433,10 +388,10 @@ const editAddress = async (req, res) => {
         );
 
         if (!result.modifiedCount) {
-            return response.error(res, 'Address not found', 400);
+            return response.error(res, MSG.ADDRESS_NOT_FOUND_EDIT, 400);
         }
 
-        response.success(res, {}, "Address Successfully Updated.");
+        response.success(res, {}, MSG.ADDRESS_UPDATED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -478,7 +433,7 @@ const updateProfile = async (req, res) => {
 
         req.session.user.userName = username;
 
-        response.success(res, {}, "Profile updated successfully.");
+        response.success(res, {}, MSG.PROFILE_UPDATED);
 
     } catch (err) {
         response.serverError(res, err);
@@ -503,14 +458,12 @@ const subscribeNewsletter = async (req, res) => {
         const { email } = req.body;
 
         if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            return response.error(res, 'Please enter a valid email address.', 400);
+            return response.error(res, MSG.VALID_EMAIL, 400);
         }
 
-        // Check if email already subscribed (could use a Newsletter model or User model)
-        // For now, just return success - implement actual storage as needed
         console.log('Newsletter subscription:', email);
 
-        return response.success(res, { message: 'Successfully subscribed to newsletter!' });
+        return response.success(res, { message: MSG.NEWSLETTER_SUBSCRIBED });
 
     } catch (err) {
         response.serverError(res, err);

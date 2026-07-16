@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Wishlist = require('../../model/wishlistModel');
 const User = require('../../model/userModel');
@@ -18,7 +19,7 @@ const renderWishlist = async (req, res) => {
             Category.find({ isActive: { $ne: false } }),
         ]);
 
-        if (!user) throw new Error('Could not find the user or the wishlist.');
+        if (!user) throw new Error(MSG.WISHLIST_USER_NOT_FOUND);
 
         if (!wishlist) {
             const newWishlist = new Wishlist({ user: userId });
@@ -46,19 +47,19 @@ const renderWishlist = async (req, res) => {
 
 const addToWishList = async (req, res) => {
     try {
-        if (!req.session.user) return response.error(res, "Please Sign In to view the cart.", 400, { session: false,
-            redirectUrl: '/user/signIn'
+        if (!req.session.user) return response.error(res, MSG.WISHLIST_AUTH_REQUIRED, 400, { session: false,
+            redirectUrl: MSG.USER_SIGNIN
         });
 
         const userId = req.session.user.userId;
         const { productId } = req.body;
         const wishlist = await Wishlist.findOne({ user: userId });
 
-        if (!wishlist) return response.error(res, "Could not find the wishlist.", 404, { session: true });
+        if (!wishlist) return response.error(res, MSG.WISHLIST_NOT_FOUND, 404, { session: true });
 
         const existingItem = wishlist.items.find(item => item.product.toString() === productId);
 
-        if (existingItem) return response.error(res, "Product already exists in the wishlist.", 409, { session: true, redirectUrl: "/user/wishlist" });
+        if (existingItem) return response.error(res, MSG.WISHLIST_EXISTS, 409, { session: true, redirectUrl: "/user/wishlist" });
 
         wishlist.items.push({ product: productId });
         await wishlist.save();
@@ -66,7 +67,7 @@ const addToWishList = async (req, res) => {
         response.success(res, {
             session: true,
             success: true,
-            message: 'Product Successfully Added.'
+            message: MSG.WISHLIST_ADDED
         });
 
     } catch (err) {
@@ -79,7 +80,7 @@ const removeProduct = async (req, res) => {
     const { productId } = req.body;
 
     try {
-        if (!productId) throw new Error("Could not find the product.");
+        if (!productId) throw new Error(MSG.WISHLIST_PRODUCT_ID_MISSING);
 
         const wishlist = await Wishlist.findOne({ user: userId });
 
@@ -93,10 +94,10 @@ const removeProduct = async (req, res) => {
 
         // Checking if a product was removed
         if (result.modifiedCount === 0) {
-            return response.error(res, "Product not found in the wishlist.", 404);
+            return response.error(res, MSG.WISHLIST_PRODUCT_NOT_FOUND, 404);
         }
 
-        response.success(res, {}, "Product successfully removed from the wishlist.");
+        response.success(res, {}, MSG.WISHLIST_REMOVED);
 
     } catch (err) {
         response.serverError(res, err);}

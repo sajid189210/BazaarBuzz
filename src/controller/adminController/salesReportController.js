@@ -1,3 +1,4 @@
+const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Order = require('../../model/orderModel');
 const xlsx = require('xlsx');
@@ -36,7 +37,7 @@ const renderReport = async (req, res) => {
                     match.createdAt = { $gte: startDate };
                     break;
                 default:
-                    return response.error(res, "Invalid date selection.", 400);
+                    return response.error(res, MSG.INVALID_DATE_SELECTION, 400);
             }
         }
 
@@ -168,7 +169,7 @@ const downloadReport = async (req, res) => {
             // Finalize PDF file
             doc.end();
         } else {
-            return response.error(res, "Invalid format selection.", 400);
+            return response.error(res, MSG.INVALID_FORMAT, 400);
         }
 
     } catch (err) {
