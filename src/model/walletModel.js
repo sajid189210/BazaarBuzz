@@ -56,4 +56,7 @@ const walletSchema = new mongoose.Schema({
 
 const Wallet = mongoose.model('Wallet', walletSchema);
 
+walletSchema.index({ owner: 1, type: 1 });
+walletSchema.index({ type: 1 });
+
 module.exports = Wallet;

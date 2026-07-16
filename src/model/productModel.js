@@ -135,4 +135,9 @@ productSchema.pre('save', function (next) {
 
 const Product = mongoose.model('Product', productSchema);
 
+productSchema.index({ isDeleted: 1, isActive: 1 });
+productSchema.index({ isDeleted: 1, isActive: 1, createdAt: -1 });
+productSchema.index({ isDeleted: 1, category: 1 });
+productSchema.index({ createdAt: -1 });
+
 module.exports = Product;

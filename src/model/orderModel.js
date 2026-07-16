@@ -257,4 +257,11 @@ const orderSchema = new mongoose.Schema(
 
 const Order = mongoose.model("Order", orderSchema);
 
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ 'payment.status': 1 });
+orderSchema.index({ 'payment.method': 1 });
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ 'items.return.status': 1 });
+
 module.exports = Order;
