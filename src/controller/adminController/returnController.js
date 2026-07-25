@@ -6,6 +6,7 @@ const MSG = require('../../constants/messages');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
 const { updateOrderStatus } = require('./orderController');
+const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletTypes');
 
 const renderReturnsPage = async (req, res) => {
     try {

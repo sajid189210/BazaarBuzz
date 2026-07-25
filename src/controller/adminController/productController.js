@@ -225,13 +225,13 @@ const getCreateProducts = async (req, res) => {
 //*----------------Create Product Page : POST------------------------------------------------------------------------------------
 const createProducts = async (req, res) => {
     try {
-        const { productName, brand, category, productPrice, discount, productDescription } = req.body;
+        const { productName, brand, category, productPrice, discount, productDescription, gender, fabric, featured, limitedEdition } = req.body;
         
         // Handle new variant structure: variants[size][stock], variants[size][colors]
         const variants = req.body.variants || [];
         
         if (!variants || variants.length === 0) {
-            return res.redirect(R.ADMIN_PRODUCT_CREATE);
+            return res.status(400).json({ success: false, errors: { variants: 'At least one variant is required.' } });
         }
 
         let categoryName;
@@ -254,6 +254,10 @@ const createProducts = async (req, res) => {
             productPrice: Number(productPrice),
             discount: Number(discount) || 0,
             description: productDescription,
+            gender,
+            fabric,
+            featured: featured === 'on',
+            limitedEdition: limitedEdition === 'on',
             variants: processedVariants,
             images: req.body.images || []
         };
@@ -263,7 +267,7 @@ const createProducts = async (req, res) => {
         const newProduct = new Product(productData);
         await newProduct.save();
 
-        res.redirect(R.ADMIN_PRODUCT_LIST);
+        res.json({ success: true, redirectUrl: R.ADMIN_PRODUCT_LIST });
 
     } catch (err) {
         response.serverError(res, err);
@@ -363,14 +367,14 @@ const getEditProduct = async (req, res) => {
 const postEditProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const { productName, brand, category, productPrice, discount, productDescription } = req.body;
+        const { productName, brand, category, productPrice, discount, productDescription, gender, fabric, featured, limitedEdition } = req.body;
         
         // Handle new variant structure: variants[size][stock], variants[size][colors]
         const variants = req.body.variants || [];
         const images = req.body.images ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) : [];
 
         if (!variants || variants.length === 0) {
-            return res.redirect(R.ADMIN_PRODUCT_LIST);
+            return res.status(400).json({ success: false, errors: { variants: 'At least one variant is required.' } });
         }
 
         let categoryName;
@@ -393,6 +397,10 @@ const postEditProduct = async (req, res) => {
             productPrice: Number(productPrice),
             discount: Number(discount) || 0,
             description: productDescription,
+            gender,
+            fabric,
+            featured: featured === 'on',
+            limitedEdition: limitedEdition === 'on',
             images: images.length > 0 ? images : undefined,
             variants: processedVariants
         };
@@ -406,7 +414,7 @@ const postEditProduct = async (req, res) => {
         );
 
         if (!updated) return response.error(res, MSG.PRODUCT_NOT_FOUND, 404);
-        res.redirect(R.ADMIN_PRODUCT_LIST);
+        res.json({ success: true, redirectUrl: R.ADMIN_PRODUCT_LIST });
     } catch (err) {
         response.serverError(res, err);
     }
