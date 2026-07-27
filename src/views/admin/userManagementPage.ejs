@@ -71,6 +71,7 @@
                                         <th class="text-left px-4 py-3 font-semibold text-gray-600 hidden md:table-cell">Registration Date
                                         </th>
                                         <th class="text-left px-4 py-3 font-semibold text-gray-600">Status</th>
+                                        <th class="text-left px-4 py-3 font-semibold text-gray-600 hidden md:table-cell">Orders</th>
                                         <th class="text-left px-4 py-3 font-semibold text-gray-600">Action</th>
                                     </tr>
                                 </thead>
@@ -94,6 +95,13 @@
                                                         class="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full <%= user.isBlocked === 'unblocked' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' %>">
                                                         <%= user.isBlocked==='unblocked' ? 'Active' : 'Blocked' %>
                                                     </span> </td>
+                                                <td class="px-4 py-3 hidden md:table-cell">
+                                                    <a href="/admin/orders?userId=<%= user._id %>"
+                                                        class="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+                                                        <i class="fa-solid fa-receipt"></i>
+                                                        Orders
+                                                    </a>
+                                                </td>
                                                 <td class="px-4 py-3"> <button onclick="toggleUser('<%= user._id %>')"
                                                         class="text-xs font-medium <%= user.isBlocked === 'blocked' ? 'text-green-600 hover:text-green-700' : 'text-red-500 hover:text-red-600' %> transition-colors">
                                                         <%= user.isBlocked==='blocked' ? 'Unblock' : 'Block' %>
@@ -102,7 +110,7 @@
                                             <% }) %>
                                                 <% } else { %>
                                                     <tr>
-                                                        <td colspan="6" class="px-4 py-8 text-center text-gray-400">No
+                                                        <td colspan="7" class="px-4 py-8 text-center text-gray-400">No
                                                             users found</td>
                                                     </tr>
                                                     <% } %>

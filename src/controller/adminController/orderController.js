@@ -56,6 +56,7 @@ const renderOrderList = async (req, res) => {
         const paymentMethodFilter = req.query.paymentMethod || '';
         const dateFrom = req.query.dateFrom || '';
         const dateTo = req.query.dateTo || '';
+        const userId = req.query.userId || '';
 
         let filter = {};
 
@@ -101,6 +102,10 @@ const renderOrderList = async (req, res) => {
             }
         }
 
+        if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+            filter.user = new mongoose.Types.ObjectId(userId);
+        }
+
         const orders = await Order.find(filter)
             .populate('user')
             .sort({ createdAt: -1 })
@@ -122,6 +127,7 @@ const renderOrderList = async (req, res) => {
             paymentMethodFilter,
             dateFrom,
             dateTo,
+            userId,
         });
 
     } catch (err) {
