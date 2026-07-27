@@ -470,57 +470,70 @@ const downloadInvoice = async (req, res) => {
         const sepY3 = tableY - 10;
         doc.moveTo(MARGIN, sepY3).lineTo(PAGE_WIDTH - MARGIN, sepY3).strokeColor('#d1d5db').lineWidth(1).stroke();
 
-        // Table configuration — no overlapping columns
-        const colPos = [MARGIN, MARGIN + 30, MARGIN + 210, MARGIN + 300, MARGIN + 340, MARGIN + 405];
-        const colKeys = ['#', 'Product', 'Size / Color', 'Qty', 'Unit Price', 'Total'];
-        const colWidths = [30, 180, 90, 40, 65, 65];
+        // Table configuration
+        const colPos = [MARGIN, MARGIN + 22, MARGIN + 212, MARGIN + 247, MARGIN + 295, MARGIN + 340, MARGIN + 400];
+        const colKeys = ['#', 'Item / Variant', 'Qty', 'MRP', 'Disc', 'Rate', 'Total'];
+        const colWidths = [22, 190, 35, 48, 45, 60, 75];
         const rowHeight = 22;
 
         // Header row background
         doc.rect(MARGIN, tableY, CONTENT_WIDTH, rowHeight).fill(LIGHT_BG);
         doc.fontSize(8).font('Helvetica-Bold').fillColor(DARK);
         colKeys.forEach((key, i) => {
-            doc.text(key, colPos[i] + 4, tableY + 6, { width: colWidths[i] - 8, align: i === 0 ? 'center' : i >= 3 ? 'right' : 'left' });
+            doc.text(key, colPos[i] + 4, tableY + 6, { width: colWidths[i] - 8, align: i === 0 ? 'center' : i >= 2 ? 'right' : 'left' });
         });
 
         // Data rows
         doc.fontSize(8).font('Helvetica').fillColor(DARK);
         let rowY = tableY + rowHeight;
         deliveredItems.forEach((item, idx) => {
+            const mrp = item.unitPrice || 0;
+            const rate = item.finalPrice || 0;
+            const discPerUnit = Math.max(0, mrp - rate);
+            const lineTotal = rate * item.quantity;
             const hex = item.selectedColor || '#ccc';
             const cName = colorName(hex);
-            const sizeText = (item.selectedSize || '-') + '  ' + cName;
-            const lineTotal = (item.finalPrice * item.quantity);
-            const values = [
-                String(idx + 1),
-                item.name || 'Product',
-                sizeText,
-                String(item.quantity),
-                `₹${Number(item.unitPrice || 0).toFixed(2)}`,
-                `₹${lineTotal.toFixed(2)}`,
-            ];
+            const variantText = (item.selectedSize || '-') + '  ' + cName;
 
             // Alternate row bg
             if (idx % 2 === 1) {
                 doc.rect(MARGIN, rowY, CONTENT_WIDTH, rowHeight).fill('#fafafa');
             }
 
-            values.forEach((val, i) => {
-                if (i === 2) {
-                    const dotX = colPos[i] + 4;
-                    const dotY = rowY + 5;
-                    const dotSize = 10;
-                    doc.rect(dotX, dotY, dotSize, dotSize).fillAndStroke(hex, '#d1d5db');
-                    doc.font('Helvetica').fontSize(8).fillColor(DARK);
-                    doc.text(cName, dotX + dotSize + 5, rowY + 6, { width: colWidths[i] - dotSize - 13, align: 'left' });
-                    doc.font('Helvetica').fontSize(7).fillColor(GRAY);
-                    doc.text(item.selectedSize || '-', dotX + dotSize + 5, rowY + 6, { width: colWidths[i] - dotSize - 13, align: 'right' });
-                } else {
-                    const align = i === 0 ? 'center' : i >= 3 ? 'right' : 'left';
-                    doc.font('Helvetica').fontSize(8).fillColor(DARK);
-                    doc.text(val, colPos[i] + 4, rowY + 6, { width: colWidths[i] - 8, align });
-                }
-            });
+            // Col 0: #
+            doc.font('Helvetica').fontSize(8).fillColor(DARK);
+            doc.text(String(idx + 1), colPos[0] + 4, rowY + 6, { width: colWidths[0] - 8, align: 'center' });
+
+            // Col 1: Item + Variant (two lines)
+            const itemX = colPos[1] + 4;
+            const itemW = colWidths[1] - 8;
+            doc.font('Helvetica-Bold').fontSize(8).fillColor(DARK);
+            doc.text(item.name || 'Product', itemX, rowY + 2, { width: itemW, align: 'left' });
+            doc.font('Helvetica').fontSize(7).fillColor(GRAY);
+            doc.text(variantText, itemX, rowY + 12, { width: itemW, align: 'left' });
+
+            // Col 2: Qty
+            doc.font('Helvetica').fontSize(8).fillColor(DARK);
+            doc.text(String(item.quantity), colPos[2] + 4, rowY + 6, { width: colWidths[2] - 8, align: 'right' });
+
+            // Col 3: MRP
+            doc.text(`₹${mrp.toFixed(2)}`, colPos[3] + 4, rowY + 6, { width: colWidths[3] - 8, align: 'right' });
+
+            // Col 4: Disc
+            if (discPerUnit > 0) {
+                doc.fillColor('#059669');
+                doc.text(`-₹${discPerUnit.toFixed(2)}`, colPos[4] + 4, rowY + 6, { width: colWidths[4] - 8, align: 'right' });
+                doc.fillColor(DARK);
+            } else {
+                doc.text('—', colPos[4] + 4, rowY + 6, { width: colWidths[4] - 8, align: 'right' });
+            }
+
+            // Col 5: Rate
+            doc.font('Helvetica-Bold').fontSize(8).fillColor(DARK);
+            doc.text(`₹${rate.toFixed(2)}`, colPos[5] + 4, rowY + 6, { width: colWidths[5] - 8, align: 'right' });
+
+            // Col 6: Total
+            doc.text(`₹${lineTotal.toFixed(2)}`, colPos[6] + 4, rowY + 6, { width: colWidths[6] - 8, align: 'right' });
 
             rowY += rowHeight;
         });
@@ -532,14 +545,38 @@ const downloadInvoice = async (req, res) => {
         const valueX = summaryX + 80;
         const valueW = summaryW - 80;
 
+        // Compute per-item discount breakdown
+        let mrpSubtotal = 0;
+        let prodDiscSum = 0;
+        let offerDiscSum = 0;
+        let offerName = '';
+        for (const item of deliveredItems) {
+            const p = item.unitPrice || 0;
+            const f = item.finalPrice || 0;
+            const oa = item.offerDiscount || 0;
+            const q = item.quantity;
+            mrpSubtotal += p * q;
+            prodDiscSum += Math.max(0, p - f - oa) * q;
+            offerDiscSum += oa * q;
+            if (item.offerName && !offerName) offerName = item.offerName;
+        }
+
         const sumLines = [
-            { label: 'Subtotal', value: `₹${deliveredGross.toFixed(2)}`, bold: false },
+            { label: 'Subtotal (MRP)', value: `₹${mrpSubtotal.toFixed(2)}`, bold: false },
         ];
+        if (prodDiscSum > 0) {
+            sumLines.push({ label: 'Product Discount', value: `-₹${prodDiscSum.toFixed(2)}`, bold: false, green: true });
+        }
+        if (offerDiscSum > 0) {
+            sumLines.push({ label: offerName || 'Brand Offer', value: `-₹${offerDiscSum.toFixed(2)}`, bold: false, green: true });
+        }
+        sumLines.push({ label: null, value: null, isLine: true });
+        sumLines.push({ label: 'Taxable Subtotal', value: `₹${deliveredGross.toFixed(2)}`, bold: false });
         if (couponDiscount > 0) {
-            sumLines.push({ label: 'Coupon', value: `-₹${couponDiscount.toFixed(2)}`, bold: false });
+            sumLines.push({ label: 'Coupon', value: `-₹${couponDiscount.toFixed(2)}`, bold: false, green: true });
         }
         if (invoiceTax > 0) {
-            sumLines.push({ label: 'Tax', value: `₹${invoiceTax.toFixed(2)}`, bold: false });
+            sumLines.push({ label: 'Tax (5%)', value: `₹${invoiceTax.toFixed(2)}`, bold: false });
         }
         sumLines.push({ label: 'Shipping', value: `₹${invoiceShipping.toFixed(2)}`, bold: false });
         sumLines.push({ label: null, value: null, isLine: true });
@@ -554,6 +591,8 @@ const downloadInvoice = async (req, res) => {
             }
             if (line.bold) {
                 doc.font('Helvetica-Bold').fontSize(11).fillColor(DARK);
+            } else if (line.green) {
+                doc.font('Helvetica').fontSize(9).fillColor('#059669');
             } else {
                 doc.font('Helvetica').fontSize(9).fillColor(GRAY);
             }

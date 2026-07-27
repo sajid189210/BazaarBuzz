@@ -49,7 +49,7 @@
                                         <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Date & Time</th>
                                         <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Type</th>
                                         <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Amount</th>
-                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Transaction ID</th>
+                                        <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Order</th>
                                         <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Before</th>
                                         <th class="text-left px-3 sm:px-5 py-3 sm:py-3.5 font-semibold text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">After</th>
                                     </tr>
@@ -72,7 +72,13 @@
                                                         <%= txn.type === 'credit' ? '+' : '-' %> ₹<%= txn.amount?.toLocaleString('en-IN') %>
                                                     </span>
                                                 </td>
-                                                <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm font-mono uppercase hidden lg:table-cell"><%= String(txn._id).slice(-8) || '-' %></td>
+                                                <td class="px-3 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm hidden lg:table-cell">
+<% if(txn.orderId) { %>
+                                                    <a href="/admin/order/view?orderId=<%= txn.orderId %>" class="text-blue-600 hover:text-blue-800 hover:underline font-mono uppercase">#<%= String(txn.orderId).slice(-8) %></a>
+<% } else { %>
+                                                    <span class="text-gray-400">—</span>
+<% } %>
+                                                </td>
                                                 <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-600 hidden lg:table-cell">₹<%= txn.balanceBefore?.toLocaleString('en-IN') %></td>
                                                 <td class="px-3 sm:px-5 py-3 sm:py-4 text-gray-600 hidden lg:table-cell">₹<%= txn.balanceAfter?.toLocaleString('en-IN') %></td>
                                             </tr>
