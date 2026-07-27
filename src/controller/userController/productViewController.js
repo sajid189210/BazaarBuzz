@@ -70,9 +70,9 @@ const viewProduct = async (req, res) => {
         // Check wishlist status if user is logged in
         let isInWishlist = false;
         if (req.session.user) {
-            const wishlist = await Wishlist.findOne({ userId: req.session.user._id });
-            if (wishlist && wishlist.products) {
-                isInWishlist = wishlist.products.some(p => p.productId.toString() === productId);
+            const wishlist = await Wishlist.findOne({ user: req.session.user.userId });
+            if (wishlist && wishlist.items) {
+                isInWishlist = wishlist.items.some(item => item.product.toString() === productId);
             }
         }
 

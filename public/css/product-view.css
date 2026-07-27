@@ -504,31 +504,26 @@
 .btn-wishlist {
   width: 52px;
   height: 52px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
   color: var(--text-secondary);
-  background: var(--surface);
   transition: all var(--motion-fast) var(--motion-easing);
 }
 
 .btn-wishlist:hover {
-  border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-light);
 }
 
 .btn-wishlist.filled {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: white;
+  color: var(--accent);
 }
 
 .btn-wishlist.filled:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  color: var(--accent);
+  background: var(--accent-light);
 }
 
 .btn-wishlist:focus-visible {
@@ -536,18 +531,16 @@
   outline-offset: 2px;
 }
 
-.btn-wishlist svg {
-  width: 22px;
-  height: 22px;
+.btn-wishlist i {
+  font-size: 22px;
   transition: transform var(--motion-fast);
-  fill: none;
 }
 
-.btn-wishlist.filled svg {
-  fill: currentColor;
+.btn-wishlist.filled i {
+  color: var(--accent);
 }
 
-.btn-wishlist:active svg {
+.btn-wishlist:active i {
   transform: scale(0.9);
 }
 

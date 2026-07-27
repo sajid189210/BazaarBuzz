@@ -620,11 +620,9 @@ function decrementQuantity() {
 }
 
 // ==================== WISHLIST ====================
-async function toggleWishList(productId) {
+async function toggleWishList(productId, btn) {
     if (!productId) return;
-    
-    const btn = document.getElementById('wishlistBtn');
-    const isCurrentlyInWishlist = btn.classList.contains('filled');
+    btn = btn || document.getElementById('wishlistBtn');
     
     if (!prefersReducedMotion) {
         btn.style.transform = 'scale(0.9)';
@@ -651,20 +649,37 @@ async function toggleWishList(productId) {
             return; 
         }
         
-        btn.classList.toggle('filled');
-        btn.setAttribute('aria-label', isCurrentlyInWishlist ? 'Add to wishlist' : 'Remove from wishlist');
+        const isAdd = data.action === 'added';
+        btn.classList.toggle('filled', isAdd);
+        btn.setAttribute('aria-label', isAdd ? 'Remove from wishlist' : 'Add to wishlist');
         
-        if (!prefersReducedMotion && !isCurrentlyInWishlist) {
-            btn.querySelector('svg').style.transform = 'scale(1.3)';
-            setTimeout(() => {
-                btn.querySelector('svg').style.transition = 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1)';
-                btn.querySelector('svg').style.transform = 'scale(1)';
-            }, 50);
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-regular', 'fa-solid');
+            icon.classList.add(isAdd ? 'fa-solid' : 'fa-regular');
+            
+            if (!prefersReducedMotion && isAdd) {
+                icon.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    icon.style.transition = 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1)';
+                    icon.style.transform = 'scale(1)';
+                }, 50);
+            }
         }
         
         Toast.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 })
             .fire({ icon: 'success', title: data.message });
             
+        if (!isAdd) {
+            const card = btn.closest('.group');
+            if (card) {
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => card.remove(), 300);
+            }
+        }
+        
     } catch (e) { 
         console.log(e); 
         Toast.fire({ icon: 'error', title: 'Something went wrong' }); 

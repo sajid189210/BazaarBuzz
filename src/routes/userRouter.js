@@ -55,6 +55,7 @@ router.patch('/cart/updateQuantity', cartController.updateQuantity);
 router.delete('/cart/removeItem', cartController.removeItem);
 
 //*--------------------[Wishlist]-----------------------
+router.get('/wishlist/count', wishlistController.getWishlistCount);
 router.get('/wishlist', wishlistController.renderWishlist);
 router.post('/wishlist', wishlistController.addToWishList);
 router.delete('/removeList', wishlistController.removeProduct);
