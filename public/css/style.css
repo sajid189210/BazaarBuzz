@@ -814,6 +814,10 @@ html {
   bottom: 1.5rem;
 }
 
+.bottom-full {
+  bottom: 100%;
+}
+
 .left-0 {
   left: 0px;
 }
@@ -996,6 +1000,10 @@ html {
 
 .mb-1 {
   margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 
 .mb-3 {
@@ -1529,6 +1537,10 @@ html {
   transform: none;
 }
 
+.cursor-help {
+  cursor: help;
+}
+
 .cursor-not-allowed {
   cursor: not-allowed;
 }
@@ -1846,6 +1858,10 @@ html {
   border-width: 2px;
 }
 
+.border-4 {
+  border-width: 4px;
+}
+
 .border-b {
   border-bottom-width: 1px;
 }
@@ -1876,6 +1892,10 @@ html {
 
 .border-solid {
   border-style: solid;
+}
+
+.border-dotted {
+  border-style: dotted;
 }
 
 .border-none {
@@ -1942,6 +1962,11 @@ html {
 .border-green-300 {
   --tw-border-opacity: 1;
   border-color: rgb(134 239 172 / var(--tw-border-opacity, 1));
+}
+
+.border-green-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(74 222 128 / var(--tw-border-opacity, 1));
 }
 
 .border-indigo-100 {
@@ -2024,6 +2049,11 @@ html {
 .border-yellow-200 {
   --tw-border-opacity: 1;
   border-color: rgb(254 240 138 / var(--tw-border-opacity, 1));
+}
+
+.border-t-gray-900 {
+  --tw-border-opacity: 1;
+  border-top-color: rgb(17 24 39 / var(--tw-border-opacity, 1));
 }
 
 .border-t-transparent {
@@ -3561,6 +3591,10 @@ html {
 
 .group:hover .group-hover\:visible {
   visibility: visible;
+}
+
+.group:hover .group-hover\:block {
+  display: block;
 }
 
 .group:hover .group-hover\:translate-y-0 {

@@ -60,10 +60,33 @@ const getCheckout = async (req, res) => {
 
         let subTotal = 0;
         let total = 0;
+        let productDiscTotal = 0;
+        let offerDiscTotal = 0;
 
         for (const item of cart.items) {
-            subTotal += item.product.productPrice * item.quantity;
-            total += item.discountedPrice * item.quantity;
+            const price = item.product.productPrice;
+            const discPct = item.product.discount || 0;
+            const offerPct = item.offer?.discount || 0;
+            const qty = item.quantity;
+
+            subTotal += price * qty;
+            total += item.discountedPrice * qty;
+
+            const discountedAmount = price - (price * discPct / 100);
+            const floor = price * 0.10;
+            let priceAfterProduct = Math.max(discountedAmount, floor);
+
+            let prodDiscAmt = price - priceAfterProduct;
+            let offerDiscAmt = 0;
+
+            if (offerPct > 0) {
+                const offerPrice = discountedAmount - (discountedAmount * offerPct / 100);
+                const priceAfterOffer = Math.max(offerPrice, floor);
+                offerDiscAmt = priceAfterProduct - priceAfterOffer;
+            }
+
+            productDiscTotal += prodDiscAmt * qty;
+            offerDiscTotal += offerDiscAmt * qty;
         }
 
         let totalDiscount = subTotal - total;
@@ -84,6 +107,8 @@ const getCheckout = async (req, res) => {
             searchBox: false,
             total: truncCurrency(total),
             cart,
+            productDiscTotal: truncCurrency(productDiscTotal),
+            offerDiscTotal: truncCurrency(offerDiscTotal),
             user,
             wallet,
             categories,
