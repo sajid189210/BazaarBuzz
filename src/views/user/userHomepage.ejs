@@ -11,13 +11,16 @@
 
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                         <% if(products && products.length) { %>
+                            <% const catMap = {}; if (categories && categories.length) { categories.forEach(function(c) { catMap[c.title] = c._id; }); } %>
                             <% products.forEach((product)=> {
                                 if(product.featured) {
                                 var discPrice = product.discount ?
                                 Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
                                 product.productPrice;
+                                var matchedOffer = (offers && offers.length) ? offers.find(function(o) { return o.brandName === product.brand && o.category.toString() === (catMap[product.category] || '').toString(); }) : null;
+                                var finalPrice = discPrice; if (matchedOffer && matchedOffer.discount > 0) { finalPrice = Math.round(discPrice - (discPrice * matchedOffer.discount / 100)); }
                                 %>
-                                <%- include('../partials/productCard', { product, discPrice }) %>
+                                <%- include('../partials/productCard', { product, discPrice, offer: matchedOffer, finalPrice }) %>
                                     <% } %>
                                         <% }) %>
                                             <% } else { %>
@@ -47,12 +50,15 @@
 
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                         <% if(products && products.length) { %>
+                            <% const catMap = {}; if (categories && categories.length) { categories.forEach(function(c) { catMap[c.title] = c._id; }); } %>
                             <% products.forEach((product)=> {
                                 var discPrice = product.discount ?
                                 Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
                                 product.productPrice;
+                                var matchedOffer = (offers && offers.length) ? offers.find(function(o) { return o.brandName === product.brand && o.category.toString() === (catMap[product.category] || '').toString(); }) : null;
+                                var finalPrice = discPrice; if (matchedOffer && matchedOffer.discount > 0) { finalPrice = Math.round(discPrice - (discPrice * matchedOffer.discount / 100)); }
                                 %>
-                                <%- include('../partials/productCard', { product, discPrice }) %>
+                                <%- include('../partials/productCard', { product, discPrice, offer: matchedOffer, finalPrice }) %>
                                     <% }) %>
                                         <% } else { %>
                                             <div class="col-span-full text-center py-12">

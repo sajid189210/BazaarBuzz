@@ -11,6 +11,7 @@ const Wallet = require('../../model/walletModel');
 const Cart = require('../../model/userCartModel');
 const User = require('../../model/userModel');
 const OTP = require('../../model/otpModel');
+const Offer = require('../../model/offerModel');
 
 //-------------------------------------------------Sign Up Page----------------------------------------------------------------------
 
@@ -249,9 +250,11 @@ const getProduct = async () => {
 const userHomepage = async (req, res) => {
     try {
 
-        const categories = await getCategory();
-
-        const products = await getProduct();
+        const [categories, products, offers] = await Promise.all([
+            getCategory(),
+            getProduct(),
+            Offer.find({ isActive: true })
+        ]);
 
         const filteredProducts = products.filter(product => {
             return product.category;
@@ -283,6 +286,7 @@ const userHomepage = async (req, res) => {
             categories,
             searchBox: true,
             products: filteredProducts,
+            offers,
             heroMode,
         });
 
