@@ -18,10 +18,12 @@
                     <% cart.items.forEach((item, index) => { %>
                         <% const prod = item.product || {}; %>
                         <% const offer = item.offer || null; %>
+                        <% const snapshotPrice = item.productPrice ?? prod.productPrice; %>
+                        <% const snapshotDiscount = item.productDiscount ?? prod.discount; %>
                         <% const finalUnitPrice = item.discountedPrice || prod.productPrice; %>
                         <% const subtotal = finalUnitPrice * item.quantity; %>
-                        <% const totalSavings = prod.productPrice !== finalUnitPrice ? ((prod.productPrice - finalUnitPrice) * item.quantity) : 0; %>
-                        <% const discountPercent = prod.productPrice !== finalUnitPrice ? Math.round((1 - finalUnitPrice / prod.productPrice) * 100) : 0; %>
+                        <% const totalSavings = snapshotPrice !== finalUnitPrice ? ((snapshotPrice - finalUnitPrice) * item.quantity) : 0; %>
+                        <% const discountPercent = snapshotPrice !== finalUnitPrice ? Math.round((1 - finalUnitPrice / snapshotPrice) * 100) : 0; %>
 
                         <div class="border border-gray-200 rounded-xl bg-white hover:shadow-sm transition-shadow duration-150" data-item-id="<%= item._id %>">
                             <div class="grid grid-cols-[100px_1fr_auto] gap-3.5 sm:gap-4 p-4 sm:px-5">
@@ -58,9 +60,8 @@
 
                                 <div class="text-right flex flex-col items-end gap-px min-w-[90px]">
                                     <span class="text-base font-bold text-gray-900 leading-tight">₹<%= finalUnitPrice.toLocaleString('en-IN') %></span>
-                                    <% if(prod.productPrice !== finalUnitPrice) { %>
-                                        <span class="text-xs text-gray-400 line-through">₹<%= prod.productPrice.toLocaleString('en-IN') %></span>
-                                        <span class="text-[11px] font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded mt-0.5">&minus;<%= discountPercent %>% off</span>
+                                    <% if(snapshotPrice !== finalUnitPrice) { %>
+                                        <span class="text-xs text-gray-400 line-through">₹<%= snapshotPrice.toLocaleString('en-IN') %></span>
                                     <% } %>
                                     <hr class="w-full border-gray-200 my-1.5">
                                     <span class="text-xs text-gray-500">₹<%= finalUnitPrice.toLocaleString('en-IN') %> × <%= item.quantity %></span>
@@ -68,16 +69,16 @@
                                 </div>
                             </div>
 
-                            <% if(prod.productPrice !== finalUnitPrice) { %>
+                            <% if(snapshotPrice !== finalUnitPrice) { %>
                                 <div class="border-t border-gray-100 px-4 sm:px-5 py-2.5">
                                     <p class="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-0.5">Discount Applied</p>
                                     <div class="flex flex-wrap gap-x-3.5 gap-y-0.5 text-xs text-green-600">
-                                        <% if(prod.discount > 0) { %>
-                                            <span>&minus;<%= prod.discount %>% product discount</span>
+                                        <% if(snapshotDiscount > 0) { %>
+                                            <span><%= snapshotDiscount %>% product discount</span>
                                         <% } %>
                                         <% if(offer && offer.discount > 0) { %>
-                                            <% if(prod.discount > 0) { %><span class="text-gray-300">|</span><% } %>
-                                            <span>+ <%= offer.offerName %> &minus;<%= offer.discount %>% brand offer</span>
+                                            <% if(snapshotDiscount > 0) { %><span class="text-gray-300">|</span><% } %>
+                                           <span><%= offer.discount %>% brand offer</span>
                                         <% } %>
                                     </div>
                                     <p class="text-xs text-gray-500 mt-0.5">You save ₹<%= totalSavings.toLocaleString('en-IN') %> on this item</p>
@@ -105,9 +106,23 @@
                             <span id="subtotalAmount">₹<%= (subTotal || 0).toLocaleString('en-IN') %></span>
                         </div>
                         <% if(totalDiscount && totalDiscount > 0) { %>
-                            <div class="flex justify-between text-gray-600">
-                                <span>Discount</span>
+                            <% const showTooltip = (productDiscTotal || 0) > 0 || (offerDiscTotal || 0) > 0; %>
+                            <div class="flex justify-between text-gray-600 relative group">
+                                <span class="<%- showTooltip ? 'cursor-help border-b border-dotted border-green-400' : '' %>">Discount</span>
                                 <span class="text-green-600 font-medium">&minus; ₹<%= totalDiscount.toLocaleString('en-IN') %></span>
+                                <% if(showTooltip) { %>
+                                    <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap z-10 shadow-lg">
+                                        <div class="space-y-1">
+                                            <% if((productDiscTotal || 0) > 0) { %>
+                                                <div class="flex justify-between gap-4"><span>Product discount</span><span class="text-green-300">&minus; ₹<%= (productDiscTotal || 0).toLocaleString('en-IN') %></span></div>
+                                            <% } %>
+                                            <% if((offerDiscTotal || 0) > 0) { %>
+                                                <div class="flex justify-between gap-4"><span>Brand offer</span><span class="text-green-300">&minus; ₹<%= (offerDiscTotal || 0).toLocaleString('en-IN') %></span></div>
+                                            <% } %>
+                                        </div>
+                                        <div class="absolute top-full left-4 w-0 h-0 border-4 border-transparent border-t-gray-900"></div>
+                                    </div>
+                                <% } %>
                             </div>
                         <% } %>
                         <div class="flex justify-between text-gray-600">

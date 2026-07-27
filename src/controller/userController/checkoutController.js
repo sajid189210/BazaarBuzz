@@ -64,8 +64,8 @@ const getCheckout = async (req, res) => {
         let offerDiscTotal = 0;
 
         for (const item of cart.items) {
-            const price = item.product.productPrice;
-            const discPct = item.product.discount || 0;
+            const price = item.productPrice ?? item.product.productPrice;
+            const discPct = (item.productDiscount ?? item.product.discount) || 0;
             const offerPct = item.offer?.discount || 0;
             const qty = item.quantity;
 
@@ -185,7 +185,7 @@ const proceedToPayment = async (req, res) => {
             }
         }
 
-        const subtotal = cart.items.reduce((acc, item) => acc + (item.product.productPrice * item.quantity), 0);
+        const subtotal = cart.items.reduce((acc, item) => acc + ((item.productPrice ?? item.product.productPrice) * item.quantity), 0);
 
         let total = cart.items.reduce((acc, item) => acc + (item.discountedPrice * item.quantity), 0);
 
@@ -210,7 +210,7 @@ const proceedToPayment = async (req, res) => {
                 quantity: item.quantity,
                 selectedSize: item.selectedSize,
                 selectedColor: item.selectedColor,
-                unitPrice: item.product.productPrice,
+                unitPrice: item.productPrice ?? item.product.productPrice,
                 finalPrice: item.discountedPrice,
             })),
             shippingAddress,
