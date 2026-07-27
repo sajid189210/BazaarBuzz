@@ -1398,6 +1398,10 @@ html {
   width: 30px;
 }
 
+.w-0\.5 {
+  width: 0.125rem;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -3085,6 +3089,15 @@ html {
   color: rgb(234 88 12 / var(--tw-text-opacity, 1));
 }
 
+.text-amber-800 {
+  --tw-text-opacity: 1;
+  color: rgb(146 64 14 / var(--tw-text-opacity, 1));
+}
+
+.underline {
+  text-decoration-line: underline;
+}
+
 .line-through {
   text-decoration-line: line-through;
 }
@@ -3586,6 +3599,16 @@ html {
 .hover\:text-blue-800:hover {
   --tw-text-opacity: 1;
   color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-indigo-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(55 48 163 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-amber-900:hover {
+  --tw-text-opacity: 1;
+  color: rgb(120 53 15 / var(--tw-text-opacity, 1));
 }
 
 .hover\:underline:hover {
@@ -4212,6 +4235,10 @@ html {
 
   .sm\:p-8 {
     padding: 2rem;
+  }
+
+  .sm\:p-5 {
+    padding: 1.25rem;
   }
 
   .sm\:px-2 {

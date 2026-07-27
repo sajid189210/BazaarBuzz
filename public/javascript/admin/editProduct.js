@@ -9,7 +9,7 @@ const brandSelect = document.getElementById('brand');
 // Store the original product brand for pre-selection
 const originalProductBrand = brandSelect?.dataset?.originalBrand || '';
 
-async function fetchBrandsForCategory(categoryId) {
+async function fetchBrandsForCategory(categoryId, preselect = false) {
     if (!categoryId) {
         brandSelect.innerHTML = '<option value="">Select category first</option>';
         brandSelect.disabled = true;
@@ -28,7 +28,7 @@ async function fetchBrandsForCategory(categoryId) {
             // Always include the original product brand as an option if it exists
             // This ensures the existing brand is always selectable even if removed from category
             const brandSet = new Set(brands.map(b => b.toLowerCase()));
-            if (originalProductBrand && !brandSet.has(originalProductBrand.toLowerCase())) {
+            if (preselect && originalProductBrand && !brandSet.has(originalProductBrand.toLowerCase())) {
                 brands.push(originalProductBrand);
             }
 
@@ -41,8 +41,8 @@ async function fetchBrandsForCategory(categoryId) {
             brandSelect.disabled = false;
             brandSelect.classList.remove('opacity-50', 'cursor-not-allowed');
 
-            // Pre-select the original brand
-            if (originalProductBrand) {
+            // Pre-select the original brand (only on initial load, not on category change)
+            if (preselect && originalProductBrand) {
                 const matchingOption = Array.from(brandSelect.options).find(opt => opt.value.toLowerCase() === originalProductBrand.toLowerCase());
                 if (matchingOption) {
                     brandSelect.value = matchingOption.value;
@@ -51,7 +51,7 @@ async function fetchBrandsForCategory(categoryId) {
         } else {
             brandSelect.innerHTML = '<option value="">Select brand</option>';
             // If no brands from category but product has a brand, show it as the only option
-            if (originalProductBrand) {
+            if (preselect && originalProductBrand) {
                 const option = document.createElement('option');
                 option.value = originalProductBrand;
                 option.textContent = originalProductBrand;
@@ -69,15 +69,15 @@ async function fetchBrandsForCategory(categoryId) {
     }
 }
 
-// Category change handler
+// Category change handler — clear brand selection, do NOT pre-select
 categorySelect?.addEventListener('change', function () {
     const categoryId = this.value;
-    fetchBrandsForCategory(categoryId);
+    fetchBrandsForCategory(categoryId, false);
 });
 
 // Initialize brand dropdown on page load if category is already selected
 if (categorySelect?.value) {
-    fetchBrandsForCategory(categorySelect.value);
+    fetchBrandsForCategory(categorySelect.value, true);
 }
 
 // ---- Validation ----
