@@ -15,25 +15,23 @@
               <div
                 class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none">
               </div>
-              <div class="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] text-center px-4">
-                <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-rose-300 mb-4 md:mb-6">New
+              <div class="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] text-center px-6 md:px-8">
+                <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-rose-300">New
                   Collection</p>
-                <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-none max-w-4xl">
+                <h1 class="mt-4 md:mt-5 text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] max-w-4xl">
                   Discover Your<br><span class="text-[var(--accent)]">Style</span></h1>
-                <p class="mt-4 md:mt-6 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">Curated fashion for
+                <p class="mt-4 md:mt-5 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">Curated fashion for
                   those who dare to stand out. Explore the latest trends and timeless essentials.</p>
-                <div class="mt-6 md:mt-8 flex gap-3">
-                  <a href="/user/getProductList/featured"
-                    class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">                    Shop
-                    Now<i class="fa-solid fa-arrow-right"></i></a>
-                  <a href="/user/getProductList/newArraival"
-                    class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 border-2 border-white/30 hover:border-white/60 text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">New
-                    Arrivals</a>
-                </div>
               </div>
             </div>
             <% }); %>
       </div>
+
+      <div class="absolute bottom-16 left-0 right-0 z-10 flex flex-col items-center gap-1 pointer-events-none animate-bounce">
+        <span class="text-[10px] text-white/40 uppercase tracking-[0.15em]">Scroll</span>
+        <i class="fa-solid fa-chevron-down text-white/40 text-xs"></i>
+      </div>
+
       <div class="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
         <% for (let i=0; i < videos.length; i++) { %>
           <button type="button"
@@ -100,21 +98,18 @@
           <img src="/uploads/hero-img.jpg" alt="Fashion hero" class="w-full h-full object-cover" />
           <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent"></div>
         </div>
-        <div class="relative z-10 flex flex-col items-center text-center px-4 py-24">
-          <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-rose-300 mb-4 md:mb-6">New
+        <div class="relative z-10 flex flex-col items-center justify-center text-center px-6 md:px-8 min-h-[100dvh]">
+          <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-rose-300">New
             Collection</p>
-          <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-none max-w-4xl">
+          <h1 class="mt-4 md:mt-5 text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] max-w-4xl">
             Discover Your<br><span class="text-[var(--accent)]">Style</span></h1>
-          <p class="mt-4 md:mt-6 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">Curated fashion for those
+          <p class="mt-4 md:mt-5 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">Curated fashion for those
             who dare to stand out. Explore the latest trends and timeless essentials.</p>
-          <div class="mt-6 md:mt-8 flex gap-3">
-            <a href="/user/getProductList/featured"
-              class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">Shop
-              Now<i class="fa-solid fa-arrow-right"></i></a>
-            <a href="/user/getProductList/newArraival"
-              class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-3.5 border-2 border-white/30 hover:border-white/60 text-white text-sm md:text-base font-semibold rounded-full transition-all active:scale-[0.97]">New
-              Arrivals</a>
-          </div>
+        </div>
+
+        <div class="absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center gap-1 pointer-events-none animate-bounce">
+          <span class="text-[10px] text-white/40 uppercase tracking-[0.15em]">Scroll</span>
+          <i class="fa-solid fa-chevron-down text-white/40 text-xs"></i>
         </div>
       </section>
       <% } %>
