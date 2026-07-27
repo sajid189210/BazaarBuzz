@@ -95,8 +95,7 @@
                     <h2 class="text-sm xs:text-base font-semibold text-gray-900 mb-4">Order Summary</h2>
                     <div class="space-y-4">
                         <% if(cart && cart.items && cart.items.length> 0) { %> <% cart.items.forEach(item=> { const prod
-                                = item.product || {}; const discPrice = prod.discount ? Math.round(prod.productPrice -
-                                (prod.productPrice * prod.discount / 100)) : prod.productPrice; %> <div
+                                = item.product || {}; const discPrice = item.discountedPrice || prod.productPrice; %> <div
                                     class="flex gap-2 xs:gap-3">
                                     <div class="w-12 xs:w-14 h-12 xs:h-14 rounded-lg overflow-hidden bg-gray-50 shrink-0"> <img
                                             src="<%= prod.images?.[0] || '/images/placeholder.jpg' %>" alt=""

@@ -105,9 +105,10 @@ const addToCart = async (req, res) => {
     }
 
     try {
-        const [product, offers] = await Promise.all([
+        const [product, offers, categories] = await Promise.all([
             Products.findById(productId),
             Offer.find({ isActive: true }),
+            Category.find({ isActive: { $ne: false } }),
         ]);
 
         if (!product) {
@@ -141,9 +142,15 @@ const addToCart = async (req, res) => {
             return response.error(res, MSG.ITEM_EXISTS_CART, 400, { session: true });
         }
 
+        const catMap = {};
+        categories.forEach(c => { catMap[c.title] = c._id; });
+
         let offer = null;
 
-        const matchedOffer = offers.find(offer => offer.brandName === product.brand);
+        const matchedOffer = offers.find(offer => 
+            offer.brandName === product.brand && 
+            offer.category.toString() === catMap[product.category]?.toString()
+        );
 
         if (matchedOffer) {
             offer = matchedOffer;

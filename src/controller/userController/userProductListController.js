@@ -124,8 +124,12 @@ const filterProductsList = async (req, res) => {
             name: nameFilter || null
         };
 
-        // Populate products
-        const products = await getProduct();
+        // Populate products, categories and offers
+        const [products, categories, offers] = await Promise.all([
+            getProduct(),
+            getCategory(),
+            getOffers(),
+        ]);
 
         // Determine which products to show
         let resultProducts = products;
@@ -135,10 +139,6 @@ const filterProductsList = async (req, res) => {
 
         // If request prefers HTML (direct navigation), render the page
         if (req.accepts('html')) {
-            const [categories, offers] = await Promise.all([
-                getCategory(),
-                getOffers(),
-            ]);
             return res.render('user/userProductList', {
                 title: categoryFilter ? `Category: ${categoryFilter}` : 'Filtered Products',
                 user: req.session.user || null,
@@ -155,6 +155,8 @@ const filterProductsList = async (req, res) => {
             return response.success(res, {
                 success: true,
                 products: resultProducts,
+                categories,
+                offers,
                 collectionId
             });
         }
@@ -163,6 +165,8 @@ const filterProductsList = async (req, res) => {
             success: false,
             message: MSG.SELECT_FILTER,
             products: resultProducts,
+            categories,
+            offers,
             collectionId
         });
 
