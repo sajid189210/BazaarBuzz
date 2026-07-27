@@ -57,6 +57,7 @@ router.delete('/product/:id', productManagement.removeProduct);
 //*------------------[Order Management]--------------------
 router.get('/orders', orderController.renderOrderList);
 router.get('/order/view', orderController.renderOrderView);
+router.get('/order/invoice', orderController.downloadInvoice);
 router.patch('/order/changeStatus', orderController.changeStatus);
 // router.patch('/order/refund', orderController.refund);
 

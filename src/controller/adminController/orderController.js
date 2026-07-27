@@ -9,6 +9,7 @@ const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletT
 const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
+const { generateInvoicePDF } = require('../../Services/invoiceService');
 
 const updateOrderStatus = (order) => {
     const statuses = order.items.map(item => item.status);
@@ -299,9 +300,25 @@ const changeStatus = async (req, res) => {
 };
 
 
+const downloadInvoice = async (req, res) => {
+    try {
+        const { orderId } = req.query;
+        if (!orderId) return response.error(res, MSG.ORDER_ID_REQUIRED, 400);
+
+        const order = await Order.findById(orderId);
+        if (!order) return response.error(res, MSG.ORDER_NOT_FOUND, 404);
+
+        generateInvoicePDF(res, order, order.items, { showStatus: true });
+
+    } catch (err) {
+        return response.serverError(res, err);
+    }
+};
+
 module.exports = {
     renderOrderView,
     renderOrderList,
     changeStatus,
     updateOrderStatus,
+    downloadInvoice,
 }
