@@ -5,7 +5,7 @@ const response = require('../Services/responseMapper');
 const adminAuth = (req, res, next) => {
     if (req.session.admin) return next();
     if (req.xhr || req.headers.accept?.includes('json')) {
-        return response.error(res, MSG.UNAUTHORIZED_AJAX, 401);
+        return response.error(res, MSG.UNAUTHORIZED_AJAX, 401, { redirectUrl: R.ADMIN_SIGNIN });
     }
     return res.redirect(R.ADMIN_SIGNIN);
 };

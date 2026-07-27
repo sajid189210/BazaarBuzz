@@ -39,19 +39,19 @@
 `; %>
 <main class="page-wrapper" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-2xl);">
   <nav class="breadcrumbs" aria-label="Breadcrumb"> <a href="/">Home</a> <i class="fa-solid fa-chevron-right text-xs"></i> <a href="/user/getProductList/all">Products</a> <i class="fa-solid fa-chevron-right text-xs"></i> <span aria-current="page">
-      <%= product.productName %>
+<%= product.productName %>
     </span> </nav>
   <div class="product-grid">
     <div class="gallery-col">
-      <% if(product.images && product.images.length> 1) { %>
+<% if(product.images && product.images.length> 1) { %>
       <div class="thumbnail-strip" id="thumbnailStrip" role="listbox" aria-label="Product images">
-        <% product.images.forEach((img, index)=> { %>
+<% product.images.forEach((img, index)=> { %>
         <button class="thumb-btn <%= index === 0 ? 'active' : '' %>" onclick="selectThumbnail(<%= index %>, this)" role="option" aria-selected="<%= index === 0 ? 'true' : 'false' %>" aria-label="View image <%= index + 1 %>" tabindex="0">
           <img src="<%= img %>" alt="" loading="lazy" />
         </button>
-        <% }) %>
+<% }) %>
       </div>
-      <% } %>
+<% } %>
 
       <div class="gallery-main" id="mainImageContainer" role="button" tabindex="0" aria-label="Zoom product image">
         <img id="mainImage" src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.svg' %>" alt="<%= product.productName %>" loading="eager" />
@@ -64,22 +64,22 @@
       <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
         <div>
           <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted);">
-            <%= product.brand || 'BazaarBuzz' %>
+<%= product.brand || 'BazaarBuzz' %>
           </p>
           <h1 style="margin-top: var(--spacing-xs); font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 800; line-height: 1.1; color: var(--text-primary);">
-            <%= product.productName %>
+<%= product.productName %>
           </h1>
         </div>
         <div class="price-block"> <span class="price-current">₹<%= offerDiscountedPrice %>
           </span>
-          <% if(product.discount || offerDiscountValue) { %> <span class="price-original">₹<%= product.productPrice.toLocaleString() %></span> <span class="price-save">Save<%= Math.round(totalDiscount) %>%</span>
-          <% } %>
+<% if(product.discount || offerDiscountValue) { %> <span class="price-original">₹<%= product.productPrice.toLocaleString() %></span> <span class="price-save">Save<%= Math.round(totalDiscount) %>%</span>
+<% } %>
         </div>
-        <% if(offerDiscountValue) { %>
+<% if(offerDiscountValue) { %>
         <div class="offer-badge"> <i class="fa-regular fa-clock"></i>
-          <%= offerDiscountValue %>% brand offer applied
+<%= offerDiscountValue %>% brand offer applied
         </div>
-        <% } %>
+<% } %>
         <div class="trust-strip" role="list" aria-label="Trust signals">
           <div class="trust-item" role="listitem"> <i class="fa-solid fa-shield-halved"></i> <span>Secure Payment<div class="trust-tooltip">100% encrypted
                 checkout</div></span> </div>
@@ -96,19 +96,19 @@
           <div> <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Size
               <span style="font-weight: 400; color: var(--text-muted);">(Required)</span></label>
             <div class="size-chips" id="sizeChips" role="radiogroup" aria-label="Select size">
-              <% if(sizeData && sizeData.length> 0) { %><% sizeData.forEach((s,
-                                                            idx)=> { %> <button type="button" class="size-chip<%= idx === 0 && !s.isOutOfStock ? ' selected' : '' %><%= s.isLowStock ? ' low-stock' : '' %><%= s.isOutOfStock ? ' out-of-stock' : '' %>" data-size="<%= s.size %>" data-stock="<%= s.stock %>" onclick="selectSize(this, '<%= s.size %>',<%= s.stock %>)" <%= s.isOutOfStock ? 'disabled' : '' %> role="radio" aria-checked="<%= idx===0 && !s.isOutOfStock ? 'true'
+<% if(sizeData && sizeData.length> 0) { %><% sizeData.forEach((s,
+                                                            idx)=> { %> <button type="button" class="size-chip<%= idx === 0 && !s.isOutOfStock ? ' selected' : '' %><%= s.isLowStock ? ' low-stock' : '' %><%= s.isOutOfStock ? ' out-of-stock' : '' %>" data-size="<%= s.size %>" data-stock="<%= s.stock %>" onclick="selectSize(this, '<%= s.size %>',<%= s.stock %>)"<%= s.isOutOfStock ? 'disabled' : '' %> role="radio" aria-checked="<%= idx===0 && !s.isOutOfStock ? 'true'
                                                                     : 'false' %>" tabindex="0"><%= s.size %>
-                <% if(s.isLowStock && !s.isOutOfStock) { %>
+<% if(s.isLowStock && !s.isOutOfStock) { %>
                 <span class="stock-badge-inline">Low
                   Stock</span>
-                <% } else if(s.isOutOfStock) { %> <span class="stock-badge-inline">Out of
+<% } else if(s.isOutOfStock) { %> <span class="stock-badge-inline">Out of
                   Stock</span>
-                <% } %> </button>
-              <% }) %>
-              <% } else { %> <span style="font-size: 0.875rem; color: var(--text-muted);">No
+<% } %> </button>
+<% }) %>
+<% } else { %> <span style="font-size: 0.875rem; color: var(--text-muted);">No
                 sizes available</span>
-              <% } %>
+<% } %>
             </div>
           </div>
           <div id="colorSection" class="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'hidden' %>" style="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'display: none;' %>">
@@ -133,20 +133,23 @@
                   <i class="fa-solid fa-plus"></i> </button> <span id="maxStockHint" class="qty-hint"></span> </div>
             </div>
           </div>
-          <div class="action-row"> <button type="submit" id="addToCartBtn" class="btn-primary" disabled> Add to Cart </button> <button type="button" id="wishlistBtn" onclick="toggleWishList('<%= product._id %>')" class="btn-wishlist<%= isInWishlist ? 'filled' : '' %>" aria-label="<%= isInWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
-              <i class="fa-regular fa-heart"></i> </button> </div>
+          <div class="action-row">
+          <button type="submit" id="addToCartBtn" class="btn-primary" disabled> Add to Cart </button>
+          <button type="button" id="wishlistBtn" onclick="toggleWishList('<%= product._id %>', this)" class="btn-wishlist<%= isInWishlist ? ' filled' : '' %>" aria-label="<%= isInWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
+              <i class="<%= isInWishlist ? 'fa-solid' : 'fa-regular' %> fa-heart"></i> </button>
+               </div>
           <div id="responseMessage" style="font-size: 0.8125rem; text-align: center; min-height: 1.25rem;">
           </div>
         </form>
         <div class="meta-list">
           <div class="meta-item"><span class="meta-label">Category:</span><span>
-              <%= product.category %>
+<%= product.category %>
             </span></div>
           <div class="meta-item"><span class="meta-label">Gender:</span><span>
-              <%= product.gender %>
+<%= product.gender %>
             </span></div>
           <div class="meta-item"><span class="meta-label">Fabric:</span><span>
-              <%= product.fabric %>
+<%= product.fabric %>
             </span></div>
         </div>
       </div>
@@ -158,7 +161,7 @@
       <div id="tab-description" class="tab-panel active" role="tabpanel" aria-labelledby="tab-description">
         <div style="font-size: 1rem; line-height: 1.8; color: var(--text-secondary); max-width: 65ch;">
           <p style="white-space: pre-line; margin: 0;">
-            <%= product.description %>
+<%= product.description %>
           </p>
         </div>
       </div>
@@ -167,45 +170,45 @@
           <dl role="row">
             <dt role="rowheader">Brand</dt>
             <dd role="cell">
-              <%= product.brand %>
+<%= product.brand %>
             </dd>
           </dl>
           <dl role="row">
             <dt role="rowheader">Category</dt>
             <dd role="cell">
-              <%= product.category %>
+<%= product.category %>
             </dd>
           </dl>
           <dl role="row">
             <dt role="rowheader">Gender</dt>
             <dd role="cell">
-              <%= product.gender %>
+<%= product.gender %>
             </dd>
           </dl>
           <dl role="row">
             <dt role="rowheader">Fabric</dt>
             <dd role="cell">
-              <%= product.fabric %>
+<%= product.fabric %>
             </dd>
           </dl>
           <dl role="row">
             <dt role="rowheader">Available Sizes</dt>
             <dd role="cell">
-              <%= uniqueSizes?.join(', ') || ' N/A' %>
+<%= uniqueSizes?.join(', ') || ' N/A' %>
             </dd>
           </dl>
           <dl role="row">
             <dt role="rowheader">Available Colors</dt>
             <dd role="cell">
-              <%= allColors?.join(', ') || ' N/A' %>
+<%= allColors?.join(', ') || ' N/A' %>
             </dd>
           </dl>
-          <% if(product.limitedEdition) { %>
+<% if(product.limitedEdition) { %>
           <dl role="row">
             <dt role="rowheader">Edition</dt>
             <dd role="cell">Limited Edition</dd>
           </dl>
-          <% } %>
+<% } %>
         </div>
       </div>
       <div id="tab-sizeguide" class="tab-panel" role="tabpanel" aria-labelledby="tab-sizeguide">
@@ -256,83 +259,83 @@
       </div>
     </div>
   </div>
-  <% if(recentlyViewedProducts && recentlyViewedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="recently-viewed-heading">
+<% if(recentlyViewedProducts && recentlyViewedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="recently-viewed-heading">
     <div class="section-header">
       <h2 id="recently-viewed-heading" class="section-title">Recently Viewed</h2>
     </div>
     <div class="product-carousel" role="list">
-      <% recentlyViewedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
+<% recentlyViewedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
         <a href="/user/viewProduct?productId=<%= p._id %>" class="product-card" tabindex="0">
           <div class="product-image"> <img src="<%= p.images[0] %>" alt="" loading="lazy" />
-            <% if(p.discount) { %>
+<% if(p.discount) { %>
             <div class="product-badge"><span class="badge badge-sale">-<%= p.discount %>%</span></div>
-            <% } %>
+<% } %>
           </div>
           <div class="product-info">
             <p class="product-brand">
-              <%= p.brand || 'BazaarBuzz' %>
+<%= p.brand || 'BazaarBuzz' %>
             </p>
             <h3 class="product-name">
-              <%= p.productName %>
+<%= p.productName %>
             </h3>
             <div class="product-price"> <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
-              <% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
-              <% } %>
+<% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
+<% } %>
             </div>
           </div>
         </a>
       </article>
-      <% }) %>
+<% }) %>
     </div>
   </section>
-  <% } %>
-  <% if(relatedProducts && relatedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="related-heading">
+<% } %>
+<% if(relatedProducts && relatedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="related-heading">
     <div class="section-header">
       <h2 id="related-heading" class="section-title">You May Also Like</h2>
     </div>
     <div class="product-carousel" role="list" aria-label="Related products">
-      <% relatedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
+<% relatedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
         <a href="/user/viewProduct?productId=<%= p._id %>" class="product-card" style="height: 100%; display: flex; flex-direction: column;" tabindex="0">
           <div class="product-image" style="flex-shrink: 0;"> <img src="<%= p.images[0] %>" alt="" loading="lazy" />
-            <% if(p.hasOffer && p.discount) { %>
+<% if(p.hasOffer && p.discount) { %>
             <div class="product-badge"> <span class="badge badge-sale">-
-                <%= p.discount %>%
+<%= p.discount %>%
               </span> <span class="badge badge-offer">
-                <%= p.offerName %>
-                <%= p.offerDiscount %>%
+<%= p.offerName %>
+<%= p.offerDiscount %>%
               </span> </div>
-            <% } else if(p.hasOffer) { %>
+<% } else if(p.hasOffer) { %>
             <div class="product-badge"><span class="badge badge-offer">
-                <%= p.offerName %>
-                <%= p.offerDiscount %>%
+<%= p.offerName %>
+<%= p.offerDiscount %>%
               </span></div>
-            <% } else if(p.discount) { %>
+<% } else if(p.discount) { %>
             <div class="product-badge"><span class="badge badge-sale">-<%= p.discount %>
                 %</span></div>
-            <% } %>
+<% } %>
           </div>
           <div class="product-info" style="flex: 1; display: flex; flex-direction: column;">
             <p class="product-brand">
-              <%= p.brand || 'BazaarBuzz' %>
+<%= p.brand || 'BazaarBuzz' %>
             </p>
             <h3 class="product-name">
-              <%= p.productName %>
+<%= p.productName %>
             </h3>
             <div class="product-price" style="margin-top: auto;"> <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
-              <% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
-              <% } %>
+<% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
+<% } %>
             </div>
-            <% if(p.hasOffer) { %>
+<% if(p.hasOffer) { %>
             <p class="product-offer-note">+<%= p.offerName %> applied
             </p>
-            <% } %>
+<% } %>
           </div>
         </a>
       </article>
-      <% }) %>
+<% }) %>
     </div>
   </section>
-  <% } %>
+<% } %>
 </main>
 <div id="imageModal" role="dialog" aria-modal="true" aria-label="Product image zoom"> <button class="modal-close-top" onclick="closeImageModal()" aria-label="Close zoom"> <i class="fa-solid fa-xmark" style="width:24px;height:24px;"></i> </button> <button class="modal-nav modal-prev" onclick="navigateModal(-1)" aria-label="Previous image"> <i class="fa-solid fa-chevron-left" style="width:24px;height:24px;"></i> </button> <button class="modal-nav modal-next" onclick="navigateModal(1)" aria-label="Next image"> <i class="fa-solid fa-chevron-right" style="width:24px;height:24px;"></i> </button> <img id="modalImage" src="" alt="" />
   <div class="modal-counter" id="modalCounter">1 /<%= product.images?.length || 1 %>
@@ -350,7 +353,7 @@
         <thead>
           <tr role="row">
             <th role="columnheader" scope="col">
-              <%= product.gender==='men' ? "Men's Size" : product.gender==='women'
+<%= product.gender==='men' ? "Men's Size" : product.gender==='women'
                                                 ? "Women's Size" : "Kids' Size" %>
             </th>
             <th role="columnheader" scope="col">Chest (cm)</th>
@@ -359,7 +362,7 @@
           </tr>
         </thead>
         <tbody>
-          <% if(product.gender==='men' ) { %>
+<% if(product.gender==='men' ) { %>
           <tr role="row">
             <td role="cell" style="font-weight: 600;">XS</td>
             <td role="cell">86–91</td>
@@ -402,7 +405,7 @@
             <td role="cell">102–107</td>
             <td role="cell">117–122</td>
           </tr>
-          <% } else if(product.gender==='women' ) { %>
+<% } else if(product.gender==='women' ) { %>
           <tr role="row">
             <td role="cell" style="font-weight: 600;">XS</td>
             <td role="cell">81–86</td>
@@ -445,7 +448,7 @@
             <td role="cell">93–98</td>
             <td role="cell">119–124</td>
           </tr>
-          <% } else { %>
+<% } else { %>
           <tr role="row">
             <td role="cell" style="font-weight: 600;">2–3Y</td>
             <td role="cell">56–58</td>
@@ -488,7 +491,7 @@
             <td role="cell">66–68</td>
             <td role="cell">82–84</td>
           </tr>
-          <% } %>
+<% } %>
         </tbody>
       </table>
       </div>
@@ -500,8 +503,8 @@
 <div class="mobile-sticky-bar" id="mobileStickyBar" aria-hidden="true">
   <div class="mobile-sticky-price"> <span class="mobile-sticky-label">Total</span>
     <div style="display: flex; align-items: baseline; gap: var(--spacing-xs);"> <span class="mobile-sticky-amount">₹<%= offerDiscountedPrice %></span>
-      <% if(product.discount || offerDiscountValue) { %> <span class="mobile-sticky-original">₹<%= product.productPrice.toLocaleString() %></span>
-      <% } %>
+<% if(product.discount || offerDiscountValue) { %> <span class="mobile-sticky-original">₹<%= product.productPrice.toLocaleString() %></span>
+<% } %>
     </div>
   </div> <button type="button" class="mobile-sticky-cta" onclick="document.getElementById('addToCartBtn').click()">Add to Cart</button>
 </div>

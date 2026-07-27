@@ -9,7 +9,7 @@ const brandSelect = document.getElementById('brand');
 // Store the original product brand for pre-selection
 const originalProductBrand = brandSelect?.dataset?.originalBrand || '';
 
-async function fetchBrandsForCategory(categoryId) {
+async function fetchBrandsForCategory(categoryId, preselect = false) {
     if (!categoryId) {
         brandSelect.innerHTML = '<option value="">Select category first</option>';
         brandSelect.disabled = true;
@@ -20,18 +20,18 @@ async function fetchBrandsForCategory(categoryId) {
     try {
         const response = await fetch(`/admin/fetchCategory/${categoryId}`);
         const data = await response.json();
-        
+
         if (data.success && data.category && data.category.brands) {
             const brands = data.category.brands;
             brandSelect.innerHTML = '<option value="">Select brand</option>';
-            
+
             // Always include the original product brand as an option if it exists
             // This ensures the existing brand is always selectable even if removed from category
             const brandSet = new Set(brands.map(b => b.toLowerCase()));
-            if (originalProductBrand && !brandSet.has(originalProductBrand.toLowerCase())) {
+            if (preselect && originalProductBrand && !brandSet.has(originalProductBrand.toLowerCase())) {
                 brands.push(originalProductBrand);
             }
-            
+
             brands.forEach(brand => {
                 const option = document.createElement('option');
                 option.value = brand;
@@ -40,9 +40,9 @@ async function fetchBrandsForCategory(categoryId) {
             });
             brandSelect.disabled = false;
             brandSelect.classList.remove('opacity-50', 'cursor-not-allowed');
-            
-            // Pre-select the original brand
-            if (originalProductBrand) {
+
+            // Pre-select the original brand (only on initial load, not on category change)
+            if (preselect && originalProductBrand) {
                 const matchingOption = Array.from(brandSelect.options).find(opt => opt.value.toLowerCase() === originalProductBrand.toLowerCase());
                 if (matchingOption) {
                     brandSelect.value = matchingOption.value;
@@ -51,7 +51,7 @@ async function fetchBrandsForCategory(categoryId) {
         } else {
             brandSelect.innerHTML = '<option value="">Select brand</option>';
             // If no brands from category but product has a brand, show it as the only option
-            if (originalProductBrand) {
+            if (preselect && originalProductBrand) {
                 const option = document.createElement('option');
                 option.value = originalProductBrand;
                 option.textContent = originalProductBrand;
@@ -69,55 +69,89 @@ async function fetchBrandsForCategory(categoryId) {
     }
 }
 
-// Category change handler
-categorySelect?.addEventListener('change', function() {
+// Category change handler — clear brand selection, do NOT pre-select
+categorySelect?.addEventListener('change', function () {
     const categoryId = this.value;
-    fetchBrandsForCategory(categoryId);
+    fetchBrandsForCategory(categoryId, false);
 });
 
 // Initialize brand dropdown on page load if category is already selected
 if (categorySelect?.value) {
-    fetchBrandsForCategory(categorySelect.value);
+    fetchBrandsForCategory(categorySelect.value, true);
 }
 
 // ---- Validation ----
+var clientErrors = [];
+
+function setError(id, msg) {
+    var el = document.getElementById(id);
+    if (el) {
+        el.classList.add('border-red-500');
+        var errSpan = el.parentElement.querySelector('.error-msg');
+        if (errSpan) {
+            errSpan.textContent = msg;
+            errSpan.classList.remove('hidden');
+        }
+    }
+    clientErrors.push(msg);
+}
+
+function setVariantError(variantRow, fieldName, msg) {
+    var field = variantRow.querySelector('[name*="' + fieldName + '"]');
+    if (field) {
+        field.classList.add('border-red-500');
+        var errSpan = field.parentElement.querySelector('.error-msg');
+        if (errSpan) {
+            errSpan.textContent = msg;
+            errSpan.classList.remove('hidden');
+        }
+    }
+    clientErrors.push(msg);
+}
+
+function showServerErrors(errors) {
+    Object.keys(errors).forEach(function (field) {
+        var msg = errors[field];
+        if (field.indexOf('variants.') === 0) {
+            var parts = field.split('.');
+            var variantIndex = parseInt(parts[1], 10);
+            var subField = parts.slice(2).join('.');
+            var variantRows = document.querySelectorAll('.variant-row');
+            if (variantRows[variantIndex]) {
+                if (subField === 'colors') {
+                    setVariantError(variantRows[variantIndex], 'colors', msg);
+                } else {
+                    setVariantError(variantRows[variantIndex], subField, msg);
+                }
+            }
+        } else if (field.indexOf('images') === 0) {
+            setError('images', msg);
+        } else if (field === 'variants') {
+            var errSpan = document.getElementById('variantsError');
+            if (errSpan) {
+                errSpan.textContent = msg;
+                errSpan.classList.remove('hidden');
+            }
+        } else {
+            setError(field, msg);
+        }
+    });
+}
+
 document.getElementById('productDetailForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
     clearErrors();
-    let errors = [];
+    clientErrors = [];
 
-    function setError(id, msg) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.classList.add('border-red-500');
-            const errSpan = el.parentElement.querySelector('.error-msg');
-            if (errSpan) {
-                errSpan.textContent = msg;
-                errSpan.classList.remove('hidden');
-            }
-        }
-        errors.push(msg);
-    }
-
-    function setVariantError(variantRow, fieldName, msg) {
-        const field = variantRow.querySelector(`[name*="${fieldName}"]`);
-        if (field) {
-            field.classList.add('border-red-500');
-            const errSpan = field.parentElement.querySelector('.error-msg');
-            if (errSpan) {
-                errSpan.textContent = msg;
-                errSpan.classList.remove('hidden');
-            }
-        }
-        errors.push(msg);
-    }
-
-    const name = document.getElementById('productName')?.value.trim();
-    const brand = document.getElementById('brand')?.value.trim();
-    const category = document.getElementById('category')?.value;
-    const price = document.getElementById('productPrice')?.value;
-    const discount = document.getElementById('discount')?.value;
-    const description = document.getElementById('productDescription')?.value.trim();
-    const uploadedUrls = document.querySelectorAll('input[name="images[]"]');
+    var name = document.getElementById('productName')?.value.trim();
+    var brand = document.getElementById('brand')?.value.trim();
+    var category = document.getElementById('category')?.value;
+    var price = document.getElementById('productPrice')?.value;
+    var discount = document.getElementById('discount')?.value;
+    var gender = document.getElementById('gender')?.value;
+    var fabric = document.getElementById('fabric')?.value.trim();
+    var description = document.getElementById('productDescription')?.value.trim();
+    var uploadedUrls = document.querySelectorAll('input[name="images[]"]');
 
     if (!name || name.length < 3) setError('productName', 'Product name must be at least 3 characters.');
     if (!brand) setError('brand', 'Brand is required.');
@@ -125,33 +159,34 @@ document.getElementById('productDetailForm')?.addEventListener('submit', functio
     if (!price || Number(price) <= 0) setError('productPrice', 'Price must be greater than 0.');
     if (price && Number(price) > 10000) setError('productPrice', 'Price cannot exceed ₹10,000.');
     if (discount && (Number(discount) < 0 || Number(discount) > 100)) setError('discount', 'Discount must be between 0 and 100.');
+    if (!gender) setError('gender', 'Please select a gender.');
+    if (!fabric) setError('fabric', 'Fabric information is required.');
     if (!description || description.length < 20) setError('productDescription', 'Description must be at least 20 characters.');
     if (!uploadedUrls || uploadedUrls.length === 0) setError('images', 'Upload at least one product image.');
 
-    // Validate variants
-    const variantRows = document.querySelectorAll('.variant-row');
+    var variantRows = document.querySelectorAll('.variant-row');
     if (variantRows.length === 0) {
-        const errSpan = document.getElementById('variantsError');
+        var errSpan = document.getElementById('variantsError');
         if (errSpan) {
             errSpan.textContent = 'At least one variant is required.';
             errSpan.classList.remove('hidden');
         }
-        errors.push('At least one variant is required.');
+        clientErrors.push('At least one variant is required.');
     } else {
-        const usedSizes = new Set();
-        variantRows.forEach((row, index) => {
-            const sizeSelect = row.querySelector('.variant-size');
-            const stockInput = row.querySelector('.variant-stock');
-            const colorInputs = row.querySelectorAll('.variant-colors input[type="color"]');
+        var usedSizes = new Set();
+        variantRows.forEach(function (row) {
+            var sizeSelect = row.querySelector('.variant-size');
+            var stockInput = row.querySelector('.variant-stock');
+            var colorInputs = row.querySelectorAll('.variant-colors input[type="color"]');
 
-            const size = sizeSelect?.value;
-            const stock = stockInput?.value;
-            const colors = Array.from(colorInputs).map(input => input.value);
+            var size = sizeSelect?.value;
+            var stock = stockInput?.value;
+            var colors = Array.from(colorInputs).map(function (input) { return input.value; });
 
             if (!size) {
                 setVariantError(row, 'size', 'Size is required for each variant.');
             } else if (usedSizes.has(size)) {
-                setVariantError(row, 'size', `Duplicate size: ${size}. Each variant must have a unique size.`);
+                setVariantError(row, 'size', 'Duplicate size: ' + size + '. Each variant must have a unique size.');
             } else {
                 usedSizes.add(size);
             }
@@ -166,10 +201,47 @@ document.getElementById('productDetailForm')?.addEventListener('submit', functio
         });
     }
 
-    if (errors.length > 0) {
-        e.preventDefault();
-        Swal.fire({ title: 'Please fix errors', text: errors[0], icon: 'warning', confirmButtonText: 'Ok' });
+    if (clientErrors.length > 0) {
+        Swal.fire({ title: 'Please fix errors', text: clientErrors[0], icon: 'warning', confirmButtonText: 'Ok' });
+        return;
     }
+
+    var form = this;
+    var formData = new URLSearchParams(new FormData(form));
+
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+    }
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: formData.toString()
+    })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.success && data.redirectUrl) {
+                window.location.href = data.redirectUrl;
+            } else if (data.errors) {
+                showServerErrors(data.errors);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Save Changes';
+                }
+                Swal.fire({ title: 'Please fix errors', text: data.message || 'Please correct the highlighted fields.', icon: 'warning', confirmButtonText: 'Ok' });
+            } else if (data.redirectUrl) { 
+                window.location.href = data.redirectUrl; 
+            }
+        })
+        .catch(function () {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+            }
+            Swal.fire({ title: 'Error', text: 'Something went wrong. Please try again.', icon: 'error', confirmButtonText: 'Ok' });
+        });
 });
 
 function clearErrors() {
@@ -201,7 +273,7 @@ const addVariantBtn = document.getElementById('addVariant');
 function addVariantRow(data = {}) {
     const clone = variantTemplate.content.cloneNode(true);
     const variantRow = clone.querySelector('.variant-row');
-    
+
     // Get the current index for this variant
     const variantIndex = document.querySelectorAll('.variant-row').length;
 
@@ -344,7 +416,7 @@ function initExistingVariants() {
     const variantRows = document.querySelectorAll('.variant-row');
     variantRows.forEach((row, index) => {
         row.dataset.index = index;
-        
+
         // Add remove variant handler
         const removeBtn = row.querySelector('.remove-variant');
         if (removeBtn) {
@@ -546,7 +618,7 @@ if (typeof window.productVariants !== 'undefined' && window.productVariants.leng
     // Clear the default variant row
     const defaultRow = document.querySelector('.variant-row');
     if (defaultRow) defaultRow.remove();
-    
+
     // Add variant rows from product data
     window.productVariants.forEach(variant => {
         addVariantRow({

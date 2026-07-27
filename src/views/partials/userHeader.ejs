@@ -141,7 +141,9 @@
             <!-- Wishlist -->
             <a href="/user/wishlist" class="relative inline-flex items-center justify-center p-2 ht">
               <i class="fa-regular fa-heart"></i>
+              <span id="wishlistBadge" style="display:none; position:absolute; top:-3px; right:-3px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; line-height:16px; text-align:center; box-shadow:0 0 0 2px var(--surface);">0</span>
             </a>
+            <script>if (<%= user ? 'true' : 'false' %>) { fetch('/user/wishlist/count').then(function(r){return r.json()}).then(function(d){var b=document.getElementById('wishlistBadge');if(b&&d.count>0){b.textContent=d.count;b.style.display=''}}).catch(function(){}) }</script>
 
             <!-- Cart -->
             <a href="/user/cart" class="relative inline-flex items-center justify-center p-2 ht">

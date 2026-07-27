@@ -77,6 +77,12 @@ function renderUserRow(user, index, params) {
                 </span>
             </td>
             <td class="px-4 py-3">
+                <a href="/admin/orders?userId=${user._id}" class="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+                    <i class="fa-solid fa-receipt"></i>
+                    Orders
+                </a>
+            </td>
+            <td class="px-4 py-3">
                 <button onclick="toggleUser('${user._id}')" class="text-xs font-medium ${isBlocked ? 'text-green-600 hover:text-green-700' : 'text-red-500 hover:text-red-600'} transition-colors">
                     ${isBlocked ? 'Unblock' : 'Block'}
                 </button>
@@ -86,11 +92,11 @@ function renderUserRow(user, index, params) {
 }
 
 function renderEmptyState() {
-    return `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">No users found</td></tr>`;
+    return `<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">No users found</td></tr>`;
 }
 
 function renderLoadingState() {
-    return `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">
+    return `<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">
         <div class="flex items-center justify-center gap-2">
             <div class="animate-spin rounded-full h-5 w-5 border-2 border-rose-500 border-t-transparent"></div>
             <span>Loading users...</span>
@@ -183,11 +189,11 @@ async function loadUsers(page = 1, paramsOverride = null) {
 
             updateClearFiltersButton(params);
         } else {
-            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-red-400">${data.message || 'Failed to load users'}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-red-400">${data.message || 'Failed to load users'}</td></tr>`;
         }
     } catch (error) {
         console.error('Error loading users:', error);
-        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-red-400">Failed to load users. Please try again.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-red-400">Failed to load users. Please try again.</td></tr>`;
     }
 }
 

@@ -12,5 +12,8 @@ mongoose.connect(process.env.MONGOOSE_URI)
 const port = process.env.PORT || 3080;
 app.listen(port, (err) => {
     if (err) console.error(`Error caught while running the server ${err}`);
-    else console.log(`Server is running successfully on port ${port}`);
+    else {
+        console.log(`Server is running successfully on port ${port}`);
+        console.log(`http://localhost:${port}`)
+    }
 });    

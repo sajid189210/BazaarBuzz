@@ -41,12 +41,14 @@ const getCart = async (req, res) => {
         }
 
         const productPriceBreakUpMap = {};
+        let productDiscTotal = 0;
+        let offerDiscTotal = 0;
 
         for (const item of cart.items) {
             const finalPrice = item.discountedPrice;
-            const productDiscount = item.product?.discount ?? 0;
+            const productDiscount = item.productDiscount ?? item.product?.discount ?? 0;
             const offerDiscount = item?.offer?.discount ?? 0;
-            const productPrice = item.product.productPrice;
+            const productPrice = item.productPrice ?? item.product.productPrice;
             const quantity = item.quantity;
 
             const productPriceBreakUp = {
@@ -57,6 +59,21 @@ const getCart = async (req, res) => {
             }
 
             productPriceBreakUpMap[item._id] = productPriceBreakUp;
+
+            const discountedAmount = productPrice - (productPrice * productDiscount / 100);
+            const floor = productPrice * 0.10;
+            const priceAfterProduct = Math.max(discountedAmount, floor);
+            const prodDiscAmt = productPrice - priceAfterProduct;
+            let offerDiscAmt = 0;
+
+            if (offerDiscount > 0) {
+                const offerPrice = discountedAmount - (discountedAmount * offerDiscount / 100);
+                const priceAfterOffer = Math.max(offerPrice, floor);
+                offerDiscAmt = priceAfterProduct - priceAfterOffer;
+            }
+
+            productDiscTotal += prodDiscAmt * quantity;
+            offerDiscTotal += offerDiscAmt * quantity;
         }
 
         let subTotal = 0;
@@ -81,6 +98,8 @@ const getCart = async (req, res) => {
             subTotal: truncCurrency(subTotal),
             taxAmount: truncCurrency(taxAmount),
             totalDiscount: truncCurrency(totalDiscount),
+            productDiscTotal: truncCurrency(productDiscTotal),
+            offerDiscTotal: truncCurrency(offerDiscTotal),
         });
 
     } catch (err) {
@@ -105,9 +124,10 @@ const addToCart = async (req, res) => {
     }
 
     try {
-        const [product, offers] = await Promise.all([
+        const [product, offers, categories] = await Promise.all([
             Products.findById(productId),
             Offer.find({ isActive: true }),
+            Category.find({ isActive: { $ne: false } }),
         ]);
 
         if (!product) {
@@ -141,9 +161,15 @@ const addToCart = async (req, res) => {
             return response.error(res, MSG.ITEM_EXISTS_CART, 400, { session: true });
         }
 
+        const catMap = {};
+        categories.forEach(c => { catMap[c.title] = c._id; });
+
         let offer = null;
 
-        const matchedOffer = offers.find(offer => offer.brandName === product.brand);
+        const matchedOffer = offers.find(offer => 
+            offer.brandName === product.brand && 
+            offer.category.toString() === catMap[product.category]?.toString()
+        );
 
         if (matchedOffer) {
             offer = matchedOffer;
@@ -172,6 +198,8 @@ const addToCart = async (req, res) => {
             selectedColor: color,
             selectedSize: size,
             discountedPrice: truncCurrency(finalPrice),
+            productPrice: product.productPrice,
+            productDiscount: product.discount || 0,
             offer: offer?._id || null
         });
 

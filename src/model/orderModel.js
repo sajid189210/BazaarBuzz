@@ -61,6 +61,24 @@ const orderItemSchema = new mongoose.Schema(
             min: 0,
         },
 
+        productDiscount: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100,
+        },
+
+        offerDiscount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        offerName: {
+            type: String,
+            default: '',
+        },
+
         status: {
             type: String,
             enum: [

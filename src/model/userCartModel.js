@@ -23,6 +23,23 @@ const cartSchema = new mongoose.Schema({
                 default: 0,
                 min: [0, "Discounted Price must not be a negative."]
             },
+            productPrice: {
+                type: Number,
+                default: 0,
+                min: [0, "Product price must not be a negative."]
+            },
+            productDiscount: {
+                type: Number,
+                default: 0,
+                min: [0, 'Discount cannot be negative'],
+                max: [100, 'Discount cannot exceed 100%'],
+                validate: {
+                    validator: function (value) {
+                        return value >= 0 && value <= 100;
+                    },
+                    message: 'Discount must be between 0 and 100'
+                }
+            },
             offer: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Offer',

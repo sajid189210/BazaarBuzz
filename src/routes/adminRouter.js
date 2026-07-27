@@ -10,6 +10,7 @@ const orderController = require('../controller/adminController/orderController')
 const userManagement = require('../controller/adminController/userManagementController');
 const walletController = require('../controller/adminController/walletController');
 const returnController = require('../controller/adminController/returnController');
+const salesReportController = require('../controller/adminController/salesReportController');
 
 const { storage } = require('../Services/uploads');
 const multer = require('multer');
@@ -56,6 +57,7 @@ router.delete('/product/:id', productManagement.removeProduct);
 //*------------------[Order Management]--------------------
 router.get('/orders', orderController.renderOrderList);
 router.get('/order/view', orderController.renderOrderView);
+router.get('/order/invoice', orderController.downloadInvoice);
 router.patch('/order/changeStatus', orderController.changeStatus);
 // router.patch('/order/refund', orderController.refund);
 
@@ -80,6 +82,11 @@ router.patch('/order/returns', returnController.returnStatus);
 
 //*------------------[Wallet]--------------------
 router.get('/wallet', walletController.renderWalletPage);
+
+//*------------------[Sales Report]--------------------
+router.get('/sales-report', salesReportController.getSalesReport);
+router.get('/sales-report/download/csv', salesReportController.downloadSalesReportCSV);
+router.get('/sales-report/download/pdf', salesReportController.downloadSalesReportPDF);
 
 //*------------[Dashboard]------------------
 router.get("/dashboard", dashboardController.getDashboard);

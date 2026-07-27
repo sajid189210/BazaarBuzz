@@ -11,6 +11,7 @@ const Wallet = require('../../model/walletModel');
 const Cart = require('../../model/userCartModel');
 const User = require('../../model/userModel');
 const OTP = require('../../model/otpModel');
+const Offer = require('../../model/offerModel');
 
 //-------------------------------------------------Sign Up Page----------------------------------------------------------------------
 
@@ -249,13 +250,11 @@ const getProduct = async () => {
 const userHomepage = async (req, res) => {
     try {
 
-        const categories = await getCategory();
-
-        const products = await getProduct();
-
-        const filteredProducts = products.filter(product => {
-            return product.category;
-        });
+        const [categories, products, offers] = await Promise.all([
+            getCategory(),
+            getProduct(),
+            Offer.find({ isActive: true })
+        ]);
 
         if (req.session.user) {
             const userId = req.session.user.userId;
@@ -275,6 +274,37 @@ const userHomepage = async (req, res) => {
             }
         }
 
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const catMap = {};
+        if (categories && categories.length) {
+            categories.forEach(c => { catMap[c.title] = c._id.toString(); });
+        }
+
+        const offerProducts = [];
+        const featuredLimited = [];
+        const newArrivals = [];
+
+        products.filter(p => p.category).forEach(product => {
+            const discPrice = product.discount
+                ? Math.round(product.productPrice - (product.productPrice * product.discount / 100))
+                : product.productPrice;
+
+            const matchedOffer = (offers && offers.length)
+                ? offers.find(o => o.brandName === product.brand && o.category.toString() === (catMap[product.category] || ''))
+                : null;
+
+            const hasOffer = matchedOffer && matchedOffer.discount > 0;
+            const finalPrice = hasOffer
+                ? Math.round(discPrice - (discPrice * matchedOffer.discount / 100))
+                : discPrice;
+
+            const enriched = { product, discPrice, offer: hasOffer ? matchedOffer : null, finalPrice, isFeatured: product.featured, isLimitedEdition: product.limitedEdition };
+
+            if (hasOffer) offerProducts.push(enriched);
+            if (product.featured || product.limitedEdition) featuredLimited.push(enriched);
+            if (product.createdAt >= oneWeekAgo) newArrivals.push(enriched);
+        });
+
         const heroMode = req.query.hero || 'image';
 
         return res.render('user/userHomepage', {
@@ -282,7 +312,9 @@ const userHomepage = async (req, res) => {
             user: req.session.user || null,
             categories,
             searchBox: true,
-            products: filteredProducts,
+            offerProducts,
+            featuredLimited,
+            newArrivals,
             heroMode,
         });
 

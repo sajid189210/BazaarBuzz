@@ -22,8 +22,13 @@ const viewProduct = async (req, res) => {
 
         const offers = await Offer.find({ isActive: true });
         const categories = await Category.find();
+        const catMap = {};
+        categories.forEach(c => { catMap[c.title] = c._id; });
 
-        const offerIndex = offers.findIndex(offer => offer.brandName === product.brand);
+        const offerIndex = offers.findIndex(offer => 
+            offer.brandName === product.brand && 
+            offer.category.toString() === catMap[product.category]?.toString()
+        );
 
         const productDiscountedPrice = product.productPrice - ((product.productPrice * product.discount) / 100);
 
@@ -70,9 +75,9 @@ const viewProduct = async (req, res) => {
         // Check wishlist status if user is logged in
         let isInWishlist = false;
         if (req.session.user) {
-            const wishlist = await Wishlist.findOne({ userId: req.session.user._id });
-            if (wishlist && wishlist.products) {
-                isInWishlist = wishlist.products.some(p => p.productId.toString() === productId);
+            const wishlist = await Wishlist.findOne({ user: req.session.user.userId });
+            if (wishlist && wishlist.items) {
+                isInWishlist = wishlist.items.some(item => item.product.toString() === productId);
             }
         }
 
@@ -106,7 +111,10 @@ const viewProduct = async (req, res) => {
         // Calculate price for related products
         const processProductPrice = (p) => {
             const discPrice = p.discount ? Math.round(p.productPrice - (p.productPrice * p.discount / 100)) : p.productPrice;
-            const matchedOffer = offers.find(o => o.brandName === p.brand);
+            const matchedOffer = offers.find(o =>
+                o.brandName === p.brand &&
+                o.category.toString() === catMap[p.category]?.toString()
+            );
             let finalPrice = discPrice;
             if (matchedOffer && matchedOffer.discount > 0) {
                 finalPrice = Math.round(discPrice - (discPrice * matchedOffer.discount / 100));

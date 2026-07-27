@@ -60,10 +60,33 @@ const getCheckout = async (req, res) => {
 
         let subTotal = 0;
         let total = 0;
+        let productDiscTotal = 0;
+        let offerDiscTotal = 0;
 
         for (const item of cart.items) {
-            subTotal += item.product.productPrice * item.quantity;
-            total += item.discountedPrice * item.quantity;
+            const price = item.productPrice ?? item.product.productPrice;
+            const discPct = (item.productDiscount ?? item.product.discount) || 0;
+            const offerPct = item.offer?.discount || 0;
+            const qty = item.quantity;
+
+            subTotal += price * qty;
+            total += item.discountedPrice * qty;
+
+            const discountedAmount = price - (price * discPct / 100);
+            const floor = price * 0.10;
+            let priceAfterProduct = Math.max(discountedAmount, floor);
+
+            let prodDiscAmt = price - priceAfterProduct;
+            let offerDiscAmt = 0;
+
+            if (offerPct > 0) {
+                const offerPrice = discountedAmount - (discountedAmount * offerPct / 100);
+                const priceAfterOffer = Math.max(offerPrice, floor);
+                offerDiscAmt = priceAfterProduct - priceAfterOffer;
+            }
+
+            productDiscTotal += prodDiscAmt * qty;
+            offerDiscTotal += offerDiscAmt * qty;
         }
 
         let totalDiscount = subTotal - total;
@@ -84,6 +107,8 @@ const getCheckout = async (req, res) => {
             searchBox: false,
             total: truncCurrency(total),
             cart,
+            productDiscTotal: truncCurrency(productDiscTotal),
+            offerDiscTotal: truncCurrency(offerDiscTotal),
             user,
             wallet,
             categories,
@@ -104,10 +129,34 @@ const getOrderSummary = async (req, res) => {
         const order = await Order.findById(orderId);
         if (!order) throw new Error("Couldn't find the order summary.");
 
+        let productDiscTotal = 0;
+        let offerDiscTotal = 0;
+
+        for (const item of order.items) {
+            const price = item.unitPrice || 0;
+            const discPct = item.productDiscount;
+            const offerAmt = item.offerDiscount || 0;
+            const qty = item.quantity;
+
+            if (discPct !== undefined && discPct > 0) {
+                const discountedAmount = price - (price * discPct / 100);
+                const floor = price * 0.10;
+                const priceAfterProduct = Math.max(discountedAmount, floor);
+                productDiscTotal += (price - priceAfterProduct) * qty;
+            } else if (discPct === undefined) {
+                // Old order without snapshot fields — attribute combined savings to product discount
+                productDiscTotal += (price - item.finalPrice) * qty;
+            }
+
+            offerDiscTotal += offerAmt * qty;
+        }
+
         const categories = await Category.find({ isActive: { $ne: false } });
         res.render('user/userOrderSummary', {
             title: 'Order Summary',
             order,
+            productDiscTotal: truncCurrency(productDiscTotal),
+            offerDiscTotal: truncCurrency(offerDiscTotal),
             user: req.session.user || null,
             searchBox: false,
             categories,
@@ -160,7 +209,7 @@ const proceedToPayment = async (req, res) => {
             }
         }
 
-        const subtotal = cart.items.reduce((acc, item) => acc + (item.product.productPrice * item.quantity), 0);
+        const subtotal = cart.items.reduce((acc, item) => acc + ((item.productPrice ?? item.product.productPrice) * item.quantity), 0);
 
         let total = cart.items.reduce((acc, item) => acc + (item.discountedPrice * item.quantity), 0);
 
@@ -176,18 +225,37 @@ const proceedToPayment = async (req, res) => {
 
         const orderDetails = {
             user: user._id,
-            items: cart.items.map(item => ({
-                productId: item.product._id,
-                name: item.product.productName,
-                image: item.product.images[0],
-                brand: item.product.brand,
-                category: item.product.category,
-                quantity: item.quantity,
-                selectedSize: item.selectedSize,
-                selectedColor: item.selectedColor,
-                unitPrice: item.product.productPrice,
-                finalPrice: item.discountedPrice,
-            })),
+            items: cart.items.map(item => {
+                const price = item.productPrice ?? item.product.productPrice;
+                const discPct = (item.productDiscount ?? item.product.discount) || 0;
+                const offerPct = item.offer?.discount || 0;
+                const discountedAmount = price - (price * discPct / 100);
+                const floor = price * 0.10;
+                const priceAfterProduct = Math.max(discountedAmount, floor);
+
+                let offerDiscAmt = 0;
+                if (offerPct > 0) {
+                    const offerPrice = discountedAmount - (discountedAmount * offerPct / 100);
+                    const priceAfterOffer = Math.max(offerPrice, floor);
+                    offerDiscAmt = priceAfterProduct - priceAfterOffer;
+                }
+
+                return {
+                    productId: item.product._id,
+                    name: item.product.productName,
+                    image: item.product.images[0],
+                    brand: item.product.brand,
+                    category: item.product.category,
+                    quantity: item.quantity,
+                    selectedSize: item.selectedSize,
+                    selectedColor: item.selectedColor,
+                    unitPrice: price,
+                    finalPrice: item.discountedPrice,
+                    productDiscount: discPct,
+                    offerDiscount: truncCurrency(offerDiscAmt),
+                    offerName: item.offer?.offerName || '',
+                };
+            }),
             shippingAddress,
             payment: {
                 method: paymentMethod,

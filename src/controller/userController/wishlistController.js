@@ -3,8 +3,8 @@ const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const Wishlist = require('../../model/wishlistModel');
 const User = require('../../model/userModel');
-const Product = require('../../model/productModel');
 const Category = require('../../model/categoryModel');
+const Offer = require('../../model/offerModel');
 
 
 const renderWishlist = async (req, res) => {
@@ -34,10 +34,32 @@ const renderWishlist = async (req, res) => {
             });
         }
 
+        const offers = await Offer.find({ isActive: true });
+        const catMap = {};
+        categories.forEach(c => { catMap[c.name?.toLowerCase()] = c._id; });
+
+        const enrichedItems = wishlist.items.map(item => {
+            const product = item.product.toObject ? item.product.toObject() : item.product;
+            const catId = catMap[product.category?.toLowerCase()];
+            const offer = offers.find(o =>
+                o.brandName === product.brand &&
+                (!catId || o.category.toString() === catId.toString())
+            ) || null;
+            return { product, offer };
+        });
+
+        const wishlistData = {
+            _id: wishlist._id,
+            user: wishlist.user,
+            items: enrichedItems,
+            createdAt: wishlist.createdAt,
+            updatedAt: wishlist.updatedAt
+        };
+
         res.render('user/userWishlist', {
             title: 'My Wishlist',
             searchBox: false,
-            wishlist,
+            wishlist: wishlistData,
             user: req.session.user || null,
             categories,
         });
@@ -54,26 +76,47 @@ const addToWishList = async (req, res) => {
 
         const userId = req.session.user.userId;
         const { productId } = req.body;
-        const wishlist = await Wishlist.findOne({ user: userId });
 
-        if (!wishlist) return response.error(res, MSG.WISHLIST_NOT_FOUND, 404, { session: true });
+        let wishlist = await Wishlist.findOne({ user: userId });
 
-        const existingItem = wishlist.items.find(item => item.product.toString() === productId);
+        if (!wishlist) {
+            wishlist = new Wishlist({ user: userId, items: [] });
+        }
 
-        if (existingItem) return response.error(res, MSG.WISHLIST_EXISTS, 409, { session: true, redirectUrl: R.USER_WISHLIST });
+        const exists = wishlist.items.some(item => item.product.toString() === productId);
+
+        if (exists) {
+            wishlist.items.pull({ product: productId });
+            await wishlist.save();
+            return response.success(res, {
+                session: true,
+                action: 'removed',
+                message: MSG.WISHLIST_REMOVED
+            });
+        }
 
         wishlist.items.push({ product: productId });
         await wishlist.save();
 
         response.success(res, {
             session: true,
-            success: true,
+            action: 'added',
             message: MSG.WISHLIST_ADDED
         });
 
     } catch (err) {
         response.serverError(res, err);}
 }
+
+const getWishlistCount = async (req, res) => {
+    try {
+        if (!req.session.user) return res.json({ count: 0 });
+        const wishlist = await Wishlist.findOne({ user: req.session.user.userId });
+        res.json({ count: wishlist ? wishlist.items.length : 0 });
+    } catch (err) {
+        res.json({ count: 0 });
+    }
+};
 
 const removeProduct = async (req, res) => {
     if (!req.session.user) return res.redirect(R.USER_SIGNIN);
@@ -82,10 +125,6 @@ const removeProduct = async (req, res) => {
 
     try {
         if (!productId) throw new Error(MSG.WISHLIST_PRODUCT_ID_MISSING);
-
-        const wishlist = await Wishlist.findOne({ user: userId });
-
-        const index = wishlist.items.findIndex(item => item.product.toString() === productId);
 
         // Remove the product from the wishlist
         const result = await Wishlist.updateOne(
@@ -108,4 +147,5 @@ module.exports = {
     renderWishlist,
     addToWishList,
     removeProduct,
+    getWishlistCount,
 }

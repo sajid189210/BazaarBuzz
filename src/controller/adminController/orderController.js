@@ -9,6 +9,7 @@ const { WALLET_TYPE_USER, WALLET_TYPE_ADMIN } = require('../../constants/walletT
 const { PAYMENT_SOURCE_COD, PAYMENT_SOURCE_RAZORPAY, PAYMENT_SOURCE_WALLET } = require('../../constants/paymentSources');
 const Wallet = require('../../model/walletModel');
 const Order = require('../../model/orderModel');
+const { generateInvoicePDF } = require('../../Services/invoiceService');
 
 const updateOrderStatus = (order) => {
     const statuses = order.items.map(item => item.status);
@@ -55,6 +56,7 @@ const renderOrderList = async (req, res) => {
         const paymentMethodFilter = req.query.paymentMethod || '';
         const dateFrom = req.query.dateFrom || '';
         const dateTo = req.query.dateTo || '';
+        const userId = req.query.userId || '';
 
         let filter = {};
 
@@ -100,6 +102,10 @@ const renderOrderList = async (req, res) => {
             }
         }
 
+        if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+            filter.user = new mongoose.Types.ObjectId(userId);
+        }
+
         const orders = await Order.find(filter)
             .populate('user')
             .sort({ createdAt: -1 })
@@ -121,6 +127,7 @@ const renderOrderList = async (req, res) => {
             paymentMethodFilter,
             dateFrom,
             dateTo,
+            userId,
         });
 
     } catch (err) {
@@ -139,7 +146,34 @@ const renderOrderView = async (req, res) => {
             return res.redirect(R.ADMIN_DASHBOARD);
         }
 
-        res.render('admin/adminOrderView', { layout: 'admin/layout', title: 'Order Details', order });
+        let productDiscTotal = 0;
+        let offerDiscTotal = 0;
+
+        for (const item of order.items) {
+            const price = item.unitPrice || 0;
+            const discPct = item.productDiscount;
+            const offerAmt = item.offerDiscount || 0;
+            const qty = item.quantity;
+
+            if (discPct !== undefined && discPct > 0) {
+                const discountedAmount = price - (price * discPct / 100);
+                const floor = price * 0.10;
+                const priceAfterProduct = Math.max(discountedAmount, floor);
+                productDiscTotal += (price - priceAfterProduct) * qty;
+            } else if (discPct === undefined) {
+                productDiscTotal += (price - item.finalPrice) * qty;
+            }
+
+            offerDiscTotal += offerAmt * qty;
+        }
+
+        res.render('admin/adminOrderView', {
+            layout: 'admin/layout',
+            title: 'Order Details',
+            order,
+            productDiscTotal: truncCurrency(productDiscTotal),
+            offerDiscTotal: truncCurrency(offerDiscTotal),
+        });
 
     } catch (err) {
         response.serverError(res, err);
@@ -272,9 +306,25 @@ const changeStatus = async (req, res) => {
 };
 
 
+const downloadInvoice = async (req, res) => {
+    try {
+        const { orderId } = req.query;
+        if (!orderId) return response.error(res, MSG.ORDER_ID_REQUIRED, 400);
+
+        const order = await Order.findById(orderId);
+        if (!order) return response.error(res, MSG.ORDER_NOT_FOUND, 404);
+
+        generateInvoicePDF(res, order, order.items, { showStatus: true });
+
+    } catch (err) {
+        return response.serverError(res, err);
+    }
+};
+
 module.exports = {
     renderOrderView,
     renderOrderList,
     changeStatus,
     updateOrderStatus,
+    downloadInvoice,
 }
