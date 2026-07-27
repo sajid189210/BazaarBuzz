@@ -31,7 +31,8 @@ const filterProducts = async (filterData, products) => {
 
         // filter based on category.
         if (filterData.category) {
-            filterResult = products.filter(product => product.category === filterData.category);
+            const catFilters = Array.isArray(filterData.category) ? filterData.category : [filterData.category];
+            filterResult = products.filter(product => catFilters.includes(product.category));
         }
 
         // filter based on price if specified.
@@ -89,7 +90,9 @@ const renderProductList = async (req, res) => {
                 products: req.session.searchResult,
                 offers,
                 collectionId,
-                searchBox: true
+                searchBox: true,
+                categoryFilter: null,
+                sort: null
             });
         }
 
@@ -102,6 +105,8 @@ const renderProductList = async (req, res) => {
             products,
             offers,
             user: req.session.user || null,
+            categoryFilter: null,
+            sort: null
         });
 
     } catch (err) {
@@ -111,17 +116,25 @@ const renderProductList = async (req, res) => {
 //* this endpoint filters the product based on the selection.
 const filterProductsList = async (req, res) => {
     const collectionId = req.params.id;
-    const { categoryFilter, priceFilter, nameFilter } = req.query;
+    const { categoryFilter, sort } = req.query;
     let filteredProducts = [];
 
     try {
         if (!collectionId) throw new Error("Id not found");
 
+        // Map sort param to price/name filters
+        let priceFilter = null;
+        let nameFilter = null;
+        if (sort === 'price_high') priceFilter = 'high';
+        else if (sort === 'price_low') priceFilter = 'low';
+        else if (sort === 'name_asc') nameFilter = 'asc';
+        else if (sort === 'name_desc') nameFilter = 'desc';
+
         // Create filterData based on query parameters
         const filterData = {
             category: categoryFilter || null,
-            price: priceFilter || null,
-            name: nameFilter || null
+            price: priceFilter,
+            name: nameFilter
         };
 
         // Populate products, categories and offers
@@ -140,13 +153,15 @@ const filterProductsList = async (req, res) => {
         // If request prefers HTML (direct navigation), render the page
         if (req.accepts('html')) {
             return res.render('user/userProductList', {
-                title: categoryFilter ? `Category: ${categoryFilter}` : 'Filtered Products',
+                title: categoryFilter ? (Array.isArray(categoryFilter) ? `Filtered (${categoryFilter.length} categories)` : `Category: ${categoryFilter}`) : 'Filtered Products',
                 user: req.session.user || null,
                 categories,
                 products: resultProducts,
                 offers,
                 collectionId,
-                searchBox: true
+                searchBox: true,
+                categoryFilter,
+                sort
             });
         }
 
