@@ -80,28 +80,28 @@
         </div>
         <div class="divide-y divide-gray-100">
             <% order.items.forEach((item, idx) => { %>
+<% var _q = item.quantity; %>
+<% var _up = item.unitPrice || 0; %>
+<% var _fp = item.finalPrice || 0; %>
+<% var _offAmt = item.offerDiscount || 0; %>
+<% var _mrpTotal = _up * _q; %>
+<% var _itemTotal = _fp * _q; %>
+<% var _offerTotal = _offAmt * _q; %>
+<% var _prodDiscTotal = Math.max(0, _mrpTotal - _itemTotal - _offerTotal); %>
+<% var _itemTax = Math.trunc(_itemTotal * 0.05 * 100) / 100; %>
                 <div class="flex gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50/50 transition-colors">
                     <div class="w-14 h-[72px] sm:w-16 sm:h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
                         <img src="<%= item.image || item.productId?.images?.[0] || '/images/placeholder.jpg' %>" alt=""
                             class="w-full h-full object-cover" />
                     </div>
-                    <div class="flex-1 min-w-0 flex flex-col justify-between">
-                        <div>
-                            <p class="text-xs sm:text-sm font-medium text-gray-900"><%= item.name || item.productId?.productName || 'Product' %></p>
-                            <div class="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1 text-[11px] sm:text-xs text-gray-500 mt-1">
-                                <span>Qty: <strong><%= item.quantity %></strong></span>
-                                <span>Size: <strong><%= item.selectedSize || 'N/A' %></strong></span>
-                                <span class="inline-flex items-center gap-1">Color: <span class="color-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full inline-block border border-gray-300" style="background:<%= item.selectedColor || '#ccc' %>"></span><strong data-color-hex class="text-[11px] sm:text-xs"><%= item.selectedColor || 'N/A' %></strong></span>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-3 mt-1.5 text-[11px] sm:text-xs">
-                                <span class="text-gray-500">₹<%= (item.unitPrice || 0).toLocaleString() %> / unit</span>
-                                <span class="text-gray-400">×</span>
-                                <span class="text-gray-500"><%= item.quantity %> qty</span>
-                                <span class="text-gray-400">=</span>
-                                <span class="font-semibold text-gray-900">₹<%= (item.finalPrice * item.quantity).toLocaleString() %></span>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                    <div class="flex-1 min-w-0">
+<% if(item.brand) { %>
+                        <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wide"><%= item.brand %></p>
+<% } %>
+                        <p class="text-xs sm:text-sm font-medium text-gray-900"><%= item.name || item.productId?.productName || 'Product' %></p>
+                        <p class="text-[11px] sm:text-xs text-gray-500 mt-0.5">Size: <%= item.selectedSize || 'N/A' %> · <span class="inline-flex items-center gap-1">Color: <span class="color-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full inline-block border border-gray-300" style="background:<%= item.selectedColor || '#ccc' %>"></span><strong data-color-hex class="text-[11px] sm:text-xs"><%= item.selectedColor || 'N/A' %></strong></span></p>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Qty: <%= _q %></p>
+                        <div class="flex flex-wrap items-center gap-1.5 mt-2">
                             <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full
                                 <%= item.status === 'delivered' ? 'bg-emerald-50 text-emerald-700' :
                                    item.status === 'cancelled' ? 'bg-rose-50 text-rose-700' :
@@ -128,6 +128,35 @@
                             <% } %>
                         </div>
                     </div>
+                    <div class="text-right shrink-0 min-w-[130px] sm:min-w-[170px]">
+                        <div class="space-y-1 text-[11px] sm:text-xs">
+                            <div class="flex justify-between gap-3 text-gray-500">
+                                <span>MRP (×<%= _q %>)</span>
+                                <span>₹<%= _mrpTotal.toLocaleString() %></span>
+                            </div>
+<% if(_prodDiscTotal > 0) { %>
+                            <div class="flex justify-between gap-3 text-emerald-600">
+                                <span>Product discount</span>
+                                <span>&minus; ₹<%= _prodDiscTotal.toLocaleString() %></span>
+                            </div>
+<% } %>
+<% if(item.offerName && _offerTotal > 0) { %>
+                            <div class="flex justify-between gap-3 text-orange-600">
+                                <span><%= item.offerName %></span>
+                                <span>&minus; ₹<%= _offerTotal.toLocaleString() %></span>
+                            </div>
+<% } %>
+                            <div class="flex justify-between gap-3 text-gray-500">
+                                <span>Tax (5%)</span>
+                                <span>₹<%= _itemTax.toLocaleString() %></span>
+                            </div>
+                            <hr class="border-gray-200 my-1">
+                            <div class="flex justify-between gap-3 text-xs sm:text-sm font-semibold text-gray-900">
+                                <span>Total</span>
+                                <span>₹<%= (_itemTotal + _itemTax).toLocaleString() %></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             <% }) %>
         </div>
@@ -147,9 +176,23 @@
                     <span>₹<%= order.subtotal?.toLocaleString() || 0 %></span>
                 </div>
                 <% if(order.productDiscount > 0) { %>
-                    <div class="flex justify-between text-emerald-600">
-                        <span>Product Discount</span>
+<% var showDiscTooltip = (productDiscTotal || 0) > 0 || (offerDiscTotal || 0) > 0; %>
+                    <div class="flex justify-between text-emerald-600 relative group">
+                        <span class="<%= showDiscTooltip ? 'cursor-help border-b border-dotted border-emerald-400' : '' %>">Discount</span>
                         <span>-₹<%= order.productDiscount.toLocaleString() %></span>
+<% if(showDiscTooltip) { %>
+                        <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap z-10 shadow-lg">
+                            <div class="space-y-1">
+<% if((productDiscTotal || 0) > 0) { %>
+                                <div class="flex justify-between gap-4"><span>Product discount</span><span class="text-green-300">&minus; ₹<%= (productDiscTotal || 0).toLocaleString() %></span></div>
+<% } %>
+<% if((offerDiscTotal || 0) > 0) { %>
+                                <div class="flex justify-between gap-4"><span>Brand offer</span><span class="text-green-300">&minus; ₹<%= (offerDiscTotal || 0).toLocaleString() %></span></div>
+<% } %>
+                            </div>
+                            <div class="absolute top-full left-4 w-0 h-0 border-4 border-transparent border-t-gray-900"></div>
+                        </div>
+<% } %>
                     </div>
                 <% } %>
                 <% if(order.coupon?.discount > 0) { %>

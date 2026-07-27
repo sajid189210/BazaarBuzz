@@ -139,7 +139,34 @@ const renderOrderView = async (req, res) => {
             return res.redirect(R.ADMIN_DASHBOARD);
         }
 
-        res.render('admin/adminOrderView', { layout: 'admin/layout', title: 'Order Details', order });
+        let productDiscTotal = 0;
+        let offerDiscTotal = 0;
+
+        for (const item of order.items) {
+            const price = item.unitPrice || 0;
+            const discPct = item.productDiscount;
+            const offerAmt = item.offerDiscount || 0;
+            const qty = item.quantity;
+
+            if (discPct !== undefined && discPct > 0) {
+                const discountedAmount = price - (price * discPct / 100);
+                const floor = price * 0.10;
+                const priceAfterProduct = Math.max(discountedAmount, floor);
+                productDiscTotal += (price - priceAfterProduct) * qty;
+            } else if (discPct === undefined) {
+                productDiscTotal += (price - item.finalPrice) * qty;
+            }
+
+            offerDiscTotal += offerAmt * qty;
+        }
+
+        res.render('admin/adminOrderView', {
+            layout: 'admin/layout',
+            title: 'Order Details',
+            order,
+            productDiscTotal: truncCurrency(productDiscTotal),
+            offerDiscTotal: truncCurrency(offerDiscTotal),
+        });
 
     } catch (err) {
         response.serverError(res, err);

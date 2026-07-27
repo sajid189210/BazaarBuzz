@@ -1422,6 +1422,10 @@ html {
   min-width: 120px;
 }
 
+.min-w-\[130px\] {
+  min-width: 130px;
+}
+
 .max-w-2xl {
   max-width: 42rem;
 }
@@ -2094,6 +2098,11 @@ html {
 .border-orange-200 {
   --tw-border-opacity: 1;
   border-color: rgb(254 215 170 / var(--tw-border-opacity, 1));
+}
+
+.border-emerald-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(52 211 153 / var(--tw-border-opacity, 1));
 }
 
 .border-t-transparent {
@@ -4109,6 +4118,10 @@ html {
 
   .sm\:min-w-\[160px\] {
     min-width: 160px;
+  }
+
+  .sm\:min-w-\[170px\] {
+    min-width: 170px;
   }
 
   .sm\:grid-cols-2 {
