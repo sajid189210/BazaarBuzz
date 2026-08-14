@@ -41,196 +41,220 @@
   <nav class="breadcrumbs" aria-label="Breadcrumb"> <a href="/">Home</a> <i class="fa-solid fa-chevron-right text-xs"></i> <a href="/user/getProductList/all">Products</a> <i class="fa-solid fa-chevron-right text-xs"></i> <span aria-current="page">
 <%= product.productName %>
     </span> </nav>
-  <div class="product-grid">
-    <div class="gallery-col">
-<% if(product.images && product.images.length> 1) { %>
+
+  <div class="product-layout">
+    <!-- ==================== MEDIA COLUMN ==================== -->
+    <div class="media-column">
       <div class="thumbnail-strip" id="thumbnailStrip" role="listbox" aria-label="Product images">
-<% product.images.forEach((img, index)=> { %>
+<% if(product.images && product.images.length> 1) { %><% product.images.forEach((img, index)=> { %>
         <button class="thumb-btn <%= index === 0 ? 'active' : '' %>" onclick="selectThumbnail(<%= index %>, this)" role="option" aria-selected="<%= index === 0 ? 'true' : 'false' %>" aria-label="View image <%= index + 1 %>" tabindex="0">
           <img src="<%= img %>" alt="" loading="lazy" />
         </button>
-<% }) %>
-      </div>
+<% }) %><% } else { %>
+        <button class="thumb-btn active" role="option" aria-selected="true" aria-label="View image 1" tabindex="0">
+          <img src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.svg' %>" alt="" />
+        </button>
 <% } %>
+      </div>
 
       <div class="gallery-main" id="mainImageContainer" role="button" tabindex="0" aria-label="Zoom product image">
         <img id="mainImage" src="<%= product.images && product.images.length > 0 ? product.images[0] : '/images/placeholder.svg' %>" alt="<%= product.productName %>" loading="eager" />
 
-        <div class="zoom-hint"> <i class="fa-solid fa-magnifying-glass-plus text-xs"></i> Zoom </div>
+        <div class="gallery-overlay-badges">
+<% if(product.discount && product.discount > 0) { %>
+          <span class="gallery-badge">-<%= product.discount %>%</span>
+<% } %>
+<% if(product.limitedEdition) { %>
+          <span class="gallery-badge gallery-badge-alt">Limited</span>
+<% } %>
+        </div>
+
+        <div class="gallery-actions">
+          <div class="zoom-hint"> <i class="fa-solid fa-magnifying-glass-plus text-xs"></i> Zoom </div>
+          <button type="button" class="fullscreen-btn" onclick="openImageModal(0)" aria-label="View images in fullscreen"> <i class="fa-solid fa-expand"></i> </button>
+        </div>
       </div>
-
     </div>
-    <div class="buy-box">
-      <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
-        <div>
-          <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted);">
-<%= product.brand || 'BazaarBuzz' %>
-          </p>
-          <h1 style="margin-top: var(--spacing-xs); font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 800; line-height: 1.1; color: var(--text-primary);">
-<%= product.productName %>
-          </h1>
-        </div>
-        <div class="price-block"> <span class="price-current">₹<%= offerDiscountedPrice %>
-          </span>
-<% if(product.discount || offerDiscountValue) { %> <span class="price-original">₹<%= product.productPrice.toLocaleString() %></span> <span class="price-save">Save<%= Math.round(totalDiscount) %>%</span>
-<% } %>
-        </div>
-<% if(offerDiscountValue) { %>
-        <div class="offer-badge"> <i class="fa-regular fa-clock"></i>
-<%= offerDiscountValue %>% brand offer applied
-        </div>
-<% } %>
-        <div class="trust-strip" role="list" aria-label="Trust signals">
-          <div class="trust-item" role="listitem"> <i class="fa-solid fa-shield-halved"></i> <span>Secure Payment<div class="trust-tooltip">100% encrypted
-                checkout</div></span> </div>
-          <div class="trust-item" role="listitem"> <i class="fa-solid fa-truck"></i> <span>Free Shipping<div class="trust-tooltip">On orders above
-                ₹999</div></span> </div>
-          <div class="trust-item" role="listitem"> <i class="fa-solid fa-rotate-left"></i> <span>Easy Returns<div class="trust-tooltip">14 days, free pickup
-              </div></span> </div>
-          <div class="trust-item" role="listitem"> <i class="fa-regular fa-clock"></i> <span>COD Available<div class="trust-tooltip">Check at checkout
-              </div></span> </div>
-        </div>
-        <form class="space-y-6" id="cart-form" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
-          <input type="hidden" name="productId" value="<%= product._id %>"> <input type="hidden" name="size" id="selectedSize" value=""> <input type="hidden" name="color" id="selectedColor" value=""> <input type="hidden" name="quantity" id="quantity" value="1" />
 
-          <div> <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Size
-              <span style="font-weight: 400; color: var(--text-muted);">(Required)</span></label>
-            <div class="size-chips" id="sizeChips" role="radiogroup" aria-label="Select size">
+    <!-- ==================== PURCHASE PANEL ==================== -->
+    <div class="purchase-panel">
+      <div class="pp-inner">
+        <div class="pp-brand">
+<%= product.brand || 'BazaarBuzz' %>
+        </div>
+        <h1 class="pp-title">
+<%= product.productName %>
+        </h1>
+
+<% if(ratingSummary) { %>
+        <div class="pp-rating">
+          <span class="stars">★★★★★</span><span class="stars-val"><%= ratingSummary.avg %></span><span class="stars-count">(<%= ratingSummary.count %>)</span>
+        </div>
+<% } %>
+
+        <div class="pp-price">
+          <span class="price-current">₹<%= displayPrice.toLocaleString('en-IN') %></span>
+<% if(product.discount || offerDiscountValue) { %>
+          <span class="price-original">₹<%= product.productPrice.toLocaleString() %></span>
+          <span class="price-save">Save ₹<%= saveAmount.toLocaleString('en-IN') %></span>
+<% } %>
+        </div>
+        <div class="pp-price-meta">
+<% if(discountPct && discountPct > 0) { %>
+          <span class="offer-chip"><%= discountPct %>% OFF</span>
+<% } %>
+<% if(offerDiscountValue) { %>
+          <span class="offer-chip offer-chip-green"><i class="fa-regular fa-clock"></i><%= offerDiscountValue %>% brand offer applied</span>
+<% } %>
+<% if(product.limitedEdition) { %>
+          <span class="offer-chip offer-chip-amber">Limited Time Offer</span>
+<% } %>
+        </div>
+
+<% if(highlights && highlights.length > 0) { %>
+        <div class="pp-highlights" aria-label="Product highlights">
+<% highlights.forEach(h => { %>
+          <span class="highlight-chip"><i class="fa-solid fa-check"></i><%= h %></span>
+<% }) %>
+        </div>
+<% } %>
+
+        <div class="pp-divider"></div>
+
+        <div class="pp-group">
+          <div class="pp-group-head">
+            <label class="pp-label">Size <span class="pp-required">(Required)</span></label>
+            <div class="pp-group-meta">
+              <span id="selectedSizeLabel" class="pp-selected">Select a size</span>
+              <span id="sizeStockMsg" class="pp-stock-msg"></span>
+              <button type="button" class="size-guide-link" onclick="openSizeGuide()"><i class="fa-solid fa-ruler-horizontal"></i> Size Guide</button>
+            </div>
+          </div>
+          <div class="size-chips" id="sizeChips" role="radiogroup" aria-label="Select size">
 <% if(sizeData && sizeData.length> 0) { %><% sizeData.forEach((s,
                                                             idx)=> { %> <button type="button" class="size-chip<%= idx === 0 && !s.isOutOfStock ? ' selected' : '' %><%= s.isLowStock ? ' low-stock' : '' %><%= s.isOutOfStock ? ' out-of-stock' : '' %>" data-size="<%= s.size %>" data-stock="<%= s.stock %>" onclick="selectSize(this, '<%= s.size %>',<%= s.stock %>)"<%= s.isOutOfStock ? 'disabled' : '' %> role="radio" aria-checked="<%= idx===0 && !s.isOutOfStock ? 'true'
                                                                     : 'false' %>" tabindex="0"><%= s.size %>
 <% if(s.isLowStock && !s.isOutOfStock) { %>
-                <span class="stock-badge-inline">Low
-                  Stock</span>
+              <span class="stock-badge-inline">Low
+                Stock</span>
 <% } else if(s.isOutOfStock) { %> <span class="stock-badge-inline">Out of
-                  Stock</span>
+                Stock</span>
 <% } %> </button>
 <% }) %>
 <% } else { %> <span style="font-size: 0.875rem; color: var(--text-muted);">No
-                sizes available</span>
+              sizes available</span>
 <% } %>
-            </div>
           </div>
-          <div id="colorSection" class="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'hidden' %>" style="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'display: none;' %>">
-            <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Color
-              <span style="font-weight: 400; color: var(--text-muted);">(Required)</span></label>
-            <div class="color-swatches" id="colorSwatches" role="radiogroup" aria-label="Select color">
+        </div>
 
-            </div>
+        <div id="colorSection" class="pp-group <%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'hidden' %>" style="<%= uniqueSizes && uniqueSizes.length > 0 ? '' : 'display: none;' %>">
+          <div class="pp-group-head">
+            <label class="pp-label">Color <span class="pp-required">(Required)</span></label>
+            <span id="selectedColorLabel" class="pp-selected">Select a color</span>
           </div>
-          <div class="stock-row">
-            <div class="stock-info">
-              <span id="stockBadge" class="stock-badge in-stock">In Stock</span>
-              <span id="stockText" class="stock-text"></span>
-              <div id="stockBarWrap" class="stock-bar-wrap">
-                <div id="stockBarFill" class="stock-bar-fill"></div>
-              </div>
-            </div>
-            <div class="stock-qty">
-              <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">Qty</label>
-              <div class="qty-selector"> <button type="button" class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity">
-                  <i class="fa-solid fa-minus"></i> </button> <span id="quantityValue" class="qty-value">1</span> <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
-                  <i class="fa-solid fa-plus"></i> </button> <span id="maxStockHint" class="qty-hint"></span> </div>
-            </div>
+          <div class="color-swatches" id="colorSwatches" role="radiogroup" aria-label="Select color">
+
           </div>
-          <div class="action-row">
-          <button type="submit" id="addToCartBtn" class="btn-primary" disabled> Add to Cart </button>
+        </div>
+
+        <div class="pp-stock-row">
+          <span id="stockBadge" class="stock-badge in-stock">In Stock</span>
+          <span id="stockText" class="stock-text"></span>
+        </div>
+
+        <div class="pp-qty-row">
+          <label class="pp-label" for="quantity">Quantity</label>
+          <div class="qty-selector">
+            <button type="button" class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity"><i class="fa-solid fa-minus"></i></button>
+            <span id="quantityValue" class="qty-value">1</span>
+            <button type="button" class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity"><i class="fa-solid fa-plus"></i></button>
+            <span id="maxStockHint" class="qty-hint"></span>
+          </div>
+        </div>
+
+        <form class="pp-actions" id="cart-form">
+          <input type="hidden" name="productId" value="<%= product._id %>">
+          <input type="hidden" name="size" id="selectedSize" value="">
+          <input type="hidden" name="color" id="selectedColor" value="">
+          <input type="hidden" name="quantity" id="quantity" value="1" />
+
+          <button type="button" id="buyNowBtn" class="btn-buynow" disabled> Buy Now </button>
+          <button type="submit" id="addToCartBtn" class="btn-secondary" disabled> <i class="fa-solid fa-cart-shopping"></i> Add to Cart </button>
           <button type="button" id="wishlistBtn" onclick="toggleWishList('<%= product._id %>', this)" class="btn-wishlist<%= isInWishlist ? ' filled' : '' %>" aria-label="<%= isInWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
-              <i class="<%= isInWishlist ? 'fa-solid' : 'fa-regular' %> fa-heart"></i> </button>
-               </div>
-          <div id="responseMessage" style="font-size: 0.8125rem; text-align: center; min-height: 1.25rem;">
-          </div>
+            <i class="<%= isInWishlist ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+          </button>
         </form>
+        <div id="responseMessage" style="font-size: 0.8125rem; text-align: center; min-height: 1.25rem;"></div>
+
+        <div class="trust-strip" role="list" aria-label="Trust signals">
+          <div class="trust-item" role="listitem"><i class="fa-solid fa-shield-halved"></i><span>Secure Payment</span></div>
+          <div class="trust-item" role="listitem"><i class="fa-solid fa-truck"></i><span>Free Shipping</span></div>
+          <div class="trust-item" role="listitem"><i class="fa-solid fa-rotate-left"></i><span>Easy Returns</span></div>
+          <div class="trust-item" role="listitem"><i class="fa-regular fa-clock"></i><span>COD</span></div>
+        </div>
+
         <div class="meta-list">
-          <div class="meta-item"><span class="meta-label">Category:</span><span>
-<%= product.category %>
-            </span></div>
-          <div class="meta-item"><span class="meta-label">Gender:</span><span>
-<%= product.gender %>
-            </span></div>
-          <div class="meta-item"><span class="meta-label">Fabric:</span><span>
-<%= product.fabric %>
-            </span></div>
+          <div class="meta-item"><span class="meta-label">Category:</span><span><%= product.category %></span></div>
+          <div class="meta-item"><span class="meta-label">Gender:</span><span><%= genderLabel %></span></div>
+          <div class="meta-item"><span class="meta-label">Fabric:</span><span><%= product.fabric %></span></div>
         </div>
       </div>
     </div>
   </div>
-  <div style="margin-top: var(--spacing-2xl);">
-    <div class="tab-bar" role="tablist" aria-label="Product details"> <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-description" onclick="showTab('description')" tabindex="0">Description</button> <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-specs" onclick="showTab('specs')" tabindex="0">Specifications</button> <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-sizeguide" onclick="showTab('sizeguide')" tabindex="0">Size Guide</button> <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-reviews" onclick="showTab('reviews')" tabindex="0">Reviews</button> <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-shipping" onclick="showTab('shipping')" tabindex="0">Shipping & Returns</button> </div>
-    <div style="max-width: 720px;">
-      <div id="tab-description" class="tab-panel active" role="tabpanel" aria-labelledby="tab-description">
-        <div style="font-size: 1rem; line-height: 1.8; color: var(--text-secondary); max-width: 65ch;">
-          <p style="white-space: pre-line; margin: 0;">
-<%= product.description %>
-          </p>
+
+  <!-- ==================== PRODUCT CONTENT (ACCORDIONS) ==================== -->
+  <div class="product-content" style="margin-top: var(--spacing-2xl);">
+    <div class="accordion" data-open>
+      <button class="acc-trigger" data-panel="description" aria-expanded="true" aria-controls="acc-description"><span>Description</span><i class="fa-solid fa-chevron-down acc-icon"></i></button>
+      <div id="acc-description" class="acc-panel" style="max-height: none;"><div class="acc-body">
+        <div style="font-size: 1rem; line-height: 1.8; color: var(--text-secondary); max-width: 72ch;">
+          <p style="white-space: pre-line; margin: 0;"><%= product.description %></p>
         </div>
-      </div>
-      <div id="tab-specs" class="tab-panel" role="tabpanel" aria-labelledby="tab-specs">
+      </div></div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-trigger" data-panel="specs" aria-expanded="false" aria-controls="acc-specs"><span>Specifications</span><i class="fa-solid fa-chevron-down acc-icon"></i></button>
+      <div id="acc-specs" class="acc-panel"><div class="acc-body">
         <div class="specs-table" role="table">
-          <dl role="row">
-            <dt role="rowheader">Brand</dt>
-            <dd role="cell">
-<%= product.brand %>
-            </dd>
-          </dl>
-          <dl role="row">
-            <dt role="rowheader">Category</dt>
-            <dd role="cell">
-<%= product.category %>
-            </dd>
-          </dl>
-          <dl role="row">
-            <dt role="rowheader">Gender</dt>
-            <dd role="cell">
-<%= product.gender %>
-            </dd>
-          </dl>
-          <dl role="row">
-            <dt role="rowheader">Fabric</dt>
-            <dd role="cell">
-<%= product.fabric %>
-            </dd>
-          </dl>
-          <dl role="row">
-            <dt role="rowheader">Available Sizes</dt>
-            <dd role="cell">
-<%= uniqueSizes?.join(', ') || ' N/A' %>
-            </dd>
-          </dl>
-          <dl role="row">
-            <dt role="rowheader">Available Colors</dt>
-            <dd role="cell">
-<%= allColors?.join(', ') || ' N/A' %>
-            </dd>
-          </dl>
+          <dl role="row"><dt role="rowheader">Brand</dt><dd role="cell"><%= product.brand %></dd></dl>
+          <dl role="row"><dt role="rowheader">Category</dt><dd role="cell"><%= product.category %></dd></dl>
+          <dl role="row"><dt role="rowheader">Gender</dt><dd role="cell"><%= genderLabel %></dd></dl>
+          <dl role="row"><dt role="rowheader">Fabric</dt><dd role="cell"><%= product.fabric %></dd></dl>
+          <dl role="row"><dt role="rowheader">Available Sizes</dt><dd role="cell"><%= uniqueSizes?.join(', ') || ' N/A' %></dd></dl>
+          <dl role="row"><dt role="rowheader">Available Colors</dt><dd role="cell"><%= allColors?.join(', ') || ' N/A' %></dd></dl>
 <% if(product.limitedEdition) { %>
-          <dl role="row">
-            <dt role="rowheader">Edition</dt>
-            <dd role="cell">Limited Edition</dd>
-          </dl>
+          <dl role="row"><dt role="rowheader">Edition</dt><dd role="cell">Limited Edition</dd></dl>
 <% } %>
         </div>
-      </div>
-      <div id="tab-sizeguide" class="tab-panel" role="tabpanel" aria-labelledby="tab-sizeguide">
-        <div style="padding: var(--spacing-md) 0;">
-          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-            Find your perfect fit. Measurements are in centimeters.</p> <button type="button" onclick="openSizeGuide()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; font-size: 0.8125rem; font-weight: 600; color: var(--accent); border: 1px solid var(--accent-border); background: var(--accent-light); border-radius: var(--radius-md); transition: all var(--motion-fast);" onmouseover="this.style.background='var(--accent)';this.style.color='white';" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent)';">
-            <i class="fa-solid fa-table-cells"></i> Open Size Guide </button>
+      </div></div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-trigger" data-panel="sizeguide" aria-expanded="false" aria-controls="acc-sizeguide"><span>Size Guide</span><i class="fa-solid fa-chevron-down acc-icon"></i></button>
+      <div id="acc-sizeguide" class="acc-panel"><div class="acc-body">
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-md);">Find your perfect fit. Measurements are in centimeters.</p>
+        <button type="button" onclick="openSizeGuide()" class="btn-outline-accent"><i class="fa-solid fa-table-cells"></i> Open Size Guide</button>
+      </div></div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-trigger" data-panel="reviews" aria-expanded="false" aria-controls="acc-reviews"><span>Reviews</span><i class="fa-solid fa-chevron-down acc-icon"></i></button>
+      <div id="acc-reviews" class="acc-panel"><div class="acc-body">
+        <div style="padding: var(--spacing-lg) 0; text-align: center;">
+          <i class="fa-solid fa-file-lines" style="font-size: 3rem; margin: 0 auto var(--spacing-md); color: var(--text-muted); display: block;"></i>
+          <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-xs);">Be the first to review</h3>
+          <p style="font-size: 0.875rem; color: var(--text-muted); max-width: 42ch; margin: 0 auto;">Customer reviews will appear here once available.</p>
         </div>
-      </div>
-      <div id="tab-reviews" class="tab-panel" role="tabpanel" aria-labelledby="tab-reviews">
-        <div style="padding: var(--spacing-2xl) 0; text-align: center;"> <i class="fa-solid fa-file-lines" style="font-size: 3.5rem; margin: 0 auto var(--spacing-md); color: var(--text-muted); display: block;"></i>
-          <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-xs);">
-            Reviews Coming Soon</h3>
-          <p style="font-size: 0.875rem; color: var(--text-muted);">Customer reviews will
-            appear here once available.</p>
-        </div>
-      </div>
-      <div id="tab-shipping" class="tab-panel" role="tabpanel" aria-labelledby="tab-shipping">
+      </div></div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-trigger" data-panel="shipping" aria-expanded="false" aria-controls="acc-shipping"><span>Shipping & Returns</span><i class="fa-solid fa-chevron-down acc-icon"></i></button>
+      <div id="acc-shipping" class="acc-panel"><div class="acc-body">
         <div style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
           <div>
-            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">
-              Shipping</h4>
+            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">Shipping</h4>
             <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; list-style: none; padding: 0;">
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;"><i class="fa-regular fa-clock fa-fw" style="flex-shrink: 0; margin-top: 0.2em; color: var(--accent); text-align: center;"></i><span>Free standard shipping on orders above ₹999</span></li>
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;"><i class="fa-regular fa-clock fa-fw" style="flex-shrink: 0; margin-top: 0.2em; color: var(--accent); text-align: center;"></i><span>Standard delivery: 5–7 business days</span></li>
@@ -239,8 +263,7 @@
             </ul>
           </div>
           <div>
-            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">
-              Returns & Exchanges</h4>
+            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-md);">Returns & Exchanges</h4>
             <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; list-style: none; padding: 0;">
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;"><i class="fa-solid fa-rotate-left fa-fw" style="flex-shrink: 0; margin-top: 0.2em; color: var(--accent); text-align: center;"></i><span>14-day easy return policy</span></li>
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;"><i class="fa-solid fa-rotate-left fa-fw" style="flex-shrink: 0; margin-top: 0.2em; color: var(--accent); text-align: center;"></i><span>Items must be unworn, unwashed, with original tags</span></li>
@@ -249,22 +272,86 @@
             </ul>
           </div>
           <div>
-            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--accent); margin-bottom: var(--spacing-md);">
-              Need Help?</h4>
-            <p style="font-size: 0.875rem; color: var(--text-secondary);">Contact our
-              support team at <a href="mailto:<%= supportEmail %>" style="color: var(--accent); font-weight: 500;"><%= supportEmail %></a>
-            </p>
+            <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--accent); margin-bottom: var(--spacing-md);">Need Help?</h4>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">Contact our support team at <a href="mailto:<%= supportEmail %>" style="color: var(--accent); font-weight: 500;"><%= supportEmail %></a></p>
           </div>
         </div>
-      </div>
+      </div></div>
     </div>
   </div>
-<% if(recentlyViewedProducts && recentlyViewedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="recently-viewed-heading">
-    <div class="section-header">
-      <h2 id="recently-viewed-heading" class="section-title">Recently Viewed</h2>
+
+  <!-- ==================== STORYTELLING ==================== -->
+  <section class="story-section" style="margin-top: var(--spacing-2xl);" aria-labelledby="story-heading">
+    <div class="story-grid">
+      <div class="story-media">
+<% if(product.images && product.images.length > 0) { %>
+        <div class="story-collage">
+<% product.images.slice(0, 3).forEach((img, i) => { %>
+          <div class="story-img story-img-<%= i + 1 %>"><img src="<%= img %>" alt="" loading="lazy" /></div>
+<% }) %>
+        </div>
+<% } else { %>
+        <div class="story-img story-img-1"><img src="/images/placeholder.svg" alt="" /></div>
+<% } %>
+      </div>
+      <div class="story-copy">
+        <p class="story-eyebrow">The <%= product.brand || 'BazaarBuzz' %> Story</p>
+        <h2 id="story-heading" class="story-title">Crafted to be worn, loved, and lived in.</h2>
+        <p class="story-text">Every <%= product.productName %> is thoughtfully made with <%= product.fabric %> to bring you a piece that balances comfort and everyday style. Designed for <%= genderLabel.toLowerCase() %> essentials that move with your day — breathable, durable, and effortless to care for.</p>
+        <ul class="story-points">
+          <li><i class="fa-solid fa-feather"></i> Lightweight and breathable comfort</li>
+          <li><i class="fa-solid fa-shirt"></i> Premium <%= product.fabric %> construction</li>
+          <li><i class="fa-solid fa-heart"></i> Made for everyday wear</li>
+        </ul>
+      </div>
     </div>
-    <div class="product-carousel" role="list">
-<% recentlyViewedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
+  </section>
+
+<% if(relatedProducts && relatedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="related-heading">
+    <div class="section-header">
+      <h2 id="related-heading" class="section-title">Recommended For You</h2>
+    </div>
+    <div class="product-carousel" role="list" aria-label="Related products">
+<% relatedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
+        <a href="/user/viewProduct?productId=<%= p._id %>" class="product-card" style="height: 100%; display: flex; flex-direction: column;" tabindex="0">
+          <div class="product-image" style="flex-shrink: 0;"> <img src="<%= p.images[0] %>" alt="" loading="lazy" />
+<% if(p.hasOffer && p.discount) { %>
+            <div class="product-badge"> <span class="badge badge-sale">-<%= p.discount %>%
+              </span> <span class="badge badge-offer"><%= p.offerName %>
+<%= p.offerDiscount %>%
+              </span> </div>
+<% } else if(p.hasOffer) { %>
+            <div class="product-badge"><span class="badge badge-offer"><%= p.offerName %>
+<%= p.offerDiscount %>%
+              </span></div>
+<% } else if(p.discount) { %>
+            <div class="product-badge"><span class="badge badge-sale">-<%= p.discount %>%</span></div>
+<% } %>
+          </div>
+          <div class="product-info" style="flex: 1; display: flex; flex-direction: column;">
+            <p class="product-brand"><%= p.brand || 'BazaarBuzz' %></p>
+            <h3 class="product-name"><%= p.productName %></h3>
+            <div class="product-price" style="margin-top: auto;"> <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
+<% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
+<% } %>
+            </div>
+<% if(p.hasOffer) { %>
+            <p class="product-offer-note">+<%= p.offerName %> applied</p>
+<% } %>
+          </div>
+        </a>
+      </article>
+<% }) %>
+    </div>
+  </section>
+<% } %>
+
+<% if(recentlyViewedProducts && recentlyViewedProducts.length> 0) { %> <section class="recently-viewed" style="margin-top: var(--spacing-2xl);" aria-labelledby="recently-viewed-heading">
+    <div class="section-header">
+      <h2 id="recently-viewed-heading" class="section-title section-title-dim">Recently Viewed</h2>
+    </div>
+    <div class="product-carousel recently-carousel" role="list">
+<% recentlyViewedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem">
         <a href="/user/viewProduct?productId=<%= p._id %>" class="product-card" tabindex="0">
           <div class="product-image"> <img src="<%= p.images[0] %>" alt="" loading="lazy" />
 <% if(p.discount) { %>
@@ -272,12 +359,8 @@
 <% } %>
           </div>
           <div class="product-info">
-            <p class="product-brand">
-<%= p.brand || 'BazaarBuzz' %>
-            </p>
-            <h3 class="product-name">
-<%= p.productName %>
-            </h3>
+            <p class="product-brand"><%= p.brand || 'BazaarBuzz' %></p>
+            <h3 class="product-name"><%= p.productName %></h3>
             <div class="product-price"> <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
 <% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
 <% } %>
@@ -289,73 +372,23 @@
     </div>
   </section>
 <% } %>
-<% if(relatedProducts && relatedProducts.length> 0) { %> <section style="margin-top: var(--spacing-2xl);" aria-labelledby="related-heading">
-    <div class="section-header">
-      <h2 id="related-heading" class="section-title">You May Also Like</h2>
-    </div>
-    <div class="product-carousel" role="list" aria-label="Related products">
-<% relatedProducts.forEach((p, i)=> { %> <article class="carousel-card" role="listitem" style="animation: fadeIn var(--motion-normal) var(--motion-easing)<%= i * 0.06 %>s both;">
-        <a href="/user/viewProduct?productId=<%= p._id %>" class="product-card" style="height: 100%; display: flex; flex-direction: column;" tabindex="0">
-          <div class="product-image" style="flex-shrink: 0;"> <img src="<%= p.images[0] %>" alt="" loading="lazy" />
-<% if(p.hasOffer && p.discount) { %>
-            <div class="product-badge"> <span class="badge badge-sale">-
-<%= p.discount %>%
-              </span> <span class="badge badge-offer">
-<%= p.offerName %>
-<%= p.offerDiscount %>%
-              </span> </div>
-<% } else if(p.hasOffer) { %>
-            <div class="product-badge"><span class="badge badge-offer">
-<%= p.offerName %>
-<%= p.offerDiscount %>%
-              </span></div>
-<% } else if(p.discount) { %>
-            <div class="product-badge"><span class="badge badge-sale">-<%= p.discount %>
-                %</span></div>
-<% } %>
-          </div>
-          <div class="product-info" style="flex: 1; display: flex; flex-direction: column;">
-            <p class="product-brand">
-<%= p.brand || 'BazaarBuzz' %>
-            </p>
-            <h3 class="product-name">
-<%= p.productName %>
-            </h3>
-            <div class="product-price" style="margin-top: auto;"> <span class="product-price-current">₹<%= p.finalPrice.toLocaleString() %></span>
-<% if(p.discPrice !==p.productPrice) { %> <span class="product-price-original">₹<%= p.productPrice.toLocaleString() %></span>
-<% } %>
-            </div>
-<% if(p.hasOffer) { %>
-            <p class="product-offer-note">+<%= p.offerName %> applied
-            </p>
-<% } %>
-          </div>
-        </a>
-      </article>
-<% }) %>
-    </div>
-  </section>
-<% } %>
 </main>
+
 <div id="imageModal" role="dialog" aria-modal="true" aria-label="Product image zoom"> <button class="modal-close-top" onclick="closeImageModal()" aria-label="Close zoom"> <i class="fa-solid fa-xmark" style="width:24px;height:24px;"></i> </button> <button class="modal-nav modal-prev" onclick="navigateModal(-1)" aria-label="Previous image"> <i class="fa-solid fa-chevron-left" style="width:24px;height:24px;"></i> </button> <button class="modal-nav modal-next" onclick="navigateModal(1)" aria-label="Next image"> <i class="fa-solid fa-chevron-right" style="width:24px;height:24px;"></i> </button> <img id="modalImage" src="" alt="" />
-  <div class="modal-counter" id="modalCounter">1 /<%= product.images?.length || 1 %>
-  </div>
+  <div class="modal-counter" id="modalCounter">1 /<%= product.images?.length || 1 %></div>
 </div>
+
 <div id="sizeGuideModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Size guide">
   <div class="modal-panel">
     <div class="modal-header">
-      <h3 class="modal-title">Size Guide -<%= product.gender %>
-      </h3> <button class="modal-close" onclick="closeSizeGuide()" aria-label="Close"> <i class="fa-solid fa-xmark"></i> </button>
+      <h3 class="modal-title">Size Guide -<%= genderLabel %></h3> <button class="modal-close" onclick="closeSizeGuide()" aria-label="Close"> <i class="fa-solid fa-xmark"></i> </button>
     </div>
     <div class="modal-body">
       <div class="size-table-wrap">
       <table class="size-table" role="table">
         <thead>
           <tr role="row">
-            <th role="columnheader" scope="col">
-<%= product.gender==='men' ? "Men's Size" : product.gender==='women'
-                                                ? "Women's Size" : "Kids' Size" %>
-            </th>
+            <th role="columnheader" scope="col"><%= product.gender==='men' ? "Men's Size" : product.gender==='women' ? "Women's Size" : "Kids' Size" %></th>
             <th role="columnheader" scope="col">Chest (cm)</th>
             <th role="columnheader" scope="col">Waist (cm)</th>
             <th role="columnheader" scope="col">Hip (cm)</th>
@@ -363,149 +396,48 @@
         </thead>
         <tbody>
 <% if(product.gender==='men' ) { %>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XS</td>
-            <td role="cell">86–91</td>
-            <td role="cell">71–76</td>
-            <td role="cell">86–91</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">S</td>
-            <td role="cell">91–97</td>
-            <td role="cell">76–81</td>
-            <td role="cell">91–97</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">M</td>
-            <td role="cell">97–102</td>
-            <td role="cell">81–86</td>
-            <td role="cell">97–102</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">L</td>
-            <td role="cell">102–107</td>
-            <td role="cell">86–91</td>
-            <td role="cell">102–107</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XL</td>
-            <td role="cell">107–112</td>
-            <td role="cell">91–97</td>
-            <td role="cell">107–112</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XXL</td>
-            <td role="cell">112–117</td>
-            <td role="cell">97–102</td>
-            <td role="cell">112–117</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XXXL</td>
-            <td role="cell">117–122</td>
-            <td role="cell">102–107</td>
-            <td role="cell">117–122</td>
-          </tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XS</td><td role="cell">86–91</td><td role="cell">71–76</td><td role="cell">86–91</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">S</td><td role="cell">91–97</td><td role="cell">76–81</td><td role="cell">91–97</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">M</td><td role="cell">97–102</td><td role="cell">81–86</td><td role="cell">97–102</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">L</td><td role="cell">102–107</td><td role="cell">86–91</td><td role="cell">102–107</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XL</td><td role="cell">107–112</td><td role="cell">91–97</td><td role="cell">107–112</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XXL</td><td role="cell">112–117</td><td role="cell">97–102</td><td role="cell">112–117</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XXXL</td><td role="cell">117–122</td><td role="cell">102–107</td><td role="cell">117–122</td></tr>
 <% } else if(product.gender==='women' ) { %>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XS</td>
-            <td role="cell">81–86</td>
-            <td role="cell">63–68</td>
-            <td role="cell">89–94</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">S</td>
-            <td role="cell">86–91</td>
-            <td role="cell">68–73</td>
-            <td role="cell">94–99</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">M</td>
-            <td role="cell">91–97</td>
-            <td role="cell">73–78</td>
-            <td role="cell">99–104</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">L</td>
-            <td role="cell">97–102</td>
-            <td role="cell">78–83</td>
-            <td role="cell">104–109</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XL</td>
-            <td role="cell">102–107</td>
-            <td role="cell">83–88</td>
-            <td role="cell">109–114</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XXL</td>
-            <td role="cell">107–112</td>
-            <td role="cell">88–93</td>
-            <td role="cell">114–119</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">XXXL</td>
-            <td role="cell">112–117</td>
-            <td role="cell">93–98</td>
-            <td role="cell">119–124</td>
-          </tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XS</td><td role="cell">81–86</td><td role="cell">63–68</td><td role="cell">89–94</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">S</td><td role="cell">86–91</td><td role="cell">68–73</td><td role="cell">94–99</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">M</td><td role="cell">91–97</td><td role="cell">73–78</td><td role="cell">99–104</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">L</td><td role="cell">97–102</td><td role="cell">78–83</td><td role="cell">104–109</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XL</td><td role="cell">102–107</td><td role="cell">83–88</td><td role="cell">109–114</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XXL</td><td role="cell">107–112</td><td role="cell">88–93</td><td role="cell">114–119</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">XXXL</td><td role="cell">112–117</td><td role="cell">93–98</td><td role="cell">119–124</td></tr>
 <% } else { %>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">2–3Y</td>
-            <td role="cell">56–58</td>
-            <td role="cell">54–56</td>
-            <td role="cell">58–60</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">4–5Y</td>
-            <td role="cell">60–62</td>
-            <td role="cell">56–58</td>
-            <td role="cell">62–64</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">6–7Y</td>
-            <td role="cell">64–66</td>
-            <td role="cell">58–60</td>
-            <td role="cell">66–68</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">8–9Y</td>
-            <td role="cell">68–70</td>
-            <td role="cell">60–62</td>
-            <td role="cell">70–72</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">10–11Y</td>
-            <td role="cell">72–74</td>
-            <td role="cell">62–64</td>
-            <td role="cell">74–76</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">12–13Y</td>
-            <td role="cell">76–78</td>
-            <td role="cell">64–66</td>
-            <td role="cell">78–80</td>
-          </tr>
-          <tr role="row">
-            <td role="cell" style="font-weight: 600;">14–15Y</td>
-            <td role="cell">80–82</td>
-            <td role="cell">66–68</td>
-            <td role="cell">82–84</td>
-          </tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">2–3Y</td><td role="cell">56–58</td><td role="cell">54–56</td><td role="cell">58–60</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">4–5Y</td><td role="cell">60–62</td><td role="cell">56–58</td><td role="cell">62–64</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">6–7Y</td><td role="cell">64–66</td><td role="cell">58–60</td><td role="cell">66–68</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">8–9Y</td><td role="cell">68–70</td><td role="cell">60–62</td><td role="cell">70–72</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">10–11Y</td><td role="cell">72–74</td><td role="cell">62–64</td><td role="cell">74–76</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">12–13Y</td><td role="cell">76–78</td><td role="cell">64–66</td><td role="cell">78–80</td></tr>
+          <tr role="row"><td role="cell" style="font-weight: 600;">14–15Y</td><td role="cell">80–82</td><td role="cell">66–68</td><td role="cell">82–84</td></tr>
 <% } %>
         </tbody>
       </table>
       </div>
-      <p class="modal-note">Measurements are body measurements, not garment measurements. For best
-        fit, measure yourself and compare.</p>
+      <p class="modal-note">Measurements are body measurements, not garment measurements. For best fit, measure yourself and compare.</p>
     </div>
   </div>
 </div>
+
 <div class="mobile-sticky-bar" id="mobileStickyBar" aria-hidden="true">
-  <div class="mobile-sticky-price"> <span class="mobile-sticky-label">Total</span>
-    <div style="display: flex; align-items: baseline; gap: var(--spacing-xs);"> <span class="mobile-sticky-amount">₹<%= offerDiscountedPrice %></span>
-<% if(product.discount || offerDiscountValue) { %> <span class="mobile-sticky-original">₹<%= product.productPrice.toLocaleString() %></span>
+  <div class="mobile-sticky-price">
+    <span class="mobile-sticky-label">Total</span>
+    <div style="display: flex; align-items: baseline; gap: var(--spacing-xs);">
+      <span class="mobile-sticky-amount" id="mobileStickyAmount">₹<%= displayPrice.toLocaleString('en-IN') %></span>
+<% if(product.discount || offerDiscountValue) { %> <span class="mobile-sticky-original" id="mobileStickyOriginal">₹<%= product.productPrice.toLocaleString() %></span>
 <% } %>
     </div>
-  </div> <button type="button" class="mobile-sticky-cta" onclick="document.getElementById('addToCartBtn').click()">Add to Cart</button>
+  </div>
+  <button type="button" class="mobile-sticky-cta mobile-sticky-buy" id="mobileBuyNowBtn" disabled>Buy Now</button>
+  <button type="button" class="mobile-sticky-cta mobile-sticky-add" id="mobileAddBtn" onclick="document.getElementById('addToCartBtn').click()">Add to Cart</button>
 </div>
 <% } %>

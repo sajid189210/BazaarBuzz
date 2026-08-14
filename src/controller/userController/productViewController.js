@@ -124,11 +124,39 @@ const viewProduct = async (req, res) => {
             return { ...p, finalPrice, discPrice, hasOffer: !!matchedOffer, offerName: matchedOffer?.offerName, offerDiscount: matchedOffer?.discount };
         };
 
+        const displayPrice = Math.round(Number(offerDiscountedPrice));
+        const saveAmount = Math.max(0, product.productPrice - displayPrice);
+        const genderLabel = product.gender === 'men' ? "Men's"
+            : product.gender === 'women' ? "Women's"
+            : product.gender === 'kids' ? "Kids"
+            : 'Unisex';
+
+        const highlights = [];
+        if (product.fabric) {
+            const f = product.fabric.toLowerCase();
+            if (/cotton/.test(f)) highlights.push('100% Cotton');
+            else if (/linen/.test(f)) highlights.push('Breathable Linen');
+            else if (/polyster|polyestor|poly/.test(f)) highlights.push('Durable Poly');
+            else highlights.push(product.fabric.charAt(0).toUpperCase() + product.fabric.slice(1));
+            if (/cotton|linen|rayon|viscose|bamboo|hemp/.test(f)) highlights.push('Breathable');
+        }
+        if (product.gender === 'unisex') highlights.push('Unisex Fit');
+        highlights.push('Machine Washable');
+        if (product.limitedEdition) highlights.push('Limited Edition');
+        highlights.push('Premium Quality');
+        const uniqueHighlights = [...new Set(highlights)].slice(0, 5);
+
         res.render('user/userProductView', {
             title: 'Product Details',
             offerDiscountedPrice: offerDiscountedPrice.toFixed(2),
             offerDiscountValue,
             totalDiscount,
+            displayPrice,
+            saveAmount,
+            discountPct: Math.round(totalDiscount),
+            genderLabel,
+            highlights: uniqueHighlights,
+            ratingSummary: null,
             categories,
             searchBox: true,
             product,

@@ -209,7 +209,7 @@ const addToCart = async (req, res) => {
             session: true,
             success: true,
             message: MSG.PRODUCT_ADDED_CART,
-            redirectUrl: R.USER_CART,
+            redirectUrl: req.body.buyNow ? R.USER_CHECKOUT : R.USER_CART,
             cartCount: cart.items.length
         });
 
