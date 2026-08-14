@@ -28,7 +28,7 @@
                         </a>
                         <div class="flex items-center gap-2">
                             <% if(product.discount) { %>
-                            <span class="text-sm font-semibold text-gray-900">₹<%= Math.round(product.productPrice - (product.productPrice * product.discount / 100)).toLocaleString() %></span>
+                            <span class="text-sm font-semibold text-gray-900">₹<%= Math.max(Math.round(product.productPrice - (product.productPrice * product.discount / 100)), product.productPrice * 0.10).toLocaleString() %></span>
                             <span class="text-xs text-gray-400 line-through">₹<%= product.productPrice.toLocaleString() %></span>
                             <span class="text-[11px] font-medium text-green-600"><%= product.discount %>% off</span>
                             <% } else { %>

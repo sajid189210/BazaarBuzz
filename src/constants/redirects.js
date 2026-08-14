@@ -6,6 +6,7 @@ module.exports = Object.freeze({
 
   USER_SIGNIN: '/user/signIn',
   USER_CART: '/user/cart',
+  USER_CHECKOUT: '/user/checkout',
   USER: '/user',
   USER_WISHLIST: '/user/wishlist',
 

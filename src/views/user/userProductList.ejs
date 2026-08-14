@@ -73,12 +73,12 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
                     <% if(products && products.length) { %>
                         <% const catMap = {}; if (categories && categories.length) { categories.forEach(function(c) { catMap[c.title] = c._id; }); } %>
-                        <% products.forEach((product)=> { var discPrice = product.discount ?
-                            Math.round(product.productPrice - (product.productPrice * product.discount / 100)) :
-                            product.productPrice; var matchedOffer = (offers && offers.length) ? offers.find(function(o)
-                            { return o.brandName === product.brand && o.category.toString() === (catMap[product.category] || '').toString(); }) : null; var finalPrice = discPrice; var hasOffer
+                        <% products.forEach((product)=> { const priceFloor = product.productPrice * 0.10; const discPrice = product.discount ?
+                            Math.max(Math.round(product.productPrice - (product.productPrice * product.discount / 100)), priceFloor) :
+                            product.productPrice; const matchedOffer = (offers && offers.length) ? offers.find(function(o)
+                            { return o.brandName === product.brand && o.category.toString() === (catMap[product.category] || '').toString(); }) : null; let finalPrice = discPrice; const hasOffer
                             = matchedOffer && matchedOffer.discount > 0; if (hasOffer) { finalPrice =
-                            Math.round(discPrice - (discPrice * matchedOffer.discount / 100)); } %> <div class="group product-card border border-[var(--card-border)] bg-white rounded-lg overflow-hidden transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[var(--card-border-hover)] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2">
+                            Math.max(Math.round(discPrice - (discPrice * matchedOffer.discount / 100)), priceFloor); } %> <div class="group product-card border border-[var(--card-border)] bg-white rounded-lg overflow-hidden transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[var(--card-border-hover)] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2">
                                 <a href="/user/viewProduct?productId=<%=product._id%>" class="block btn-press">
                                     <div class="relative overflow-hidden bg-gray-50 aspect-square">
                                         <img src="<%=product.images[0]%>" alt="<%=product.productName%>"

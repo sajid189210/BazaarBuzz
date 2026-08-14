@@ -285,8 +285,9 @@ const userHomepage = async (req, res) => {
         const newArrivals = [];
 
         products.filter(p => p.category).forEach(product => {
+            const priceFloor = product.productPrice * 0.10;
             const discPrice = product.discount
-                ? Math.round(product.productPrice - (product.productPrice * product.discount / 100))
+                ? Math.max(Math.round(product.productPrice - (product.productPrice * product.discount / 100)), priceFloor)
                 : product.productPrice;
 
             const matchedOffer = (offers && offers.length)
@@ -295,7 +296,7 @@ const userHomepage = async (req, res) => {
 
             const hasOffer = matchedOffer && matchedOffer.discount > 0;
             const finalPrice = hasOffer
-                ? Math.round(discPrice - (discPrice * matchedOffer.discount / 100))
+                ? Math.max(Math.round(discPrice - (discPrice * matchedOffer.discount / 100)), priceFloor)
                 : discPrice;
 
             const enriched = { product, discPrice, offer: hasOffer ? matchedOffer : null, finalPrice, isFeatured: product.featured, isLimitedEdition: product.limitedEdition };

@@ -72,9 +72,18 @@
                             <p class="text-sm font-medium text-gray-900 truncate mt-0.5">
                                 <%= product.productName %>
                             </p>
-                            <p class="text-sm font-semibold text-gray-900 mt-1">₹<%=
-                                    product.productPrice?.toLocaleString() || 0 %>
-                            </p>
+                            <% if (product.hasDiscount) { %>
+                                <p class="text-sm font-semibold text-gray-900 mt-1">₹<%=
+                                        product.effectivePrice.toLocaleString() %>
+                                </p>
+                                <p class="text-xs text-gray-400 line-through mt-0.5">₹<%=
+                                        product.productPrice?.toLocaleString() || 0 %>
+                                </p>
+                            <% } else { %>
+                                <p class="text-sm font-semibold text-gray-900 mt-1">₹<%=
+                                        product.productPrice?.toLocaleString() || 0 %>
+                                </p>
+                            <% } %>
                             <p class="text-xs text-gray-400 mt-1">Stock: <%= totalStock %> | Category: <%=
                                         product.category || '-' %>
                             </p>

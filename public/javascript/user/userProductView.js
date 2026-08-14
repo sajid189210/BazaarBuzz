@@ -46,6 +46,11 @@ function initProductPage() {
     initGalleryZoom();
 
     initImageSwipe();
+
+    initAccordions();
+
+    document.getElementById('buyNowBtn')?.addEventListener('click', buyNow);
+    document.getElementById('mobileBuyNowBtn')?.addEventListener('click', buyNow);
 }
 
 // ==================== MOBILE STICKY BAR ====================
@@ -436,6 +441,13 @@ function selectSize(btn, size, stock) {
     
     selectedSize = size;
     document.getElementById('selectedSize').value = size;
+
+    const sizeLabel = document.getElementById('selectedSizeLabel');
+    if (sizeLabel) sizeLabel.textContent = `Selected: ${size}`;
+    const sizeMsg = document.getElementById('sizeStockMsg');
+    if (sizeMsg) {
+        sizeMsg.textContent = stock > 0 && stock <= 5 ? `Only ${stock} left` : (stock <= 0 ? 'Out of stock' : '');
+    }
     
     maxAvailableStock = stock;
     updateQuantityMax(stock);
@@ -526,6 +538,10 @@ function selectColor(btn, color, stock) {
     selectedColor = color;
     document.getElementById('selectedColor').value = color;
     
+    const colorName = (typeof ntc !== 'undefined') ? ntc.name(color)[1] : color;
+    const colorLabel = document.getElementById('selectedColorLabel');
+    if (colorLabel) colorLabel.textContent = `Selected: ${colorName}`;
+    
     maxAvailableStock = stock;
     updateQuantityMax(stock);
     updateStockDisplay(stock);
@@ -534,40 +550,41 @@ function selectColor(btn, color, stock) {
 function updateStockDisplay(stock) {
     const badge = document.getElementById('stockBadge');
     const text = document.getElementById('stockText');
-    const barFill = document.getElementById('stockBarFill');
-    const barWrap = document.getElementById('stockBarWrap');
     
     if (stock <= 0) {
         badge.className = 'stock-badge out-of-stock';
         badge.textContent = 'Out of Stock';
         text.textContent = 'This variant is currently unavailable';
-        barFill.style.width = '0%';
-        barWrap.style.display = 'none';
     } else if (stock <= 5) {
         badge.className = 'stock-badge low-stock';
-        badge.textContent = 'Low Stock';
+        badge.textContent = 'Selling Fast';
         text.textContent = `Only ${stock} left`;
-        barWrap.style.display = '';
-        barFill.style.width = `${Math.round(stock / 5 * 100)}%`;
-        barFill.style.background = 'var(--warning, #f59e0b)';
     } else {
-        const pct = Math.min(stock / 50 * 100, 100);
         badge.className = 'stock-badge in-stock';
         badge.textContent = 'In Stock';
         text.textContent = `${stock} available`;
-        barWrap.style.display = '';
-        barFill.style.width = `${Math.round(pct)}%`;
-        barFill.style.background = 'var(--success, #16a34a)';
     }
     
+    syncActionButtons(stock);
+}
+
+function syncActionButtons(stock) {
     const addToCartBtn = document.getElementById('addToCartBtn');
-    if (stock <= 0) {
-        addToCartBtn.disabled = true;
-        addToCartBtn.textContent = 'Out of Stock';
-    } else {
-        addToCartBtn.disabled = false;
-        addToCartBtn.textContent = 'Add to Cart';
+    const buyNowBtn = document.getElementById('buyNowBtn');
+    const mobileBuy = document.getElementById('mobileBuyNowBtn');
+    const mobileAdd = document.getElementById('mobileAddBtn');
+    const soldOut = stock <= 0;
+
+    if (addToCartBtn) {
+        addToCartBtn.disabled = soldOut;
+        addToCartBtn.textContent = soldOut ? 'Out of Stock' : 'Add to Cart';
     }
+    if (buyNowBtn) {
+        buyNowBtn.disabled = soldOut;
+        buyNowBtn.textContent = soldOut ? 'Out of Stock' : 'Buy Now';
+    }
+    if (mobileBuy) mobileBuy.disabled = soldOut;
+    if (mobileAdd) mobileAdd.disabled = soldOut;
 }
 
 function updateQuantityMax(maxStock) {
@@ -686,28 +703,41 @@ async function toggleWishList(productId, btn) {
     }
 }
 
-// ==================== TABS ====================
-function showTab(tabName) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        const isActive = btn.getAttribute('aria-controls') === `tab-${tabName}`;
-        btn.classList.toggle('active', isActive);
-        btn.setAttribute('aria-selected', isActive);
+// ==================== ACCORDIONS ====================
+function initAccordions() {
+    const triggers = document.querySelectorAll('.acc-trigger');
+    triggers.forEach(btn => {
+        btn.addEventListener('click', () => openAccordion(btn.dataset.panel));
     });
+}
+
+function openAccordion(panelName) {
+    const target = document.getElementById(`acc-${panelName}`);
+    if (!target) return;
     
-    document.querySelectorAll('.tab-panel').forEach(panel => {
-        const isActive = panel.id === `tab-${tabName}`;
-        if (isActive) {
-            panel.classList.add('active');
-            if (!prefersReducedMotion) {
-                panel.style.animation = 'none';
-                requestAnimationFrame(() => {
-                    panel.style.animation = 'fadeIn 250ms cubic-bezier(0.16, 1, 0.3, 1)';
-                });
-            }
-        } else {
-            panel.classList.remove('active');
+    // Close all
+    document.querySelectorAll('.accordion').forEach(acc => {
+        const panel = acc.querySelector('.acc-panel');
+        const trigger = acc.querySelector('.acc-trigger');
+        if (panel && panel !== target) {
+            panel.style.maxHeight = '';
+            acc.classList.remove('open');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
         }
     });
+    
+    const acc = target.closest('.accordion');
+    const isOpen = target.style.maxHeight && target.style.maxHeight !== '0px';
+    
+    if (isOpen) {
+        target.style.maxHeight = '';
+        acc.classList.remove('open');
+        document.querySelector(`.acc-trigger[data-panel="${panelName}"]`)?.setAttribute('aria-expanded', 'false');
+    } else {
+        acc.classList.add('open');
+        target.style.maxHeight = target.scrollHeight + 'px';
+        document.querySelector(`.acc-trigger[data-panel="${panelName}"]`)?.setAttribute('aria-expanded', 'true');
+    }
 }
 
 // ==================== SIZE GUIDE MODAL ====================
@@ -790,6 +820,63 @@ async function handleAddToCart(e) {
 
     } catch (err) {
         console.log('Error adding to cart.', err);
+        Toast.fire({ icon: 'error', title: 'Something went wrong' });
+        btn.disabled = false;
+        btn.textContent = originalText;
+        btn.style.opacity = '';
+    }
+}
+
+// ==================== BUY NOW ====================
+async function buyNow() {
+    if (!selectedSize) {
+        Toast.fire({ icon: 'warning', title: 'Please select a size' });
+        return;
+    }
+    if (!selectedColor) {
+        Toast.fire({ icon: 'warning', title: 'Please select a color' });
+        return;
+    }
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    if (quantity <= 0 || quantity > maxAvailableStock) {
+        Toast.fire({ icon: 'warning', title: `Please select quantity between 1 and ${maxAvailableStock}` });
+        return;
+    }
+    const productId = document.querySelector('input[name="productId"]').value;
+    const btn = document.getElementById('buyNowBtn');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Redirecting...';
+    if (!prefersReducedMotion) btn.style.opacity = '0.8';
+
+    try {
+        const response = await fetch('/user/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, size: selectedSize, color: selectedColor, quantity, buyNow: true })
+        });
+        const data = await response.json();
+
+        if (!data.session) {
+            await Swal.fire({ title: 'You are not Signed In!', text: data.message, icon: 'info', confirmButtonText: 'Sign In' });
+            window.location.href = data.redirectUrl;
+            return;
+        }
+        if (!data.success) {
+            Toast.fire({ icon: 'error', title: data.message });
+            btn.disabled = false;
+            btn.textContent = originalText;
+            btn.style.opacity = '';
+            return;
+        }
+        const badge = document.getElementById('cartBadge');
+        if (badge && data.cartCount !== undefined) {
+            badge.textContent = data.cartCount;
+            badge.style.display = '';
+        }
+        window.location.href = data.redirectUrl || '/user/checkout';
+    } catch (err) {
+        console.log('Error during Buy Now.', err);
         Toast.fire({ icon: 'error', title: 'Something went wrong' });
         btn.disabled = false;
         btn.textContent = originalText;

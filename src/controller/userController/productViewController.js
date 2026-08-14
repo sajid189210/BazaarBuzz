@@ -30,15 +30,16 @@ const viewProduct = async (req, res) => {
             offer.category.toString() === catMap[product.category]?.toString()
         );
 
-        const productDiscountedPrice = product.productPrice - ((product.productPrice * product.discount) / 100);
+        const priceFloor = product.productPrice * 0.10;
+        const productDiscountedPrice = Math.max(product.productPrice - ((product.productPrice * product.discount) / 100), priceFloor);
 
         let offerDiscountedPrice = productDiscountedPrice;
         let totalDiscount = product.discount;
         let offerDiscountValue;
         if (offerIndex !== -1) {
             offerDiscountValue = offers[offerIndex].discount;
-            offerDiscountedPrice = productDiscountedPrice - ((productDiscountedPrice * offerDiscountValue) / 100);
-            totalDiscount = 100 - ((offerDiscountedPrice * 100) / product.productPrice);
+            offerDiscountedPrice = Math.max(productDiscountedPrice - ((productDiscountedPrice * offerDiscountValue) / 100), priceFloor);
+            totalDiscount = Math.min(100, 100 - ((offerDiscountedPrice * 100) / product.productPrice));
         }
 
         // Process variants - extract unique sizes and colors
@@ -110,70 +111,52 @@ const viewProduct = async (req, res) => {
 
         // Calculate price for related products
         const processProductPrice = (p) => {
-            const discPrice = p.discount ? Math.round(p.productPrice - (p.productPrice * p.discount / 100)) : p.productPrice;
+            const floor = p.productPrice * 0.10;
+            const discPrice = p.discount ? Math.max(Math.round(p.productPrice - (p.productPrice * p.discount / 100)), floor) : p.productPrice;
             const matchedOffer = offers.find(o =>
                 o.brandName === p.brand &&
                 o.category.toString() === catMap[p.category]?.toString()
             );
             let finalPrice = discPrice;
             if (matchedOffer && matchedOffer.discount > 0) {
-                finalPrice = Math.round(discPrice - (discPrice * matchedOffer.discount / 100));
+                finalPrice = Math.max(Math.round(discPrice - (discPrice * matchedOffer.discount / 100)), floor);
             }
             return { ...p, finalPrice, discPrice, hasOffer: !!matchedOffer, offerName: matchedOffer?.offerName, offerDiscount: matchedOffer?.discount };
         };
 
-        // Design tokens for semantic styling
-        const designTokens = {
-            colors: {
-                accent: '#e11d48', // rose-600
-                accentHover: '#be123c', // rose-700
-                accentLight: '#fff1f2', // rose-50
-                accentBorder: '#fecdd3', // rose-200
-                surface: '#ffffff',
-                surfaceElevated: '#fafafa',
-                textPrimary: '#111827', // gray-900
-                textSecondary: '#6b7280', // gray-500
-                textMuted: '#9ca3af', // gray-400
-                border: '#e5e7eb', // gray-200
-                borderHover: '#d1d5db', // gray-300
-                success: '#16a34a', // green-600
-                warning: '#f59e0b', // amber-500
-                error: '#dc2626', // red-600
-            },
-            radius: {
-                sm: '6px',
-                md: '10px',
-                lg: '14px',
-                xl: '18px',
-                full: '9999px',
-            },
-            shadow: {
-                sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-                md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-            },
-            spacing: {
-                xs: '4px',
-                sm: '8px',
-                md: '16px',
-                lg: '24px',
-                xl: '32px',
-                '2xl': '48px',
-            },
-            motion: {
-                fast: '150ms',
-                normal: '250ms',
-                slow: '400ms',
-                easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            },
-        };
+        const displayPrice = Math.round(Number(offerDiscountedPrice));
+        const saveAmount = Math.max(0, product.productPrice - displayPrice);
+        const genderLabel = product.gender === 'men' ? "Men's"
+            : product.gender === 'women' ? "Women's"
+            : product.gender === 'kids' ? "Kids"
+            : 'Unisex';
+
+        const highlights = [];
+        if (product.fabric) {
+            const f = product.fabric.toLowerCase();
+            if (/cotton/.test(f)) highlights.push('100% Cotton');
+            else if (/linen/.test(f)) highlights.push('Breathable Linen');
+            else if (/polyster|polyestor|poly/.test(f)) highlights.push('Durable Poly');
+            else highlights.push(product.fabric.charAt(0).toUpperCase() + product.fabric.slice(1));
+            if (/cotton|linen|rayon|viscose|bamboo|hemp/.test(f)) highlights.push('Breathable');
+        }
+        if (product.gender === 'unisex') highlights.push('Unisex Fit');
+        highlights.push('Machine Washable');
+        if (product.limitedEdition) highlights.push('Limited Edition');
+        highlights.push('Premium Quality');
+        const uniqueHighlights = [...new Set(highlights)].slice(0, 5);
 
         res.render('user/userProductView', {
             title: 'Product Details',
             offerDiscountedPrice: offerDiscountedPrice.toFixed(2),
             offerDiscountValue,
             totalDiscount,
+            displayPrice,
+            saveAmount,
+            discountPct: Math.round(totalDiscount),
+            genderLabel,
+            highlights: uniqueHighlights,
+            ratingSummary: null,
             categories,
             searchBox: true,
             product,
@@ -185,7 +168,6 @@ const viewProduct = async (req, res) => {
             isInWishlist,
             recentlyViewedProducts: recentlyViewedProducts.map(processProductPrice),
             relatedProducts: relatedProducts.map(processProductPrice),
-            designTokens: designTokens,
         });
 
     } catch (err) {

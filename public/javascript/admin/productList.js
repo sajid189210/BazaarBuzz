@@ -19,7 +19,13 @@ function renderProductCard(product) {
     const image = product.images?.[0] || '/images/placeholder.jpg';
     const brand = product.brand || 'BazaarBuzz';
     const price = (product.productPrice || 0).toLocaleString();
+    const effectivePrice = (product.effectivePrice ?? (product.productPrice || 0)).toLocaleString();
+    const hasDiscount = !!product.hasDiscount;
     
+    const priceHtml = hasDiscount
+        ? `<p class="text-sm font-semibold text-gray-900 mt-1">₹${effectivePrice}</p>
+           <p class="text-xs text-gray-400 line-through mt-0.5">₹${price}</p>`
+        : `<p class="text-sm font-semibold text-gray-900 mt-1">₹${price}</p>`;
     return `
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors product-card" 
              data-product-id="${product._id}" 
@@ -42,7 +48,7 @@ function renderProductCard(product) {
             <div class="p-4">
                 <p class="text-xs text-gray-400 uppercase tracking-widest">${brand}</p>
                 <p class="text-sm font-medium text-gray-900 truncate mt-0.5">${product.productName}</p>
-                <p class="text-sm font-semibold text-gray-900 mt-1">₹${price}</p>
+                ${priceHtml}
                 <p class="text-xs text-gray-400 mt-1">Category: ${product.category || '-'}</p>
                 <div class="flex gap-2 mt-3">
                     <a href="/admin/editProduct/${product._id}" class="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-rose-500 hover:text-rose-500 hover:bg-rose-50 transition-colors" title="Edit Product">
