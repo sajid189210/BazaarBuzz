@@ -14,6 +14,8 @@
 <% blocks.scripts = `
     <script src="/javascript/ntc.js"></script>
 
+    <script src="/javascript/user/designTokens.js"></script>
+
     <script src="/javascript/user/userProductView.js"></script>
 
     <script>
@@ -29,8 +31,6 @@
             discount: ${product.discount || 0},
             isInWishlist: ${isInWishlist ? 'true' : 'false'}
         };
-
-        window.designTokens = ${JSON.stringify(designTokens)};
 
         document.addEventListener('DOMContentLoaded', () => {
             initProductPage();

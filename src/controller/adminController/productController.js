@@ -4,9 +4,29 @@ const response = require('../../Services/responseMapper');
 const categoryModel = require('../../model/categoryModel');
 const mongoose = require('mongoose');
 const Product = require('../../model/productModel');
+const Offer = require('../../model/offerModel');
 const path = require('path');
 const fs = require('fs');
 const { escapeRegex } = require('../../utils/regexUtils');
+
+const computeEffectivePrice = (product, offers, catMap) => {
+    const floor = product.productPrice * 0.10;
+    const discPrice = product.discount
+        ? Math.max(Math.round(product.productPrice - (product.productPrice * product.discount / 100)), floor)
+        : product.productPrice;
+    const offer = offers.find(o =>
+        o.brandName === product.brand &&
+        o.category.toString() === (catMap[product.category] || '')?.toString()
+    );
+    const hasOffer = offer && offer.discount > 0;
+    const finalPrice = hasOffer
+        ? Math.max(Math.round(discPrice - (discPrice * offer.discount / 100)), floor)
+        : discPrice;
+    return {
+        effectivePrice: finalPrice,
+        hasDiscount: (product.discount > 0) || hasOffer,
+    };
+};
 
 
 //* middleware for getting selected category from the product update.
@@ -82,9 +102,20 @@ const getProducts = async (req, res) => {
             ]);
         }
 
-        const products = await query;
-        const categories = await categoryModel.find();
-        
+        const [products, categories, offers] = await Promise.all([
+            query,
+            categoryModel.find(),
+            Offer.find({ isActive: true }),
+        ]);
+
+        const catMap = {};
+        categories.forEach(c => { catMap[c.title] = c._id; });
+        products.forEach(p => {
+            const enriched = computeEffectivePrice(p, offers, catMap);
+            p.effectivePrice = enriched.effectivePrice;
+            p.hasDiscount = enriched.hasDiscount;
+        });
+
         // Get total count with stock filter applied
         let count;
         if (stock === 'instock' || stock === 'outofstock') {
@@ -177,7 +208,19 @@ const getProductsJson = async (req, res) => {
             ]);
         }
 
-        const products = await query;
+        const [products, categories, offers] = await Promise.all([
+            query,
+            categoryModel.find(),
+            Offer.find({ isActive: true }),
+        ]);
+
+        const catMap = {};
+        categories.forEach(c => { catMap[c.title] = c._id; });
+        products.forEach(p => {
+            const enriched = computeEffectivePrice(p, offers, catMap);
+            p.effectivePrice = enriched.effectivePrice;
+            p.hasDiscount = enriched.hasDiscount;
+        });
         
         // Get total count with stock filter applied
         let count;
@@ -252,7 +295,7 @@ const createProducts = async (req, res) => {
             brand,
             category: categoryName || undefined,
             productPrice: Number(productPrice),
-            discount: Number(discount) || 0,
+            discount: Math.max(0, Math.min(100, Number(discount) || 0)),
             description: productDescription,
             gender,
             fabric,
@@ -395,7 +438,7 @@ const postEditProduct = async (req, res) => {
             brand,
             category: categoryName || undefined,
             productPrice: Number(productPrice),
-            discount: Number(discount) || 0,
+            discount: Math.max(0, Math.min(100, Number(discount) || 0)),
             description: productDescription,
             gender,
             fabric,

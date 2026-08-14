@@ -68,6 +68,8 @@ const createOffer = async (req, res) => {
             return response.error(res, MSG.OFFER_FIELDS_MISSING, 400);
         }
 
+        const discount = Math.max(0, Math.min(100, Number(discountValue)));
+
         const catDoc = await Category.findOne({ title: category, isDeleted: false, isActive: true });
         if (!catDoc) {
             return response.error(res, MSG.OFFER_CATEGORY_INACTIVE, 400);
@@ -82,7 +84,7 @@ const createOffer = async (req, res) => {
             offerName,
             brandName,
             category: catDoc._id,
-            discount: discountValue,
+            discount: discount,
         });
 
         await newOffer.save();
@@ -120,9 +122,11 @@ const updateOffer = async (req, res) => {
             return response.error(res, MSG.OFFER_CATEGORY_INACTIVE, 400);
         }
 
+        const discount = Math.max(0, Math.min(100, Number(discountValue)));
+
         const updateOffer = await Offer.findByIdAndUpdate(
             offerId,
-            { $set: { discount: discountValue, offerName, brandName, category: catDoc._id } },
+            { $set: { discount, offerName, brandName, category: catDoc._id } },
             { new: true }
         );
 
