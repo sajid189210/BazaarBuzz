@@ -11,15 +11,41 @@ jobs:
 
     steps:
       - name: Configure SSH
+        env:
+          EC2_SSH_KEY: ${{ secrets.BAZAARBUZZ_EC2_SSH_KEY }}
         run: |
-          echo "Checking runner..."
-          whoami
-          pwd
+          set -e
 
-          echo "Creating SSH directory..."
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
 
-          echo "Checking directory..."
-          ls -ld ~/.ssh
+          echo "Writing private key..."
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
-          echo "SSH directory created successfully!"
+          echo "Validating private key..."
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
+
+          echo "Private key is valid!"
+
+      - name: Add EC2 to known hosts
+        env:
+          EC2_HOST: ${{ secrets.BAZAARBUZZ_EC2_HOST }}
+        run: |
+          set -e
+
+          echo "Scanning EC2 SSH host..."
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+          echo "EC2 host added successfully!"
+
+      - name: Test SSH Connection
+        env:
+          EC2_HOST: ${{ secrets.BAZAARBUZZ_EC2_HOST }}
+          EC2_USER: ${{ secrets.BAZAARBUZZ_EC2_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            "$EC2_USER@$EC2_HOST" \
+            "whoami && hostname && echo 'SSH connection successful!'"
