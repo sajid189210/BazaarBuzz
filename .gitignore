@@ -11,3 +11,4 @@ eslint-config.mjs
 skills-lock.json
 tests
 project_desc.md
+pnpm-workspace.yaml
