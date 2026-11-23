@@ -1,8 +1,6 @@
 const R = require('../../constants/redirects');
-const MSG = require('../../constants/messages');
 const response = require('../../Services/responseMapper');
 const passport = require('passport');
-const User = require('../../model/userModel');
 
 
 const authenticate = (req, res, next) => {
@@ -10,7 +8,7 @@ const authenticate = (req, res, next) => {
     passport.authenticate('google', {
         scope: ['email', 'profile'],
         prompt: 'select_account'
-    })(req, res);
+    })(req, res, next);
 };
 
 const callback = async (req, res, next) => {
