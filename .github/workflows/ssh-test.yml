@@ -1,13 +1,25 @@
-- name: Configure SSH
-  run: |
-    echo "Checking runner..."
-    whoami
-    pwd
 
-    echo "Creating SSH directory..."
-    mkdir -p ~/.ssh
+name: Test EC2 SSH Connection
 
-    echo "Checking directory..."
-    ls -ld ~/.ssh
+on:
+  workflow_dispatch:
 
-    echo "SSH directory created successfully!"
+jobs:
+  ssh-test:
+    name: Verify EC2 Connection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure SSH
+        run: |
+          echo "Checking runner..."
+          whoami
+          pwd
+
+          echo "Creating SSH directory..."
+          mkdir -p ~/.ssh
+
+          echo "Checking directory..."
+          ls -ld ~/.ssh
+
+          echo "SSH directory created successfully!"
