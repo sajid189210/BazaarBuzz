@@ -3,12 +3,12 @@ const compression = require('compression');
 const nocache = require('nocache');
 const session = require('express-session');
 const passport = require('passport');
+require('./Services/passport-setup');
 const response = require('./Services/responseMapper');
 const flash = require('connect-flash');
 const path = require('path');
 const app = express();
 const morgan = require('morgan');
-const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const expressLayouts = require('express-ejs-layouts');
@@ -18,7 +18,6 @@ const MongoStore = require('connect-mongo').MongoStore || require('connect-mongo
 //* Middleware Setup
 app.use(compression());
 app.use(nocache());
-// app.use(helmet());
 app.use(cors());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
  
