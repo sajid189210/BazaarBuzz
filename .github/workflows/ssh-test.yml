@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Show GitHub Runner IP
+        run: |
+          echo "GitHub Runner Public IP:"
+          curl -s https://api.ipify.org
+          echo
+
       - name: Configure SSH
         env:
           EC2_SSH_KEY: ${{ secrets.BAZAARBUZZ_EC2_SSH_KEY }}
