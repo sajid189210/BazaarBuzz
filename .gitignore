@@ -4,6 +4,7 @@ node_modules
 Extras
 .vscode
 .env
+.env.prod
 eslint-config.mjs
 .agents*
 
