@@ -1,21 +1,39 @@
+
 require('dotenv').config();
+
 const app = require('./app');
 const mongoose = require('mongoose');
 
-// const dns = require('dns');
-// dns.setServers(['8.8.8.8', '8.8.4.4']);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = process.env.PORT || 3080;
 
-//connecting with db.
-mongoose.connect(process.env.MONGOOSE_URI)
-    .then(() => console.log("Connected to mongodb"))
-    .catch(err => console.error(`Error caught while connecting to mongodb ${err}`));
+const isProduction = NODE_ENV === 'production';
 
-//creating the server.
-const port = process.env.PORT || 3080;
-app.listen(port, (err) => {
-    if (err) console.error(`Error caught while running the server ${err}`);
-    else {
-        console.log(`Server is running successfully on port ${port}`);
-        console.log(`http://localhost:${port}`)
+// Development listens on all interfaces.
+// Production listens only on localhost because Nginx is the reverse proxy.
+const HOST = isProduction ? '127.0.0.1' : '0.0.0.0';
+
+async function startServer() {
+    try {
+        if (!process.env.MONGOOSE_URI) {
+            throw new Error('MONGOOSE_URI is not configured');
+        }
+
+        await mongoose.connect(process.env.MONGOOSE_URI);
+
+        console.log('Connected to MongoDB');
+
+        app.listen(PORT, HOST, () => {
+            console.log(
+                `BazaarBuzz running in ${NODE_ENV} mode`
+            );
+            console.log(`Server: http://${HOST}:${PORT}`);
+        });
+
+    } catch (error) {
+        console.error('Failed to start BazaarBuzz:', error);
+        process.exit(1);
     }
-});    
+}
+
+startServer();
