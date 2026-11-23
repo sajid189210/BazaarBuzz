@@ -1,33 +1,13 @@
+- name: Configure SSH
+  run: |
+    echo "Checking runner..."
+    whoami
+    pwd
 
-name: Test EC2 SSH Connection
+    echo "Creating SSH directory..."
+    mkdir -p ~/.ssh
 
-on:
-  workflow_dispatch:
+    echo "Checking directory..."
+    ls -ld ~/.ssh
 
-jobs:
-  ssh-test:
-    name: Verify EC2 Connection
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Configure SSH
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
-
-      - name: Test SSH Connection
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-            -o IdentitiesOnly=yes \
-            -o BatchMode=yes \
-            "$EC2_USER@$EC2_HOST" \
-            "whoami && hostname && echo 'SSH connection successful!'"
+    echo "SSH directory created successfully!"
