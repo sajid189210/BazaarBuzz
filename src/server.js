@@ -1,7 +1,8 @@
 const app = require('./app');
 const mongoose = require('mongoose');
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+const dotenv = require('dotenv').config();
+// const dns = require('dns');
+// dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 //connecting with db.
 mongoose.connect(process.env.MONGOOSE_URI)

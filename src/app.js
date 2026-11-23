@@ -8,7 +8,6 @@ const response = require('./Services/responseMapper');
 const flash = require('connect-flash');
 const path = require('path');
 const app = express();
-const dotenv = require('dotenv').config();
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
